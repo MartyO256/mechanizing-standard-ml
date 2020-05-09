@@ -1,0 +1,45 @@
+% Definitions
+
+% The natural numbers.
+LF nat : type =
+| zero : nat
+| succ : nat -> nat
+;
+--name nat N.
+
+% The "equals" relation on the natural numbers.
+LF nat-eq : nat -> nat -> type =
+| nat-eq/i : nat-eq N N
+;
+
+% The "sum" relation on the natural numbers.
+LF sum : nat -> nat -> nat -> type =
+| sum/z : sum zero N N
+| sum/s : sum N1 N2 N3 -> sum (succ N1) N2 (succ N3)
+;
+
+% The "less than or equal" relation on the natural numbers.
+LF leq : nat -> nat -> type =
+| leq/z : leq zero N
+| leq/s : leq N1 N2 -> leq (succ N1) (succ N2)
+;
+
+% The "less than" relation on the natural numbers.
+LF lt : nat -> nat -> type =
+| lt/z : lt zero (succ N)
+| lt/s : lt N1 N2 -> lt (succ N1) (succ N2)
+;
+
+% The "not equals" relation on the natural numbers.
+LF neq : nat -> nat -> type =
+| neq/zs : neq zero (succ N)
+| neq/sz : neq (succ N) zero
+| neq/ss : neq N1 N2 -> neq (succ N1) (succ N2)
+;
+
+% The "maximum" relation on the natural numbers.
+LF max : nat -> nat -> nat -> type =
+| max/z* : max zero N N
+| max/*z : max N zero N
+| max/s : max N1 N2 N3 -> max (succ N1) (succ N2) (succ N3)
+;
