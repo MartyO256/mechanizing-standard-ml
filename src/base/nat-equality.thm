@@ -1,0 +1,116 @@
+% Equality
+
+proof lt-resp : [ |- nat-eq N1 N1'] ->
+                  [ |- nat-eq N2 N2'] -> [ |- lt N1 N2] -> [ |- lt N1' N2'] =
+/ total /
+intros
+{ N : ( |- nat), N1' : ( |- nat), N1 : ( |- nat), N2' : ( |- nat)
+| x : [ |- nat-eq N N1'], x1 : [ |- nat-eq N1 N2'], x2 : [ |- lt N N1]
+; split x as
+  case nat-eq/i:
+  { N1' : ( |- nat), N1 : ( |- nat), N2' : ( |- nat)
+  | p1 : [ |- nat-eq N1' N1'], p2 : [ |- nat-eq N1 N2'], q : [ |- lt N1' N1]
+  ; split p2 as
+    case nat-eq/i:
+    { N1' : ( |- nat), N2' : ( |- nat)
+    | p1 : [ |- nat-eq N1' N1'],
+      p2 : [ |- nat-eq N2' N2'],
+      q : [ |- lt N1' N2']
+    ; solve q
+    }
+  }
+}
+;
+
+proof leq-resp : [ |- nat-eq N1 N1' ] ->
+                   [ |- nat-eq N2 N2' ] ->
+                     [ |- leq N1 N2 ] -> [ |- leq N1' N2' ] =
+/ total /
+intros
+{ N : ( |- nat), N1' : ( |- nat), N1 : ( |- nat), N2' : ( |- nat)
+| x : [ |- nat-eq N N1'], x1 : [ |- nat-eq N1 N2'], x2 : [ |- leq N N1]
+; split x as
+  case nat-eq/i:
+  { N1' : ( |- nat), N1 : ( |- nat), N2' : ( |- nat)
+  | p1 : [ |- nat-eq N1' N1'], p2 : [ |- nat-eq N1 N2'], q : [ |- leq N1' N1]
+  ; split p2 as
+    case nat-eq/i:
+    { N1' : ( |- nat), N2' : ( |- nat)
+    | p1 : [ |- nat-eq N1' N1'],
+      p2 : [ |- nat-eq N2' N2'],
+      q : [ |- leq N1' N2']
+    ; solve q
+    }
+  }
+}
+;
+
+proof sum-resp : [ |- nat-eq N1 N1'] -> 
+                   [ |- nat-eq N2 N2'] ->
+                     [ |- nat-eq N3 N3'] ->
+                       [ |- sum N1 N2 N3] -> [ |- sum N1' N2' N3'] =
+/ total /
+intros
+{ N : ( |- nat),
+  N1' : ( |- nat),
+  N1 : ( |- nat),
+  N2' : ( |- nat),
+  N2 : ( |- nat),
+  N3' : ( |- nat)
+| x : [ |- nat-eq N N1'],
+  x1 : [ |- nat-eq N1 N2'],
+  x2 : [ |- nat-eq N2 N3'],
+  x3 : [ |- sum N N1 N2]
+; split x as
+  case nat-eq/i:
+  { N1' : ( |- nat),
+    N1 : ( |- nat),
+    N2' : ( |- nat),
+    N2 : ( |- nat),
+    N3' : ( |- nat)
+  | x : [ |- nat-eq N1' N1'],
+    x1 : [ |- nat-eq N1 N2'],
+    x2 : [ |- nat-eq N2 N3'],
+    x3 : [ |- sum N1' N1 N2]
+  ; split x1 as
+    case nat-eq/i:
+    { N1' : ( |- nat), N2' : ( |- nat), N2 : ( |- nat), N3' : ( |- nat)
+    | x : [ |- nat-eq N1' N1'],
+      x1 : [ |- nat-eq N2' N2'],
+      x2 : [ |- nat-eq N2 N3'],
+      x3 : [ |- sum N1' N2' N2]
+    ; split x2 as
+      case nat-eq/i:
+      { N1' : ( |- nat), N2' : ( |- nat), N3' : ( |- nat)
+      | x : [ |- nat-eq N1' N1'],
+        x1 : [ |- nat-eq N2' N2'],
+        x2 : [ |- nat-eq N3' N3'],
+        x3 : [ |- sum N1' N2' N3']
+      ; solve x3
+      }
+    }
+  }
+}
+;
+
+%{
+  FIXME: Proof signature with operator `N` on the natural numbers does not parse
+  TODO: Proof 
+proof nat-eq-resp : { N : nat -> nat } [ |- nat-eq N1 N2] -> [ |- nat-eq (N N1) (N N2)] =
+/ total /
+?
+;
+}%
+
+proof nat-eq-inc : [ |- nat-eq N1 N2] -> [ |- nat-eq (succ N1) (succ N2)] =
+/ total /
+intros
+{ N : ( |- nat), N1 : ( |- nat)
+| x : [ |- nat-eq N N1]
+; split x as
+  case nat-eq/i:
+  { N1 : ( |- nat)
+  | x : [ |- nat-eq N1 N1]
+  ; solve [ |- nat-eq/i ]
+  }
+}
