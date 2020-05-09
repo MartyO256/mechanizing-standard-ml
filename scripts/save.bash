@@ -2,26 +2,7 @@
 # Saves the work across the consolidated files.
 set -e
 
-sources_filename="./src/sources.cfg"
-
-sources_pathname=$(realpath "$sources_filename")
-sources_root_directory=$(dirname "$sources_pathname")
-
-cd "$sources_root_directory"
-
-work_filename="./work.tmp"
-
-comment_pattern="^[[:space:]]*%.*$"
-
-source_paths=()
-IFS=$'\r\n'
-while read -r line
-do
-    if [[ ! "$line" =~ $comment_pattern ]] && [[ ! -z "$line" ]]
-    then
-        source_paths+=("$line")
-    fi
-done < "$sources_pathname"
+source "$(dirname "$(realpath $0)")/source-paths.bash"
 
 work_contents=$(cat "$work_filename")
 

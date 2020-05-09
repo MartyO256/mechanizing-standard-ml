@@ -2,31 +2,13 @@
 # Consolidates all the files configured in the sources file.
 set -e
 
-sources_filename="./src/sources.cfg"
+source "$(dirname "$(realpath $0)")/source-paths.bash"
 
-sources_pathname=$(realpath "$sources_filename")
-sources_root_directory=$(dirname "$sources_pathname")
-
-cd "$sources_root_directory"
-
-work_filename="./work.tmp"
 if [ -s "$work_filename" ]
 then
     echo "Fatal error: work file \""$work_filename"\" not empty" >&2
     exit 1
 fi
-
-comment_pattern="^[[:space:]]*%.*$"
-
-source_paths=()
-IFS=$'\r\n'
-while read -r line
-do
-    if [[ ! "$line" =~ $comment_pattern ]] && [[ ! -z "$line" ]]
-    then
-        source_paths+=("$line")
-    fi
-done < "$sources_pathname"
 
 for source_path in "${source_paths[@]}"
 do
