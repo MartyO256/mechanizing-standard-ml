@@ -17,7 +17,7 @@ source_paths=()
 IFS=$'\r\n'
 while read -r line
 do
-    if [[ ! "$line" =~ $comment_pattern ]]
+    if [[ ! "$line" =~ $comment_pattern ]] && [[ ! -z "$line" ]]
     then
         source_paths+=("$line")
     fi
