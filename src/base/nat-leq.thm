@@ -94,3 +94,14 @@ intros
 }
 ;
 
+proof sum-implies-leq' : [ |- sum N1 N2 N3] -> [ |- leq N2 N3] =
+/ total /
+intros
+{ N1 : ( |- nat), N2 : ( |- nat), N3 : ( |- nat)
+| p : [ |- sum N1 N2 N3]
+; by sum-commute p as q;
+  by sum-implies-leq q as r;
+  solve r
+}
+;
+
