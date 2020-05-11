@@ -168,3 +168,45 @@ intros
   }
 }
 ;
+
+proof sum-fun2 : [ |- sum N1 N2 N3] -> 
+                   [ |- sum N1 N2' N3] -> [ |- nat-eq N2 N2'] =
+/ total /
+intros
+{ N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat), N2' : ( |- nat)
+| x : [ |- sum N N1 N2], x1 : [ |- sum N N2' N2]
+; split x as
+  case sum/s:
+  { N3 : ( |- nat),
+    N1 : ( |- nat),
+    N5 : ( |- nat),
+    N2' : ( |- nat),
+    X : ( |- sum N3 N1 N5)
+  | x : [ |- sum (succ N3) N1 (succ N5)],
+    x1 : [ |- sum (succ N3) N2' (succ N5)]
+  ; split x1 as
+    case sum/s:
+    { N3 : ( |- nat),
+      N1 : ( |- nat),
+      N5 : ( |- nat),
+      N2' : ( |- nat),
+      X : ( |- sum N3 N1 N5),
+      X1 : ( |- sum N3 N2' N5)
+    | x : [ |- sum (succ N3) N1 (succ N5)],
+      x1 : [ |- sum (succ N3) N2' (succ N5)]
+    ; by sum-fun2 x x1 as l;
+      solve l
+    }
+  }
+  case sum/z:
+  { N2 : ( |- nat), N2' : ( |- nat)
+  | x : [ |- sum zero N2 N2], x1 : [ |- sum zero N2' N2]
+  ; split x1 as
+    case sum/z:
+    { N2 : ( |- nat)
+    | x : [ |- sum zero N2 N2], x1 : [ |- sum zero N2 N2]
+    ; solve [ |- nat-eq/i ]
+    }
+  }
+}
+;
