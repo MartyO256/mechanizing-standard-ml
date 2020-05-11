@@ -19,3 +19,39 @@ intros
   }
 }
 ;
+
+proof sum-inc : [ |- sum N1 N2 N3] -> [ |- sum N1 (succ N2) (succ N3)] =
+/ total /
+intros
+{ N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat)
+| x : [ |- sum N N1 N2]
+; split x as
+  case sum/s:
+  { N3 : ( |- nat), N1 : ( |- nat), N5 : ( |- nat), X : ( |- sum N3 N1 N5)
+  | x : [ |- sum (succ N3) N1 (succ N5)]
+  ; by sum-inc [ |- X] as L unboxed;
+    split [ |- L] as
+    case sum/s:
+    { N6 : ( |- nat),
+      N1 : ( |- nat),
+      N5 : ( |- nat),
+      X : ( |- sum (succ N6) N1 N5),
+      X1 : ( |- sum N6 (succ N1) N5)
+    | x : [ |- sum (succ (succ N6)) N1 (succ N5)]
+    ; by sum-inc [ |- X] as L unboxed;
+      solve [ |- sum/s L]
+    }
+    case sum/z:
+    { N5 : ( |- nat), X : ( |- sum zero N5 N5)
+    | x : [ |- sum (succ zero) N5 (succ N5)]
+    ; by sum-inc [ |- X] as L unboxed;
+      solve [ |- sum/s L]
+    }
+  }
+  case sum/z:
+  { N2 : ( |- nat)
+  | x : [ |- sum zero N2 N2]
+  ; solve [ |- sum/z ]
+  }
+}
+;
