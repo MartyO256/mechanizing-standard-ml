@@ -77,3 +77,94 @@ intros
   }
 }
 ;
+
+proof sum-assoc : [ |- sum N1 N2 N12] ->
+                    [ |- sum N12 N3 N] -> 
+                      [ |- sum N2 N3 N23] -> [ |- sum N1 N23 N] =
+/ total /
+intros
+{ N : ( |- nat),
+  N1 : ( |- nat),
+  N2 : ( |- nat),
+  N3 : ( |- nat),
+  N4 : ( |- nat),
+  N5 : ( |- nat)
+| x : [ |- sum N N1 N2], x1 : [ |- sum N2 N3 N4], x2 : [ |- sum N1 N3 N5]
+; split x as
+  case sum/s:
+  { N6 : ( |- nat),
+    N1 : ( |- nat),
+    N8 : ( |- nat),
+    N3 : ( |- nat),
+    N4 : ( |- nat),
+    N5 : ( |- nat),
+    X : ( |- sum N6 N1 N8)
+  | x : [ |- sum (succ N6) N1 (succ N8)],
+    x1 : [ |- sum (succ N8) N3 N4],
+    x2 : [ |- sum N1 N3 N5]
+  ; split x1 as
+    case sum/s:
+    { N6 : ( |- nat),
+      N1 : ( |- nat),
+      N8 : ( |- nat),
+      N3 : ( |- nat),
+      N11 : ( |- nat),
+      N5 : ( |- nat),
+      X : ( |- sum N6 N1 N8),
+      X1 : ( |- sum N8 N3 N11)
+    | x : [ |- sum (succ N6) N1 (succ N8)],
+      x1 : [ |- sum (succ N8) N3 (succ N11)],
+      x2 : [ |- sum N1 N3 N5]
+    ; by sum-assoc x x1 x2 as l;
+      solve l
+    }
+  }
+  case sum/z:
+  { N2 : ( |- nat), N3 : ( |- nat), N4 : ( |- nat), N5 : ( |- nat)
+  | x : [ |- sum zero N2 N2],
+    x1 : [ |- sum N2 N3 N4],
+    x2 : [ |- sum N2 N3 N5]
+  ; split x as
+    case sum/z:
+    { N2 : ( |- nat), N3 : ( |- nat), N4 : ( |- nat), N5 : ( |- nat)
+    | x : [ |- sum zero N2 N2],
+      x1 : [ |- sum N2 N3 N4],
+      x2 : [ |- sum N2 N3 N5]
+    ; split x1 as
+      case sum/s:
+      { N6 : ( |- nat),
+        N3 : ( |- nat),
+        N8 : ( |- nat),
+        N5 : ( |- nat),
+        X : ( |- sum N6 N3 N8)
+      | x : [ |- sum zero (succ N6) (succ N6)],
+        x1 : [ |- sum (succ N6) N3 (succ N8)],
+        x2 : [ |- sum (succ N6) N3 N5]
+      ; by sum-assoc x x1 x2 as l;
+        solve l
+      }
+      case sum/z:
+      { N4 : ( |- nat), N5 : ( |- nat)
+      | x : [ |- sum zero zero zero],
+        x1 : [ |- sum zero N4 N4],
+        x2 : [ |- sum zero N4 N5]
+      ; split x1 as
+        case sum/z:
+        { N4 : ( |- nat), N5 : ( |- nat)
+        | x : [ |- sum zero zero zero],
+          x1 : [ |- sum zero N4 N4],
+          x2 : [ |- sum zero N4 N5]
+        ; split x2 as
+          case sum/z:
+          { N5 : ( |- nat)
+          | x : [ |- sum zero zero zero],
+            x1 : [ |- sum zero N5 N5],
+            x2 : [ |- sum zero N5 N5]
+          ; solve x2
+          }
+        }
+      }
+    }
+  }
+}
+;
