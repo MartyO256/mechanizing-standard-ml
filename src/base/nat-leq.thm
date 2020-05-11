@@ -49,3 +49,28 @@ intros
 }
 ;
 
+proof leq-reflex' : [ |- nat-eq N1 N2] -> [ |- leq N1 N2] =
+/ total /
+intros
+{ N1 : ( |- nat), N2 : ( |- nat)
+| p : [ |- nat-eq N1 N2]
+; split p as
+  case nat-eq/i:
+  { N2 : ( |- nat)
+  | p : [ |- nat-eq N2 N2]
+  ; split [ |- N2] as
+    case succ:
+    { N3 : ( |- nat)
+    | p : [ |- nat-eq (succ N3) (succ N3)]
+    ; by leq-reflex [ |- N3] as L unboxed;
+      solve [ |- leq/s L]
+    }
+    case zero:
+    { 
+    | p : [ |- nat-eq zero zero]
+    ; solve [ |- leq/z ]
+    }
+  }
+}
+;
+
