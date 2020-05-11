@@ -210,3 +210,16 @@ intros
   }
 }
 ;
+
+proof sum-fun1 : [ |- sum N1 N2 N3] ->
+                   [ |- sum N1' N2 N3] -> [ |- nat-eq N1 N1'] =
+/ total /
+intros
+{ N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat), N1' : ( |- nat)
+| x : [ |- sum N N1 N2], x1 : [ |- sum N1' N1 N2]
+; by sum-commute x as l1;
+  by sum-commute x1 as l2;
+  by sum-fun2 l1 l2 as k;
+  solve k
+}
+;
