@@ -29,3 +29,23 @@ intros
 }
 ;
 
+proof leq-reflex : { N : [ |- nat] } [ |- leq N N] =
+/ total /
+intros
+{ N : ( |- nat)
+| 
+; split [ |- N] as
+  case succ:
+  { N1 : ( |- nat)
+  | 
+  ; by leq-reflex [ |- N1] as L unboxed;
+    solve [ |- leq/s L]
+  }
+  case zero:
+  { 
+  | 
+  ; solve [ |- leq/z ]
+  }
+}
+;
+
