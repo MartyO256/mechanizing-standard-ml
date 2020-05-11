@@ -1,0 +1,21 @@
+% Sum
+
+proof sum-ident : { N : [ |- nat] } [ |- sum N zero N] =
+/ total 1 /
+intros
+{ N : ( |- nat)
+| 
+; split [ |- N] as
+  case succ:
+  { N1 : ( |- nat)
+  | 
+  ; by sum-ident [ |- N1] as L unboxed;
+    solve [ |- sum/s L]
+  }
+  case zero:
+  { 
+  | 
+  ; solve [ |- sum/z ]
+  }
+}
+;
