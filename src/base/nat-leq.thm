@@ -74,3 +74,23 @@ intros
 }
 ;
 
+proof sum-implies-leq : [ |- sum N1 N2 N3] -> [ |- leq N1 N3] =
+/ total /
+intros
+{ N1 : ( |- nat), N2 : ( |- nat), N3 : ( |- nat)
+| p : [ |- sum N1 N2 N3]
+; split p as
+  case sum/s:
+  { N4 : ( |- nat), N2 : ( |- nat), N6 : ( |- nat), X : ( |- sum N4 N2 N6)
+  | p : [ |- sum (succ N4) N2 (succ N6)]
+  ; by sum-implies-leq p as l;
+    solve l
+  }
+  case sum/z:
+  { N3 : ( |- nat)
+  | p : [ |- sum zero N3 N3]
+  ; solve [ |- leq/z ]
+  }
+}
+;
+
