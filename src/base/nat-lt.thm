@@ -106,3 +106,24 @@ intros
   }
 }
 ;
+
+proof sum-implies-lt : [ |- sum N1 N2 N3] -> 
+                         [ |- lt zero N2] -> [ |- lt N1 N3] =
+/ total /
+intros
+{ N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat)
+| x : [ |- sum N N1 N2], x1 : [ |- lt zero N1]
+; split x as
+  case sum/s:
+  { N3 : ( |- nat), N1 : ( |- nat), N5 : ( |- nat), X : ( |- sum N3 N1 N5)
+  | x : [ |- sum (succ N3) N1 (succ N5)], x1 : [ |- lt zero N1]
+  ; by sum-implies-lt x x1 as l;
+    solve l
+  }
+  case sum/z:
+  { N2 : ( |- nat)
+  | x : [ |- sum zero N2 N2], x1 : [ |- lt zero N2]
+  ; solve x1
+  }
+}
+;
