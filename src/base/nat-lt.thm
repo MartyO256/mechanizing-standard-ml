@@ -1,0 +1,40 @@
+% Lt
+
+proof leq-lt-trans : [ |- leq N1 N2] -> [ |- lt N2 N3] -> [ |- lt N1 N3] =
+/ total /
+intros
+{ N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat)
+| x : [ |- leq N N1], x1 : [ |- lt N1 N2]
+; split x as
+  case leq/s:
+  { N3 : ( |- nat), N4 : ( |- nat), N2 : ( |- nat), X : ( |- leq N3 N4)
+  | x : [ |- leq (succ N3) (succ N4)], x1 : [ |- lt (succ N4) N2]
+  ; split x1 as
+    case lt/s:
+    { N3 : ( |- nat),
+      N4 : ( |- nat),
+      N6 : ( |- nat),
+      X : ( |- leq N3 N4),
+      X1 : ( |- lt N4 N6)
+    | x : [ |- leq (succ N3) (succ N4)], x1 : [ |- lt (succ N4) (succ N6)]
+    ; by leq-lt-trans x x1 as l;
+      solve l
+    }
+  }
+  case leq/z:
+  { N1 : ( |- nat), N2 : ( |- nat)
+  | x : [ |- leq zero N1], x1 : [ |- lt N1 N2]
+  ; split x1 as
+    case lt/s:
+    { N3 : ( |- nat), N4 : ( |- nat), X : ( |- lt N3 N4)
+    | x : [ |- leq zero (succ N3)], x1 : [ |- lt (succ N3) (succ N4)]
+    ; solve [ |- lt/z ]
+    }
+    case lt/z:
+    { N3 : ( |- nat)
+    | x : [ |- leq zero zero], x1 : [ |- lt zero (succ N3)]
+    ; solve x1
+    }
+  }
+}
+;
