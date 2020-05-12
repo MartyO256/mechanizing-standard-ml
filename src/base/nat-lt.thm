@@ -72,3 +72,37 @@ intros
   }
 }
 ;
+
+proof lt-trans : [ |- lt N1 N2] -> [ |- lt N2 N3] -> [ |- lt N1 N3] =
+/ total /
+intros
+{ N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat)
+| x : [ |- lt N N1], x1 : [ |- lt N1 N2]
+; split x as
+  case lt/s:
+  { N3 : ( |- nat), N4 : ( |- nat), N2 : ( |- nat), X : ( |- lt N3 N4)
+  | x : [ |- lt (succ N3) (succ N4)], x1 : [ |- lt (succ N4) N2]
+  ; split x1 as
+    case lt/s:
+    { N3 : ( |- nat),
+      N4 : ( |- nat),
+      N6 : ( |- nat),
+      X : ( |- lt N3 N4),
+      X1 : ( |- lt N4 N6)
+    | x : [ |- lt (succ N3) (succ N4)], x1 : [ |- lt (succ N4) (succ N6)]
+    ; by lt-trans x x1 as l;
+      solve l
+    }
+  }
+  case lt/z:
+  { N3 : ( |- nat), N2 : ( |- nat)
+  | x : [ |- lt zero (succ N3)], x1 : [ |- lt (succ N3) N2]
+  ; split x1 as
+    case lt/s:
+    { N3 : ( |- nat), N5 : ( |- nat), X : ( |- lt N3 N5)
+    | x : [ |- lt zero (succ N3)], x1 : [ |- lt (succ N3) (succ N5)]
+    ; solve [ |- lt/z ]
+    }
+  }
+}
+;
