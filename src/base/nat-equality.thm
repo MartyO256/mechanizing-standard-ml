@@ -93,14 +93,20 @@ intros
 }
 ;
 
-%{
-  FIXME: Proof signature with operator `N` on the natural numbers does not parse
-  TODO: Proof 
-proof nat-eq-resp : { N : nat -> nat } [ |- nat-eq N1 N2] -> [ |- nat-eq (N N1) (N N2)] =
+proof nat-resp : { N : [ x : nat |- nat] } [ |- nat-eq N1 N2] ->
+                      [ |- nat-eq (N[N1]) (N[N2])] =
 / total /
-?
+intros
+{ N : ( |- nat), N1 : ( |- nat), N2 : (x : nat |- nat)
+| x : [ |- nat-eq N N1]
+; split x as
+  case nat-eq/i:
+  { N1 : ( |- nat), N2 : (x : nat |- nat)
+  | x : [ |- nat-eq N1 N1]
+  ; solve [ |- nat-eq/i ]
+  }
+}
 ;
-}%
 
 proof nat-eq-inc : [ |- nat-eq N1 N2] -> [ |- nat-eq (succ N1) (succ N2)] =
 / total /
