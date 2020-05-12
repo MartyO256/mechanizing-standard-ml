@@ -139,3 +139,23 @@ intros
   solve k
 }
 ;
+
+proof lt-succ : { N : [|- nat] } [ |- lt N (succ N)] =
+/ total /
+intros
+{ N : ( |- nat)
+| 
+; split [ |- N] as
+  case succ:
+  { N1 : ( |- nat)
+  | 
+  ; by lt-succ [ |- N1] as L unboxed;
+    solve [ |- lt/s L]
+  }
+  case zero:
+  { 
+  | 
+  ; solve [ |- lt/z ]
+  }
+}
+;
