@@ -127,3 +127,15 @@ intros
   }
 }
 ;
+
+proof sum-implies-lt' : [ |- sum N1 N2 N3] ->
+                          [ |- lt zero N1] -> [ |- lt N2 N3] =
+/ total /
+intros
+{ N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat)
+| x : [ |- sum N N1 N2], x1 : [ |- lt zero N]
+; by sum-commute x as l;
+  by sum-implies-lt l x1 as k;
+  solve k
+}
+;
