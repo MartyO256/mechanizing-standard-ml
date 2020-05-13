@@ -1,0 +1,52 @@
+% Maximum
+
+proof max-lt : [ |- max N1 N2 N3] -> 
+                 [ |- lt N N1] -> [ |- lt N N2] -> [ |- lt N N3] =
+/ total /
+intros
+{ N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat), N3 : ( |- nat)
+| x : [ |- max N N1 N2], x1 : [ |- lt N3 N], x2 : [ |- lt N3 N1]
+; split x as
+  case max/s:
+  { N4 : ( |- nat),
+    N5 : ( |- nat),
+    N6 : ( |- nat),
+    N3 : ( |- nat),
+    X : ( |- max N4 N5 N6)
+  | x : [ |- max (succ N4) (succ N5) (succ N6)],
+    x1 : [ |- lt N3 (succ N4)],
+    x2 : [ |- lt N3 (succ N5)]
+  ; split x1 as
+    case lt/s:
+    { N4 : ( |- nat),
+      N5 : ( |- nat),
+      N6 : ( |- nat),
+      N7 : ( |- nat),
+      X : ( |- max N4 N5 N6),
+      X1 : ( |- lt N7 N4)
+    | x : [ |- max (succ N4) (succ N5) (succ N6)],
+      x1 : [ |- lt (succ N7) (succ N4)],
+      x2 : [ |- lt (succ N7) (succ N5)]
+    ; by max-lt x x1 x2 as l;
+      solve l
+    }
+    case lt/z:
+    { N4 : ( |- nat), N5 : ( |- nat), N6 : ( |- nat), X : ( |- max N4 N5 N6)
+    | x : [ |- max (succ N4) (succ N5) (succ N6)],
+      x1 : [ |- lt zero (succ N4)],
+      x2 : [ |- lt zero (succ N5)]
+    ; solve [ |- lt/z ]
+    }
+  }
+  case max/*z:
+  { N2 : ( |- nat), N3 : ( |- nat)
+  | x : [ |- max N2 zero N2], x1 : [ |- lt N3 N2], x2 : [ |- lt N3 zero]
+  ; solve x1
+  }
+  case max/z*:
+  { N2 : ( |- nat), N3 : ( |- nat)
+  | x : [ |- max zero N2 N2], x1 : [ |- lt N3 zero], x2 : [ |- lt N3 N2]
+  ; solve x2
+  }
+}
+;
