@@ -9,8 +9,7 @@ intros
   case compare/gt:
   { N : ( |- nat), N' : ( |- nat), X : ( |- lt N' N)
   | x : [ |- compare N N']
-  ; by [ |- lt/s X] as L unboxed;
-    solve [ |- compare/gt L]
+  ; solve [ |- compare/gt (lt/s X)]
   }
   case compare/eq:
   { N' : ( |- nat)
@@ -20,8 +19,7 @@ intros
   case compare/lt:
   { N : ( |- nat), N' : ( |- nat), X : ( |- lt N N')
   | x : [ |- compare N N']
-  ; by [ |- lt/s X] as L unboxed;
-    solve [ |- compare/lt L]
+  ; solve [ |- compare/lt (lt/s X)]
   }
 }
 ;
