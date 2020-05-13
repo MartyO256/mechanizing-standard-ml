@@ -1,0 +1,29 @@
+% Identifiers
+
+LF identifier : type =
+| identifier/i : nat -> identifier    % Ordinary identifiers
+| identifier/q : nat -> identifier    % TyVars (Type variables)
+;
+
+LF identifier-eq : identifier -> identifier -> type =
+| identifier-eq/i : identifier-eq I I
+;
+
+LF identifier-lt : identifier -> identifier -> type =
+| identifier-lt/i : lt N N' -> identifier-lt (identifier/i N) (identifier/i N')
+| identifier-lt/q : lt N N' -> identifier-lt (identifier/q N) (identifier/q N')
+| identifier-lt/i-q : identifier-lt (identifier/i N) (identifier/q N')
+;
+
+LF identifier-neq : identifier -> identifier -> type =
+| identifier-neq/lt : identifier-lt I I' -> identifier-neq I I'
+| identifier-neq/gt : identifier-kt I' I -> identifier-neq I I'
+;
+
+LF tyvar-identifier : identifier -> type =
+| tyvar-identifier/q : tyvar-identifier (identifier/q N)
+;
+
+LF non-tyvar-identifier : identifier -> type =
+| non-tyvar-identifier/i : non-tyvar-identifier (identifier/i N)
+;
