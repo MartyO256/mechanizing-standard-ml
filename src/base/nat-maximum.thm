@@ -50,3 +50,30 @@ intros
   }
 }
 ;
+
+proof max-leq : [ |- max N1 N2 N3] -> [ |- leq N1 N3] -> [ |- leq N2 N3] =
+/ total /
+intros
+{ N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat)
+| x : [ |- max N N1 N2], x1 : [ |- leq N N2]
+; split x as
+  case max/s:
+  { N3 : ( |- nat), N4 : ( |- nat), N5 : ( |- nat), X : ( |- max N3 N4 N5)
+  | x : [ |- max (succ N3) (succ N4) (succ N5)],
+    x1 : [ |- leq (succ N3) (succ N5)]
+  ; by max-leq x x1 as l;
+    solve l
+  }
+  case max/*z:
+  { N2 : ( |- nat)
+  | x : [ |- max N2 zero N2], x1 : [ |- leq N2 N2]
+  ; solve [ |- leq/z ]
+  }
+  case max/z*:
+  { N2 : ( |- nat)
+  | x : [ |- max zero N2 N2], x1 : [ |- leq zero N2]
+  ; by leq-reflex [ |- N2] as l;
+    solve l
+  }
+}
+;
