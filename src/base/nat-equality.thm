@@ -45,7 +45,7 @@ intros
 }
 ;
 
-proof sum-resp : [ |- nat-eq N1 N1'] -> 
+proof sum-resp : [ |- nat-eq N1 N1'] ->
                    [ |- nat-eq N2 N2'] ->
                      [ |- nat-eq N3 N3'] ->
                        [ |- sum N1 N2 N3] -> [ |- sum N1' N2' N3'] =

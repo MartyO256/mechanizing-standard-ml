@@ -28,37 +28,37 @@ proof trichotomy-nat : { N : [ |- nat] } { N' : [ |- nat] } [ |- compare N N'] =
 / total /
 intros
 { N : ( |- nat), N' : ( |- nat)
-| 
+|
 ; split [ |- N] as
   case succ:
   { N1 : ( |- nat), N' : ( |- nat)
-  | 
+  |
   ; split [ |- N'] as
     case succ:
     { N1 : ( |- nat), N2 : ( |- nat)
-    | 
+    |
     ; by trichotomy-nat [ |- N1] [ |- N2] as l;
       by compare-succ l as k;
       solve k
     }
     case zero:
     { N1 : ( |- nat)
-    | 
+    |
     ; solve [ |- compare/gt (lt/z )]
     }
   }
   case zero:
   { N' : ( |- nat)
-  | 
+  |
   ; split [ |- N'] as
     case succ:
     { N : ( |- nat)
-    | 
+    |
     ; solve [ |- compare/lt (lt/z )]
     }
     case zero:
-    { 
-    | 
+    {
+    |
     ; solve [ |- compare/eq ]
     }
   }

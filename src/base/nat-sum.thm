@@ -4,17 +4,17 @@ proof sum-ident : { N : [ |- nat] } [ |- sum N zero N] =
 / total 1 /
 intros
 { N : ( |- nat)
-| 
+|
 ; split [ |- N] as
   case succ:
   { N1 : ( |- nat)
-  | 
+  |
   ; by sum-ident [ |- N1] as L unboxed;
     solve [ |- sum/s L]
   }
   case zero:
-  { 
-  | 
+  {
+  |
   ; solve [ |- sum/z ]
   }
 }
@@ -79,7 +79,7 @@ intros
 ;
 
 proof sum-assoc : [ |- sum N1 N2 N12] ->
-                    [ |- sum N12 N3 N] -> 
+                    [ |- sum N12 N3 N] ->
                       [ |- sum N2 N3 N23] -> [ |- sum N1 N23 N] =
 / total /
 intros
@@ -169,7 +169,7 @@ intros
 }
 ;
 
-proof sum-fun2 : [ |- sum N1 N2 N3] -> 
+proof sum-fun2 : [ |- sum N1 N2 N3] ->
                    [ |- sum N1 N2' N3] -> [ |- nat-eq N2 N2'] =
 / total /
 intros
