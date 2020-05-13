@@ -1,0 +1,7 @@
+% Comparison definition
+
+LF compare : nat -> nat -> type =
+| compare/lt : lt N N' -> compare N N'
+| compare/eq : compare N N
+| compare/gt : lt N' N -> compare N N'
+;

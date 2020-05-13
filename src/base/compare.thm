@@ -1,0 +1,27 @@
+% Compare
+
+proof compare-succ : [ |- compare N N'] -> [ |- compare (succ N) (succ N')] =
+/ total /
+intros
+{ N : ( |- nat), N' : ( |- nat)
+| x : [ |- compare N N']
+; split x as
+  case compare/gt:
+  { N : ( |- nat), N' : ( |- nat), X : ( |- lt N' N)
+  | x : [ |- compare N N']
+  ; by [ |- lt/s X] as L unboxed;
+    solve [ |- compare/gt L]
+  }
+  case compare/eq:
+  { N' : ( |- nat)
+  | x : [ |- compare N' N']
+  ; solve [ |- compare/eq ]
+  }
+  case compare/lt:
+  { N : ( |- nat), N' : ( |- nat), X : ( |- lt N N')
+  | x : [ |- compare N N']
+  ; by [ |- lt/s X] as L unboxed;
+    solve [ |- compare/lt L]
+  }
+}
+;
