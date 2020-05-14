@@ -21,7 +21,7 @@ intros
 ;
 
 proof sum-inc : [ |- sum N1 N2 N3] -> [ |- sum N1 (succ N2) (succ N3)] =
-/ total /
+/ total 1 /
 intros
 { N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat)
 | x : [ |- sum N N1 N2]
@@ -30,23 +30,7 @@ intros
   { N3 : ( |- nat), N1 : ( |- nat), N5 : ( |- nat), X : ( |- sum N3 N1 N5)
   | x : [ |- sum (succ N3) N1 (succ N5)]
   ; by sum-inc [ |- X] as L unboxed;
-    split [ |- L] as
-    case sum/s:
-    { N6 : ( |- nat),
-      N1 : ( |- nat),
-      N5 : ( |- nat),
-      X : ( |- sum (succ N6) N1 N5),
-      X1 : ( |- sum N6 (succ N1) N5)
-    | x : [ |- sum (succ (succ N6)) N1 (succ N5)]
-    ; by sum-inc [ |- X] as L unboxed;
-      solve [ |- sum/s L]
-    }
-    case sum/z:
-    { N5 : ( |- nat), X : ( |- sum zero N5 N5)
-    | x : [ |- sum (succ zero) N5 (succ N5)]
-    ; by sum-inc [ |- X] as L unboxed;
-      solve [ |- sum/s L]
-    }
+    solve [ |- sum/s L]
   }
   case sum/z:
   { N2 : ( |- nat)
@@ -57,7 +41,7 @@ intros
 ;
 
 proof sum-commute : [ |- sum N1 N2 N3] -> [ |- sum N2 N1 N3] =
-/ total /
+/ total 1 /
 intros
 { N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat)
 | x : [ |- sum N N1 N2]
@@ -66,14 +50,102 @@ intros
   { N3 : ( |- nat), N1 : ( |- nat), N5 : ( |- nat), X : ( |- sum N3 N1 N5)
   | x : [ |- sum (succ N3) N1 (succ N5)]
   ; by sum-commute [ |- X] as L unboxed;
-    by sum-inc [ |- L] as K unboxed;
-    solve [ |- K]
+    solve sum-inc [ |- L]
   }
   case sum/z:
   { N2 : ( |- nat)
   | x : [ |- sum zero N2 N2]
-  ; by sum-ident [ |- N2] as l;
-    solve l
+  ; solve sum-ident [ |- N2]
+  }
+};
+
+proof sum-fun2 : [ |- sum N1 N2 N3] ->
+                   [ |- sum N1 N2' N3] -> [ |- nat-eq N2 N2'] =
+/ total 2 /
+intros
+{ N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat), N2' : ( |- nat)
+| x : [ |- sum N N1 N2], x1 : [ |- sum N N2' N2]
+; split x as
+  case sum/s:
+  { N3 : ( |- nat),
+    N1 : ( |- nat),
+    N5 : ( |- nat),
+    N2' : ( |- nat),
+    X : ( |- sum N3 N1 N5)
+  | x : [ |- sum (succ N3) N1 (succ N5)],
+    x1 : [ |- sum (succ N3) N2' (succ N5)]
+  ; split x1 as
+    case sum/s:
+    { N3 : ( |- nat),
+      N1 : ( |- nat),
+      N5 : ( |- nat),
+      N2' : ( |- nat),
+      X : ( |- sum N3 N1 N5),
+      X1 : ( |- sum N3 N2' N5)
+    | x : [ |- sum (succ N3) N1 (succ N5)],
+      x1 : [ |- sum (succ N3) N2' (succ N5)]
+    ; solve sum-fun2 [ |- X] [ |- X1]
+    }
+  }
+  case sum/z:
+  { N2 : ( |- nat), N2' : ( |- nat)
+  | x : [ |- sum zero N2 N2], x1 : [ |- sum zero N2' N2]
+  ; split x1 as
+    case sum/z:
+    { N2 : ( |- nat)
+    | x : [ |- sum zero N2 N2], x1 : [ |- sum zero N2 N2]
+    ; solve [ |- nat-eq/i ]
+    }
+  }
+}
+;
+
+proof sum-fun1 : [ |- sum N1 N2 N3] ->
+                   [ |- sum N1' N2 N3] -> [ |- nat-eq N1 N1'] =
+/ total /
+intros
+{ N1 : ( |- nat), N2 : ( |- nat), N3 : ( |- nat), N1' : ( |- nat)
+| p1 : [ |- sum N1 N2 N3], p2 : [ |- sum N1' N2 N3]
+; solve sum-fun2 (sum-commute p1) (sum-commute p2)
+}
+;
+
+proof sum-fun3 : [ |- sum N1 N2 N3] ->
+                   [ |- sum N1 N2 N3'] -> [ |- nat-eq N3 N3'] =
+/ total 1 /
+intros
+{ N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat), N3' : ( |- nat)
+| x : [ |- sum N N1 N2], x1 : [ |- sum N N1 N3']
+; split x as
+  case sum/s:
+  { N3 : ( |- nat),
+    N1 : ( |- nat),
+    N5 : ( |- nat),
+    N3' : ( |- nat),
+    X : ( |- sum N3 N1 N5)
+  | x : [ |- sum (succ N3) N1 (succ N5)], x1 : [ |- sum (succ N3) N1 N3']
+  ; split x1 as
+    case sum/s:
+    { N3 : ( |- nat),
+      N1 : ( |- nat),
+      N5 : ( |- nat),
+      N8 : ( |- nat),
+      X : ( |- sum N3 N1 N5),
+      X1 : ( |- sum N3 N1 N8)
+    | x : [ |- sum (succ N3) N1 (succ N5)],
+      x1 : [ |- sum (succ N3) N1 (succ N8)]
+    ; solve nat-eq-inc (sum-fun3 [ |- X] [ |- X1])
+    }
+  }
+  case sum/z:
+  { N2 : ( |- nat), N3' : ( |- nat)
+  | x : [ |- sum zero N2 N2], x1 : [ |- sum zero N2 N3']
+  ; split x1 as
+    case sum/z:
+    { N3' : ( |- nat)
+    | x : [ |- sum zero N3' N3'], x1 : [ |- sum zero N3' N3']
+    ; solve [ |- nat-eq/i ]
+    }
   }
 }
 ;
@@ -81,7 +153,7 @@ intros
 proof sum-assoc : [ |- sum N1 N2 N12] ->
                     [ |- sum N12 N3 N] ->
                       [ |- sum N2 N3 N23] -> [ |- sum N1 N23 N] =
-/ total /
+/ total 2 /
 intros
 { N : ( |- nat),
   N1 : ( |- nat),
@@ -115,8 +187,8 @@ intros
     | x : [ |- sum (succ N6) N1 (succ N8)],
       x1 : [ |- sum (succ N8) N3 (succ N11)],
       x2 : [ |- sum N1 N3 N5]
-    ; by sum-assoc x x1 x2 as l;
-      solve l
+    ; by sum-assoc [ |- X] [ |- X1] x2 as K unboxed;
+      solve [ |- sum/s K]
     }
   }
   case sum/z:
@@ -124,142 +196,15 @@ intros
   | x : [ |- sum zero N2 N2],
     x1 : [ |- sum N2 N3 N4],
     x2 : [ |- sum N2 N3 N5]
-  ; split x as
-    case sum/z:
-    { N2 : ( |- nat), N3 : ( |- nat), N4 : ( |- nat), N5 : ( |- nat)
+  ; by sum-fun3 x1 x2 as l;
+    split l as
+    case nat-eq/i:
+    { N2 : ( |- nat), N3 : ( |- nat), N5 : ( |- nat)
     | x : [ |- sum zero N2 N2],
-      x1 : [ |- sum N2 N3 N4],
-      x2 : [ |- sum N2 N3 N5]
-    ; split x1 as
-      case sum/s:
-      { N6 : ( |- nat),
-        N3 : ( |- nat),
-        N8 : ( |- nat),
-        N5 : ( |- nat),
-        X : ( |- sum N6 N3 N8)
-      | x : [ |- sum zero (succ N6) (succ N6)],
-        x1 : [ |- sum (succ N6) N3 (succ N8)],
-        x2 : [ |- sum (succ N6) N3 N5]
-      ; by sum-assoc x x1 x2 as l;
-        solve l
-      }
-      case sum/z:
-      { N4 : ( |- nat), N5 : ( |- nat)
-      | x : [ |- sum zero zero zero],
-        x1 : [ |- sum zero N4 N4],
-        x2 : [ |- sum zero N4 N5]
-      ; split x1 as
-        case sum/z:
-        { N4 : ( |- nat), N5 : ( |- nat)
-        | x : [ |- sum zero zero zero],
-          x1 : [ |- sum zero N4 N4],
-          x2 : [ |- sum zero N4 N5]
-        ; split x2 as
-          case sum/z:
-          { N5 : ( |- nat)
-          | x : [ |- sum zero zero zero],
-            x1 : [ |- sum zero N5 N5],
-            x2 : [ |- sum zero N5 N5]
-          ; solve x2
-          }
-        }
-      }
-    }
-  }
-}
-;
-
-proof sum-fun2 : [ |- sum N1 N2 N3] ->
-                   [ |- sum N1 N2' N3] -> [ |- nat-eq N2 N2'] =
-/ total /
-intros
-{ N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat), N2' : ( |- nat)
-| x : [ |- sum N N1 N2], x1 : [ |- sum N N2' N2]
-; split x as
-  case sum/s:
-  { N3 : ( |- nat),
-    N1 : ( |- nat),
-    N5 : ( |- nat),
-    N2' : ( |- nat),
-    X : ( |- sum N3 N1 N5)
-  | x : [ |- sum (succ N3) N1 (succ N5)],
-    x1 : [ |- sum (succ N3) N2' (succ N5)]
-  ; split x1 as
-    case sum/s:
-    { N3 : ( |- nat),
-      N1 : ( |- nat),
-      N5 : ( |- nat),
-      N2' : ( |- nat),
-      X : ( |- sum N3 N1 N5),
-      X1 : ( |- sum N3 N2' N5)
-    | x : [ |- sum (succ N3) N1 (succ N5)],
-      x1 : [ |- sum (succ N3) N2' (succ N5)]
-    ; by sum-fun2 x x1 as l;
-      solve l
-    }
-  }
-  case sum/z:
-  { N2 : ( |- nat), N2' : ( |- nat)
-  | x : [ |- sum zero N2 N2], x1 : [ |- sum zero N2' N2]
-  ; split x1 as
-    case sum/z:
-    { N2 : ( |- nat)
-    | x : [ |- sum zero N2 N2], x1 : [ |- sum zero N2 N2]
-    ; solve [ |- nat-eq/i ]
-    }
-  }
-}
-;
-
-proof sum-fun1 : [ |- sum N1 N2 N3] ->
-                   [ |- sum N1' N2 N3] -> [ |- nat-eq N1 N1'] =
-/ total /
-intros
-{ N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat), N1' : ( |- nat)
-| x : [ |- sum N N1 N2], x1 : [ |- sum N1' N1 N2]
-; by sum-commute x as l1;
-  by sum-commute x1 as l2;
-  by sum-fun2 l1 l2 as k;
-  solve k
-}
-;
-
-proof sum-fun3 : [ |- sum N1 N2 N3] ->
-                   [ |- sum N1 N2 N3'] -> [ |- nat-eq N3 N3'] =
-/ total /
-intros
-{ N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat), N3' : ( |- nat)
-| x : [ |- sum N N1 N2], x1 : [ |- sum N N1 N3']
-; split x as
-  case sum/s:
-  { N3 : ( |- nat),
-    N1 : ( |- nat),
-    N5 : ( |- nat),
-    N3' : ( |- nat),
-    X : ( |- sum N3 N1 N5)
-  | x : [ |- sum (succ N3) N1 (succ N5)], x1 : [ |- sum (succ N3) N1 N3']
-  ; split x1 as
-    case sum/s:
-    { N3 : ( |- nat),
-      N1 : ( |- nat),
-      N5 : ( |- nat),
-      N8 : ( |- nat),
-      X : ( |- sum N3 N1 N5),
-      X1 : ( |- sum N3 N1 N8)
-    | x : [ |- sum (succ N3) N1 (succ N5)],
-      x1 : [ |- sum (succ N3) N1 (succ N8)]
-    ; by sum-fun3 x x1 as l;
-      solve l
-    }
-  }
-  case sum/z:
-  { N2 : ( |- nat), N3' : ( |- nat)
-  | x : [ |- sum zero N2 N2], x1 : [ |- sum zero N2 N3']
-  ; split x1 as
-    case sum/z:
-    { N3' : ( |- nat)
-    | x : [ |- sum zero N3' N3'], x1 : [ |- sum zero N3' N3']
-    ; solve [ |- nat-eq/i ]
+      x1 : [ |- sum N2 N3 N5],
+      x2 : [ |- sum N2 N3 N5],
+      l : [ |- nat-eq N5 N5]
+    ; solve [ |- sum/z ]
     }
   }
 }

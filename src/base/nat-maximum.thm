@@ -2,7 +2,7 @@
 
 proof max-lt : [ |- max N1 N2 N3] -> 
                  [ |- lt N N1] -> [ |- lt N N2] -> [ |- lt N N3] =
-/ total /
+/ total 1 /
 intros
 { N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat), N3 : ( |- nat)
 | x : [ |- max N N1 N2], x1 : [ |- lt N3 N], x2 : [ |- lt N3 N1]
@@ -27,8 +27,21 @@ intros
     | x : [ |- max (succ N4) (succ N5) (succ N6)],
       x1 : [ |- lt (succ N7) (succ N4)],
       x2 : [ |- lt (succ N7) (succ N5)]
-    ; by max-lt x x1 x2 as l;
-      solve l
+    ; split x2 as
+      case lt/s:
+      { N4 : ( |- nat),
+        N5 : ( |- nat),
+        N6 : ( |- nat),
+        N7 : ( |- nat),
+        X : ( |- max N4 N5 N6),
+        X1 : ( |- lt N7 N4),
+        X2 : ( |- lt N7 N5)
+      | x : [ |- max (succ N4) (succ N5) (succ N6)],
+        x1 : [ |- lt (succ N7) (succ N4)],
+        x2 : [ |- lt (succ N7) (succ N5)]
+      ; by max-lt [ |- X] [ |- X1] [ |- X2] as L unboxed;
+        solve [ |- lt/s L]
+      }
     }
     case lt/z:
     { N4 : ( |- nat), N5 : ( |- nat), N6 : ( |- nat), X : ( |- max N4 N5 N6)
@@ -52,7 +65,7 @@ intros
 ;
 
 proof max-leq : [ |- max N1 N2 N3] -> [ |- leq N1 N3] -> [ |- leq N2 N3] =
-/ total /
+/ total 1 /
 intros
 { N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat)
 | x : [ |- max N N1 N2], x1 : [ |- leq N N2]
@@ -61,8 +74,18 @@ intros
   { N3 : ( |- nat), N4 : ( |- nat), N5 : ( |- nat), X : ( |- max N3 N4 N5)
   | x : [ |- max (succ N3) (succ N4) (succ N5)],
     x1 : [ |- leq (succ N3) (succ N5)]
-  ; by max-leq x x1 as l;
-    solve l
+  ; split x1 as
+    case leq/s:
+    { N3 : ( |- nat),
+      N4 : ( |- nat),
+      N5 : ( |- nat),
+      X : ( |- max N3 N4 N5),
+      X1 : ( |- leq N3 N5)
+    | x : [ |- max (succ N3) (succ N4) (succ N5)],
+      x1 : [ |- leq (succ N3) (succ N5)]
+    ; by max-leq [ |- X] [ |- X1] as L unboxed;
+      solve [ |- leq/s L]
+    }
   }
   case max/*z:
   { N2 : ( |- nat)

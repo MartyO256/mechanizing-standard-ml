@@ -1,7 +1,7 @@
 % Leq
 
 proof leq-trans : [ |- leq N1 N2] -> [ |- leq N2 N3] -> [ |- leq N1 N3] =
-/ total /
+/ total 1 /
 intros
 { N1 : ( |- nat), N2 : ( |- nat), N3 : ( |- nat)
 | p1 : [ |- leq N1 N2], p2 : [ |- leq N2 N3]
@@ -17,8 +17,8 @@ intros
       X : ( |- leq N4 N5),
       X1 : ( |- leq N5 N7)
     | p1 : [ |- leq (succ N4) (succ N5)], p2 : [ |- leq (succ N5) (succ N7)]
-    ; by leq-trans p1 p2 as l;
-      solve l
+    ; by leq-trans [ |- X] [ |- X1] as L unboxed;
+      solve [ |- leq/s L]
     }
   }
   case leq/z:
@@ -30,7 +30,7 @@ intros
 ;
 
 proof leq-reflex : { N : [ |- nat] } [ |- leq N N] =
-/ total /
+/ total 1 /
 intros
 { N : ( |- nat)
 | 
@@ -75,7 +75,7 @@ intros
 ;
 
 proof sum-implies-leq : [ |- sum N1 N2 N3] -> [ |- leq N1 N3] =
-/ total /
+/ total 1 /
 intros
 { N1 : ( |- nat), N2 : ( |- nat), N3 : ( |- nat)
 | p : [ |- sum N1 N2 N3]
@@ -83,8 +83,8 @@ intros
   case sum/s:
   { N4 : ( |- nat), N2 : ( |- nat), N6 : ( |- nat), X : ( |- sum N4 N2 N6)
   | p : [ |- sum (succ N4) N2 (succ N6)]
-  ; by sum-implies-leq p as l;
-    solve l
+  ; by sum-implies-leq [ |- X] as L unboxed;
+    solve [ |- leq/s L]
   }
   case sum/z:
   { N3 : ( |- nat)
@@ -99,9 +99,7 @@ proof sum-implies-leq' : [ |- sum N1 N2 N3] -> [ |- leq N2 N3] =
 intros
 { N1 : ( |- nat), N2 : ( |- nat), N3 : ( |- nat)
 | p : [ |- sum N1 N2 N3]
-; by sum-commute p as q;
-  by sum-implies-leq q as r;
-  solve r
+; solve sum-implies-leq (sum-commute p)
 }
 ;
 

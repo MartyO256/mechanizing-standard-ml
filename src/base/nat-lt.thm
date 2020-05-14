@@ -1,7 +1,7 @@
 % Lt
 
 proof leq-lt-trans : [ |- leq N1 N2] -> [ |- lt N2 N3] -> [ |- lt N1 N3] =
-/ total /
+/ total 1 /
 intros
 { N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat)
 | x : [ |- leq N N1], x1 : [ |- lt N1 N2]
@@ -17,8 +17,8 @@ intros
       X : ( |- leq N3 N4),
       X1 : ( |- lt N4 N6)
     | x : [ |- leq (succ N3) (succ N4)], x1 : [ |- lt (succ N4) (succ N6)]
-    ; by leq-lt-trans x x1 as l;
-      solve l
+    ; by leq-lt-trans [ |- X] [ |- X1] as L unboxed;
+      solve [ |- lt/s L]
     }
   }
   case leq/z:
@@ -40,7 +40,7 @@ intros
 ;
 
 proof lt-leq-trans : [ |- lt N1 N2] -> [ |- leq N2 N3] -> [ |- lt N1 N3] =
-/ total /
+/ total 1 /
 intros
 { N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat)
 | x : [ |- lt N N1], x1 : [ |- leq N1 N2]
@@ -56,8 +56,8 @@ intros
       X : ( |- lt N3 N4),
       X1 : ( |- leq N4 N6)
     | x : [ |- lt (succ N3) (succ N4)], x1 : [ |- leq (succ N4) (succ N6)]
-    ; by lt-leq-trans x x1 as l;
-      solve l
+    ; by lt-leq-trans [ |- X] [ |- X1] as L unboxed;
+      solve [ |- lt/s L]
     }
   }
   case lt/z:
@@ -74,7 +74,7 @@ intros
 ;
 
 proof lt-trans : [ |- lt N1 N2] -> [ |- lt N2 N3] -> [ |- lt N1 N3] =
-/ total /
+/ total 1 /
 intros
 { N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat)
 | x : [ |- lt N N1], x1 : [ |- lt N1 N2]
@@ -90,8 +90,8 @@ intros
       X : ( |- lt N3 N4),
       X1 : ( |- lt N4 N6)
     | x : [ |- lt (succ N3) (succ N4)], x1 : [ |- lt (succ N4) (succ N6)]
-    ; by lt-trans x x1 as l;
-      solve l
+    ; by lt-trans [ |- X] [ |- X1] as L unboxed;
+      solve [ |- lt/s L]
     }
   }
   case lt/z:
@@ -109,7 +109,7 @@ intros
 
 proof sum-implies-lt : [ |- sum N1 N2 N3] -> 
                          [ |- lt zero N2] -> [ |- lt N1 N3] =
-/ total /
+/ total 1 /
 intros
 { N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat)
 | x : [ |- sum N N1 N2], x1 : [ |- lt zero N1]
@@ -117,8 +117,8 @@ intros
   case sum/s:
   { N3 : ( |- nat), N1 : ( |- nat), N5 : ( |- nat), X : ( |- sum N3 N1 N5)
   | x : [ |- sum (succ N3) N1 (succ N5)], x1 : [ |- lt zero N1]
-  ; by sum-implies-lt x x1 as l;
-    solve l
+  ; by sum-implies-lt [ |- X] x1 as L unboxed;
+    solve [ |- lt/s L]
   }
   case sum/z:
   { N2 : ( |- nat)
@@ -134,14 +134,12 @@ proof sum-implies-lt' : [ |- sum N1 N2 N3] ->
 intros
 { N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat)
 | x : [ |- sum N N1 N2], x1 : [ |- lt zero N]
-; by sum-commute x as l;
-  by sum-implies-lt l x1 as k;
-  solve k
+; solve sum-implies-lt (sum-commute x) x1
 }
 ;
 
 proof lt-succ : { N : [|- nat] } [ |- lt N (succ N)] =
-/ total /
+/ total 1 /
 intros
 { N : ( |- nat)
 | 
