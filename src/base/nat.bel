@@ -1,5 +1,7 @@
 % Definitions
 
+false : type.
+
 % The natural numbers.
 LF nat : type =
 | zero : nat

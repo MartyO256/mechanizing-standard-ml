@@ -107,7 +107,21 @@ intros
 }
 ;
 
-proof sum-implies-lt : [ |- sum N1 N2 N3] -> 
+proof lt-antisymm : [ |- lt N N] -> [ |- false] =
+/ total 1 /
+intros
+{ N : ( |- nat)
+| x : [ |- lt N N]
+; split x as
+  case lt/s:
+  { N1 : ( |- nat), X : ( |- lt N1 N1)
+  | x : [ |- lt (succ N1) (succ N1)]
+  ; solve lt-antisymm [ |- X]
+  }
+}
+;
+
+proof sum-implies-lt : [ |- sum N1 N2 N3] ->
                          [ |- lt zero N2] -> [ |- lt N1 N3] =
 / total 1 /
 intros
@@ -142,17 +156,17 @@ proof lt-succ : { N : [|- nat] } [ |- lt N (succ N)] =
 / total 1 /
 intros
 { N : ( |- nat)
-| 
+|
 ; split [ |- N] as
   case succ:
   { N1 : ( |- nat)
-  | 
+  |
   ; by lt-succ [ |- N1] as L unboxed;
     solve [ |- lt/s L]
   }
   case zero:
-  { 
-  | 
+  {
+  |
   ; solve [ |- lt/z ]
   }
 }
