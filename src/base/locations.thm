@@ -1,0 +1,24 @@
+proof dichotomy-loc-factor : [ |- compare N N'] ->
+                               [ |- compare-loc (location/i N) (location/i N')] =
+/ total 1/
+intros
+{ N : ( |- nat), N' : ( |- nat)
+| x : [ |- compare N N']
+; split x as
+  case compare/gt:
+  { N : ( |- nat), N' : ( |- nat), X : ( |- lt N' N)
+  | x : [ |- compare N N']
+  ; solve [ |- compare-loc/neq (loc-neq/gt (loc-lt/i X))]
+  }
+  case compare/eq:
+  { N' : ( |- nat)
+  | x : [ |- compare N' N']
+  ; solve [ |- compare-loc/eq ]
+  }
+  case compare/lt:
+  { N : ( |- nat), N' : ( |- nat), X : ( |- lt N N')
+  | x : [ |- compare N N']
+  ; solve [ |- compare-loc/neq (loc-neq/lt (loc-lt/i X))]
+  }
+}
+;

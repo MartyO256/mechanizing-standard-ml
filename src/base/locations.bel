@@ -1,0 +1,23 @@
+% Locations
+
+LF location : type =
+| location/i : nat -> location
+;
+
+LF loc-lt : location -> location -> type =
+| loc-lt/i : lt N N' -> loc-lt (location/i N) (location/i N')
+;
+
+LF loc-neq : location -> location -> type =
+| loc-neq/lt : loc-lt L L' -> loc-neq L L'
+| loc-neq/gt : loc-lt L' L -> loc-neq L L'
+;
+
+LF loc-succ : location -> location -> type =
+| loc-succ/i : loc-succ (location/i N) (location/i (succ N))
+;
+
+LF compare-loc : location -> location -> type =
+| compare-loc/eq : compare-loc L L
+| compare-loc/neq : loc-neq L L' -> compare-loc L L'
+;

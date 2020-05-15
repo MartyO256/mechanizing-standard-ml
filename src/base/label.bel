@@ -1,0 +1,17 @@
+% Labels
+
+LF label : type =
+| label/number : nat -> label
+| label/ident: identifier -> label
+;
+
+LF label-eq : label -> label -> type =
+| label-eq/i : label-eq L L
+;
+
+LF label-lt : label -> label -> type =
+| label-lt/number : lt N N' -> label-lt (label/number N) (label/number N')
+| label-lt/ident : identifier-lt I I' ->
+                     label-lt (label/ident I) (label/ident I')
+| label-lt/number-ident : label-lt (label/number _) (label/ident _)
+;

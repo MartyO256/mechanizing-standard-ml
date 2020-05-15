@@ -25,7 +25,7 @@ intros
 ;
 
 proof trichotomy-nat : { N : [ |- nat] } { N' : [ |- nat] } [ |- compare N N'] =
-/ total /
+/ total 1 /
 intros
 { N : ( |- nat), N' : ( |- nat)
 |
@@ -37,9 +37,7 @@ intros
     case succ:
     { N1 : ( |- nat), N2 : ( |- nat)
     |
-    ; by trichotomy-nat [ |- N1] [ |- N2] as l;
-      by compare-succ l as k;
-      solve k
+    ; solve compare-succ (trichotomy-nat [ |- N1] [ |- N2])
     }
     case zero:
     { N1 : ( |- nat)

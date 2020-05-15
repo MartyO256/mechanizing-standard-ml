@@ -17,7 +17,7 @@ LF identifier-lt : identifier -> identifier -> type =
 
 LF identifier-neq : identifier -> identifier -> type =
 | identifier-neq/lt : identifier-lt I I' -> identifier-neq I I'
-| identifier-neq/gt : identifier-kt I' I -> identifier-neq I I'
+| identifier-neq/gt : identifier-lt I' I -> identifier-neq I I'
 ;
 
 LF tyvar-identifier : identifier -> type =
