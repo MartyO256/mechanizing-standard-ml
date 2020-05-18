@@ -22,3 +22,23 @@ intros
   }
 }
 ;
+
+proof dichotomy-loc : { L : [ |- location] } ->
+                        { L' : [ |- location] } -> [ |- compare-loc L L'] =
+/ total /
+intros
+{ L : ( |- location), L' : ( |- location)
+|
+; split [ |- L] as
+  case location/i:
+  { N : ( |- nat), L' : ( |- location)
+  |
+  ; split [ |- L'] as
+    case location/i:
+    { N : ( |- nat), N1 : ( |- nat)
+    |
+    ; solve dichotomy-loc-factor (trichotomy-nat [ |- N] [ |- N1])
+    }
+  }
+}
+;
