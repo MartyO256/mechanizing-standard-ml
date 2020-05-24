@@ -1,0 +1,5 @@
+catom : type.
+--name catom R.
+
+cterm : type.
+--name cterm M.
