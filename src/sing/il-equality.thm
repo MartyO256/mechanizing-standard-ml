@@ -1,3 +1,5 @@
+% atom-eq as an equivalence relation
+
 LF atom-eq : atom -> atom -> type =
 | atom-eq/i : atom-eq R R
 ;
@@ -31,6 +33,8 @@ intros
 }
 ;
 
+% term-eq as an equivalence relation
+
 LF term-eq : term -> term -> type =
 | term-eq/i : term-eq M M
 ;
@@ -60,6 +64,53 @@ intros
   { N : ( |- term), O : ( |- term)
   | x : [ |- term-eq N N], x1 : [ |- term-eq N O]
   ; solve x1
+  }
+}
+;
+
+% Respective equality
+
+proof atom-resp-atom : { R : [ x : atom |- atom] } [ |- atom-eq Q Q'] ->
+                         [ |- atom-eq (R[Q]) (R[Q'])] =
+/ total /
+intros
+{ Q : ( |- atom), Q' : ( |- atom), R : (x : atom |- atom)
+| x : [ |- atom-eq Q Q']
+; split x as
+  case atom-eq/i:
+  { Q' : ( |- atom), R : (x : atom |- atom)
+  | x : [ |- atom-eq Q' Q']
+  ; solve [ |- atom-eq/i ]
+  }
+}
+;
+
+proof term-resp-term : { M : [ x : term |- term] } [ |- term-eq N N'] ->
+                         [ |- term-eq (M[N]) (M[N'])] =
+/ total /
+intros
+{ N : ( |- term), N' : ( |- term), M : (x : term |- term)
+| x : [ |- term-eq N N']
+; split x as
+  case term-eq/i:
+  { N' : ( |- term), M : (x : term |- term)
+  | x : [ |- term-eq N' N']
+  ; solve [ |- term-eq/i ]
+  }
+}
+;
+
+proof term-resp-atom : { M : [ x : atom |- term] } [ |- atom-eq R R'] ->
+                         [ |- term-eq (M[R]) (M[R'])] =
+/ total /
+intros
+{ R : ( |- atom), R' : ( |- atom), M : (x : atom |- term)
+| x : [ |- atom-eq R R']
+; split x as
+  case atom-eq/i:
+  { R' : ( |- atom), M : (x : atom |- term)
+  | x : [ |- atom-eq R' R']
+  ; solve [ |- term-eq/i ]
   }
 }
 ;
