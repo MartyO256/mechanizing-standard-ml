@@ -1,0 +1,4 @@
+% Syntax
+
+atom : type.
+--name atom R.

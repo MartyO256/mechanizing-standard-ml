@@ -1,0 +1,32 @@
+LF atom-eq : atom -> atom -> type =
+| atom-eq/i : atom-eq R R
+;
+
+proof atom-eq-symm : [ |- atom-eq R R'] -> [ |- atom-eq R' R] =
+/ total /
+intros
+{ R : ( |- atom), R' : ( |- atom)
+| x : [ |- atom-eq R R']
+; split x as
+  case atom-eq/i:
+  { R' : ( |- atom)
+  | x : [ |- atom-eq R' R']
+  ; solve [ |- atom-eq/i ]
+  }
+}
+;
+
+proof atom-eq-trans : [ |- atom-eq R1 R2] ->
+                        [ |- atom-eq R2 R3] -> [ |- atom-eq R1 R3] =
+/ total /
+intros
+{ R : ( |- atom), R1 : ( |- atom), R2 : ( |- atom)
+| x : [ |- atom-eq R R1], x1 : [ |- atom-eq R1 R2]
+; split x as
+  case atom-eq/i:
+  { R1 : ( |- atom), R2 : ( |- atom)
+  | x : [ |- atom-eq R1 R1], x1 : [ |- atom-eq R1 R2]
+  ; solve x1
+  }
+}
+;
