@@ -2,3 +2,6 @@
 
 atom : type.
 --name atom R.
+
+term : type.
+--name term M.

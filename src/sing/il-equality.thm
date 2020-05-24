@@ -11,7 +11,7 @@ intros
   case atom-eq/i:
   { R' : ( |- atom)
   | x : [ |- atom-eq R' R']
-  ; solve [ |- atom-eq/i ]
+  ; solve x
   }
 }
 ;
@@ -26,6 +26,39 @@ intros
   case atom-eq/i:
   { R1 : ( |- atom), R2 : ( |- atom)
   | x : [ |- atom-eq R1 R1], x1 : [ |- atom-eq R1 R2]
+  ; solve x1
+  }
+}
+;
+
+LF term-eq : term -> term -> type =
+| term-eq/i : term-eq M M
+;
+
+proof term-eq-symm : [ |- term-eq M N] -> [ |- term-eq N M] =
+/ total /
+intros
+{ M : ( |- term), N : ( |- term)
+| x : [ |- term-eq M N]
+; split x as
+  case term-eq/i:
+  { N : ( |- term)
+  | x : [ |- term-eq N N]
+  ; solve x
+  }
+}
+;
+
+proof term-eq-trans : [ |- term-eq M N] ->
+                        [ |- term-eq N O] -> [ |- term-eq M O] =
+/ total /
+intros
+{ M : ( |- term), N : ( |- term), O : ( |- term)
+| x : [ |- term-eq M N], x1 : [ |- term-eq N O]
+; split x as
+  case term-eq/i:
+  { N : ( |- term), O : ( |- term)
+  | x : [ |- term-eq N N], x1 : [ |- term-eq N O]
   ; solve x1
   }
 }
