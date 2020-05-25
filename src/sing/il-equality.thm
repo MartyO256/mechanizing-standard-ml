@@ -104,6 +104,26 @@ intros
 
 % Respective equality
 
+proof app-resp : [ |- atom-eq R R'] ->
+                   [ |- term-eq M M'] -> [ |- atom-eq (app R M) (app R' M')] =
+/ total /
+intros
+{ R : ( |- atom), R' : ( |- atom), M : ( |- term), M' : ( |- term)
+| x : [ |- atom-eq R R'], x1 : [ |- term-eq M M']
+; split x as
+  case atom-eq/i:
+  { R' : ( |- atom), M : ( |- term), M' : ( |- term)
+  | x : [ |- atom-eq R' R'], x1 : [ |- term-eq M M']
+  ; split x1 as
+    case term-eq/i:
+    { R' : ( |- atom), M' : ( |- term)
+    | x : [ |- atom-eq R' R'], x1 : [ |- term-eq M' M']
+    ; solve [ |- atom-eq/i ]
+    }
+  }
+}
+;
+
 proof atom-resp-atom : { R : [ x : atom |- atom] } [ |- atom-eq Q Q'] ->
                          [ |- atom-eq (R[Q]) (R[Q'])] =
 / total /
@@ -190,6 +210,23 @@ intros
   { M' : ( |- term), A : (x : term |- tp)
   | x : [ |- term-eq M' M']
   ; solve [ |- tp-eq/i ]
+  }
+}
+;
+
+% Cdr lemmas
+
+proof atom-eq-cdr-app : [ |- atom-eq (app R M) (app R' M')] ->
+                          [ |- atom-eq R R'] -> [ |- term-eq M M'] =
+/ total /
+intros
+{ R : ( |- atom), M : ( |- term), R' : ( |- atom), M' : ( |- term)
+| x : [ |- atom-eq (app R M) (app R' M')], x1 : [ |- atom-eq R R']
+; split x as
+  case atom-eq/i:
+  { R' : ( |- atom), M' : ( |- term)
+  | x : [ |- atom-eq (app R' M') (app R' M')], x1 : [ |- atom-eq R' R']
+  ; solve [ |- term-eq/i ]
   }
 }
 ;

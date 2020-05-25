@@ -8,3 +8,5 @@ atom : type.
 
 term : type.
 --name term M.
+
+app	: atom -> term -> atom.
