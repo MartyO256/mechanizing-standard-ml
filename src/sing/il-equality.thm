@@ -68,6 +68,40 @@ intros
 }
 ;
 
+% tp-eq as an equivalence relation
+
+LF tp-eq : tp -> tp -> type =
+| tp-eq/i : tp-eq T T
+;
+
+proof tp-eq-symm : [ |- tp-eq A B] -> [ |- tp-eq B A] =
+/ total /
+intros
+{ A : ( |- tp), B : ( |- tp)
+| x : [ |- tp-eq A B]
+; split x as
+  case tp-eq/i:
+  { B : ( |- tp)
+  | x : [ |- tp-eq B B]
+  ; solve x
+  }
+}
+;
+
+proof tp-eq-trans : [ |- tp-eq A B] -> [ |- tp-eq B C] -> [ |- tp-eq A C] =
+/ total /
+intros
+{ A : ( |- tp), B : ( |- tp), C : ( |- tp)
+| x : [ |- tp-eq A B], x1 : [ |- tp-eq B C]
+; split x as
+  case tp-eq/i:
+  { B : ( |- tp), C : ( |- tp)
+  | x : [ |- tp-eq B B], x1 : [ |- tp-eq B C]
+  ; solve x1
+  }
+}
+;
+
 % Respective equality
 
 proof atom-resp-atom : { R : [ x : atom |- atom] } [ |- atom-eq Q Q'] ->
@@ -100,6 +134,21 @@ intros
 }
 ;
 
+proof tp-resp-tp : { A : [ x : tp |- tp] } [ |- tp-eq B B'] ->
+                     [ |- tp-eq (A[B]) (A[B'])] =
+/ total /
+intros
+{ B : ( |- tp), B' : ( |- tp), A : (x : tp |- tp)
+| x : [ |- tp-eq B B']
+; split x as
+  case tp-eq/i:
+  { B' : ( |- tp), A : (x : tp |- tp)
+  | x : [ |- tp-eq B' B']
+  ; solve [ |- tp-eq/i ]
+  }
+}
+;
+
 proof term-resp-atom : { M : [ x : atom |- term] } [ |- atom-eq R R'] ->
                          [ |- term-eq (M[R]) (M[R'])] =
 / total /
@@ -111,6 +160,36 @@ intros
   { R' : ( |- atom), M : (x : atom |- term)
   | x : [ |- atom-eq R' R']
   ; solve [ |- term-eq/i ]
+  }
+}
+;
+
+proof tp-resp-atom : { A : [ x : atom |- tp] } [ |- atom-eq R R'] ->
+                       [ |- tp-eq (A[R]) (A[R'])] =
+/ total /
+intros
+{ R : ( |- atom), R' : ( |- atom), A : (x : atom |- tp)
+| x : [ |- atom-eq R R']
+; split x as
+  case atom-eq/i:
+  { R' : ( |- atom), A : (x : atom |- tp)
+  | x : [ |- atom-eq R' R']
+  ; solve [ |- tp-eq/i ]
+  }
+}
+;
+
+proof tp-resp-term : { A : [ x : term |- tp] } [ |- term-eq M M'] ->
+                       [ |- tp-eq (A[M]) (A[M'])] =
+/ total /
+intros
+{ M : ( |- term), M' : ( |- term), A : (x : term |- tp)
+| x : [ |- term-eq M M']
+; split x as
+  case term-eq/i:
+  { M' : ( |- term), A : (x : term |- tp)
+  | x : [ |- term-eq M' M']
+  ; solve [ |- tp-eq/i ]
   }
 }
 ;
