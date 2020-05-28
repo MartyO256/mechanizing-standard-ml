@@ -1,0 +1,3 @@
+% Evaluation
+
+step : store -> term -> store -> term -> type.

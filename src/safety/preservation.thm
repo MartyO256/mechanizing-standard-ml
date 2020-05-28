@@ -1,3 +1,9 @@
+% Monotonicity
+
+extends : sttp -> sttp -> type.
+
+% Preservation
+
 proof preservation-tm/tm-of : [ |- tm-of F E T] ->
                                 [ |- store-of F ST F] ->
                                   [ |- step ST E ST' E'] ->

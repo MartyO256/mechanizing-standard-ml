@@ -1,0 +1,5 @@
+% Judgements
+
+tm-of : sttp -> term -> con -> type.
+
+store-of : sttp -> store -> sttp -> type.

@@ -1,0 +1,10 @@
+% Syntactic classes
+
+con : type.
+--name con C a.
+
+store : type.
+--name store ST.
+
+sttp : type.
+--name sttp F.
