@@ -1,5 +1,20 @@
 % Judgements
 
+kd-wf : kind -> type.
+cn-of : con -> kind -> type.
+
 tm-of : sttp -> term -> con -> type.
 
 store-of : sttp -> store -> sttp -> type.
+
+% Kind Formation
+
+kd-wf/t : kd-wf t.
+
+kd-wf/sing : cn-of C T -> kd-wf (sing C).
+
+kd-wf/pi : (cn-of a K1 -> kd-wf (K2 a)) -> kd-wf K1 -> kd-wf (pi K1 K2).
+
+kd-wf/sigma : (cn-of a K1 -> kd-wf (K2 a)) -> kd-wf K1 -> kd-wf (sigma K1 K2).
+
+kd-wf/one : kd-wf one.

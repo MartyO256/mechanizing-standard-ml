@@ -1,5 +1,8 @@
 % Syntactic classes
 
+kind : type.
+--name kind K.
+
 con : type.
 --name con C a.
 
@@ -8,3 +11,11 @@ store : type.
 
 sttp : type.
 --name sttp F.
+
+% Kinds
+
+t : kind.
+sing : con -> kind.
+pi : kind -> (con -> kind) -> kind.
+sigma : kind -> (con -> kind) -> kind.
+one : kind.
