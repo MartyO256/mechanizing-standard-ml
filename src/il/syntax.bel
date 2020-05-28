@@ -19,3 +19,23 @@ sing : con -> kind.
 pi : kind -> (con -> kind) -> kind.
 sigma : kind -> (con -> kind) -> kind.
 one : kind.
+
+% Constructors
+
+pair : con -> con -> con.
+pi1 : con -> con.
+pi2 : con -> con.
+lam : kind -> (con -> con) -> con.
+app : con -> con -> con.
+star : con.
+
+unit : con.
+void : con.
+prod : con -> con -> con.
+arrow : con -> con -> con.
+plus : con -> con -> con.
+ref : con -> con.
+tag : con -> con.
+tagged : con.
+rec' : kind -> (con -> con -> con) -> con -> con.
+labeled : label -> con -> con.

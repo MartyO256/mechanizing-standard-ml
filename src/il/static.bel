@@ -1,6 +1,7 @@
 % Judgements
 
 kd-wf : kind -> type.
+kd-sub		: kind -> kind -> type.
 cn-of : con -> kind -> type.
 
 tm-of : sttp -> term -> con -> type.
@@ -18,3 +19,58 @@ kd-wf/pi : (cn-of a K1 -> kd-wf (K2 a)) -> kd-wf K1 -> kd-wf (pi K1 K2).
 kd-wf/sigma : (cn-of a K1 -> kd-wf (K2 a)) -> kd-wf K1 -> kd-wf (sigma K1 K2).
 
 kd-wf/one : kd-wf one.
+
+% Constructor Formation
+
+cn-of/pair : (cn-of a K1 -> kd-wf (K2 a)) ->
+               cn-of C2 (K2 C1) ->
+               cn-of C1 K1 ->
+               cn-of (pair C1 C2) (sigma K1 K2).
+
+cn-of/pi1 : cn-of C (sigma K1 K2) -> cn-of (pi1 C) K1.
+
+cn-of/pi2 : cn-of C (sigma K1 K2) -> cn-of (pi2 C) (K2 (pi1 C)).
+
+cn-of/lam : (cn-of a K1 -> cn-of (C a) (K2 a)) ->
+              kd-wf K1 ->
+              cn-of (lam K1 C) (pi K1 K2).
+
+cn-of/app : cn-of C2 K1 -> cn-of C1 (pi K1 K2) -> cn-of (app C1 C2) (K2 C2).
+
+cn-of/star : cn-of star one.
+
+cn-of/unit : cn-of unit t.
+
+cn-of/void : cn-of void t.
+
+cn-of/prod : cn-of C1 t -> cn-of C2 t -> cn-of (prod C1 C2) t.
+
+cn-of/arrow : cn-of C1 t -> cn-of C2 t -> cn-of (arrow C1 C2) t.
+
+cn-of/plus : cn-of C1 t -> cn-of C2 t -> cn-of (arrow C1 C2) t.
+
+cn-of/ref : cn-of C t -> cn-of (ref C) t.
+
+cn-of/tag : cn-of C t -> cn-of (tag C) t.
+
+cn-of/tagged : cn-of tagged t.
+
+cn-of/rec : cn-of C2 K ->
+              (cn-of a (pi K (\l. t)) -> cn-of b K -> cn-of (C1 a b) t) ->
+              kd-wf K ->
+              cn-of (rec' K C1 C2) t.
+
+cn-of/labeled : cn-of C t -> cn-of (labeled I C) t.
+
+cn-of/sing : cn-of C t -> cn-of C (sing C).
+
+cn-of/extpi : (cn-of a K1 -> cn-of (app C a) (K2 a)) ->
+                cn-of C (pi K1 K2) ->
+                cn-of C (pi K1 K2).
+
+cn-of/extsigma : (cn-of a K1 -> kd-wf (K2 a)) ->
+                   cn-of (pi2 C) (K2 (pi1 C)) ->
+                   cn-of (pi1 C) K1 ->
+                   cn-of C (sigma K1 K2).
+
+cn-of/subsume : kd-sub K K' -> cn-of C K -> cn-of C K'.
