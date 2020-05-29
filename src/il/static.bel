@@ -112,3 +112,90 @@ cn-of/extsigma : (cn-of a K1 -> kd-wf (K2 a)) ->
                    cn-of C (sigma K1 K2).
 
 cn-of/subsume : kd-sub K K' -> cn-of C K -> cn-of C K'.
+
+% Constructor Equivalence
+
+cn-equiv/refl : cn-of C K -> cn-equiv C C K.
+
+cn-equiv/symm : cn-equiv C1 C2 K -> cn-equiv C2 C1 K.
+
+cn-equiv/trans : cn-equiv C1 C2 K -> cn-equiv C2 C3 K -> cn-equiv C1 C3 K.
+
+cn-equiv/pair : (cn-of a K1 -> kd-wf (K2 a)) ->
+                  cn-equiv C2 C2' (K2 C1) ->
+                  cn-equiv C1 C1' K1 ->
+                  cn-equiv (pair C1 C2) (pair C1' C2') (sigma K1 K2).
+
+cn-equiv/pi1 : cn-equiv C C' (sigma K1 K2) -> cn-equiv (pi1 C) (pi1 C') K1.
+
+cn-equiv/pi2 : cn-equiv C C' (sigma K1 K2) ->
+                 cn-equiv (pi2 C) (pi2 C') (K2 (pi1 C)).
+
+cn-equiv/lam : (cn-of a K1 -> cn-equiv (C a) (C' a) (K2 a)) ->
+                 kd-equiv K1 K1' ->
+                 cn-equiv (lam K1 C) (lam K1' C') (pi K1 K2).
+
+cn-equiv/app : cn-equiv C2 C2' K1 ->
+                 cn-equiv C1 C1' (pi K1 K2) ->
+                 cn-equiv (app C1 C2) (app C1' C2') (K2 C2).
+
+cn-equiv/prod : cn-equiv C1 C1' t ->
+                  cn-equiv C2 C2' t ->
+                  cn-equiv (prod C1 C2) (prod C1' C2') t.
+
+cn-equiv/arrow : cn-equiv C1 C1' t ->
+                   cn-equiv C2 C2' t ->
+                   cn-equiv (arrow C1 C2) (arrow C1' C2') t.
+
+cn-equiv/plus : cn-equiv C1 C1' t ->
+                  cn-equiv C2 C2' t ->
+                  cn-equiv (plus C1 C2) (plus C1' C2') t.
+
+cn-equiv/ref : cn-equiv C C' t -> cn-equiv (ref C) (ref C') t.
+
+cn-equiv/tag : cn-equiv C C' t -> cn-equiv (tag C) (tag C') t.
+
+cn-equiv/rec : cn-equiv C2 C2' K ->
+                 (cn-of a (pi K (\l. t)) ->
+                   cn-of b K ->
+                   cn-equiv (C1 a b) (C1' a b ) t) ->
+                 kd-equiv K K' ->
+                 cn-equiv (rec' K C1 C2) (rec' K' C1' C2') t.
+
+cn-equiv/labeled : cn-equiv C C' t -> cn-equiv (labeled I C) (labeled I C') t.
+
+cn-equiv/sing : cn-equiv C C' t -> cn-equiv C C' (sing C).
+
+cn-equiv/singelim : cn-of C (sing C') -> cn-equiv C C' t.
+
+cn-equiv/extpi : (cn-of a K1 -> cn-equiv (app C a) (app C' a) (K2 a)) ->
+                   cn-of C' (pi K1 K2'') ->
+                   cn-of C (pi K1 K2') ->
+                   cn-equiv C C' (pi K1 K2).
+
+cn-equiv/extpiw : (cn-of a K1 -> cn-equiv (app C a) (app C' a) (K2 a)) ->
+                    cn-equiv C C' (pi K1 K2') ->
+                    cn-equiv C C' (pi K1 K2).
+
+cn-equiv/extsigma : (cn-of a K1 -> kd-wf (K2 a)) ->
+                      cn-equiv (pi2 C) (pi2 C') (K2 (pi1 C)) ->
+                      cn-equiv (pi1 C) (pi1 C') K1 ->
+                      cn-equiv C C' (sigma K1 K2).
+
+cn-equiv/one : cn-of C one -> cn-of C' one -> cn-equiv C C' one.
+
+cn-equiv/subsume : kd-sub K K' -> cn-equiv C C' K -> cn-equiv C C' K'.
+
+%{ FIXME: Unbound identifier K2
+cn-equiv/beta : cn-of C1 K1 ->
+                  (cn-of a K1 -> cn-of (C2 a) (K2 a)) ->
+                  cn-equiv (app (lam K1 C2) C1) (C2 C1) (K2 C1).
+}%
+
+cn-equiv/beta1 : cn-of C1 K1 ->
+                   cn-of C2 K2 ->
+                   cn-equiv (pi1 (pair C1 C2)) C1 K1.
+
+cn-equiv/beta2 : cn-of C1 K1 ->
+                   cn-of C2 K2 ->
+                   cn-equiv (pi2 (pair C1 C2)) C2 K2.
