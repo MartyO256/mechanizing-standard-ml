@@ -6,9 +6,13 @@ kd-sub : kind -> kind -> type.
 cn-of : con -> kind -> type.
 cn-equiv : con -> con -> kind -> type.
 
+tm-assm : term -> con -> type.
 tm-of : sttp -> term -> con -> type.
 
+st-lookup : sttp -> location -> entp -> type.
 store-of : sttp -> store -> sttp -> type.
+
+md-of : purity -> sttp -> module' -> sg -> type.
 
 % Kind Formation
 
@@ -199,3 +203,87 @@ cn-equiv/beta1 : cn-of C1 K1 ->
 cn-equiv/beta2 : cn-of C1 K1 ->
                    cn-of C2 K2 ->
                    cn-equiv (pi2 (pair C1 C2)) C2 K2.
+
+% Term Formation
+
+tm-of/var : tm-assm X T -> tm-of F X T.
+
+tm-of/unit : tm-of F tm/unit unit.
+
+tm-of/abort : cn-of T t -> tm-of F E void -> tm-of F (tm/abort E T) T.
+
+tm-of/pair : tm-of F E1 T1 ->
+               tm-of F E2 T2 ->
+               tm-of F (tm/pair E1 E2) (prod T1 T2).
+
+tm-of/pi1 : tm-of F E (prod T1 T2) -> tm-of F (tm/pi1 E) T1.
+
+tm-of/pi2 : tm-of F E (prod T1 T2) -> tm-of F (tm/pi2 E) T2.
+
+tm-of/lam : (tm-assm x T1 -> tm-of F (E x) T2) ->
+              cn-of T1 t ->
+              tm-of F (tm/lam T1 (\x. E x)) (arrow T1 T2).
+
+tm-of/app : tm-of F E2 T1 ->
+              tm-of F E1 (arrow T1 T2) ->
+              tm-of F (tm/app E1 E2) T2.
+
+tm-of/in1 : cn-of T2 t ->
+              tm-of F E T1 ->
+              tm-of F (tm/in1 E T2) (plus T1 T2).
+
+tm-of/in2 : cn-of T1 t ->
+              tm-of F E T2 ->
+              tm-of F (tm/in2 E T1) (plus T1 T2).
+
+tm-of/case : (tm-assm x T1 -> tm-of F (E1 x) T) ->
+               (tm-assm y T2 -> tm-of F (E2 y) T) ->
+               tm-of F E (plus T1 T2) ->
+               tm-of F (tm/case E E1 E2) T.
+
+tm-of/refloc : cn-of T t ->
+                 st-lookup F L (et/ref T) ->
+                 tm-of F (tm/refloc L) (ref T).
+
+tm-of/ref : tm-of F E T -> tm-of F (tm/ref E) (ref T).
+
+tm-of/deref : tm-of F E (ref T) -> tm-of F (tm/deref E) T.
+
+tm-of/assign : tm-of F E2 T ->
+                 tm-of F E1 (ref T) ->
+                 tm-of F (tm/assign E1 E2) unit.
+
+tm-of/tagloc : cn-of T t ->
+                 st-lookup F L (et/tag T) ->
+                 tm-of F (tm/tagloc L) (tag T).
+
+tm-of/newtag : cn-of T t -> tm-of F (tm/newtag T) (tag T).
+
+tm-of/tag : tm-of F E2 T -> tm-of F E1 (tag T) -> tm-of F (tm/tag E1 E2) tagged.
+
+tm-of/iftag : tm-of F E4 T ->
+                (tm-assm x T' -> tm-of F (E3 x) T) ->
+                tm-of F E2 (tag T') ->
+                tm-of F E1 tagged ->
+                tm-of F (tm/iftag E1 E2 E3 E4) T.
+
+tm-of/unroll : tm-of F E (rec' K C1 C2) ->
+                 tm-of F (tm/unroll E) (C1 (lam K (\a. rec' K C1 a)) C2).
+
+tm-of/in : tm-of F E T -> tm-of F (tm/in I E) (labeled I T).
+
+tm-of/out : tm-of F E (labeled I T) -> tm-of F (tm/out E) T.
+
+tm-of/raise : cn-of T t -> tm-of F E tagged -> tm-of F (tm/raise E T) T.
+
+tm-of/try : (tm-assm x tagged -> tm-of F (E2 x) T) ->
+              tm-of F E1 T ->
+              tm-of F (tm/try E1 (\x. E2 x)) T.
+
+tm-of/lett : (tm-assm x T1 -> tm-of F (E2 x) T2) ->
+               tm-of F E1 T1 ->
+               tm-of F (tm/lett E1 (\x. E2 x)) T2.
+
+tm-of/snd : md-of P F M (sg/datom T) -> tm-of F (tm/snd M) T.
+
+tm-of/equiv : cn-equiv T1 T2 t -> tm-of F E T1 -> tm-of F E T2.

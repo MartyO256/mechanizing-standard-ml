@@ -6,11 +6,26 @@ kind : type.
 con : type.
 --name con C a.
 
+sg : type.
+--name sg S.
+
+term : type.
+--name term E x.
+
+module' : type.
+--name module' M m.
+
 store : type.
 --name store ST.
 
+entp : type.
+--name entp ET.
+
 sttp : type.
 --name sttp F.
+
+name : type.
+--name name L.
 
 % Kinds
 
@@ -39,3 +54,70 @@ tag : con -> con.
 tagged : con.
 rec' : kind -> (con -> con -> con) -> con -> con.
 labeled : label -> con -> con.
+
+% Signatures
+
+
+sg/one		: sg.
+sg/satom	: kind -> sg.
+sg/datom	: con -> sg.
+sg/sgatom	: sg -> sg.
+
+sg/pi		: sg -> (con -> sg) -> sg.
+sg/sigma	: sg -> (con -> sg) -> sg.
+sg/named	: name -> sg -> sg.
+
+
+% Terms
+
+tm/unit : term.
+
+tm/abort : term -> con -> term.
+
+tm/pair : term -> term -> term.
+tm/pi1 : term -> term.
+tm/pi2 : term -> term.
+
+tm/lam : con -> (term -> term) -> term.
+tm/app : term -> term -> term.
+
+tm/in1 : term -> con -> term.
+tm/in2 : term -> con -> term.
+tm/case : term -> (term -> term) -> (term -> term) -> term.
+
+tm/refloc : location -> term.
+tm/ref : term -> term.
+tm/deref : term -> term.
+tm/assign : term -> term -> term.
+
+tm/tagloc : location -> term.
+tm/newtag : con -> term.
+
+tm/tag : term -> term -> term.
+tm/iftag : term -> term -> (term -> term) -> term -> term.
+
+tm/roll : term -> kind -> (con -> con -> con) -> con -> term.
+tm/unroll : term -> term.
+
+tm/in : label -> term -> term.
+tm/out : term -> term.
+
+tm/raise : term -> con -> term.
+tm/try : term -> (term -> term) -> term.
+
+tm/lett : term -> (term -> term) -> term.
+
+tm/snd : module' -> term.
+
+% Entry & Store Types
+
+et/ref : con -> entp.
+et/tag : con -> entp.
+
+% Purity
+
+LF purity : type =
+| pure : purity
+| impure : purity
+;
+--name purity P.
