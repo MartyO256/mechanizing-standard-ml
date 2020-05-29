@@ -15,6 +15,9 @@ term : type.
 module' : type.
 --name module' M m.
 
+entry : type.
+--name entry EN.
+
 store : type.
 --name store ST.
 
@@ -109,10 +112,21 @@ tm/lett : term -> (term -> term) -> term.
 
 tm/snd : module' -> term.
 
+% Entries & Stores
+
+entry/ref : term -> entry.
+entry/tag : con -> entry.
+
+store/nil : store.
+store/cons : store -> location -> entry -> store.
+
 % Entry & Store Types
 
 et/ref : con -> entp.
 et/tag : con -> entp.
+
+st/nil : sttp.
+st/cons : sttp -> location -> entp -> sttp.
 
 % Purity
 

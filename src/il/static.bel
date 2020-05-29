@@ -10,7 +10,9 @@ tm-assm : term -> con -> type.
 tm-of : sttp -> term -> con -> type.
 
 st-lookup : sttp -> location -> entp -> type.
+entry-of : sttp -> entry -> entp -> type.
 store-of : sttp -> store -> sttp -> type.
+store-bounds : store -> location -> type.
 
 md-of : purity -> sttp -> module' -> sg -> type.
 
@@ -287,3 +289,16 @@ tm-of/lett : (tm-assm x T1 -> tm-of F (E2 x) T2) ->
 tm-of/snd : md-of P F M (sg/datom T) -> tm-of F (tm/snd M) T.
 
 tm-of/equiv : cn-equiv T1 T2 t -> tm-of F E T1 -> tm-of F E T2.
+
+% Store Typing
+
+store-bounds/nil : store-bounds store/nil L.
+
+store-bounds/cons : loc-lt L L' -> store-bounds (store/cons _ L _) L'.
+
+store-of/nil : store-of F store/nil st/nil.
+
+store-of/cons : store-bounds ST L ->
+                  entry-of F EN ET ->
+                  store-of F ST F' ->
+                  store-of F (store/cons ST L EN) (st/cons F' L ET).
