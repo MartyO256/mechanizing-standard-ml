@@ -93,24 +93,29 @@ tm/ref : term -> term.
 tm/deref : term -> term.
 tm/assign : term -> term -> term.
 
-tm/tagloc : location -> term.
-tm/newtag : con -> term.
+% Modules
 
-tm/tag : term -> term -> term.
-tm/iftag : term -> term -> (term -> term) -> term -> term.
+md/unit : module'.
+md/satom : con -> module'.
+md/datom : term -> con -> module'.
+md/sgatom : sg -> module'.
 
-tm/roll : term -> kind -> (con -> con -> con) -> con -> term.
-tm/unroll : term -> term.
+md/pair : module' -> module' -> module'.
+md/dpair : module' -> (con -> module' -> module') -> module'.
+md/pi1 : module' -> module'.
+md/pi2 : module' -> module'.
 
-tm/in : label -> term -> term.
-tm/out : term -> term.
+md/lam : sg -> (con -> module' -> module') -> module'.
+md/app : module' -> module' -> module'.
 
-tm/raise : term -> con -> term.
-tm/try : term -> (term -> term) -> term.
+md/in : name -> module' -> module'.
+md/out : module' -> module'.
 
-tm/lett : term -> (term -> term) -> term.
+md/let : module' -> (con -> module' -> module') -> sg -> module'.
+md/letp : module' -> (con -> module' -> module') -> module'.
+md/lete : term -> con -> (term -> module') -> module'.
 
-tm/snd : module' -> term.
+md/seal : module' -> sg -> module'.
 
 % Entries & Stores
 

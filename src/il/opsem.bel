@@ -1,3 +1,154 @@
+% Stores
+
+LF store-lookup : store -> location -> entry -> type =
+| store-lookup/hit : store-lookup (store/cons _ L EN) L EN
+| store-lookup/miss : store-lookup ST L EN ->
+                        store-lookup (store/cons ST _ _) L EN
+;
+
+LF store-update : store -> location -> entry -> store -> type =
+| store-update/hit : store-update (store/cons ST L _) L EN (store/cons ST L EN)
+| store-update/miss : store-update ST L' EN' ST' ->
+                        store-update (store/cons ST L EN) L' EN'
+                          (store/cons ST' L EN)
+;
+
+LF nextloc : store -> location -> type =
+| nextloc/nil : nextloc store/nil (location/i zero)
+| nextloc/cons : loc-succ L L' -> nextloc (store/cons _ L _) L'
+;
+
 % Evaluation
 
 step : store -> term -> store -> term -> type.
+step-md : store -> module' -> store -> module' -> type.
+
+raises : term -> term -> type.
+
+LF step : store -> term -> store -> term -> type =
+| step/abort : step ST E ST' E' -> step ST (tm/abort E T) ST' (tm/abort E' T)
+
+| step/pair1 : step ST E1 ST' E1' ->
+                 step ST (tm/pair E1 E2) ST' (tm/pair E1' E2)
+
+| step/pair2 : step ST E2 ST' E2' ->
+                 value E1 ->
+                 step ST (tm/pair E1 E2) ST' (tm/pair E1 E2')
+
+| step/pi1 : step ST E ST' E' -> step ST (tm/pi1 E) ST' (tm/pi1 E')
+
+| step/pi1-beta : value E1 ->
+                    value E2 ->
+                    step ST (tm/pi1 (tm/pair E1 E2)) ST E1
+
+| step/pi2 : step ST E ST' E' -> step ST (tm/pi2 E) ST' (tm/pi2 E')
+
+| step/pi2-beta : value E1 ->
+                    value E2 ->
+                    step ST (tm/pi2 (tm/pair E1 E2)) ST E2
+
+| step/app1 : step ST E1 ST' E1' ->
+                step ST (tm/app E1 E2) ST' (tm/app E1' E2)
+
+| step/app2 : step ST E2 ST' E2' ->
+                value E1 ->
+                step ST (tm/app E1 E2) ST' (tm/app E1 E2')
+
+| step/app-beta : value E2 ->
+                    step ST (tm/app (tm/lam T (\x. E1 x)) E2) ST (E1 E2)
+
+| step/in1 : step ST E ST' E' -> step ST (tm/in1 E T) ST' (tm/in1 E' T)
+
+| step/in2 : step ST E ST' E' -> step ST (tm/in2 E T) ST' (tm/in2 E' T)
+
+| step/case : step ST E ST' E' ->
+                step ST (tm/case E E1 E2) ST' (tm/case E' E1 E2)
+
+| step/case-beta1 : value E ->
+                      step ST (tm/case (tm/in1 E _) E1 E2) ST (E1 E)
+
+| step/case-beta2 : value E ->
+                      step ST (tm/case (tm/in2 E _) E1 E2) ST (E2 E)
+
+| step/ref : step ST E ST' E' -> step ST (tm/ref E) ST' (tm/ref E')
+
+| step/ref-beta : nextloc ST L ->
+                    value E ->
+                    step ST (tm/ref E) (store/cons ST L (entry/ref E))
+                      (tm/refloc L)
+
+| step/deref : step ST E ST' E' -> step ST (tm/deref E) ST' (tm/deref E')
+
+| step/deref-beta : store-lookup ST L (entry/ref E) ->
+                      step ST (tm/deref (tm/refloc L)) ST E
+
+| step/assign1 : step ST E1 ST' E1' ->
+                   step ST (tm/assign E1 E2) ST' (tm/assign E1' E2)
+
+| step/assign2 : step ST E2 ST' E2' ->
+                   value E1 ->
+                   step ST (tm/assign E1 E2) ST' (tm/assign E1 E2')
+
+| step/assign-beta : store-update ST L (entry/ref E) ST' ->
+                       value E ->
+                       step ST (tm/assign (tm/refloc L) E) ST' tm/unit
+
+| step/newtag-beta : nextloc ST L ->
+                       step ST (tm/newtag T) (store/cons ST L (entry/tag T))
+                         (tm/tagloc L)
+
+| step/tag1 : step ST E1 ST' E1' -> step ST (tm/tag E1 E2) ST' (tm/tag E1' E2)
+
+| step/tag2 : step ST E2 ST' E2' ->
+                value E1 ->
+                step ST (tm/tag E1 E2) ST' (tm/tag E1 E2')
+
+| step/iftag1 : step ST E1 ST' E1' ->
+                  step ST (tm/iftag E1 E2 E3 E4) ST' (tm/iftag E1' E2 E3 E4)
+
+| step/iftag2 : step ST E2 ST' E2' ->
+                  value E1 ->
+                  step ST (tm/iftag E1 E2 E3 E4) ST' (tm/iftag E1 E2' E3 E4)
+
+| step/iftag-beta1 : value E ->
+                       step ST (tm/iftag (tm/tag (tm/tagloc L) E)
+                         (tm/tagloc L) E3 E4) ST (E3 E)
+
+| step/iftag-beta2 : loc-neq L L' ->
+                       value E ->
+                       step ST (tm/iftag (tm/tag (tm/tagloc L) E)
+                         (tm/tagloc L') E3 E4) ST E4
+
+| step/roll : step ST E ST' E' ->
+                step ST (tm/roll E K C1 C2) ST' (tm/roll E' K C1 C2)
+
+| step/unroll : step ST E ST' E' ->
+                  step ST (tm/unroll E) ST' (tm/unroll E')
+
+| step/unroll-beta : value E ->
+                       step ST (tm/unroll (tm/roll E _ _ _)) ST E
+
+| step/in : step ST E ST' E' -> step ST (tm/in I E) ST' (tm/in I E')
+
+| step/out : step ST E ST' E' -> step ST (tm/out E) ST' (tm/out E')
+
+| step/out-beta : value E -> step ST (tm/out (tm/in I E)) ST E
+
+| step/raise : step ST E ST' E' -> step ST (tm/raise E T) ST' (tm/raise E' T)
+
+| step/try : step ST E1 ST' E1' -> step ST (tm/try E1 E2) ST' (tm/try E1' E2)
+
+| step/try-done : value E1 -> step ST (tm/try E1 E2) ST E1
+
+| step/try-handle : raises E1 V -> step ST (tm/try E1 E2) ST (E2 V)
+
+| step/lett1 : step ST E1 ST' E1' ->
+                 step ST (tm/lett E1 E2) ST' (tm/lett E1' E2)
+
+| step/lett2 : value E1 ->
+                 step ST (tm/lett E1 E2) ST (E2 E1)
+
+| step/snd : step-md ST M ST' M' -> step ST (tm/snd M) ST' (tm/snd M')
+
+| step/snd-beta : value E -> step ST (tm/snd (md/datom E T)) ST E
+;
