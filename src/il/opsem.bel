@@ -182,3 +182,19 @@ LF raises : term -> term -> type =
 | raises/lett : raises E1 V -> raises (tm/lett E1 E2) V
 | raises/snd : raises-md M V -> raises (tm/snd M) V
 ;
+
+LF raises-md : module' -> term -> type =
+| raises-md/datom : raises E V -> raises-md (md/datom E T) V
+| raises-md/pair1 : raises-md M1 V -> raises-md (md/pair M1 M2) V
+| raises-md/pair2 : raises-md M2 V -> value-md M1 -> raises-md (md/pair M1 M2) V
+| raises-md/dpair : raises-md M1 V -> raises-md (md/dpair M1 (\a. \m. M2 a m)) V
+| raises-md/pi1 : raises-md M V -> raises-md (md/pi1 M) V
+| raises-md/pi2 : raises-md M V -> raises-md (md/pi2 M) V
+| raises-md/app1 : raises-md M1 V -> raises-md (md/app M1 M2) V
+| raises-md/app2 : raises-md M2 V -> value-md M1 -> raises-md (md/app M1 M2) V
+| raises-md/in : raises-md M V -> raises-md (md/in L M) V
+| raises-md/out : raises-md M V -> raises-md (md/out M) V
+| raises-md/let : raises-md M1 V -> raises-md (md/let M1 (\a. \m. M2 a m) S) V
+| raises-md/letp : raises-md M1 V -> raises-md (md/letp M1 (\a. \m. M2 a m)) V
+| raises-md/lete : raises E V -> raises-md (md/lete E T (\x. M x)) V
+;
