@@ -1,0 +1,80 @@
+% Term Inversion
+
+proof inversion-tm/abort/tm-of : [ |- tm-of F (tm/abort E T) T'] ->
+                                   [ |- tm-of F E void] =
+/ total 1 /
+intros
+{ F : ( |- sttp), E : ( |- term), T : ( |- con), T' : ( |- con)
+| x : [ |- tm-of F (tm/abort E T) T']
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T : ( |- con),
+    T' : ( |- con),
+    C : ( |- con),
+    X1 : ( |- cn-equiv C T' t),
+    X2 : ( |- tm-of F (tm/abort E T) C)
+  | x : [ |- tm-of F (tm/abort E T) T']
+  ; solve inversion-tm/abort/tm-of [ |- X2]
+  }
+  case tm-of/abort:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T' : ( |- con),
+    X1 : ( |- cn-of T' t),
+    X2 : ( |- tm-of F E void)
+  | x : [ |- tm-of F (tm/abort E T') T']
+  ; solve [ |- X2]
+  }
+  case tm-of/var:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T : ( |- con),
+    T' : ( |- con),
+    X1 : ( |- tm-assm (tm/abort E T) T')
+  | x : [ |- tm-of F (tm/abort E T) T']
+  ; impossible [ |- X1]
+  }
+}
+;
+
+proof inversion-tm/abort/cn-equiv : [ |- tm-of F (tm/abort E T) T'] ->
+                                      [ |- cn-equiv T T' t] =
+/ total 1 /
+intros
+{ F : ( |- sttp), E : ( |- term), T : ( |- con), T' : ( |- con)
+| x : [ |- tm-of F (tm/abort E T) T']
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T : ( |- con),
+    T' : ( |- con),
+    C : ( |- con),
+    X1 : ( |- cn-equiv C T' t),
+    X2 : ( |- tm-of F (tm/abort E T) C)
+  | x : [ |- tm-of F (tm/abort E T) T']
+  ; by inversion-tm/abort/cn-equiv [ |- X2] as L unboxed;
+    solve [ |- cn-equiv/trans L X1]
+  }
+  case tm-of/abort:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T' : ( |- con),
+    X1 : ( |- cn-of T' t),
+    X2 : ( |- tm-of F E void)
+  | x : [ |- tm-of F (tm/abort E T') T']
+  ; solve [ |- cn-equiv/refl X1]
+  }
+  case tm-of/var:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T : ( |- con),
+    T' : ( |- con),
+    X1 : ( |- tm-assm (tm/abort E T) T')
+  | x : [ |- tm-of F (tm/abort E T) T']
+  ; impossible [ |- X1]
+  }
+}
+;
