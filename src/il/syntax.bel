@@ -93,6 +93,25 @@ tm/ref : term -> term.
 tm/deref : term -> term.
 tm/assign : term -> term -> term.
 
+tm/tagloc : location -> term.
+tm/newtag : con -> term.
+
+tm/tag : term -> term -> term.
+tm/iftag : term -> term -> (term -> term) -> term -> term.
+
+tm/roll : term -> kind -> (con -> con -> con) -> con -> term.
+tm/unroll : term -> term.
+
+tm/in : label -> term -> term.
+tm/out : term -> term.
+
+tm/raise : term -> con -> term.
+tm/try : term -> (term -> term) -> term.
+
+tm/lett : term -> (term -> term) -> term.
+
+tm/snd : module' -> term.
+
 % Modules
 
 md/unit : module'.
