@@ -24,6 +24,7 @@ step : store -> term -> store -> term -> type.
 step-md : store -> module' -> store -> module' -> type.
 
 raises : term -> term -> type.
+raises-md : module' -> term -> type.
 
 LF step : store -> term -> store -> term -> type =
 | step/abort : step ST E ST' E' -> step ST (tm/abort E T) ST' (tm/abort E' T)
@@ -151,4 +152,33 @@ LF step : store -> term -> store -> term -> type =
 | step/snd : step-md ST M ST' M' -> step ST (tm/snd M) ST' (tm/snd M')
 
 | step/snd-beta : value E -> step ST (tm/snd (md/datom E T)) ST E
+;
+
+LF raises : term -> term -> type =
+| raises/abort : raises E V -> raises (tm/abort E T) V
+| raises/pair1 : raises E1 V -> raises (tm/pair E1 E2) V
+| raises/pair2 : value E1 -> raises E2 V -> raises (tm/pair E1 E2) V
+| raises/pi1 : raises E V -> raises (tm/pi1 E) V
+| raises/pi2 : raises E V -> raises (tm/pi2 E) V
+| raises/app1 : raises E1 V -> raises (tm/app E1 E2) V
+| raises/app2 : value E1 -> raises E2 V -> raises (tm/app E1 E2) V
+| raises/in1 : raises E V -> raises (tm/in1 E T) V
+| raises/in2 : raises E V -> raises (tm/in2 E T) V
+| raises/case : raises E V -> raises (tm/case E E1 E2) V
+| raises/ref : raises E V -> raises (tm/ref E) V
+| raises/deref : raises E V -> raises (tm/deref E) V
+| raises/assign1 : raises E1 V -> raises (tm/assign E1 E2) V
+| raises/assign2 : value E1 -> raises E2 V -> raises (tm/assign E1 E2) V
+| raises/tag1 : raises E1 V -> raises (tm/tag E1 E2) V
+| raises/tag2 : value E1 -> raises E2 V -> raises (tm/tag E1 E2) V
+| raises/iftag1 : raises E1 V -> raises (tm/iftag E1 E2 E3 E4) V
+| raises/iftag2 : value E1 -> raises E2 V -> raises (tm/iftag E1 E2 E3 E4) V
+| raises/roll : raises E V -> raises (tm/roll E _ _ _) V
+| raises/unroll : raises E V -> raises (tm/unroll E) V
+| raises/in : raises E V -> raises (tm/in I E) V
+| raises/out : raises E V -> raises (tm/out E) V
+| raises/raise1 : raises E V -> raises (tm/raise E T) V
+| raises/raise2 : value E -> raises (tm/raise E T) E
+| raises/lett : raises E1 V -> raises (tm/lett E1 E2) V
+| raises/snd : raises-md M V -> raises (tm/snd M) V
 ;
