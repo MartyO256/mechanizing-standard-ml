@@ -1,0 +1,45 @@
+% Equalities
+
+LF con-eq : con -> con -> type =
+| con-eq/i : con-eq C C
+;
+
+LF entp-eq : entp -> entp -> type =
+| entp-eq/i : entp-eq ET ET
+;
+
+LF entry-eq : entry -> entry -> type =
+| entry-eq/i : entry-eq EN EN
+;
+
+LF kind-eq : kind -> kind -> type =
+| kind-eq/i : kind-eq K K
+;
+
+LF module-eq : module' -> module' -> type =
+| module-eq/i : module-eq M M
+;
+
+LF name-eq : name -> name -> type =
+| name-eq/i : name-eq L L
+;
+
+LF purity-eq : purity -> purity -> type =
+| purity-eq/i : purity-eq P P
+;
+
+LF sg-eq : sg -> sg -> type =
+| sg-eq/i : sg-eq S S
+;
+
+LF store-eq : store -> store -> type =
+| store-eq/i : store-eq ST ST
+;
+
+LF sttp-eq : sttp -> sttp -> type =
+| sttp-eq/i : sttp-eq F F
+;
+
+LF term-eq : term -> term -> type =
+| term-eq/i : term-eq E E
+;
