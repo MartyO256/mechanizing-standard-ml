@@ -130,3 +130,88 @@ intros
 }
 ;
 
+% Transitivity
+
+proof con-eq-trans : [ |- con-eq C1 C2] ->
+                       [ |- con-eq C2 C3] ->
+                       [ |- con-eq C1 C3] =
+/ total /
+intros
+{ C : ( |- con), C1 : ( |- con), C2 : ( |- con)
+| x : [ |- con-eq C C1], x1 : [ |- con-eq C1 C2]
+; split x as
+  case con-eq/i:
+  { C1 : ( |- con), C2 : ( |- con)
+  | x : [ |- con-eq C1 C1], x1 : [ |- con-eq C1 C2]
+  ; split x1 as
+    case con-eq/i:
+    { C2 : ( |- con)
+    | x : [ |- con-eq C2 C2], x1 : [ |- con-eq C2 C2]
+    ; solve x
+    }
+  }
+}
+;
+
+proof module-eq-trans : [ |- module-eq M1 M2] ->
+                          [ |- module-eq M2 M3] ->
+                          [ |- module-eq M1 M3] =
+/ total /
+intros
+{ M : ( |- module'), M1 : ( |- module'), M2 : ( |- module')
+| x : [ |- module-eq M M1], x1 : [ |- module-eq M1 M2]
+; split x as
+  case module-eq/i:
+  { M1 : ( |- module'), M2 : ( |- module')
+  | x : [ |- module-eq M1 M1], x1 : [ |- module-eq M1 M2]
+  ; split x1 as
+    case module-eq/i:
+    { M2 : ( |- module')
+    | x : [ |- module-eq M2 M2], x1 : [ |- module-eq M2 M2]
+    ; solve x
+    }
+  }
+}
+;
+
+proof name-eq-trans : [ |- name-eq L1 L2] ->
+                        [ |- name-eq L2 L3] ->
+                        [ |- name-eq L1 L3] =
+/ total /
+intros
+{ L : ( |- name), L1 : ( |- name), L2 : ( |- name)
+| x : [ |- name-eq L L1], x1 : [ |- name-eq L1 L2]
+; split x as
+  case name-eq/i:
+  { L1 : ( |- name), L2 : ( |- name)
+  | x : [ |- name-eq L1 L1], x1 : [ |- name-eq L1 L2]
+  ; split x1 as
+    case name-eq/i:
+    { L2 : ( |- name)
+    | x : [ |- name-eq L2 L2], x1 : [ |- name-eq L2 L2]
+    ; solve x
+    }
+  }
+}
+;
+
+proof sg-eq-trans : [ |- sg-eq S1 S2] ->
+                      [ |- sg-eq S2 S3] ->
+                      [ |- sg-eq S1 S3] =
+/ total /
+intros
+{ S : ( |- sg), S1 : ( |- sg), S2 : ( |- sg)
+| x : [ |- sg-eq S S1], x1 : [ |- sg-eq S1 S2]
+; split x as
+  case sg-eq/i:
+  { S1 : ( |- sg), S2 : ( |- sg)
+  | x : [ |- sg-eq S1 S1], x1 : [ |- sg-eq S1 S2]
+  ; split x1 as
+    case sg-eq/i:
+    { S2 : ( |- sg)
+    | x : [ |- sg-eq S2 S2], x1 : [ |- sg-eq S2 S2]
+    ; solve x
+    }
+  }
+}
+;
