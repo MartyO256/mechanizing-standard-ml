@@ -215,3 +215,29 @@ intros
   }
 }
 ;
+
+% Respects Equality Lemmas
+
+proof cn-of-resp : [ |- con-eq C C'] ->
+                     [ |- kind-eq K K'] ->
+                     [ |- cn-of C K] ->
+                     [ |- cn-of C' K'] =
+/ total /
+intros
+{ C : ( |- con), C' : ( |- con), K : ( |- kind), K' : ( |- kind)
+| x : [ |- con-eq C C'], x1 : [ |- kind-eq K K'], x2 : [ |- cn-of C K]
+; split x as
+  case con-eq/i:
+  { C' : ( |- con), K : ( |- kind), K' : ( |- kind)
+  | x : [ |- con-eq C' C'], x1 : [ |- kind-eq K K'], x2 : [ |- cn-of C' K]
+  ; split x1 as
+    case kind-eq/i:
+    { C' : ( |- con), K' : ( |- kind)
+    | x : [ |- con-eq C' C'],
+      x1 : [ |- kind-eq K' K'],
+      x2 : [ |- cn-of C' K']
+    ; solve x2
+    }
+  }
+}
+;
