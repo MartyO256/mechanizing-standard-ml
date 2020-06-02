@@ -19,3 +19,120 @@ LF typeish : kind -> type =
 | typeish/t : typeish t
 | typeish/sing : typeish (sing _)
 ;
+
+proof typeish-equiv : [ |- kd-equiv K1 K2] ->
+                        [ |- typeish K2] -> [ |- typeish K1] =
+/ total 1 /
+intros
+{ K : ( |- kind), K1 : ( |- kind)
+| x : [ |- kd-equiv K K1], x1 : [ |- typeish K1]
+; split x as
+  case kd-equiv/sigma:
+  { K2 : ( |- kind),
+    K3 : (a7 : con |- kind),
+    K5 : ( |- kind),
+    K4 : (a8 : con |- kind),
+    X : (a : con, y134 : cn-of a K2[] |- kd-equiv (K3[a]) (K4[a])),
+    X1 : ( |- kd-equiv K2 K5)
+  | x : [ |- kd-equiv (sigma K2 (\z69. K3)) (sigma K5 (\z69. K4))],
+    x1 : [ |- typeish (sigma K5 (\z69. K4))]
+  ; impossible x1
+  }
+  case kd-equiv/pi:
+  { K2 : ( |- kind),
+    K3 : (a5 : con |- kind),
+    K5 : ( |- kind),
+    K4 : (a6 : con |- kind),
+    X : (a : con, y133 : cn-of a K2[] |- kd-equiv (K3[a]) (K4[a])),
+    X1 : ( |- kd-equiv K2 K5)
+  | x : [ |- kd-equiv (pi K2 (\z68. K3)) (pi K5 (\z68. K4))],
+    x1 : [ |- typeish (pi K5 (\z68. K4))]
+  ; impossible x1
+  }
+  case kd-equiv/sing:
+  { C : ( |- con), C1 : ( |- con), X : ( |- cn-equiv C C1 t)
+  | x : [ |- kd-equiv (sing C) (sing C1)], x1 : [ |- typeish (sing C1)]
+  ; solve [ |- typeish/sing ]
+  }
+  case kd-equiv/trans:
+  { K : ( |- kind),
+    K1 : ( |- kind),
+    K3 : ( |- kind),
+    X : ( |- kd-equiv K K3),
+    X1 : ( |- kd-equiv K3 K1)
+  | x : [ |- kd-equiv K K1], x1 : [ |- typeish K1]
+  ; by typeish-equiv [ |- X1] x1 as l1;
+    by typeish-equiv [ |- X] l1 as l2;
+    solve l2
+  }
+  case kd-equiv/symm:
+  { K : ( |- kind), K1 : ( |- kind), X : ( |- kd-equiv K1 K)
+  | x : [ |- kd-equiv K K1], x1 : [ |- typeish K1]
+  ; by typeish-equiv' [ |- X] x1 as l;
+    solve l
+  }
+  case kd-equiv/refl:
+  { K1 : ( |- kind), X : ( |- kd-wf K1)
+  | x : [ |- kd-equiv K1 K1], x1 : [ |- typeish K1]
+  ; solve x1
+  }
+}
+
+and proof typeish-equiv' : [ |- kd-equiv K1 K2] ->
+                        [ |- typeish K1] -> [ |- typeish K2] =
+/ total 1 /
+intros
+{ K : ( |- kind), K1 : ( |- kind)
+| x : [ |- kd-equiv K K1], x1 : [ |- typeish K]
+; split x as
+  case kd-equiv/sigma:
+  { K2 : ( |- kind),
+    K3 : (a7 : con |- kind),
+    K5 : ( |- kind),
+    K4 : (a8 : con |- kind),
+    X : (a : con, y134 : cn-of a K2[] |- kd-equiv (K3[a]) (K4[a])),
+    X1 : ( |- kd-equiv K2 K5)
+  | x : [ |- kd-equiv (sigma K2 (\z69. K3)) (sigma K5 (\z69. K4))],
+    x1 : [ |- typeish (sigma K2 (\z69. K3))]
+  ; impossible x1
+  }
+  case kd-equiv/pi:
+  { K2 : ( |- kind),
+    K3 : (a5 : con |- kind),
+    K5 : ( |- kind),
+    K4 : (a6 : con |- kind),
+    X : (a : con, y133 : cn-of a K2[] |- kd-equiv (K3[a]) (K4[a])),
+    X1 : ( |- kd-equiv K2 K5)
+  | x : [ |- kd-equiv (pi K2 (\z68. K3)) (pi K5 (\z68. K4))],
+    x1 : [ |- typeish (pi K2 (\z68. K3))]
+  ; impossible x1
+  }
+  case kd-equiv/sing:
+  { C : ( |- con), C1 : ( |- con), X : ( |- cn-equiv C C1 t)
+  | x : [ |- kd-equiv (sing C) (sing C1)], x1 : [ |- typeish (sing C)]
+  ; solve [ |- typeish/sing ]
+  }
+  case kd-equiv/trans:
+  { K : ( |- kind),
+    K1 : ( |- kind),
+    K3 : ( |- kind),
+    X : ( |- kd-equiv K K3),
+    X1 : ( |- kd-equiv K3 K1)
+  | x : [ |- kd-equiv K K1], x1 : [ |- typeish K]
+  ; by typeish-equiv' [ |- X] x1 as l1;
+    by typeish-equiv' [ |- X1] l1 as l2;
+    solve l2
+  }
+  case kd-equiv/symm:
+  { K : ( |- kind), K1 : ( |- kind), X : ( |- kd-equiv K1 K)
+  | x : [ |- kd-equiv K K1], x1 : [ |- typeish K]
+  ; by typeish-equiv [ |- X] x1 as l1;
+    solve l1
+  }
+  case kd-equiv/refl:
+  { K1 : ( |- kind), X : ( |- kd-wf K1)
+  | x : [ |- kd-equiv K1 K1], x1 : [ |- typeish K1]
+  ; solve x1
+  }
+}
+;
