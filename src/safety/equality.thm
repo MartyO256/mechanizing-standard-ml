@@ -43,3 +43,90 @@ LF sttp-eq : sttp -> sttp -> type =
 LF term-eq : term -> term -> type =
 | term-eq/i : term-eq E E
 ;
+
+% Symmetry
+
+proof con-eq-symm : [ |- con-eq C1 C2] -> [ |- con-eq C2 C1] =
+/ total /
+intros
+{ C : ( |- con), C1 : ( |- con)
+| x : [ |- con-eq C C1]
+; split x as
+  case con-eq/i:
+  { C1 : ( |- con)
+  | x : [ |- con-eq C1 C1]
+  ; solve x
+  }
+}
+;
+
+proof kind-eq-symm : [ |- kind-eq K1 K2] -> [ |- kind-eq K2 K1] =
+/ total /
+intros
+{ K : ( |- kind), K1 : ( |- kind)
+| x : [ |- kind-eq K K1]
+; split x as
+  case kind-eq/i:
+  { K1 : ( |- kind)
+  | x : [ |- kind-eq K1 K1]
+  ; solve x
+  }
+}
+;
+
+proof name-eq-symm : [ |- name-eq L1 L2] -> [ |- name-eq L2 L1] =
+/ total /
+intros
+{ L : ( |- name), L1 : ( |- name)
+| x : [ |- name-eq L L1]
+; split x as
+  case name-eq/i:
+  { L1 : ( |- name)
+  | x : [ |- name-eq L1 L1]
+  ; solve x
+  }
+}
+;
+
+proof sg-eq-symm : [ |- sg-eq S1 S2] -> [ |- sg-eq S2 S1] =
+/ total /
+intros
+{ S : ( |- sg), S1 : ( |- sg)
+| x : [ |- sg-eq S S1]
+; split x as
+  case sg-eq/i:
+  { S1 : ( |- sg)
+  | x : [ |- sg-eq S1 S1]
+  ; solve x
+  }
+}
+;
+
+proof term-eq-symm : [ |- term-eq E1 E2] -> [ |- term-eq E2 E1] =
+/ total /
+intros
+{ E : ( |- term), E1 : ( |- term)
+| x : [ |- term-eq E E1]
+; split x as
+  case term-eq/i:
+  { E1 : ( |- term)
+  | x : [ |- term-eq E1 E1]
+  ; solve x
+  }
+}
+;
+
+proof module-eq-symm : [ |- module-eq M1 M2] -> [ |- module-eq M2 M1] =
+/ total /
+intros
+{ M : ( |- module'), M1 : ( |- module')
+| x : [ |- module-eq M M1]
+; split x as
+  case module-eq/i:
+  { M1 : ( |- module')
+  | x : [ |- module-eq M1 M1]
+  ; solve x
+  }
+}
+;
+
