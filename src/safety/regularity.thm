@@ -1,0 +1,21 @@
+% Similarity
+
+LF similar : con -> con -> type =
+| similar/unit : similar unit unit
+| similar/void : similar void void
+| similar/prod : similar (prod _ _) (prod _ _)
+| similar/arrow : similar (arrow _ _) (arrow _ _)
+| similar/plus : similar (plus _ _) (plus _ _)
+| similar/ref : similar (ref _) (ref _)
+| similar/tag : similar (tag _) (tag _)
+| similar/tagged : similar tagged tagged
+| similar/rec : similar (rec' _ _ _) (rec' _ _ _)
+| similar/labeled : similar (labeled _ _) (labeled _ _)
+;
+
+% Type Formation Inversion
+
+LF typeish : kind -> type =
+| typeish/t : typeish t
+| typeish/sing : typeish (sing _)
+;
