@@ -6,27 +6,6 @@ kind : type.
 con : type.
 --name con C a.
 
-sg : type.
---name sg S.
-
-term : type.
---name term E x.
-
-module' : type.
---name module' M m.
-
-entry : type.
---name entry EN.
-
-store : type.
---name store ST.
-
-entp : type.
---name entp ET.
-
-sttp : type.
---name sttp F.
-
 name : type.
 --name name L.
 
@@ -60,97 +39,114 @@ labeled : label -> con -> con.
 
 % Signatures
 
+LF sg : type =
+| sg/one : sg
+| sg/satom : kind -> sg
+| sg/datom : con -> sg
+| sg/sgatom : sg -> sg
 
-sg/one		: sg.
-sg/satom	: kind -> sg.
-sg/datom	: con -> sg.
-sg/sgatom	: sg -> sg.
-
-sg/pi		: sg -> (con -> sg) -> sg.
-sg/sigma	: sg -> (con -> sg) -> sg.
-sg/named	: name -> sg -> sg.
-
+| sg/pi : sg -> (con -> sg) -> sg
+| sg/sigma : sg -> (con -> sg) -> sg
+| sg/named : name -> sg -> sg
+;
+--name sg S.
 
 % Terms
 
-tm/unit : term.
+LF term : type =
+| tm/unit : term
+| tm/abort : term -> con -> term
 
-tm/abort : term -> con -> term.
+| tm/pair : term -> term -> term
+| tm/pi1 : term -> term
+| tm/pi2 : term -> term
 
-tm/pair : term -> term -> term.
-tm/pi1 : term -> term.
-tm/pi2 : term -> term.
+| tm/lam : con -> (term -> term) -> term
+| tm/app : term -> term -> term
 
-tm/lam : con -> (term -> term) -> term.
-tm/app : term -> term -> term.
+| tm/in1 : term -> con -> term
+| tm/in2 : term -> con -> term
+| tm/case : term -> (term -> term) -> (term -> term) -> term
 
-tm/in1 : term -> con -> term.
-tm/in2 : term -> con -> term.
-tm/case : term -> (term -> term) -> (term -> term) -> term.
+| tm/refloc : location -> term
+| tm/ref : term -> term
+| tm/deref : term -> term
+| tm/assign : term -> term -> term
 
-tm/refloc : location -> term.
-tm/ref : term -> term.
-tm/deref : term -> term.
-tm/assign : term -> term -> term.
+| tm/tagloc : location -> term
+| tm/newtag : con -> term
 
-tm/tagloc : location -> term.
-tm/newtag : con -> term.
+| tm/tag : term -> term -> term
+| tm/iftag : term -> term -> (term -> term) -> term -> term
 
-tm/tag : term -> term -> term.
-tm/iftag : term -> term -> (term -> term) -> term -> term.
+| tm/roll : term -> kind -> (con -> con -> con) -> con -> term
+| tm/unroll : term -> term
 
-tm/roll : term -> kind -> (con -> con -> con) -> con -> term.
-tm/unroll : term -> term.
+| tm/in : label -> term -> term
+| tm/out : term -> term
 
-tm/in : label -> term -> term.
-tm/out : term -> term.
+| tm/raise : term -> con -> term
+| tm/try : term -> (term -> term) -> term
 
-tm/raise : term -> con -> term.
-tm/try : term -> (term -> term) -> term.
+| tm/lett : term -> (term -> term) -> term
 
-tm/lett : term -> (term -> term) -> term.
-
-tm/snd : module' -> term.
+| tm/snd : module' -> term
 
 % Modules
 
-md/unit : module'.
-md/satom : con -> module'.
-md/datom : term -> con -> module'.
-md/sgatom : sg -> module'.
+and module' : type =
+| md/unit : module'
+| md/satom : con -> module'
+| md/datom : term -> con -> module'
+| md/sgatom : sg -> module'
 
-md/pair : module' -> module' -> module'.
-md/dpair : module' -> (con -> module' -> module') -> module'.
-md/pi1 : module' -> module'.
-md/pi2 : module' -> module'.
+| md/pair : module' -> module' -> module'
+| md/dpair : module' -> (con -> module' -> module') -> module'
+| md/pi1 : module' -> module'
+| md/pi2 : module' -> module'
 
-md/lam : sg -> (con -> module' -> module') -> module'.
-md/app : module' -> module' -> module'.
+| md/lam : sg -> (con -> module' -> module') -> module'
+| md/app : module' -> module' -> module'
 
-md/in : name -> module' -> module'.
-md/out : module' -> module'.
+| md/in : name -> module' -> module'
+| md/out : module' -> module'
 
-md/let : module' -> (con -> module' -> module') -> sg -> module'.
-md/letp : module' -> (con -> module' -> module') -> module'.
-md/lete : term -> con -> (term -> module') -> module'.
+| md/let : module' -> (con -> module' -> module') -> sg -> module'
+| md/letp : module' -> (con -> module' -> module') -> module'
+| md/lete : term -> con -> (term -> module') -> module'
 
-md/seal : module' -> sg -> module'.
+| md/seal : module' -> sg -> module'
+;
+--name term E x.
+--name module' M m.
 
 % Entries & Stores
 
-entry/ref : term -> entry.
-entry/tag : con -> entry.
+LF entry : type =
+| entry/ref : term -> entry
+| entry/tag : con -> entry
+;
+--name entry EN.
 
-store/nil : store.
-store/cons : store -> location -> entry -> store.
+LF store : type =
+| store/nil : store
+| store/cons : store -> location -> entry -> store
+;
+--name store ST.
 
 % Entry & Store Types
 
-et/ref : con -> entp.
-et/tag : con -> entp.
+LF entp : type =
+| et/ref : con -> entp
+| et/tag : con -> entp
+;
+--name entp ET.
 
-st/nil : sttp.
-st/cons : sttp -> location -> entp -> sttp.
+LF sttp : type =
+| st/nil : sttp
+| st/cons : sttp -> location -> entp -> sttp
+;
+--name sttp F.
 
 % Purity
 

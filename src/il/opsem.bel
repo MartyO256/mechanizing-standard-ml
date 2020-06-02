@@ -20,11 +20,7 @@ LF nextloc : store -> location -> type =
 
 % Evaluation
 
-step : store -> term -> store -> term -> type.
 step-md : store -> module' -> store -> module' -> type.
-
-raises : term -> term -> type.
-raises-md : module' -> term -> type.
 
 LF step : store -> term -> store -> term -> type =
 | step/abort : step ST E ST' E' -> step ST (tm/abort E T) ST' (tm/abort E' T)
@@ -152,9 +148,8 @@ LF step : store -> term -> store -> term -> type =
 | step/snd : step-md ST M ST' M' -> step ST (tm/snd M) ST' (tm/snd M')
 
 | step/snd-beta : value E -> step ST (tm/snd (md/datom E T)) ST E
-;
 
-LF raises : term -> term -> type =
+and raises : term -> term -> type =
 | raises/abort : raises E V -> raises (tm/abort E T) V
 | raises/pair1 : raises E1 V -> raises (tm/pair E1 E2) V
 | raises/pair2 : value E1 -> raises E2 V -> raises (tm/pair E1 E2) V
@@ -181,9 +176,8 @@ LF raises : term -> term -> type =
 | raises/raise2 : value E -> raises (tm/raise E T) E
 | raises/lett : raises E1 V -> raises (tm/lett E1 E2) V
 | raises/snd : raises-md M V -> raises (tm/snd M) V
-;
 
-LF raises-md : module' -> term -> type =
+and raises-md : module' -> term -> type =
 | raises-md/datom : raises E V -> raises-md (md/datom E T) V
 | raises-md/pair1 : raises-md M1 V -> raises-md (md/pair M1 M2) V
 | raises-md/pair2 : raises-md M2 V -> value-md M1 -> raises-md (md/pair M1 M2) V
