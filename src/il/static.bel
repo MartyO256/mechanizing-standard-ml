@@ -2,10 +2,9 @@
 
 tm-assm : term -> con -> type.
 
-st-lookup : sttp -> location -> entp -> type.
-entry-of : sttp -> entry -> entp -> type.
-
-md-of : purity -> sttp -> module' -> sg -> type.
+md-assm		: module' -> sg -> type.
+md-of		: purity -> sttp -> module' -> sg -> type.
+md-fst		: module' -> con -> type.
 
 % Kind Formation
 
@@ -290,6 +289,97 @@ LF tm-of : sttp -> term -> con -> type =
 | tm-of/snd : md-of P F M (sg/datom T) -> tm-of F (tm/snd M) T
 
 | tm-of/equiv : cn-equiv T1 T2 t -> tm-of F E T1 -> tm-of F E T2
+
+% Store Type Lookup
+
+and st-lookup : sttp -> location -> entp -> type =
+| st-lookup/hit : st-lookup (st/cons _ L ET) L ET
+| st-lookup/miss : st-lookup F L ET -> st-lookup (st/cons F _ _) L ET
+
+% Entry Typing
+
+and entry-of : sttp -> entry -> entp -> type =
+| entry-of/ref : value E -> tm-of F E T -> entry-of F (entry/ref E) (et/ref T)
+| entry-of/tag : cn-of T t -> entry-of F (entry/tag T) (et/tag T)
+;
+
+% Signature Formation
+
+LF sg-wf : sg -> type =
+| sg-wf/one : sg-wf sg/one
+
+| sg-wf/satom : kd-wf K -> sg-wf (sg/satom K)
+
+| sg-wf/datom : cn-of T t -> sg-wf (sg/datom T)
+
+| sg-wf/sgatom : sg-wf S -> sg-wf (sg/sgatom S)
+
+| sg-wf/pi : ({ a : con } cn-of a K -> sg-wf (S2 a)) ->
+               sg-fst S1 K ->
+               sg-wf S1 ->
+               sg-wf (sg/pi S1 S2)
+
+| sg-wf/sigma : ({ a : con } cn-of a K ->
+                  sg-wf (S2 a)) ->
+                  sg-fst S1 K ->
+                  sg-wf S1 ->
+                  sg-wf (sg/sigma S1 S2)
+
+| sg-wf/named : sg-wf S -> sg-wf (sg/named L S)
+
+and sg-equiv : sg -> sg -> type =
+| sg-equiv/refl : sg-wf S -> sg-equiv S S
+
+| sg-equiv/symm : sg-equiv S1 S2 -> sg-equiv S2 S1
+
+| sg-equiv/trans : sg-equiv S1 S2 -> sg-equiv S2 S3 -> sg-equiv S1 S3
+
+| sg-equiv/satom : kd-equiv K1 K2 -> sg-equiv (sg/satom K1) (sg/satom K2)
+
+| sg-equiv/datom : cn-equiv T1 T2 t -> sg-equiv (sg/datom T1) (sg/datom T2)
+
+| sg-equiv/sgatom : sg-equiv S1 S2 -> sg-equiv (sg/sgatom S1) (sg/sgatom S2)
+
+| sg-equiv/pi : ({ a : con } cn-of a K1 -> sg-equiv (S2 a) (S2' a)) ->
+                  sg-fst S1 K1 ->
+                  sg-equiv S1 S1' ->
+                  sg-equiv (sg/pi S1 S2) (sg/pi S1' S2')
+
+| sg-equiv/sigma : ({ a : con } cn-of a K1 -> sg-equiv (S2 a) (S2' a)) ->
+                     sg-fst S1 K1 ->
+                     sg-equiv S1 S1' ->
+                     sg-equiv (sg/sigma S1 S2) (sg/sigma S1' S2')
+
+| sg-equiv/named : sg-equiv S S' -> sg-equiv (sg/named L S) (sg/named L S')
+
+and sg-sub : sg -> sg -> type =
+| sg-sub/refl : sg-equiv S1 S2 -> sg-sub S1 S2
+
+| sg-sub/trans : sg-sub S1 S2 -> sg-sub S2 S3 -> sg-sub S1 S3
+
+| sg-sub/satom : kd-sub K1 K2 -> sg-sub (sg/satom K1) (sg/satom K2)
+
+| sg-sub/pi : ({ a : con } cn-of a K1 -> sg-wf (S2 a)) ->
+                sg-fst S1 K1 ->
+                ({ a : con } cn-of a K1' -> sg-sub (S2 a) (S2' a)) ->
+                sg-fst S1' K1' ->
+                sg-sub S1' S1 ->
+                sg-sub (sg/pi S1 S2) (sg/pi S1' S2')
+
+| sg-sub/sigma : ({ a : con } cn-of a K1' -> sg-wf (S2' a)) ->
+                   sg-fst S1' K1' ->
+                   ({ a : con } cn-of a K1 -> sg-sub (S2 a) (S2' a)) ->
+                   sg-fst S1 K1 ->
+                   sg-sub S1 S1' ->
+                   sg-sub (sg/sigma S1 S2) (sg/sigma S1' S2')
+
+| sg-sub/named : sg-sub S S' -> sg-sub (sg/named L S) (sg/named L S')
+
+and sg-fst : sg -> kind -> type =
+| sg-sub/reflid : sg-wf S -> sg-sub S S
+| sg-sub/one : sg-sub sg/one sg/one
+| sg-sub/datom : cn-equiv T1 T2 t -> sg-sub (sg/datom T1) (sg/datom T2)
+| sg-sub/sgatom : sg-equiv S1 S2 -> sg-sub (sg/sgatom S1) (sg/sgatom S2)
 ;
 
 % Store Typing
