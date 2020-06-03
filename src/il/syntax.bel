@@ -1,13 +1,8 @@
-% Syntactic classes
-
 kind : type.
 --name kind K.
 
 con : type.
 --name con C a.
-
-name : type.
---name name L.
 
 % Kinds
 
@@ -36,6 +31,29 @@ tag : con -> con.
 tagged : con.
 rec' : kind -> (con -> con -> con) -> con -> con.
 labeled : label -> con -> con.
+
+% Names
+
+LF name : type =
+| name/val : identifier -> name
+| name/con : identifier -> name
+| name/mod : identifier -> name
+| name/fun : identifier -> name
+| name/sig : identifier -> name
+| name/dtc : identifier -> name
+| name/ec : identifier -> name
+
+| name/ordinary : name
+| name/dcon0 : nat -> nat -> name
+| name/dcon1 : nat -> nat -> name
+| name/econ0 : name
+| name/econ1 : name
+
+| name/basis : name
+| name/hide : name
+| name/funcarg : name
+;
+--name name L.
 
 % Signatures
 
