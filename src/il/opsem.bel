@@ -20,8 +20,6 @@ LF nextloc : store -> location -> type =
 
 % Evaluation
 
-step-md : store -> module' -> store -> module' -> type.
-
 LF step : store -> term -> store -> term -> type =
 | step/abort : step ST E ST' E' -> step ST (tm/abort E T) ST' (tm/abort E' T)
 
@@ -148,6 +146,85 @@ LF step : store -> term -> store -> term -> type =
 | step/snd : step-md ST M ST' M' -> step ST (tm/snd M) ST' (tm/snd M')
 
 | step/snd-beta : value E -> step ST (tm/snd (md/datom E T)) ST E
+
+and step-md : store -> module' -> store -> module' -> type =
+| step-md/datom : step ST E ST' E' ->
+                    step-md ST (md/datom E T) ST' (md/datom E' T)
+
+| step-md/pair1 : step-md ST M1 ST' M1' ->
+                    step-md ST (md/pair M1 M2) ST' (md/pair M1' M2)
+
+| step-md/pair2 : value-md M1 ->
+                    step-md ST M2 ST' M2' ->
+                    step-md ST (md/pair M1 M2) ST' (md/pair M1 M2')
+
+| step-md/dpair1 : step-md ST M1 ST' M1' ->
+                     step-md ST (md/dpair M1 (\a. \m. M2 a m)) ST'
+                       (md/dpair M1' (\a. \m. M2 a m))
+
+| step-md/dpair2 : value-md M1 ->
+                     md-fst M1 C1 ->
+                     step-md ST (md/dpair M1 (\a. \m. M2 a m)) ST
+                       (md/pair M1 (M2 C1 M1))
+
+| step-md/pi1 : step-md ST M ST' M' ->
+                  step-md ST (md/pi1 M) ST' (md/pi1 M')
+
+| step-md/pi1-beta : value-md M1 ->
+                       value-md M2 ->
+                       step-md ST (md/pi1 (md/pair M1 M2)) ST M1
+
+| step-md/pi2 : step-md ST M ST' M' ->
+                  step-md ST (md/pi2 M) ST' (md/pi2 M')
+
+| step-md/pi2-beta : value-md M1 ->
+                       value-md M2 ->
+                       step-md ST (md/pi2 (md/pair M1 M2)) ST M2
+
+| step-md/app1 : step-md ST M1 ST' M1' ->
+                   step-md ST (md/app M1 M2) ST' (md/app M1' M2)
+
+| step-md/app2 : value-md M1 ->
+                   step-md ST M2 ST' M2' ->
+                   step-md ST (md/app M1 M2) ST' (md/app M1 M2')
+
+| step-md/app-beta : value-md M2 ->
+                       md-fst M2 C2 ->
+                       step-md ST (md/app (md/lam S (\a. \m. M1 a m)) M2) ST
+                         (M1 C2 M2)
+
+| step-md/in : step-md ST M ST' M' ->
+                 step-md ST (md/in L M) ST' (md/in L M')
+
+| step-md/out : step-md ST M ST' M' ->
+                  step-md ST (md/out M) ST' (md/out M')
+
+| step-md/out-beta : value-md M -> step-md ST (md/out (md/in L M)) ST M
+
+| step-md/let1 : step-md ST M1 ST' M1' ->
+                   step-md ST (md/let M1 (\a. \m. M2 a m) S) ST'
+                     (md/let M1' (\a. \m. M2 a m) S)
+
+| step-md/let2 : value-md M1 ->
+                   md-fst M1 C1 ->
+                   step-md ST (md/let M1 (\a. \m. M2 a m) S) ST (M2 C1 M1)
+
+| step-md/letp1 : step-md ST M1 ST' M1' ->
+                    step-md ST (md/letp M1 (\a. \m. M2 a m)) ST'
+                      (md/letp M1' (\a. \m. M2 a m))
+
+| step-md/letp2 : value-md M1 ->
+                    md-fst M1 C1 ->
+                    step-md ST (md/letp M1 (\a. \m. M2 a m)) ST (M2 C1 M1)
+
+| step-md/lete1 : step ST E ST' E' ->
+                    step-md ST (md/lete E T (\x. M x)) ST'
+                      (md/lete E' T (\x. M x))
+
+| step-md/lete2 : value E ->
+                    step-md ST (md/lete E T (\x. M x)) ST (M E)
+
+| step-md/seal : step-md ST (md/seal M S) ST M
 
 and raises : term -> term -> type =
 | raises/abort : raises E V -> raises (tm/abort E T) V
