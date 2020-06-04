@@ -1,10 +1,7 @@
 % Judgements
 
 tm-assm : term -> con -> type.
-
 md-assm		: module' -> sg -> type.
-md-of		: purity -> sttp -> module' -> sg -> type.
-md-fst		: module' -> con -> type.
 
 % Kind Formation
 
@@ -301,11 +298,10 @@ and st-lookup : sttp -> location -> entp -> type =
 and entry-of : sttp -> entry -> entp -> type =
 | entry-of/ref : value E -> tm-of F E T -> entry-of F (entry/ref E) (et/ref T)
 | entry-of/tag : cn-of T t -> entry-of F (entry/tag T) (et/tag T)
-;
 
 % Signature Formation
 
-LF sg-wf : sg -> type =
+and sg-wf : sg -> type =
 | sg-wf/one : sg-wf sg/one
 
 | sg-wf/satom : kd-wf K -> sg-wf (sg/satom K)
@@ -380,6 +376,132 @@ and sg-fst : sg -> kind -> type =
 | sg-sub/one : sg-sub sg/one sg/one
 | sg-sub/datom : cn-equiv T1 T2 t -> sg-sub (sg/datom T1) (sg/datom T2)
 | sg-sub/sgatom : sg-equiv S1 S2 -> sg-sub (sg/sgatom S1) (sg/sgatom S2)
+
+% Module Formation
+
+and md-of : purity -> sttp -> module' -> sg -> type =
+| md-of/var : md-assm X S -> md-of pure F X S
+
+| md-of/unit : md-of pure F md/unit sg/one
+
+| md-of/satom : cn-of C K -> md-of pure F (md/satom C) (sg/satom K)
+
+| md-of/sgatom : sg-wf S -> md-of pure F (md/sgatom S) (sg/sgatom S)
+
+| md-of/datom : tm-of F E T -> md-of pure F (md/datom E T) (sg/datom T)
+
+| md-of/pair : md-of P F M1 S1 ->
+                 md-of P F M2 S2 ->
+                 md-of P F (md/pair M1 M2) (sg/sigma S1 (\x. S2))
+
+| md-of/dpair : md-of P F M1 S1 ->
+                  sg-fst S1 K1 ->
+                  ({ a : con } cn-of a K1 ->
+                    { m : module' } md-assm m S1 ->
+                    md-fst m a ->
+                    md-of P F (M2 a m) (S2 a)) ->
+                  md-of P F (md/dpair M1 (\a. \m. M2 a m)) (sg/sigma S1 S2)
+
+| md-of/pi1 : md-of pure F M (sg/sigma S1 S2) -> md-of pure F (md/pi1 M) S1
+
+| md-of/pi2 : md-of pure F M (sg/sigma S1 S2) ->
+                md-fst M C ->
+                md-of pure F (md/pi2 M) (S2 (pi1 C))
+
+| md-of/lam : sg-wf S1 ->
+                sg-fst S1 K1 ->
+                ({ a : con } cn-of a K1 ->
+                  { m : module' } md-assm m S1 ->
+                  md-fst m a ->
+                  md-of P F (M a m) (S2 a)) ->
+                md-of pure F (md/lam S1 M) (sg/pi S1 S2)
+
+| md-of/app : md-of P F M1 (sg/pi S1 S2) ->
+                md-of pure F M2 S1 ->
+                md-fst M2 C2 ->
+                md-of impure F (md/app M1 M2) (S2 C2)
+
+| md-of/in : md-of P F M S -> md-of P F (md/in L M) (sg/named L S)
+
+| md-of/out : md-of P F M (sg/named L S) -> md-of P F (md/out M) S
+
+| md-of/let : md-of P1 F M1 S1 ->
+                sg-fst S1 K1 ->
+                ({ a : con } cn-of a K1 ->
+                  { m : module' } md-assm m S1 ->
+                  md-fst m a ->
+                  md-of P2 F (M2 a m) S) ->
+                md-of impure F (md/let M1 M2 S) S
+
+| md-of/letp : md-of pure F M1 S1 ->
+                 sg-fst S1 K1 ->
+                 md-fst M1 C1 ->
+                 ({ a : con } cn-of a K1 ->
+                   { m : module' } md-assm m S1 ->
+                   md-fst m a ->
+                   md-of P F (M2 a m) (S2 a)) ->
+                 md-of P F (md/letp M1 M2) (S2 C1)
+
+| md-of/lete : tm-of F E T ->
+                 ({ x : term } tm-assm x T -> md-of P F (M x) S) ->
+                 md-of P F (md/lete E T (\x. M x)) S
+
+| md-of/seal : md-of P F M S -> md-of impure F (md/seal M S) S
+
+| md-of/self : md-of pure F M (sg/satom K') ->
+                 md-fst M C ->
+                 cn-of C K ->
+                 md-of pure F M (sg/satom K)
+
+| md-of/extsigma : md-of pure F (md/pi1 M) S1 ->
+                     md-of pure F (md/pi2 M) S2 ->
+                     md-of pure F M (sg/sigma S1 (\x. S2))
+
+| md-of/extnamed : md-of pure F M (sg/named L S') ->
+                     md-of pure F (md/out M) S ->
+                     md-of pure F M (sg/named L S)
+
+| md-of/forget : md-of pure F M S -> md-of impure F M S
+
+| md-of/subsume : md-of P F M S -> sg-sub S S' -> md-of P F M S'
+
+% Module Fst
+
+and md-fst : module' -> con -> type =
+| md-fst/unit : md-fst md/unit star
+
+| md-fst/satom : md-fst (md/satom C) C
+
+| md-fst/datom : md-fst (md/datom E _) star
+
+| md-fst/sgatom : md-fst (md/sgatom S) star
+
+| md-fst/pair : md-fst M1 C1 ->
+                  md-fst M2 C2 ->
+                  md-fst (md/pair M1 M2) (pair C1 C2)
+
+| md-fst/dpair : md-fst M1 C1 ->
+                   ({ a : con } { m : module' } md-fst m a ->
+                     md-fst (M2 a m) (C2 a)) ->
+                   md-fst (md/dpair M1 (\a. \m. M2 a m)) (pair C1 (C2 C1))
+
+| md-fst/pi1 : md-fst M C -> md-fst (md/pi1 M) (pi1 C)
+
+| md-fst/pi2 : md-fst M C -> md-fst (md/pi2 M) (pi2 C)
+
+| md-fst/lam : md-fst (md/lam S (\a. \m. M a m)) star
+
+| md-fst/in : md-fst M C -> md-fst (md/in L M) C
+
+| md-fst/out : md-fst M C -> md-fst (md/out M) C
+
+| md-fst/letp : md-fst M1 C1 ->
+                  ({ a : con } { m : module' } md-fst m a ->
+                    md-fst (M2 a m) (C2 a)) ->
+                  md-fst (md/letp M1 (\a. \m. M2 a m)) (C2 C1)
+
+| md-fst/lete : ({ x : term } md-fst (M x) C) ->
+                  md-fst (md/lete E T (\x. M x)) C
 ;
 
 % Store Typing
