@@ -177,3 +177,182 @@ and mcn-of : cn-of M A -> mcon -> type =
 
 | mcn-of/labeled : mcn-of D DM -> mcn-of (cn-of/labeled D) (mcon/labeled DM)
 ;
+
+% Equality
+
+LF ctx-eq : ctx -> ctx -> type =
+| ctx-eq/i : ctx-eq G G
+;
+
+proof cn-of-i-resp : [ |- ctx-eq G G'] ->
+                       [ |- con-eq M M'] ->
+                         [ |- kind-eq A A'] ->
+                           [ |- cn-of-i G M A] -> [ |- cn-of-i G' M' A'] =
+/ total /
+intros
+{ G : ( |- ctx),
+  G' : ( |- ctx),
+  M : ( |- con),
+  M' : ( |- con),
+  A : ( |- kind),
+  A' : ( |- kind)
+| x : [ |- ctx-eq G G'],
+  x1 : [ |- con-eq M M'],
+  x2 : [ |- kind-eq A A'],
+  x3 : [ |- cn-of-i G M A]
+; split x as
+  case ctx-eq/i:
+  { G' : ( |- ctx),
+    M : ( |- con),
+    M' : ( |- con),
+    A : ( |- kind),
+    A' : ( |- kind)
+  | x : [ |- ctx-eq G' G'],
+    x1 : [ |- con-eq M M'],
+    x2 : [ |- kind-eq A A'],
+    x3 : [ |- cn-of-i G' M A]
+  ; split x1 as
+    case con-eq/i:
+    { G' : ( |- ctx), M' : ( |- con), A : ( |- kind), A' : ( |- kind)
+    | x : [ |- ctx-eq G' G'],
+      x1 : [ |- con-eq M' M'],
+      x2 : [ |- kind-eq A A'],
+      x3 : [ |- cn-of-i G' M' A]
+    ; split x2 as
+      case kind-eq/i:
+      { G' : ( |- ctx), M' : ( |- con), A' : ( |- kind)
+      | x : [ |- ctx-eq G' G'],
+        x1 : [ |- con-eq M' M'],
+        x2 : [ |- kind-eq A' A'],
+        x3 : [ |- cn-of-i G' M' A']
+      ; solve x3
+      }
+    }
+  }
+}
+;
+
+proof cn-equiv-i-resp : [ |- ctx-eq G G'] ->
+                          [ |- con-eq M M'] ->
+                            [ |- con-eq N N'] ->
+                              [ |- kind-eq A A'] ->
+                                [ |- cn-equiv-i G M N A] ->
+                                  [ |- cn-equiv-i G' M' N' A'] =
+/ total /
+intros
+{ G : ( |- ctx),
+  G' : ( |- ctx),
+  M : ( |- con),
+  M' : ( |- con),
+  N : ( |- con),
+  N' : ( |- con),
+  A : ( |- kind),
+  A' : ( |- kind)
+| x : [ |- ctx-eq G G'],
+  x1 : [ |- con-eq M M'],
+  x2 : [ |- con-eq N N'],
+  x3 : [ |- kind-eq A A'],
+  x4 : [ |- cn-equiv-i G M N A]
+; split x as
+  case ctx-eq/i:
+  { G' : ( |- ctx),
+    M : ( |- con),
+    M' : ( |- con),
+    N : ( |- con),
+    N' : ( |- con),
+    A : ( |- kind),
+    A' : ( |- kind)
+  | x : [ |- ctx-eq G' G'],
+    x1 : [ |- con-eq M M'],
+    x2 : [ |- con-eq N N'],
+    x3 : [ |- kind-eq A A'],
+    x4 : [ |- cn-equiv-i G' M N A]
+  ; split x1 as
+    case con-eq/i:
+    { G' : ( |- ctx),
+      M' : ( |- con),
+      N : ( |- con),
+      N' : ( |- con),
+      A : ( |- kind),
+      A' : ( |- kind)
+    | x : [ |- ctx-eq G' G'],
+      x1 : [ |- con-eq M' M'],
+      x2 : [ |- con-eq N N'],
+      x3 : [ |- kind-eq A A'],
+      x4 : [ |- cn-equiv-i G' M' N A]
+    ; split x2 as
+      case con-eq/i:
+      { G' : ( |- ctx),
+        M' : ( |- con),
+        N' : ( |- con),
+        A : ( |- kind),
+        A' : ( |- kind)
+      | x : [ |- ctx-eq G' G'],
+        x1 : [ |- con-eq M' M'],
+        x2 : [ |- con-eq N' N'],
+        x3 : [ |- kind-eq A A'],
+        x4 : [ |- cn-equiv-i G' M' N' A]
+      ; split x3 as
+        case kind-eq/i:
+        { G' : ( |- ctx), M' : ( |- con), N' : ( |- con), A' : ( |- kind)
+        | x : [ |- ctx-eq G' G'],
+          x1 : [ |- con-eq M' M'],
+          x2 : [ |- con-eq N' N'],
+          x3 : [ |- kind-eq A' A'],
+          x4 : [ |- cn-equiv-i G' M' N' A']
+        ; solve x4
+        }
+      }
+    }
+  }
+}
+;
+
+proof kd-equiv-i-resp : [ |- ctx-eq G G'] ->
+                          [ |- kind-eq A A'] ->
+                            [ |- kind-eq B B'] ->
+                              [ |- kd-equiv-i G A B] ->
+                                [ |- kd-equiv-i G' A' B'] =
+/ total /
+intros
+{ G : ( |- ctx),
+  G' : ( |- ctx),
+  A : ( |- kind),
+  A' : ( |- kind),
+  B : ( |- kind),
+  B' : ( |- kind)
+| x : [ |- ctx-eq G G'],
+  x1 : [ |- kind-eq A A'],
+  x2 : [ |- kind-eq B B'],
+  x3 : [ |- kd-equiv-i G A B]
+; split x as
+  case ctx-eq/i:
+  { G' : ( |- ctx),
+    A : ( |- kind),
+    A' : ( |- kind),
+    B : ( |- kind),
+    B' : ( |- kind)
+  | x : [ |- ctx-eq G' G'],
+    x1 : [ |- kind-eq A A'],
+    x2 : [ |- kind-eq B B'],
+    x3 : [ |- kd-equiv-i G' A B]
+  ; split x1 as
+    case kind-eq/i:
+    { G' : ( |- ctx), A' : ( |- kind), B : ( |- kind), B' : ( |- kind)
+    | x : [ |- ctx-eq G' G'],
+      x1 : [ |- kind-eq A' A'],
+      x2 : [ |- kind-eq B B'],
+      x3 : [ |- kd-equiv-i G' A' B]
+    ; split x2 as
+      case kind-eq/i:
+      { G' : ( |- ctx), A' : ( |- kind), B' : ( |- kind)
+      | x : [ |- ctx-eq G' G'],
+        x1 : [ |- kind-eq A' A'],
+        x2 : [ |- kind-eq B' B'],
+        x3 : [ |- kd-equiv-i G' A' B']
+      ; solve x3
+      }
+    }
+  }
+}
+;
