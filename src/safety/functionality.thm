@@ -1,0 +1,179 @@
+% Contexts
+
+isvar : con -> type.
+
+LF ctx : type =
+| nil : ctx
+| cons : ctx -> con -> kind -> ctx
+;
+--name ctx G.
+
+LF clean : ctx -> type =
+| clean/nil : clean nil
+| clean/cons : isvar X -> clean G -> clean (cons G X A)
+;
+
+LF ctx-lookup : ctx -> con -> kind -> type =
+| ctx-lookup/hit : ctx-lookup (cons G X A) X A
+| ctx-lookup/miss : ctx-lookup G X A -> ctx-lookup (cons G Y _) X A
+;
+
+% Explicit/Implicit Context System
+
+LF kd-wf-i : ctx -> kind -> type =
+| kd-wf-i/nil : kd-wf A -> kd-wf-i nil A
+| kd-wf-i/cons : (cn-of X A -> kd-wf-i G B) -> kd-wf-i (cons G X A) B
+;
+
+LF cn-of-i : ctx -> con -> kind -> type =
+| cn-of-i/nil : cn-of M A -> cn-of-i nil M A
+| cn-of-i/cons : (cn-of X A -> cn-of-i G M B) -> cn-of-i (cons G X A) M B
+;
+
+LF kd-sub-i : ctx -> kind -> kind -> type =
+| kd-sub-i/nil : kd-sub B C -> kd-sub-i nil B C
+| kd-sub-i/cons : (cn-of X A -> kd-sub-i G B C) -> kd-sub-i (cons G X A) B C
+;
+
+LF kd-equiv-i : ctx -> kind -> kind -> type =
+| kd-equiv-i/nil : kd-equiv B C -> kd-equiv-i nil B C
+| kd-equiv-i/cons : (cn-of X A -> kd-equiv-i G B C) ->
+                      kd-equiv-i (cons G X A) B C
+;
+
+LF cn-equiv-i : ctx -> con -> con -> kind -> type =
+| cn-equiv-i/nil : cn-equiv M N B -> cn-equiv-i nil M N B
+| cn-equiv-i/cons : (cn-of X A -> cn-equiv-i G M N B) ->
+                      cn-equiv-i (cons G X A) M N B
+;
+
+LF sg-wf-i : ctx -> sg -> type =
+| sg-wf-i/nil : sg-wf A -> sg-wf-i nil A
+| sg-wf-i/cons : (cn-of X A -> sg-wf-i G B) -> sg-wf-i (cons G X A) B
+;
+
+LF sg-equiv-i : ctx -> sg -> sg -> type =
+| sg-equiv-i/nil : sg-equiv B C -> sg-equiv-i nil B C
+| sg-equiv-i/cons : (cn-of X A -> sg-equiv-i G B C) ->
+                      sg-equiv-i (cons G X A) B C
+;
+
+% Proof Skeletons
+
+cn-assm : cn-of C K -> type.
+
+LF mkind : type =
+| mkind/t : mkind
+| mkind/pi : mkind -> mkind -> mkind
+| mkind/sigma : mkind -> mkind -> mkind
+| mkind/sing : mcon -> mkind
+| mkind/one : mkind
+
+and mcon : type =
+| mcon/var : mcon
+| mcon/lam : mcon -> mkind -> mcon
+| mcon/app : mcon -> mcon -> mcon
+| mcon/pair : mcon -> mcon -> mcon
+| mcon/pi1 : mcon -> mcon
+| mcon/pi2 : mcon -> mcon
+| mcon/sing : mcon -> mcon
+| mcon/extpi : mcon -> mcon -> mcon
+| mcon/extsigma : mcon -> mcon -> mcon
+| mcon/star : mcon
+| mcon/subsume : mcon -> mcon
+| mcon/unit : mcon
+| mcon/void : mcon
+| mcon/prod : mcon -> mcon -> mcon
+| mcon/arrow : mcon -> mcon -> mcon
+| mcon/plus : mcon -> mcon -> mcon
+| mcon/ref : mcon -> mcon
+| mcon/tag : mcon -> mcon
+| mcon/tagged : mcon
+| mcon/rec : mcon -> mcon -> mkind -> mcon
+| mcon/labeled : mcon -> mcon
+;
+
+LF mkd-wf : kd-wf A -> mkind -> type =
+| mkd-wf/t : mkd-wf kd-wf/t mkind/t
+
+| mkd-wf/pi : mkd-wf D1 A1 ->
+                ({ x : con } { d : cn-of x K } cn-assm d ->
+                  mkd-wf (D2 x d) A2) ->
+                mkd-wf (kd-wf/pi D2 D1) (mkind/pi A2 A1)
+
+| mkd-wf/sigma : mkd-wf D1 A1 ->
+                   ({ x : con } { d : cn-of x K } cn-assm d ->
+                     mkd-wf (D2 x d) A2) ->
+                   mkd-wf (kd-wf/sigma D2 D1) (mkind/sigma A2 A1)
+
+| mkd-wf/sing : mcn-of D M -> mkd-wf (kd-wf/sing D) (mkind/sing M)
+
+| mkd-wf/one : mkd-wf kd-wf/one mkind/one
+
+and mcn-of : cn-of M A -> mcon -> type =
+| mcn-of/var : cn-assm D -> mcn-of D mcon/var
+
+| mcn-of/lam : ({ x : con } { d : cn-of x K } cn-assm d -> mcn-of (D2 x d) M) ->
+                 mkd-wf D1 A ->
+                 mcn-of (cn-of/lam D2 D1) (mcon/lam M A)
+
+| mcn-of/app : mcn-of D1 M1 ->
+                 mcn-of D2 M2 ->
+                 mcn-of (cn-of/app D2 D1) (mcon/app M2 M1)
+
+| mcn-of/pair : mcn-of D1 M1 ->
+                  mcn-of D2 M2 ->
+                  mcn-of (cn-of/pair _ D2 D1) (mcon/pair M2 M1)
+
+| mcn-of/pi1 : mcn-of D M -> mcn-of (cn-of/pi1 D) (mcon/pi1 M)
+
+| mcn-of/pi2 : mcn-of D M -> mcn-of (cn-of/pi2 D) (mcon/pi2 M)
+
+| mcn-of/sing : mcn-of D M -> mcn-of (cn-of/sing D) (mcon/sing M)
+
+| mcn-of/extpi : ({ x : con } { d :cn-of x K } cn-assm d ->
+                     mcn-of (D2 x d) M2) ->
+                   mcn-of D1 M1 ->
+                   mcn-of (cn-of/extpi D2 D1) (mcon/extpi M2 M1)
+
+| mcn-of/extsigma : mcn-of D1 M1 ->
+                      mcn-of D2 M2 ->
+                      mcn-of (cn-of/extsigma _ D2 D1) (mcon/extsigma M2 M1)
+
+| mcn-of/star : mcn-of cn-of/star mcon/star
+
+| mcn-of/subsume : mcn-of D M -> mcn-of (cn-of/subsume _ D) (mcon/subsume M)
+
+| mcn-of/unit : mcn-of cn-of/unit mcon/unit
+
+| mcn-of/void : mcn-of cn-of/void mcon/void
+
+| mcn-of/prod : mcn-of D1 M1 ->
+                  mcn-of D2 M2 ->
+                  mcn-of (cn-of/prod D2 D1) (mcon/prod M2 M1)
+
+| mcn-of/arrow : mcn-of D1 M1 ->
+                   mcn-of D2 M2 ->
+                   mcn-of (cn-of/arrow D2 D1) (mcon/arrow M2 M1)
+
+| mcn-of/plus : mcn-of D1 M1 ->
+                  mcn-of D2 M2 ->
+                  mcn-of (cn-of/plus D2 D1) (mcon/plus M2 M1)
+
+| mcn-of/ref : mcn-of D M -> mcn-of (cn-of/ref D) (mcon/ref M)
+
+| mcn-of/tag : mcn-of D M -> mcn-of (cn-of/tag D) (mcon/tag M)
+
+| mcn-of/tagged : mcn-of cn-of/tagged mcon/tagged
+
+%{ FIXME: Type synthesis fails
+| mcn-of/rec : mcn-of D3 M3 ->
+                 ({ x : con } { d : cn-of x K1 } cn-assm d ->
+                   { y : con } { e : cn-of y K2 } cn-assm e ->
+                   mcn-of (D2 x d y e) M2) ->
+                 mkd-wf D1 A ->
+                 mcn-of (cn-of/rec D3 D2 D1) (mcon/rec M3 M2 A)
+}%
+
+| mcn-of/labeled : mcn-of D DM -> mcn-of (cn-of/labeled D) (mcon/labeled DM)
+;
