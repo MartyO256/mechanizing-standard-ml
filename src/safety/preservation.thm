@@ -32,6 +32,191 @@ intros
 }
 ;
 
+% Locations
+
+proof loc-lt-trans : [ |- loc-lt L1 L2] -> [ |- loc-lt L2 L3] -> [ |- loc-lt L1 L3] =
+/ total /
+intros
+{ L : ( |- location), L1 : ( |- location), L2 : ( |- location)
+| x : [ |- loc-lt L L1], x1 : [ |- loc-lt L1 L2]
+; split x as
+  case loc-lt/i:
+  { N : ( |- nat), N1 : ( |- nat), L2 : ( |- location), X : ( |- lt N N1)
+  | x : [ |- loc-lt (location/i N) (location/i N1)],
+    x1 : [ |- loc-lt (location/i N1) L2]
+  ; split x1 as
+    case loc-lt/i:
+    { N : ( |- nat),
+      N1 : ( |- nat),
+      N3 : ( |- nat),
+      X : ( |- lt N N1),
+      X1 : ( |- lt N1 N3)
+    | x : [ |- loc-lt (location/i N) (location/i N1)],
+      x1 : [ |- loc-lt (location/i N1) (location/i N3)]
+    ; by lt-trans [ |- X] [ |- X1] as Q unboxed;
+      solve [ |- loc-lt/i Q]
+    }
+  }
+}
+;
+% Stores
+
+proof store-bounds-increase : [ |- store-bounds ST L] ->
+                                [ |- loc-lt L L'] -> [ |- store-bounds ST L'] =
+/ total 1 /
+intros
+{ ST : ( |- store), L : ( |- location), L' : ( |- location)
+| x : [ |- store-bounds ST L], x1 : [ |- loc-lt L L']
+; split x as
+  case store-bounds/cons:
+  { ST1 : ( |- store),
+    X : ( |- location),
+    EN : ( |- entry),
+    L : ( |- location),
+    L' : ( |- location),
+    X2 : ( |- loc-lt X L)
+  | x : [ |- store-bounds (store/cons ST1 X EN) L], x1 : [ |- loc-lt L L']
+  ; by loc-lt-trans [ |- X2] x1 as Q unboxed;
+    solve [ |- store-bounds/cons Q]
+  }
+  case store-bounds/nil:
+  { L : ( |- location), L' : ( |- location)
+  | x : [ |- store-bounds store/nil L], x1 : [ |- loc-lt L L']
+  ; solve [ |- store-bounds/nil ]
+  }
+}
+;
+
+proof store-bounds-update : [ |- store-bounds ST L] ->
+                              [ |- store-update ST X EN ST'] ->
+                                [ |- store-bounds ST' L] =
+/ total /
+intros
+{ ST : ( |- store),
+  L : ( |- location),
+  X : ( |- location),
+  EN : ( |- entry),
+  ST' : ( |- store)
+| x : [ |- store-bounds ST L], x1 : [ |- store-update ST X EN ST']
+; split x as
+  case store-bounds/cons:
+  { ST1 : ( |- store),
+    X1 : ( |- location),
+    EN1 : ( |- entry),
+    L : ( |- location),
+    X : ( |- location),
+    EN : ( |- entry),
+    ST' : ( |- store),
+    X3 : ( |- loc-lt X1 L)
+  | x : [ |- store-bounds (store/cons ST1 X1 EN1) L],
+    x1 : [ |- store-update (store/cons ST1 X1 EN1) X EN ST']
+  ; split x1 as
+    case store-update/miss:
+    { ST1 : ( |- store),
+      X1 : ( |- location),
+      EN1 : ( |- entry),
+      L : ( |- location),
+      X : ( |- location),
+      EN : ( |- entry),
+      ST3 : ( |- store),
+      X3 : ( |- loc-lt X1 L),
+      X6 : ( |- store-update ST1 X EN ST3)
+    | x : [ |- store-bounds (store/cons ST1 X1 EN1) L],
+      x1 :
+        [ |-
+           store-update (store/cons ST1 X1 EN1) X EN (store/cons ST3 X1 EN1)]
+    ; solve [ |- store-bounds/cons X3]
+    }
+    case store-update/hit:
+    { ST1 : ( |- store),
+      X : ( |- location),
+      EN1 : ( |- entry),
+      L : ( |- location),
+      EN : ( |- entry),
+      X3 : ( |- loc-lt X L)
+    | x : [ |- store-bounds (store/cons ST1 X EN1) L],
+      x1 :
+        [ |- store-update (store/cons ST1 X EN1) X EN (store/cons ST1 X EN)]
+    ; solve [ |- store-bounds/cons X3]
+    }
+  }
+  case store-bounds/nil:
+  { L : ( |- location),
+    X : ( |- location),
+    EN : ( |- entry),
+    ST' : ( |- store)
+  | x : [ |- store-bounds store/nil L],
+    x1 : [ |- store-update store/nil X EN ST']
+  ; impossible x1
+  }
+}
+;
+
+proof store-bounds-update : [ |- store-bounds ST L] ->
+                              [ |- store-update ST X EN ST'] ->
+                                [ |- store-bounds ST' L] =
+/ total /
+intros
+{ ST : ( |- store),
+  L : ( |- location),
+  X : ( |- location),
+  EN : ( |- entry),
+  ST' : ( |- store)
+| x : [ |- store-bounds ST L], x1 : [ |- store-update ST X EN ST']
+; split x as
+  case store-bounds/cons:
+  { ST1 : ( |- store),
+    X1 : ( |- location),
+    EN1 : ( |- entry),
+    L : ( |- location),
+    X : ( |- location),
+    EN : ( |- entry),
+    ST' : ( |- store),
+    X3 : ( |- loc-lt X1 L)
+  | x : [ |- store-bounds (store/cons ST1 X1 EN1) L],
+    x1 : [ |- store-update (store/cons ST1 X1 EN1) X EN ST']
+  ; split x1 as
+    case store-update/miss:
+    { ST1 : ( |- store),
+      X1 : ( |- location),
+      EN1 : ( |- entry),
+      L : ( |- location),
+      X : ( |- location),
+      EN : ( |- entry),
+      ST3 : ( |- store),
+      X3 : ( |- loc-lt X1 L),
+      X6 : ( |- store-update ST1 X EN ST3)
+    | x : [ |- store-bounds (store/cons ST1 X1 EN1) L],
+      x1 :
+        [ |-
+           store-update (store/cons ST1 X1 EN1) X EN (store/cons ST3 X1 EN1)]
+    ; solve [ |- store-bounds/cons X3]
+    }
+    case store-update/hit:
+    { ST1 : ( |- store),
+      X : ( |- location),
+      EN1 : ( |- entry),
+      L : ( |- location),
+      EN : ( |- entry),
+      X3 : ( |- loc-lt X L)
+    | x : [ |- store-bounds (store/cons ST1 X EN1) L],
+      x1 :
+        [ |- store-update (store/cons ST1 X EN1) X EN (store/cons ST1 X EN)]
+    ; solve [ |- store-bounds/cons X3]
+    }
+  }
+  case store-bounds/nil:
+  { L : ( |- location),
+    X : ( |- location),
+    EN : ( |- entry),
+    ST' : ( |- store)
+  | x : [ |- store-bounds store/nil L],
+    x1 : [ |- store-update store/nil X EN ST']
+  ; impossible x1
+  }
+}
+;
+
 % Preservation
 
 proof preservation-tm/tm-of : [ |- tm-of F E T] ->
