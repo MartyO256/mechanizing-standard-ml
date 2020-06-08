@@ -1,6 +1,36 @@
 % Monotonicity
 
-extends : sttp -> sttp -> type.
+LF extends : sttp -> sttp -> type =
+| extends/nil : extends F F
+| extends/cons : extends F1 F2 -> extends F1 (st/cons F2 _ _)
+;
+
+proof monotonicity-lookup : [ |- st-lookup F L ET] ->
+                              [ |- extends F F'] -> [ |- st-lookup F' L ET] =
+/ total 2 /
+intros
+{ F : ( |- sttp), L : ( |- location), ET : ( |- entp), F' : ( |- sttp)
+| x : [ |- st-lookup F L ET], x1 : [ |- extends F F']
+; split x1 as
+  case extends/cons:
+  { F : ( |- sttp),
+    L : ( |- location),
+    ET : ( |- entp),
+    F2 : ( |- sttp),
+    X : ( |- location),
+    ET1 : ( |- entp),
+    X1 : ( |- extends F F2)
+  | x : [ |- st-lookup F L ET], x1 : [ |- extends F (st/cons F2 X ET1)]
+  ; by monotonicity-lookup x [ |- X1] as Q unboxed;
+    solve [ |- st-lookup/miss Q]
+  }
+  case extends/nil:
+  { F' : ( |- sttp), L : ( |- location), ET : ( |- entp)
+  | x : [ |- st-lookup F' L ET], x1 : [ |- extends F' F']
+  ; solve x
+  }
+}
+;
 
 % Preservation
 
