@@ -117,6 +117,40 @@ intros
 }
 ;
 
+proof inversion-tm/newtag : [ |- tm-of F (tm/newtag T') T] ->
+                              [ |- cn-equiv (tag T') T t] =
+/ total 1 /
+intros
+{ F : ( |- sttp), T' : ( |- con), T : ( |- con)
+| x : [ |- tm-of F (tm/newtag T') T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    T' : ( |- con),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/newtag T') C)
+  | x : [ |- tm-of F (tm/newtag T') T]
+  ; by inversion-tm/newtag [ |- X1] as Q unboxed;
+    solve [ |- cn-equiv/trans Q X]
+  }
+  case tm-of/newtag:
+  { F : ( |- sttp), T' : ( |- con), X : ( |- cn-of T' t)
+  | x : [ |- tm-of F (tm/newtag T') (tag T')]
+  ; solve [ |- cn-equiv/refl (cn-of/tag X)]
+  }
+  case tm-of/var:
+  { F : ( |- sttp),
+    T' : ( |- con),
+    T : ( |- con),
+    X : ( |- tm-assm (tm/newtag T') T)
+  | x : [ |- tm-of F (tm/newtag T') T]
+  ; impossible [ |- X]
+  }
+}
+;
+
 proof inversion-tm/raise/cn-equiv : [ |- tm-of F (tm/raise E T') T] ->
                                       [ |- cn-equiv T' T t] =
 / total 1 /
