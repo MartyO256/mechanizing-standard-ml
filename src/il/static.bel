@@ -217,7 +217,7 @@ LF tm-of : sttp -> term -> con -> type =
 
 | tm-of/pi2 : tm-of F E (prod T1 T2) -> tm-of F (tm/pi2 E) T2
 
-| tm-of/lam : (tm-assm x T1 -> tm-of F (E x) T2) ->
+| tm-of/lam : ({ x : term } tm-assm x T1 -> tm-of F (E x) T2) ->
                 cn-of T1 t ->
                 tm-of F (tm/lam T1 (\x. E x)) (arrow T1 T2)
 
@@ -233,8 +233,8 @@ LF tm-of : sttp -> term -> con -> type =
                 tm-of F E T2 ->
                 tm-of F (tm/in2 E T1) (plus T1 T2)
 
-| tm-of/case : (tm-assm x T1 -> tm-of F (E1 x) T) ->
-                 (tm-assm y T2 -> tm-of F (E2 y) T) ->
+| tm-of/case : ({ x : term } tm-assm x T1 -> tm-of F (E1 x) T) ->
+                 ({ x : term } tm-assm x T2 -> tm-of F (E2 x) T) ->
                  tm-of F E (plus T1 T2) ->
                  tm-of F (tm/case E E1 E2) T
 
@@ -261,7 +261,7 @@ LF tm-of : sttp -> term -> con -> type =
                 tm-of F (tm/tag E1 E2) tagged
 
 | tm-of/iftag : tm-of F E4 T ->
-                  (tm-assm x T' -> tm-of F (E3 x) T) ->
+                  ({ x : term } tm-assm x T' -> tm-of F (E3 x) T) ->
                   tm-of F E2 (tag T') ->
                   tm-of F E1 tagged ->
                   tm-of F (tm/iftag E1 E2 E3 E4) T
@@ -275,11 +275,11 @@ LF tm-of : sttp -> term -> con -> type =
 
 | tm-of/raise : cn-of T t -> tm-of F E tagged -> tm-of F (tm/raise E T) T
 
-| tm-of/try : (tm-assm x tagged -> tm-of F (E2 x) T) ->
+| tm-of/try : ({ x : term } tm-assm x tagged -> tm-of F (E2 x) T) ->
                 tm-of F E1 T ->
                 tm-of F (tm/try E1 (\x. E2 x)) T
 
-| tm-of/lett : (tm-assm x T1 -> tm-of F (E2 x) T2) ->
+| tm-of/lett : ({ x : term } tm-assm x T1 -> tm-of F (E2 x) T2) ->
                  tm-of F E1 T1 ->
                  tm-of F (tm/lett E1 (\x. E2 x)) T2
 
