@@ -451,6 +451,115 @@ intros
 }
 ;
 
+% Cdr Lemmas
+
+proof entp-eq-invert-tag : [ |- entp-eq (et/tag T) (et/tag T')] ->
+                             [ |- con-eq T T'] =
+/ total /
+intros
+{ T : ( |- con), T' : ( |- con)
+| x : [ |- entp-eq (et/tag T) (et/tag T')]
+; split x as
+  case entp-eq/i:
+  { T' : ( |- con)
+  | x : [ |- entp-eq (et/tag T') (et/tag T')]
+  ; solve [ |- con-eq/i ]
+  }
+}
+;
+
+proof entry-eq-invert-ref : [ |- entry-eq (entry/ref E) (entry/ref E')] ->
+                              [ |- term-eq E E'] =
+/ total /
+intros
+{ E : ( |- term), E' : ( |- term)
+| x : [ |- entry-eq (entry/ref E) (entry/ref E')]
+; split x as
+  case entry-eq/i:
+  { E' : ( |- term)
+  | x : [ |- entry-eq (entry/ref E') (entry/ref E')]
+  ; solve [ |- term-eq/i ]
+  }
+}
+;
+
+proof module-eq-pi1-invert : [ |- module-eq (md/pi1 M) (md/pi1 M')] ->
+                               [ |- module-eq M M'] =
+/ total /
+intros
+{ M : ( |- module'), M' : ( |- module')
+| x : [ |- module-eq (md/pi1 M) (md/pi1 M')]
+; split x as
+  case module-eq/i:
+  { M' : ( |- module')
+  | x : [ |- module-eq (md/pi1 M') (md/pi1 M')]
+  ; solve [ |- module-eq/i ]
+  }
+}
+;
+
+proof module-eq-pi2-invert : [ |- module-eq (md/pi2 M) (md/pi2 M')] ->
+                               [ |- module-eq M M'] =
+/ total /
+intros
+{ M : ( |- module'), M' : ( |- module')
+| x : [ |- module-eq (md/pi2 M) (md/pi2 M')]
+; split x as
+  case module-eq/i:
+  { M' : ( |- module')
+  | x : [ |- module-eq (md/pi2 M') (md/pi2 M')]
+  ; solve [ |- module-eq/i ]
+  }
+}
+;
+
+proof module-eq-out-invert : [ |- module-eq (md/out M) (md/out M')] ->
+                               [ |- module-eq M M'] =
+/ total /
+intros
+{ M : ( |- module'), M' : ( |- module')
+| x : [ |- module-eq (md/out M) (md/out M')]
+; split x as
+  case module-eq/i:
+  { M' : ( |- module')
+  | x : [ |- module-eq (md/out M') (md/out M')]
+  ; solve [ |- module-eq/i ]
+  }
+}
+;
+
+proof sg-eq-named-invert/name-eq : [ |- sg-eq (sg/named L S)
+                                       (sg/named L' S')] ->
+                                     [ |- name-eq L L'] =
+/ total /
+intros
+{ L : ( |- name), S : ( |- sg), L' : ( |- name), S' : ( |- sg)
+| x : [ |- sg-eq (sg/named L S) (sg/named L' S')]
+; split x as
+  case sg-eq/i:
+  { L' : ( |- name), S' : ( |- sg)
+  | x : [ |- sg-eq (sg/named L' S') (sg/named L' S')]
+  ; solve [ |- name-eq/i ]
+  }
+}
+;
+
+proof sg-eq-named-invert/sg-eq : [ |- sg-eq (sg/named L S)
+                                     (sg/named L' S')] ->
+                                   [ |- sg-eq S S'] =
+/ total /
+intros
+{ L : ( |- name), S : ( |- sg), L' : ( |- name), S' : ( |- sg)
+| x : [ |- sg-eq (sg/named L S) (sg/named L' S')]
+; split x as
+  case sg-eq/i:
+  { L' : ( |- name), S' : ( |- sg)
+  | x : [ |- sg-eq (sg/named L' S') (sg/named L' S')]
+  ; solve [ |- sg-eq/i ]
+  }
+}
+;
+
 % Respects Equality Lemmas
 
 proof cn-equiv-resp : [ |- con-eq C1 C1'] ->
