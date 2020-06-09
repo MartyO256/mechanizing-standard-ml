@@ -560,6 +560,40 @@ intros
 }
 ;
 
+% Contradiction
+
+proof kind-eq-sigma-t : [ |- kind-eq (sigma K (\k. C[k])) t] -> [ |- false] =
+/ total /
+intros
+{ K : ( |- kind), C : (z69 : con |- kind)
+| x : [ |- kind-eq (sigma K (\k. C[k])) t]
+; impossible x
+}
+;
+
+proof kind-eq-sigma-pi : [ |- kind-eq (sigma K (\k. C[k]))
+                             (pi K' (\k. C'[k]))] ->
+                           [ |- false] =
+/ total /
+intros
+{ K : ( |- kind),
+  C : (z69 : con |- kind),
+  K' : ( |- kind),
+  C' : (z68 : con |- kind)
+| x : [ |- kind-eq (sigma K (\k. C[k])) (pi K' (\k. C'[k]))]
+; impossible x
+}
+;
+
+proof kind-eq-t-sing : [ |- kind-eq t (sing _)] -> [ |- false] =
+/ total /
+intros
+{ C : ( |- con)
+| x : [ |- kind-eq t (sing _)]
+; impossible x
+}
+;
+
 % Respects Equality Lemmas
 
 proof cn-equiv-resp : [ |- con-eq C1 C1'] ->
