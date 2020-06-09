@@ -78,3 +78,41 @@ intros
   }
 }
 ;
+
+proof inversion-tm/deref : [ |- tm-of F (tm/deref E) T] ->
+                             [ |- tm-of F E (ref T)] =
+/ total 1 /
+intros
+{ F : ( |- sttp), E : ( |- term), T : ( |- con)
+| x : [ |- tm-of F (tm/deref E) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/deref E) C)
+  | x : [ |- tm-of F (tm/deref E) T]
+  ; by inversion-tm/deref [ |- X1] as Q1 unboxed;
+    by [ |- cn-equiv/ref X] as Q2 unboxed;
+    solve [ |- tm-of/equiv Q2 Q1]
+  }
+  case tm-of/deref:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T : ( |- con),
+    X : ( |- tm-of F E (ref T))
+  | x : [ |- tm-of F (tm/deref E) T]
+  ; solve [ |- X]
+  }
+  case tm-of/var:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T : ( |- con),
+    X : ( |- tm-assm (tm/deref E) T)
+  | x : [ |- tm-of F (tm/deref E) T]
+  ; impossible [ |- X]
+  }
+}
+;
