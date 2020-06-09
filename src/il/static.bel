@@ -1,7 +1,7 @@
 % Judgements
 
 tm-assm : term -> con -> type.
-md-assm		: module' -> sg -> type.
+md-assm : module' -> sg -> type.
 
 % Kind Formation
 

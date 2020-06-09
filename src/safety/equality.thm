@@ -585,11 +585,11 @@ intros
 }
 ;
 
-proof kind-eq-t-sing : [ |- kind-eq t (sing _)] -> [ |- false] =
+proof kind-eq-t-sing : [ |- kind-eq t (sing C)] -> [ |- false] =
 / total /
 intros
 { C : ( |- con)
-| x : [ |- kind-eq t (sing _)]
+| x : [ |- kind-eq t (sing C)]
 ; impossible x
 }
 ;

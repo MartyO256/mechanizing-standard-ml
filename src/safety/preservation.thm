@@ -76,6 +76,7 @@ intros
   }
 }
 ;
+
 % Stores
 
 proof store-bounds-increase : [ |- store-bounds ST L] ->
