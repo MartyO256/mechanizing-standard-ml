@@ -82,7 +82,7 @@ and cn-of : con -> kind -> type =
 
 | cn-of/arrow : cn-of C1 t -> cn-of C2 t -> cn-of (arrow C1 C2) t
 
-| cn-of/plus : cn-of C1 t -> cn-of C2 t -> cn-of (arrow C1 C2) t
+| cn-of/plus : cn-of C1 t -> cn-of C2 t -> cn-of (plus C1 C2) t
 
 | cn-of/ref : cn-of C t -> cn-of (ref C) t
 

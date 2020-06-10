@@ -289,8 +289,8 @@ intros
   }
   case cn-of/plus:
   { C : ( |- con), C1 : ( |- con), X : ( |- cn-of C t), X1 : ( |- cn-of C1 t)
-  | x : [ |- cn-of (arrow C C1) t],
-    x1 : [ |- similar (arrow C C1) (arrow C C1)],
+  | x : [ |- cn-of (plus C C1) t],
+    x1 : [ |- similar (plus C C1) (plus C C1)],
     x2 : [ |- kd-sub t t]
   ; solve x
   }
