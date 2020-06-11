@@ -1184,6 +1184,30 @@ intros
 }
 ;
 
+proof nextloc-bounds : [ |- nextloc ST L] -> [ |- store-bounds ST L] =
+/ total /
+intros
+{ ST : ( |- store), L : ( |- location)
+| x : [ |- nextloc ST L]
+; split x as
+  case nextloc/cons:
+  { ST1 : ( |- store),
+    X : ( |- location),
+    EN : ( |- entry),
+    L : ( |- location),
+    X2 : ( |- loc-succ X L)
+  | x : [ |- nextloc (store/cons ST1 X EN) L]
+  ; by loc-succ-lt [ |- X2] as Q unboxed;
+    solve [ |- store-bounds/cons Q]
+  }
+  case nextloc/nil:
+  {
+  | x : [ |- nextloc store/nil (location/i zero)]
+  ; solve [ |- store-bounds/nil ]
+  }
+}
+;
+
 % Preservation
 
 proof preservation-tm/tm-of : [ |- tm-of F E T] ->
