@@ -244,6 +244,34 @@ intros
 }
 ;
 
+proof con-resp-con2 : { C : [ c1 : con, c2: con |- con] } [ |- con-eq C1 C1'] ->
+                        [ |- con-eq C2 C2'] ->
+                          [ |- con-eq (C[C1, C2]) (C[C1', C2'])] =
+/ total /
+intros
+{ C : ( |- con),
+  C1' : ( |- con),
+  C1 : ( |- con),
+  C2' : ( |- con),
+  C2 : (c1 : con, c2 : con |- con)
+| x : [ |- con-eq C C1'], x1 : [ |- con-eq C1 C2']
+; split x as
+  case con-eq/i:
+  { C1' : ( |- con),
+    C1 : ( |- con),
+    C2' : ( |- con),
+    C2 : (c1 : con, c2 : con |- con)
+  | x : [ |- con-eq C1' C1'], x1 : [ |- con-eq C1 C2']
+  ; split x1 as
+    case con-eq/i:
+    { C1' : ( |- con), C2' : ( |- con), C2 : (c1 : con, c2 : con |- con)
+    | x : [ |- con-eq C1' C1'], x1 : [ |- con-eq C2' C2']
+    ; solve [ |- con-eq/i ]
+    }
+  }
+}
+;
+
 proof con-resp-kind : { C : [ k : kind |- con] } [ |- kind-eq K K'] ->
                         [ |- con-eq (C[K]) (C[K'])] =
 / total /
@@ -494,6 +522,50 @@ intros
 }
 ;
 
+proof kind-eq-pi-invert : [ |- kind-eq (pi K1 (\x. K2[x]))
+                              (pi K1' (\x. K2'[x]))] ->
+                            [ |- kind-eq K1 K1'] ->
+                              [ a : con |- kind-eq (K2[a]) (K2'[a])] =
+/ total /
+intros
+{ K : ( |- kind),
+  K1 : (x69 : con |- kind),
+  K1' : ( |- kind),
+  K2' : (x69 : con |- kind)
+| x : [ |- kind-eq (pi K (\x. K1[x])) (pi K1' (\x. K2'[x]))],
+  x1 : [ |- kind-eq K K1']
+; split x as
+  case kind-eq/i:
+  { K1' : ( |- kind), K2' : (x69 : con |- kind)
+  | x : [ |- kind-eq (pi K1' (\x. K2'[x])) (pi K1' (\x. K2'[x]))],
+    x1 : [ |- kind-eq K1' K1']
+  ; solve [a : con |- kind-eq/i ]
+  }
+}
+;
+
+proof kind-eq-sigma-invert : [ |- kind-eq (sigma K1 (\x. K2[x]))
+                                 (sigma K1' (\x. K2'[x]))] ->
+                               [ |- kind-eq K1 K1'] ->
+                                 [ a : con |- kind-eq (K2[a]) (K2'[a]) ] =
+/ total /
+intros
+{ K : ( |- kind),
+  K1 : (x70 : con |- kind),
+  K1' : ( |- kind),
+  K2' : (x70 : con |- kind)
+| x : [ |- kind-eq (sigma K (\x. K1[x])) (sigma K1' (\x. K2'[x]))],
+  x1 : [ |- kind-eq K K1']
+; split x as
+  case kind-eq/i:
+  { K1' : ( |- kind), K2' : (x70 : con |- kind)
+  | x : [ |- kind-eq (sigma K1' (\x. K2'[x])) (sigma K1' (\x. K2'[x]))],
+    x1 : [ |- kind-eq K1' K1']
+  ; solve [a : con |- kind-eq/i ]
+  }
+}
+;
+
 proof module-eq-pi1-invert : [ |- module-eq (md/pi1 M) (md/pi1 M')] ->
                                [ |- module-eq M M'] =
 / total /
@@ -567,6 +639,82 @@ intros
   { L' : ( |- name), S' : ( |- sg)
   | x : [ |- sg-eq (sg/named L' S') (sg/named L' S')]
   ; solve [ |- sg-eq/i ]
+  }
+}
+;
+
+proof sg-eq-pi-invert/1 : [ |- sg-eq (sg/pi S1 (\x. S2[x]))
+                              (sg/pi S1' (\x. S2'[x]))] ->
+                            [ |- sg-eq S1 S1'] =
+/ total /
+intros
+{ S : ( |- sg),
+  S1 : (y84 : con |- sg),
+  S1' : ( |- sg),
+  S2' : (y84 : con |- sg)
+| x : [ |- sg-eq (sg/pi S (\x. S1[x])) (sg/pi S1' (\x. S2'[x]))]
+; split x as
+  case sg-eq/i:
+  { S1' : ( |- sg), S2' : (y84 : con |- sg)
+  | x : [ |- sg-eq (sg/pi S1' (\x. S2'[x])) (sg/pi S1' (\x. S2'[x]))]
+  ; solve [ |- sg-eq/i ]
+  }
+}
+;
+
+proof sg-eq-pi-invert/2 : [ |- sg-eq (sg/pi S1 (\x. S2[x]))
+                              (sg/pi S1' (\x. S2'[x]))] ->
+                            [ a : con |- sg-eq (S2[a]) (S2'[a])] =
+/ total /
+intros
+{ S : ( |- sg),
+  S1 : (y84 : con |- sg),
+  S1' : ( |- sg),
+  S2' : (y84 : con |- sg)
+| x : [ |- sg-eq (sg/pi S (\x. S1[x])) (sg/pi S1' (\x. S2'[x]))]
+; split x as
+  case sg-eq/i:
+  { S1' : ( |- sg), S2' : (y84 : con |- sg)
+  | x : [ |- sg-eq (sg/pi S1' (\x. S2'[x])) (sg/pi S1' (\x. S2'[x]))]
+  ; solve [a : con |- sg-eq/i ]
+  }
+}
+;
+
+proof sg-eq-sigma-invert/1 : [ |- sg-eq (sg/sigma S1 (\x. S2[x]))
+                                 (sg/sigma S1' (\x. S2'[x]))] ->
+                               [ |- sg-eq S1 S1'] =
+/ total /
+intros
+{ S : ( |- sg),
+  S1 : (y85 : con |- sg),
+  S1' : ( |- sg),
+  S2' : (y85 : con |- sg)
+| x : [ |- sg-eq (sg/sigma S (\x. S1[x])) (sg/sigma S1' (\x. S2'[x]))]
+; split x as
+  case sg-eq/i:
+  { S1' : ( |- sg), S2' : (y85 : con |- sg)
+  | x : [ |- sg-eq (sg/sigma S1' (\x. S2'[x])) (sg/sigma S1' (\x. S2'[x]))]
+  ; solve [ |- sg-eq/i ]
+  }
+}
+;
+
+proof sg-eq-sigma-invert/2 : [ |- sg-eq (sg/sigma S1 (\x. S2[x]))
+                                 (sg/sigma S1' (\x. S2'[x]))] ->
+                               [ a : con |- sg-eq (S2[a]) (S2'[a])] =
+/ total /
+intros
+{ S : ( |- sg),
+  S1 : (y85 : con |- sg),
+  S1' : ( |- sg),
+  S2' : (y85 : con |- sg)
+| x : [ |- sg-eq (sg/sigma S (\x. S1[x])) (sg/sigma S1' (\x. S2'[x]))]
+; split x as
+  case sg-eq/i:
+  { S1' : ( |- sg), S2' : (y85 : con |- sg)
+  | x : [ |- sg-eq (sg/sigma S1' (\x. S2'[x])) (sg/sigma S1' (\x. S2'[x]))]
+  ; solve [a : con |- sg-eq/i ]
   }
 }
 ;
