@@ -77,6 +77,23 @@ intros
 }
 ;
 
+proof loc-succ-lt : [ |- loc-succ L L'] -> [ |- loc-lt L L'] =
+/ total /
+intros
+{ L : ( |- location), L' : ( |- location)
+| x : [ |- loc-succ L L']
+; split x as
+  case loc-succ/i:
+  { N : ( |- nat)
+  | x : [ |- loc-succ (location/i N) (location/i (succ N))]
+  ; suffices by loc-lt/i' toshow
+    [ |- lt N (succ N)] {
+      suffices by lt-succ [ |- N] toshow
+    }
+  }
+}
+;
+
 % Stores
 
 proof store-bounds-increase : [ |- store-bounds ST L] ->

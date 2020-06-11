@@ -8,6 +8,16 @@ LF loc-lt : location -> location -> type =
 | loc-lt/i : lt N N' -> loc-lt (location/i N) (location/i N')
 ;
 
+proof loc-lt/i' : [ |- lt N N'] -> [ |- loc-lt (location/i N) (location/i N')] =
+/ total /
+intros
+{ N : ( |- nat), N' : ( |- nat)
+| x : [ |- lt N N']
+; by x as X unboxed;
+  solve [ |- loc-lt/i X]
+}
+;
+
 LF loc-neq : location -> location -> type =
 | loc-neq/lt : loc-lt L L' -> loc-neq L L'
 | loc-neq/gt : loc-lt L' L -> loc-neq L L'
