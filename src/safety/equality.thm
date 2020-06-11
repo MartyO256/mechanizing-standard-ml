@@ -44,17 +44,6 @@ LF term-eq : term -> term -> type =
 | term-eq/i : term-eq E E
 ;
 
-% Vacuity
-
-proof false-implies-entry-of : [ |- false] -> [ |- entry-of F EN ET] =
-/ total /
-intros
-{ F : ( |- sttp), EN : ( |- entry), ET : ( |- entp)
-| x : [ |- false]
-; impossible x
-}
-;
-
 % Symmetry
 
 proof con-eq-symm : [ |- con-eq C1 C2] -> [ |- con-eq C2 C1] =
