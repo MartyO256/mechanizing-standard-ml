@@ -171,3 +171,42 @@ intros
   }
 }
 ;
+
+LF existsN2/N1+N2+1equalsN3 : type =
+| existsN2/N1+N2+1equalsN3/i : { N2 : nat } sum N1 (succ N2) N3 ->
+                              existsN2/N1+N2+1equalsN3
+;
+
+proof existsN2/N1+N2+1equalsN3/i : { N2 : [ |- nat] }
+                                   [ |- sum N1 (succ N2) N3] ->
+                                     [ |- existsN2/N1+N2+1equalsN3] =
+/ total /
+intros
+{ N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat)
+| x : [ |- sum N (succ N2) N1]
+; by x as X unboxed;
+  solve [ |- existsN2/N1+N2+1equalsN3/i N2 X]
+}
+;
+
+proof lt-implies-sum : [ |- lt N1 N3] -> [ |- existsN2/N1+N2+1equalsN3] =
+/ total 1 /
+intros
+{ N : ( |- nat), N1 : ( |- nat)
+| x : [ |- lt N N1]
+; split x as
+  case lt/s:
+  { N2 : ( |- nat), N3 : ( |- nat), X : ( |- lt N2 N3)
+  | x : [ |- lt (succ N2) (succ N3)]
+  ; solve lt-implies-sum [ |- X]
+  }
+  case lt/z:
+  { N2 : ( |- nat)
+  | x : [ |- lt zero (succ N2)]
+  ; suffices by existsN2/N1+N2+1equalsN3/i [ |- N2] toshow
+    [ |- sum zero (succ N2) (succ N2)] {
+      solve [ |- sum/z ]
+    }
+  }
+}
+;
