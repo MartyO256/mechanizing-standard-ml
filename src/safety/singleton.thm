@@ -1,0 +1,19 @@
+proof md-of-forget : [ |- md-of P F M S] -> [ |- md-of impure F M S] =
+/ total /
+intros
+{ P : ( |- purity), F : ( |- sttp), M : ( |- module'), S : ( |- sg)
+| x : [ |- md-of P F M S]
+; split [ |- P] as
+  case impure:
+  { F : ( |- sttp), M : ( |- module'), S : ( |- sg)
+  | x : [ |- md-of impure F M S]
+  ; solve x
+  }
+  case pure:
+  { F : ( |- sttp), M : ( |- module'), S : ( |- sg)
+  | x : [ |- md-of pure F M S]
+  ; by x as X unboxed;
+    solve [ |- md-of/forget X]
+  }
+}
+;

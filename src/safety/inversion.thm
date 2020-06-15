@@ -228,3 +228,43 @@ intros
   }
 }
 ;
+
+proof inversion-tm/snd : [ |- tm-of F (tm/snd M) T] ->
+                           [ |- md-of impure F M (sg/datom T)] =
+/ total 1 /
+intros
+{ F : ( |- sttp), M : ( |- module'), T : ( |- con)
+| x : [ |- tm-of F (tm/snd M) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    M : ( |- module'),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/snd M) C)
+  | x : [ |- tm-of F (tm/snd M) T]
+  ; by [ |- sg-equiv/datom X] as Q1 unboxed;
+    by inversion-tm/snd [ |- X1] as Q2 unboxed;
+    by md-of/equiv [ |- Q1] [ |- Q2] as q;
+    solve q
+  }
+  case tm-of/snd:
+  { F : ( |- sttp),
+    M : ( |- module'),
+    T : ( |- con),
+    P : ( |- purity),
+    X : ( |- md-of P F M (sg/datom T))
+  | x : [ |- tm-of F (tm/snd M) T]
+  ; solve md-of-forget [ |- X]
+  }
+  case tm-of/var:
+  { F : ( |- sttp),
+    M : ( |- module'),
+    T : ( |- con),
+    X : ( |- tm-assm (tm/snd M) T)
+  | x : [ |- tm-of F (tm/snd M) T]
+  ; impossible [ |- X]
+  }
+}
+;

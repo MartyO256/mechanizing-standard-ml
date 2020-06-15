@@ -504,6 +504,24 @@ and md-fst : module' -> con -> type =
                   md-fst (md/lete E T (\x. M x)) C
 ;
 
+% Derived Rules
+
+proof md-of/equiv : [ |- sg-equiv S S'] ->
+                      [ |- md-of P F M S] -> [ |- md-of P F M S'] =
+/ total /
+intros
+{ S : ( |- sg),
+  S' : ( |- sg),
+  P : ( |- purity),
+  F : ( |- sttp),
+  M : ( |- module')
+| x : [ |- sg-equiv S S'], x1 : [ |- md-of P F M S]
+; by x as X unboxed;
+  by x1 as X1 unboxed;
+  solve [ |- md-of/subsume X1 (sg-sub/refl X)]
+}
+;
+
 % Store Typing
 
 LF store-bounds : store -> location -> type =
