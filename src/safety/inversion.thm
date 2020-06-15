@@ -150,6 +150,63 @@ intros
   }
 }
 ;
+LF inversion-tm/out/existsL : type =
+| inversion-tm/out/existsL/i : { L : label } tm-of F E (labeled L T) ->
+                                 inversion-tm/out/existsL
+;
+
+proof inversion-tm/out/existsL/i : { L : [ |- label] }
+                                     [ |- tm-of F E (labeled L T)] ->
+                                       [ |- inversion-tm/out/existsL ] =
+/ total /
+intros
+{ F : ( |- sttp), E : ( |- term), T : ( |- con), L : ( |- label)
+| x : [ |- tm-of F E (labeled L T)]
+; by x as X unboxed;
+  solve [ |- inversion-tm/out/existsL/i L X]
+}
+;
+
+proof inversion-tm/out : [ |- tm-of F (tm/out E) T] ->
+                           [ |- inversion-tm/out/existsL] =
+/ total 1 /
+intros
+{ F : ( |- sttp), E : ( |- term), T : ( |- con)
+| x : [ |- tm-of F (tm/out E) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/out E) C)
+  | x : [ |- tm-of F (tm/out E) T]
+  ; by inversion-tm/out [ |- X1] as q;
+    solve q
+  }
+  case tm-of/out:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T : ( |- con),
+    X : ( |- label),
+    X1 : ( |- tm-of F E (labeled X T))
+  | x : [ |- tm-of F (tm/out E) T]
+  ; suffices by inversion-tm/out/existsL/i [ |- X] toshow
+    [ |- tm-of F E (labeled X T)] {
+      solve [ |- X1]
+    }
+  }
+  case tm-of/var:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T : ( |- con),
+    X : ( |- tm-assm (tm/out E) T)
+  | x : [ |- tm-of F (tm/out E) T]
+  ; impossible [ |- X]
+  }
+}
+;
 
 proof inversion-tm/raise/cn-equiv : [ |- tm-of F (tm/raise E T') T] ->
                                       [ |- cn-equiv T' T t] =
