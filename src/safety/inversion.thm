@@ -79,6 +79,171 @@ intros
 }
 ;
 
+LF inversion-tm/refloc/cn-equiv/existsT' : con -> type =
+| inversion-tm/refloc/cn-equiv/existsT'/i :
+  { T' : con } cn-equiv (ref T') T t ->
+    inversion-tm/refloc/cn-equiv/existsT' T
+;
+
+proof inversion-tm/refloc/cn-equiv/existsT'/i :
+  { T' : [ |- con] } [ |- cn-equiv (ref T') T t] ->
+    [ |- inversion-tm/refloc/cn-equiv/existsT' T] =
+/ total /
+intros
+{ T : ( |- con), T' : ( |- con)
+| x : [ |- cn-equiv (ref T') T t]
+; by x as X unboxed;
+  solve [ |- inversion-tm/refloc/cn-equiv/existsT'/i T' X]
+}
+;
+
+proof inversion-tm/refloc/cn-equiv :
+  [ |- tm-of F (tm/refloc L) T] ->
+    [ |- inversion-tm/refloc/cn-equiv/existsT' T] =
+/ total 1 /
+intros
+{ F : ( |- sttp), L : ( |- location), T : ( |- con)
+| x : [ |- tm-of F (tm/refloc L) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    L : ( |- location),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/refloc L) C)
+  | x : [ |- tm-of F (tm/refloc L) T]
+  ; by inversion-tm/refloc/cn-equiv [ |- X1] as q;
+    split q as
+    case inversion-tm/refloc/cn-equiv/existsT'/i:
+    { F : ( |- sttp),
+      L : ( |- location),
+      T : ( |- con),
+      C : ( |- con),
+      X : ( |- cn-equiv C T t),
+      X1 : ( |- tm-of F (tm/refloc L) C),
+      C2 : ( |- con),
+      X2 : ( |- cn-equiv (ref C2) C t)
+    | x : [ |- tm-of F (tm/refloc L) T],
+      q : [ |- inversion-tm/refloc/cn-equiv/existsT' C]
+    ; suffices by inversion-tm/refloc/cn-equiv/existsT'/i [ |- C2] toshow
+      [ |- cn-equiv (ref C2) T t] {
+        solve [ |- cn-equiv/trans X2 X]
+      }
+    }
+  }
+  case tm-of/refloc:
+  { F : ( |- sttp),
+    L : ( |- location),
+    C : ( |- con),
+    X1 : ( |- cn-of C t),
+    X2 : ( |- st-lookup F L (et/ref C))
+  | x : [ |- tm-of F (tm/refloc L) (ref C)]
+  ; suffices by inversion-tm/refloc/cn-equiv/existsT'/i [ |- C] toshow
+    [ |- cn-equiv (ref C) (ref C) t] {
+      solve [ |- cn-equiv/refl (cn-of/ref X1)]
+    }
+  }
+  case tm-of/var:
+  { F : ( |- sttp),
+    L : ( |- location),
+    T : ( |- con),
+    X : ( |- tm-assm (tm/refloc L) T)
+  | x : [ |- tm-of F (tm/refloc L) T]
+  ; impossible [ |- X]
+  }
+}
+;
+
+LF inversion-tm/refloc/st-lookup/existsT' : sttp -> location -> type =
+| inversion-tm/refloc/st-lookup/existsT'/i :
+  { T' : con } st-lookup F L (et/ref T') ->
+    inversion-tm/refloc/st-lookup/existsT' F L
+;
+
+proof inversion-tm/refloc/st-lookup :
+  [ |- tm-of F (tm/refloc L) T] ->
+    [ |- inversion-tm/refloc/st-lookup/existsT' F L] =
+/ total 1 /
+intros
+{ F : ( |- sttp), L : ( |- location), T : ( |- con)
+| x : [ |- tm-of F (tm/refloc L) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    L : ( |- location),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/refloc L) C)
+  | x : [ |- tm-of F (tm/refloc L) T]
+  ; by inversion-tm/refloc/st-lookup [ |- X1] as q;
+    solve q
+  }
+  case tm-of/refloc:
+  { F : ( |- sttp),
+    L : ( |- location),
+    C : ( |- con),
+    X1 : ( |- cn-of C t),
+    X2 : ( |- st-lookup F L (et/ref C))
+  | x : [ |- tm-of F (tm/refloc L) (ref C)]
+  ; solve [ |- inversion-tm/refloc/st-lookup/existsT'/i C X2]
+  }
+  case tm-of/var:
+  { F : ( |- sttp),
+    L : ( |- location),
+    T : ( |- con),
+    X : ( |- tm-assm (tm/refloc L) T)
+  | x : [ |- tm-of F (tm/refloc L) T]
+  ; impossible [ |- X]
+  }
+}
+;
+
+LF inversion-tm/refloc/cn-of/existsT' : type =
+| inversion-tm/refloc/cn-of/existsT'/i : { T' : con } cn-of T' t ->
+                                           inversion-tm/refloc/cn-of/existsT'
+;
+
+proof inversion-tm/refloc/cn-of :
+  [ |- tm-of F (tm/refloc L) T] ->
+    [ |- inversion-tm/refloc/cn-of/existsT'] =
+/ total 1 /
+intros
+{ F : ( |- sttp), L : ( |- location), T : ( |- con)
+| x : [ |- tm-of F (tm/refloc L) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    L : ( |- location),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/refloc L) C)
+  | x : [ |- tm-of F (tm/refloc L) T]
+  ; by inversion-tm/refloc/cn-of [ |- X1] as q;
+    solve q
+  }
+  case tm-of/refloc:
+  { F : ( |- sttp),
+    L : ( |- location),
+    C : ( |- con),
+    X1 : ( |- cn-of C t),
+    X2 : ( |- st-lookup F L (et/ref C))
+  | x : [ |- tm-of F (tm/refloc L) (ref C)]
+  ; solve [ |- inversion-tm/refloc/cn-of/existsT'/i C X1]
+  }
+  case tm-of/var:
+  { F : ( |- sttp),
+    L : ( |- location),
+    T : ( |- con),
+    X : ( |- tm-assm (tm/refloc L) T)
+  | x : [ |- tm-of F (tm/refloc L) T]
+  ; impossible [ |- X]
+  }
+}
+;
+
 proof inversion-tm/deref : [ |- tm-of F (tm/deref E) T] ->
                              [ |- tm-of F E (ref T)] =
 / total 1 /
@@ -164,11 +329,10 @@ intros
       X2 : ( |- cn-equiv (tag C2) C t)
     | x : [ |- tm-of F (tm/tagloc L) T],
       q : [ |- inversion-tm/tagloc/cn-equiv/existsT' C]
-    ; by [ |- cn-equiv/trans X2 X] as Q unboxed;
-      suffices by inversion-tm/tagloc/cn-equiv/existsT'/i [ |- C2] toshow
-[ |- cn-equiv (tag C2) T t] {
-  solve [ |- Q]
-}
+    ; suffices by inversion-tm/tagloc/cn-equiv/existsT'/i [ |- C2] toshow
+      [ |- cn-equiv (tag C2) T t] {
+        solve [ |- cn-equiv/trans X2 X]
+      }
     }
   }
   case tm-of/tagloc:
@@ -178,12 +342,10 @@ intros
     X1 : ( |- cn-of C t),
     X2 : ( |- st-lookup F L (et/tag C))
   | x : [ |- tm-of F (tm/tagloc L) (tag C)]
-  ; by [ |- cn-of/tag X1] as Q1 unboxed;
-    by [ |- cn-equiv/refl Q1] as Q2 unboxed;
-    suffices by inversion-tm/tagloc/cn-equiv/existsT'/i [ |- C] toshow
-[ |- cn-equiv (tag C) (tag C) t] {
-  solve [ |- Q2]
-}
+  ; suffices by inversion-tm/tagloc/cn-equiv/existsT'/i [ |- C] toshow
+    [ |- cn-equiv (tag C) (tag C) t] {
+      solve [ |- cn-equiv/refl (cn-of/tag X1)]
+    }
   }
   case tm-of/var:
   { F : ( |- sttp),
