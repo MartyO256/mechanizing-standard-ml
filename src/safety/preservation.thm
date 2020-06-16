@@ -1210,26 +1210,45 @@ intros
 
 % Preservation
 
-proof preservation-tm/tm-of : [ |- tm-of F E T] ->
-                                [ |- store-of F ST F] ->
-                                  [ |- step ST E ST' E'] ->
-                                    [ |- tm-of F' E' T] =
-/ total 1 /
-?
+LF preservation-tm/tm-of/existsF' : term -> con -> type =
+| preservation-tm/tm-of/existsF'/i :
+  { F' : sttp } tm-of F' E' T ->
+    preservation-tm/tm-of/existsF' E' T
 ;
 
 proof preservation-tm/tm-of : [ |- tm-of F E T] ->
                                 [ |- store-of F ST F] ->
                                   [ |- step ST E ST' E'] ->
-                                    [ |- store-of F' ST' F'] =
+                                    [ |- preservation-tm/tm-of/existsF' E' T] =
 / total 1 /
 ?
 ;
 
-proof preservation-tm/tm-of : [ |- tm-of F E T] ->
-                                [ |- store-of F ST F] ->
-                                  [ |- step ST E ST' E'] ->
-                                    [ |- extends F F'] =
+LF preservation-tm/store-of/existsF' : store -> type =
+| preservation-tm/store-of/existsF'/i :
+  { F' : sttp } store-of F' ST' F' ->
+    preservation-tm/store-of/existsF' ST'
+;
+
+proof preservation-tm/store-of :
+  [ |- tm-of F E T] ->
+    [ |- store-of F ST F] ->
+      [ |- step ST E ST' E'] ->
+        [ |- preservation-tm/store-of/existsF' ST'] =
+/ total 1 /
+?
+;
+
+LF preservation-tm/extends/existsF' : sttp -> type =
+| preservation-tm/extends/existsF'/i :
+  { F' : sttp } extends F F' ->
+    preservation-tm/extends/existsF' F
+;
+
+proof preservation-tm/extends : [ |- tm-of F E T] ->
+                                  [ |- store-of F ST F] ->
+                                    [ |- step ST E ST' E'] ->
+                                      [ |- preservation-tm/extends/existsF' F] =
 / total 1 /
 ?
 ;
