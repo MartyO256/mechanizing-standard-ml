@@ -150,14 +150,15 @@ intros
   }
 }
 ;
-LF inversion-tm/out/existsL : type =
+
+LF inversion-tm/out/existsL : sttp -> term -> con -> type =
 | inversion-tm/out/existsL/i : { L : label } tm-of F E (labeled L T) ->
-                                 inversion-tm/out/existsL
+                                 inversion-tm/out/existsL F E T
 ;
 
 proof inversion-tm/out/existsL/i : { L : [ |- label] }
                                      [ |- tm-of F E (labeled L T)] ->
-                                       [ |- inversion-tm/out/existsL ] =
+                                       [ |- inversion-tm/out/existsL F E T ] =
 / total /
 intros
 { F : ( |- sttp), E : ( |- term), T : ( |- con), L : ( |- label)
@@ -168,7 +169,7 @@ intros
 ;
 
 proof inversion-tm/out : [ |- tm-of F (tm/out E) T] ->
-                           [ |- inversion-tm/out/existsL] =
+                           [ |- inversion-tm/out/existsL F E T] =
 / total 1 /
 intros
 { F : ( |- sttp), E : ( |- term), T : ( |- con)
@@ -183,7 +184,22 @@ intros
     X1 : ( |- tm-of F (tm/out E) C)
   | x : [ |- tm-of F (tm/out E) T]
   ; by inversion-tm/out [ |- X1] as q;
-    solve q
+    split q as
+    case inversion-tm/out/existsL/i:
+    { F : ( |- sttp),
+      E : ( |- term),
+      T : ( |- con),
+      C : ( |- con),
+      X : ( |- cn-equiv C T t),
+      X1 : ( |- tm-of F (tm/out E) C),
+      X2 : ( |- label),
+      X3 : ( |- tm-of F E (labeled X2 C))
+    | x : [ |- tm-of F (tm/out E) T],
+      q : [ |- inversion-tm/out/existsL F E C]
+    ; by [ |- cn-equiv/labeled X] as Q unboxed;
+      by [ |- tm-of/equiv Q X3] as Q1 unboxed;
+      solve [ |- inversion-tm/out/existsL/i X2 Q1]
+    }
   }
   case tm-of/out:
   { F : ( |- sttp),
@@ -192,10 +208,7 @@ intros
     X : ( |- label),
     X1 : ( |- tm-of F E (labeled X T))
   | x : [ |- tm-of F (tm/out E) T]
-  ; suffices by inversion-tm/out/existsL/i [ |- X] toshow
-    [ |- tm-of F E (labeled X T)] {
-      solve [ |- X1]
-    }
+  ; solve [ |- inversion-tm/out/existsL/i X X1]
   }
   case tm-of/var:
   { F : ( |- sttp),
