@@ -172,14 +172,14 @@ intros
 }
 ;
 
-LF existsN2/N1+N2+1equalsN3 : type =
+LF existsN2/N1+N2+1equalsN3 : nat -> nat -> type =
 | existsN2/N1+N2+1equalsN3/i : { N2 : nat } sum N1 (succ N2) N3 ->
-                              existsN2/N1+N2+1equalsN3
+                              existsN2/N1+N2+1equalsN3 N1 N3
 ;
 
 proof existsN2/N1+N2+1equalsN3/i : { N2 : [ |- nat] }
                                    [ |- sum N1 (succ N2) N3] ->
-                                     [ |- existsN2/N1+N2+1equalsN3] =
+                                     [ |- existsN2/N1+N2+1equalsN3 N1 N3] =
 / total /
 intros
 { N : ( |- nat), N1 : ( |- nat), N2 : ( |- nat)
@@ -189,7 +189,7 @@ intros
 }
 ;
 
-proof lt-implies-sum : [ |- lt N1 N3] -> [ |- existsN2/N1+N2+1equalsN3] =
+proof lt-implies-sum : [ |- lt N1 N3] -> [ |- existsN2/N1+N2+1equalsN3 N1 N3] =
 / total 1 /
 intros
 { N : ( |- nat), N1 : ( |- nat)
@@ -198,7 +198,21 @@ intros
   case lt/s:
   { N2 : ( |- nat), N3 : ( |- nat), X : ( |- lt N2 N3)
   | x : [ |- lt (succ N2) (succ N3)]
-  ; solve lt-implies-sum [ |- X]
+  ; by lt-implies-sum [ |- X] as q;
+    split q as
+    case existsN2/N1+N2+1equalsN3/i:
+    { N2 : ( |- nat),
+      N3 : ( |- nat),
+      X : ( |- lt N2 N3),
+      N6 : ( |- nat),
+      X1 : ( |- sum N2 (succ N6) N3)
+    | x : [ |- lt (succ N2) (succ N3)],
+      q : [ |- existsN2/N1+N2+1equalsN3 N2 N3]
+    ; suffices by existsN2/N1+N2+1equalsN3/i [ |- N6] toshow
+      [ |- sum (succ N2) (succ N6) (succ N3)] {
+        solve [ |- sum/s X1]
+      }
+    }
   }
   case lt/z:
   { N2 : ( |- nat)
