@@ -1,0 +1,53 @@
+% Principal Kinds
+
+LF cn-ofp : con -> kind -> type =
+| cn-ofp/pair : cn-ofp C1 K1 ->
+                  cn-ofp C2 K2 ->
+                  cn-ofp (pair C1 C2) (sigma K1 (\x. K2))
+
+| cn-ofp/pi1 : cn-ofp C (sigma K1 (\x. K2)) -> cn-ofp (pi1 C) K1
+
+| cn-ofp/pi2 : cn-ofp C (sigma K1 (\x. K2)) -> cn-ofp (pi2 C) K2
+
+| cn-ofp/lam : ({ a : con } cn-of a K1 ->
+                   cn-ofp a (K1s a) ->
+                   cn-ofp (C a) (K2 a)) ->
+                  single K1 K1s ->
+                  kd-wf K1 ->
+                  cn-ofp (lam K1 C) (pi K1 K2)
+
+| cn-ofp/app : cn-ofp C1 (pi K1 K2) -> cn-of C2 K1 -> cn-ofp (app C1 C2) (K2 C2)
+
+| cn-ofp/star : cn-ofp star one
+
+| cn-ofp/unit : cn-ofp unit (sing unit)
+
+| cn-ofp/void : cn-ofp void (sing void)
+
+| cn-ofp/prod : cn-of T1 t ->
+                  cn-of T2 t ->
+                  cn-ofp (prod T1 T2) (sing (prod T1 T2))
+
+| cn-ofp/arrow : cn-of T1 t ->
+                   cn-of T2 t ->
+                   cn-ofp (arrow T1 T2) (sing (arrow T1 T2))
+
+| cn-ofp/plus : cn-of T1 t ->
+                  cn-of T2 t ->
+                  cn-ofp (plus T1 T2) (sing (plus T1 T2))
+
+| cn-ofp/ref : cn-of T t -> cn-ofp (ref T) (sing (ref T))
+
+| cn-ofp/tag : cn-of T t -> cn-ofp (tag T) (sing (tag T))
+
+| cn-ofp/tagged : cn-ofp tagged (sing tagged)
+
+| cn-ofp/rec : cn-of C2 K ->
+                 ({ a : con } cn-of a (pi K (\x. t)) ->
+                   { b : con } cn-of b K ->
+                   cn-of (C1 a b) t) ->
+                 kd-wf K ->
+                 cn-ofp (rec' K C1 C2) (sing (rec' K C1 C2))
+
+| cn-ofp/labeled : cn-of T t -> cn-ofp (labeled L T) (sing (labeled L T))
+;
