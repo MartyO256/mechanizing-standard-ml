@@ -1,0 +1,79 @@
+% Map into the singleton language
+
+LF map : con -> eterm -> type =
+| map/pair : map C1 M1 ->
+               map C2 M2 ->
+               map (pair C1 C2) (epair M1 M2)
+
+| map/pi1 : map C M ->
+              map (pi1 C) (epi1 M)
+
+| map/pi2 : map C M ->
+              map (pi2 C) (epi2 M)
+
+| map/lam : ({a : con} {x : eterm} map a x ->
+              map (C a) (M x)) ->
+              tmap K A ->
+              map (lam K C) (elam A M)
+
+| map/app : map C1 M1 ->
+              map C2 M2 ->
+              map (app C1 C2) (eapp M1 M2)
+
+| map/star : map star estar
+
+| map/unit : map unit (econst const/unit)
+
+| map/void : map void (econst const/void)
+
+| map/prod : map C1 M1 ->
+               map C2 M2 ->
+               map (prod C1 C2) (eapp (eapp (econst const/prod) M1) M2)
+
+| map/arrow : map C1 M1 ->
+                map C2 M2 ->
+                map (arrow C1 C2) (eapp (eapp (econst const/arrow) M1) M2)
+
+| map/plus : map C1 M1 ->
+               map C2 M2 ->
+               map (plus C1 C2) (eapp (eapp (econst const/plus) M1) M2)
+
+| map/ref : map C M ->
+              map (ref C) (eapp (econst const/ref) M)
+
+| map/tag : map C M ->
+              map (tag C) (eapp (econst const/tag) M)
+
+| map/tagged : map tagged (econst const/tagged)
+
+| map/rec : flay A SK MA ->
+              map C2 M2 ->
+              ({a : con} {x : eterm} map a x ->
+                {b : con} {y : eterm} map b y ->
+                map (C1 a b) (M1 x y)) ->
+              tmap K A ->
+              map (rec' K C1 C2)
+                (eapp (econst (const/rec SK))
+                (epair
+                  MA
+                  (epair (elam (epi A (\x. et))
+                  (\x. elam A (\y. M1 x y))) M2))
+                )
+
+| map/labeled : map C M ->
+                  map (labeled I C) (eapp (econst (const/labeled I)) M)
+
+and tmap : kind -> etp -> type =
+| tmap/t : tmap t et
+
+| tmap/sing : map C M -> tmap (sing C) (esing M)
+
+| tmap/pi : ({a : con} {x : eterm} map a x -> tmap (K2 a) (A2 x)) ->
+              tmap K1 A1 -> tmap (pi K1 K2) (epi A1 A2)
+
+| tmap/sigma : ({a : con} {x : eterm} map a x -> tmap (K2 a) (A2 x)) ->
+                 tmap K1 A1 -> tmap (sigma K1 K2) (esigma A1 A2)
+
+| tmap/one : tmap one eone
+;
+

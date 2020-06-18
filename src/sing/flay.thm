@@ -1,0 +1,19 @@
+LF flay : etp -> skel -> eterm -> type =
+| flay/t : flay et kt estar
+
+%{ FIXME: Type synthesis of term B failed
+| flay/pi : ({x : etp} flay (B x) Bs (N x)) ->
+              flay A As M ->
+              flay (epi A B) (kpi As Bs) (epair M (elam A (\x. N x)))
+}%
+
+%{ FIXME: Type synthesis of term B failed
+| flay/sigma : ({x : etp} flay (B x) Bs (N x)) ->
+                 flay A As M ->
+                 flay (esigma A B) (ksigma As Bs) (epair M (elam A (\x. N x)))
+}%
+
+| flay/sing : flay (esing M) ksing M
+
+| flay/one : flay eone kone estar
+;

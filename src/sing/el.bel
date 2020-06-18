@@ -1,0 +1,18 @@
+% Syntax
+
+LF etp : type =
+| et : etp
+| epi : etp -> (eterm -> etp) -> etp
+| esigma : etp -> (eterm -> etp) -> etp
+| esing : eterm -> etp
+| eone : etp
+
+and eterm : type =
+| econst : constant -> eterm
+| eapp : eterm -> eterm -> eterm
+| epi1 : eterm -> eterm
+| epi2 : eterm -> eterm
+| elam : etp -> (eterm -> eterm) -> eterm
+| epair : eterm -> eterm -> eterm
+| estar : eterm
+;
