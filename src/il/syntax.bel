@@ -1,30 +1,67 @@
 % Kinds
 
 LF kind : type =
+
+% Types Kind
 | t : kind
+
+% Singleton Kind
 | sing : con -> kind
+
+% Dependent Functions Kind
 | pi : kind -> (con -> kind) -> kind
+
+% Dependent Pairs Kind
 | sigma : kind -> (con -> kind) -> kind
+
+% Unit Kind
 | one : kind
 
 % Constructors
 
 and con : type =
+
+% Pairs
 | pair : con -> con -> con
+
+% Left Projections
 | pi1 : con -> con
+
+% Right Projections
 | pi2 : con -> con
+
+% Abstractions
 | lam : kind -> (con -> con) -> con
+
+% Applications
 | app : con -> con -> con
+
 | star : con
 
+% Unit Type
 | unit : con
+
 | void : con
+
+% Products
 | prod : con -> con -> con
+
+% Functions
 | arrow : con -> con -> con
+
+% Sums
 | plus : con -> con -> con
+
+% References
 | ref : con -> con
+
+% Generative Tags
 | tag : con -> con
+
+% Tagged Expressions
 | tagged : con
+
+% Recursive Types
 | rec' : kind -> (con -> con -> con) -> con -> con
 | labeled : label -> con -> con
 ;
@@ -71,58 +108,103 @@ LF sg : type =
 % Terms
 
 LF term : type =
+% Unit Term
 | tm/unit : term
+
 | tm/abort : term -> con -> term
 
+% Pairs
 | tm/pair : term -> term -> term
+
+% Left Projection
 | tm/pi1 : term -> term
+
+% Right Projection
 | tm/pi2 : term -> term
 
+% Abstraction
 | tm/lam : con -> (term -> term) -> term
+
+% Application
 | tm/app : term -> term -> term
 
+% Sum Intro 1
 | tm/in1 : term -> con -> term
+
+% Sum Intro 2
 | tm/in2 : term -> con -> term
+
+% Case
 | tm/case : term -> (term -> term) -> (term -> term) -> term
 
+% Locations
 | tm/refloc : location -> term
+
+% New Reference
 | tm/ref : term -> term
+
+% Dereference
 | tm/deref : term -> term
+
+% Assignment
 | tm/assign : term -> term -> term
 
+% Tag Literals
 | tm/tagloc : location -> term
+
+% New Tag
 | tm/newtag : con -> term
 
+% Tag Injection
 | tm/tag : term -> term -> term
+
+% Tag Check
 | tm/iftag : term -> term -> (term -> term) -> term -> term
 
+% Recursive Type Introduction
 | tm/roll : term -> kind -> (con -> con -> con) -> con -> term
+
+% Recursive Type Elimination
 | tm/unroll : term -> term
 
 | tm/in : label -> term -> term
 | tm/out : term -> term
 
+% Raise Exception
 | tm/raise : term -> con -> term
+
+% Try/Handle
 | tm/try : term -> (term -> term) -> term
 
 | tm/lett : term -> (term -> term) -> term
 
+% Module Projections
 | tm/snd : module' -> term
 
 % Modules
 
 and module' : type =
+
+% Unit Module
 | md/unit : module'
 | md/satom : con -> module'
 | md/datom : term -> con -> module'
 | md/sgatom : sg -> module'
 
+% Pairs
 | md/pair : module' -> module' -> module'
 | md/dpair : module' -> (con -> module' -> module') -> module'
+
+% Left Projection
 | md/pi1 : module' -> module'
+
+% Right Projection
 | md/pi2 : module' -> module'
 
+% Functor
 | md/lam : sg -> (con -> module' -> module') -> module'
+
+% Application
 | md/app : module' -> module' -> module'
 
 | md/in : name -> module' -> module'
