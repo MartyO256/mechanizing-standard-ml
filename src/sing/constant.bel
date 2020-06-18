@@ -1,3 +1,24 @@
+LF skel : type =
+| kt : skel
+| kpi : skel -> skel -> skel
+| ksigma : skel -> skel -> skel
+| ksing : skel
+| kone : skel
+;
+
+LF constant : type =
+| const/arrow : constant
+| const/prod : constant
+| const/unit : constant
+| const/void : constant
+| const/plus : constant
+| const/tag : constant
+| cosnt/tagged : constant
+| const/rec : skel -> constant
+| const/labeled : label -> constant
+;
+--name constant K.
+
 catom : type.
 --name catom R.
 
