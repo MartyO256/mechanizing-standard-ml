@@ -373,6 +373,36 @@ intros
 }
 ;
 
+proof pi-resp : (g : conblock) [g |- kind-eq K1 K1'] ->
+                  [g, a : con |- kind-eq (K2[a]) (K2'[a])] ->
+                    [g |- kind-eq (pi K1 (\x. K2[x]))
+                      (pi K1' (\x. K2'[x]))] =
+/ total /
+intros
+{ g : conblock,
+  K : (g |- kind),
+  K1' : (g |- kind),
+  K1 : (a : con |- kind),
+  K2' : (a : con |- kind)
+| x : [g |- kind-eq K K1'], x1 : [g, a : con |- kind-eq (K1[a]) (K2'[a])]
+; split x as
+  case kind-eq/i:
+  { g : conblock,
+    K1' : (g |- kind),
+    K1 : (a : con |- kind),
+    K2' : (a : con |- kind)
+  | x : [g |- kind-eq K1' K1'], x1 : [g, a : con |- kind-eq (K1[a]) (K2'[a])]
+  ; split x1 as
+    case kind-eq/i:
+    { g : conblock, K1' : (g |- kind), K2' : (a : con |- kind)
+    | x : [g |- kind-eq K1' K1'],
+      x1 : [g, a : con |- kind-eq (K2'[a]) (K2'[a])]
+    ; solve [_ |- kind-eq/i ]
+    }
+  }
+}
+;
+
 proof sg-resp-con : { S : [ c : con |- sg] } [ |- con-eq C C'] ->
                       [ |- sg-eq (S[C]) (S[C'])] =
 / total /
@@ -429,6 +459,36 @@ intros
   { S1 : ( |- sg), S2 : (s : sg |- sg)
   | x : [ |- sg-eq S1 S1]
   ; solve [ |- sg-eq/i ]
+  }
+}
+;
+
+proof sigma-resp : (g : conblock) [g |- kind-eq K1 K1'] ->
+                     [g, a : con |- kind-eq (K2[a]) (K2'[a])] ->
+                       [g |- kind-eq (sigma K1 (\x. K2[x]))
+                         (sigma K1' (\x. K2'[x]))] =
+/ total /
+intros
+{ g : conblock,
+  K : (g |- kind),
+  K1' : (g |- kind),
+  K1 : (a : con |- kind),
+  K2' : (a : con |- kind)
+| x : [g |- kind-eq K K1'], x1 : [g, a : con |- kind-eq (K1[a]) (K2'[a])]
+; split x as
+  case kind-eq/i:
+  { g : conblock,
+    K1' : (g |- kind),
+    K1 : (a : con |- kind),
+    K2' : (a : con |- kind)
+  | x : [g |- kind-eq K1' K1'], x1 : [g, a : con |- kind-eq (K1[a]) (K2'[a])]
+  ; split x1 as
+    case kind-eq/i:
+    { g : conblock, K1' : (g |- kind), K2' : (a : con |- kind)
+    | x : [g |- kind-eq K1' K1'],
+      x1 : [g, a : con |- kind-eq (K2'[a]) (K2'[a])]
+    ; solve [_ |- kind-eq/i ]
+    }
   }
 }
 ;
@@ -511,46 +571,94 @@ intros
 }
 ;
 
-proof kind-eq-pi-invert : [ |- kind-eq (pi K1 (\x. K2[x]))
-                              (pi K1' (\x. K2'[x]))] ->
-                            [ |- kind-eq K1 K1'] ->
-                              [ a : con |- kind-eq (K2[a]) (K2'[a])] =
+proof kind-eq-pi-invert/1 :
+  (g : conblock)
+  [g |- kind-eq (pi K1 (\x. K2[x])) (pi K1' (\x. K2'[x]))] ->
+    [g |- kind-eq K1 K1'] =
 / total /
 intros
-{ K : ( |- kind),
-  K1 : (x69 : con |- kind),
-  K1' : ( |- kind),
-  K2' : (x69 : con |- kind)
-| x : [ |- kind-eq (pi K (\x. K1[x])) (pi K1' (\x. K2'[x]))],
-  x1 : [ |- kind-eq K K1']
+{ g : conblock,
+  K : (g |- kind),
+  K1 : (z71 : con |- kind),
+  K1' : (g |- kind),
+  K2' : (z71 : con |- kind)
+| x : [g |- kind-eq (pi K (\x. K1[x])) (pi K1' (\x. K2'[x]))]
 ; split x as
   case kind-eq/i:
-  { K1' : ( |- kind), K2' : (x69 : con |- kind)
-  | x : [ |- kind-eq (pi K1' (\x. K2'[x])) (pi K1' (\x. K2'[x]))],
-    x1 : [ |- kind-eq K1' K1']
-  ; solve [a : con |- kind-eq/i ]
+  { g : conblock, K1' : (g |- kind), K2' : (z71 : con |- kind)
+  | x : [g |- kind-eq (pi K1' (\x. K2'[x])) (pi K1' (\x. K2'[x]))]
+  ; solve [_ |- kind-eq/i ]
   }
 }
 ;
 
-proof kind-eq-sigma-invert : [ |- kind-eq (sigma K1 (\x. K2[x]))
-                                 (sigma K1' (\x. K2'[x]))] ->
-                               [ |- kind-eq K1 K1'] ->
-                                 [ a : con |- kind-eq (K2[a]) (K2'[a]) ] =
+proof kind-eq-pi-invert/2 :
+  (g : conblock)
+  [g |- kind-eq (pi K1 (\x. K2[x])) (pi K1' (\x. K2'[x]))] ->
+    [g |- kind-eq (K2[a]) (K2'[a])] =
 / total /
 intros
-{ K : ( |- kind),
-  K1 : (x70 : con |- kind),
-  K1' : ( |- kind),
-  K2' : (x70 : con |- kind)
-| x : [ |- kind-eq (sigma K (\x. K1[x])) (sigma K1' (\x. K2'[x]))],
-  x1 : [ |- kind-eq K K1']
+{ g : conblock,
+  K : (g |- kind),
+  K1 : (z71 : con |- kind),
+  K1' : (g |- kind),
+  K2' : (z71 : con |- kind),
+  a : (g |- con)
+| x : [g |- kind-eq (pi K (\x. K1[x])) (pi K1' (\x. K2'[x]))]
 ; split x as
   case kind-eq/i:
-  { K1' : ( |- kind), K2' : (x70 : con |- kind)
-  | x : [ |- kind-eq (sigma K1' (\x. K2'[x])) (sigma K1' (\x. K2'[x]))],
-    x1 : [ |- kind-eq K1' K1']
-  ; solve [a : con |- kind-eq/i ]
+  { g : conblock,
+    K1' : (g |- kind),
+    K2' : (z71 : con |- kind),
+    a : (g |- con)
+  | x : [g |- kind-eq (pi K1' (\x. K2'[x])) (pi K1' (\x. K2'[x]))]
+  ; solve [_ |- kind-eq/i ]
+  }
+}
+;
+
+proof kind-eq-sigma-invert/1 :
+  (g : conblock)
+  [g |- kind-eq (sigma K1 (\x. K2[x])) (sigma K1' (\x. K2'[x]))] ->
+    [g |- kind-eq K1 K1'] =
+/ total /
+intros
+{ g : conblock,
+  K : (g |- kind),
+  K1 : (z72 : con |- kind),
+  K1' : (g |- kind),
+  K2' : (z72 : con |- kind)
+| x : [g |- kind-eq (sigma K (\x. K1[x])) (sigma K1' (\x. K2'[x]))]
+; split x as
+  case kind-eq/i:
+  { g : conblock, K1' : (g |- kind), K2' : (z72 : con |- kind)
+  | x : [g |- kind-eq (sigma K1' (\x. K2'[x])) (sigma K1' (\x. K2'[x]))]
+  ; solve [_ |- kind-eq/i ]
+  }
+}
+;
+
+proof kind-eq-sigma-invert/2 :
+  (g : conblock)
+  [g |- kind-eq (sigma K1 (\x. K2[x])) (sigma K1' (\x. K2'[x]))] ->
+    [g |- kind-eq (K2[a]) (K2'[a]) ] =
+/ total /
+intros
+{ g : conblock,
+  K : (g |- kind),
+  K1 : (z72 : con |- kind),
+  K1' : (g |- kind),
+  K2' : (z72 : con |- kind),
+  a : (g |- con)
+| x : [g |- kind-eq (sigma K (\x. K1[x])) (sigma K1' (\x. K2'[x]))]
+; split x as
+  case kind-eq/i:
+  { g : conblock,
+    K1' : (g |- kind),
+    K2' : (z72 : con |- kind),
+    a : (g |- con)
+  | x : [g |- kind-eq (sigma K1' (\x. K2'[x])) (sigma K1' (\x. K2'[x]))]
+  ; solve [_ |- kind-eq/i ]
   }
 }
 ;
