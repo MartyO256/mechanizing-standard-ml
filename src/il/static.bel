@@ -538,3 +538,9 @@ LF store-of : sttp -> store -> sttp -> type =
                     store-of F ST F' ->
                     store-of F (store/cons ST L EN) (st/cons F' L ET)
 ;
+
+% Schemas
+
+schema conblock = block (a : con);
+
+schema conbind = some [K : kind] block (a : con, d : cn-of a K);
