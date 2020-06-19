@@ -1,3 +1,33 @@
+% Kind Lemmas
+
+%{ FIXME: Higher-order meta-variables not (currently) supported
+proof single-resp : (g : conblock) [g |- kind-eq K K'] ->
+                      [g, a : con |- kind-eq (Ks[a]) (Ks'[a])] ->
+                        [g |- single K Ks] ->
+                          [g |- single K' Ks'] =
+/ total /
+?
+;
+}%
+
+%{ FIXME: Higher-order meta-variables not (currently) supported
+proof can-single : (g : conblock) { K : [g |- kind] } [g |- single K Ks] =
+/ total 1 /
+?
+;
+}%
+
+%{ FIXME: Higher-order meta-variables not (currently) supported
+proof single-fun : (g : conblock) [g |- single K Ks] ->
+                     [g |- single K Ks'] ->
+                       [g, a : con |- kind-eq (Ks[a]) (Ks'[a])] =
+/ total 1 /
+?
+;
+}%
+
+% Signature Lemmas
+
 proof md-of-forget : [ |- md-of P F M S] -> [ |- md-of impure F M S] =
 / total /
 intros
