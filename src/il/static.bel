@@ -92,7 +92,7 @@ and cn-of : con -> kind -> type =
 
 | cn-of/rec : cn-of C2 K ->
                 ({ a : con } cn-of a (pi K (\l. t)) ->
-                  cn-of b K -> cn-of (C1 a b) t) ->
+                  { b : con } cn-of b K -> cn-of (C1 a b) t) ->
                 kd-wf K ->
                 cn-of (rec' K C1 C2) t
 

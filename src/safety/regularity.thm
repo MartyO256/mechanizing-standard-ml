@@ -272,17 +272,16 @@ intros
   case cn-of/rec:
   { g : conbind,
     K1 : (g |- kind),
-    C2 : (g, a20 : con, a19 : con |- con),
+    C1 : (g, a20 : con, a19 : con |- con),
     C : (g |- con),
-    C1 : (g |- con),
     X : (g |- cn-of C K1),
     X1 :
-      (g, a : con, x150 : cn-of a (pi (K1[..]) (\l. t)),
-       z150 : cn-of (C1[..]) (K1[..]) |- cn-of (C2[.., a, (C1[..])]) t),
+      (g, a : con, x150 : cn-of a (pi (K1[..]) (\l. t)), b : con,
+       z150 : cn-of b (K1[..]) |- cn-of (C1[.., a, b]) t),
     X2 : (g |- kd-wf K1)
-  | x : [g |- cn-of (rec' K1 (\z79. \y80. C2) C) t],
+  | x : [g |- cn-of (rec' K1 (\z79. \y80. C1) C) t],
     x1 :
-      [g |- similar (rec' K1 (\z79. \y80. C2) C) (rec' K1 (\z79. \y80. C2) C)],
+      [g |- similar (rec' K1 (\z79. \y80. C1) C) (rec' K1 (\z79. \y80. C1) C)],
     x2 : [g |- kd-sub t t]
   ; solve x
   }
@@ -701,11 +700,10 @@ intros
     K : (g |- kind),
     C : (z79 : con, y80 : con |- con),
     C1 : (g |- con),
-    C3 : (g |- con),
     X : (g |- cn-of C1 K),
     X1 :
-      (g, a : con, x150 : cn-of a (pi (K[..]) (\l. t)),
-       z150 : cn-of (C3[..]) (K[..]) |- cn-of (C[a, (C3[..])]) t),
+      (g, a : con, x150 : cn-of a (pi (K[..]) (\l. t)), b : con,
+       z150 : cn-of b (K[..]) |- cn-of (C[a, b]) t),
     X2 : (g |- kd-wf K)
   | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
   ; solve [_ |- X2]
@@ -713,14 +711,48 @@ intros
 }
 ;
 
-%{ FIXME: Parse error
+% FIXME: `solve inversion-rec/1 [_|-Q]` Recursive call not structurally smaller.
 proof inversion-rec/1 :
   (g : conbind) [g |- cn-of (rec' K (\x. \y. C1[x, y]) C2) t] ->
-    [g, a : block (ca : con, da : cn-of ca (pi K (\x. t))), b : block (cb : con, cn-of cb K) |- cn-of (C1[a.1, b.1]) t] =
+    [g, a : con, da : cn-of a (pi (K[..]) (\l. t)),
+        b : con, db : cn-of b (K[..]) |- cn-of (C1[a, b]) t] =
 / total 1 /
-?
+intros
+{ g : conbind,
+  K : (g |- kind),
+  C : (z79 : con, y80 : con |- con),
+  C1 : (g |- con)
+| x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
+; split x as
+  case cn-of/subsume:
+  { g : conbind,
+    K : (g |- kind),
+    C : (z79 : con, y80 : con |- con),
+    C1 : (g |- con),
+    K1 : (g |- kind),
+    X : (g |- kd-sub K1 t),
+    X1 : (g |- cn-of (rec' K (\x. \y. C[x, y]) C1) K1)
+  | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
+  ; by type-inversion [g |- X1] [g |- similar/rec ] [g |- X] as Q unboxed;
+    ?
+  }
+  case cn-of/rec:
+  { g : conbind,
+    K : (g |- kind),
+    C : (z79 : con, y80 : con |- con),
+    C1 : (g |- con),
+    X : (g |- cn-of C1 K),
+    X1 :
+      (g, a : con, x150 : cn-of a (pi (K[..]) (\l. t)), b : con,
+       z150 : cn-of b (K[..]) |- cn-of (C[a, b]) t),
+    X2 : (g |- kd-wf K)
+  | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
+  ; solve
+      [_, a : con, x150 : cn-of a (pi (K[..]) (\l. t)), b : con,
+       z150 : cn-of b (K[..]) |- X1]
+  }
+}
 ;
-}%
 
 % FIXME: `solve inversion-rec/2 [_|-Q]` Recursive call not structurally smaller.
 proof inversion-rec/2 :
@@ -751,11 +783,10 @@ intros
     K : (g |- kind),
     C : (z79 : con, y80 : con |- con),
     C1 : (g |- con),
-    C3 : (g |- con),
     X : (g |- cn-of C1 K),
     X1 :
-      (g, a : con, x150 : cn-of a (pi (K[..]) (\l. t)),
-       z150 : cn-of (C3[..]) (K[..]) |- cn-of (C[a, (C3[..])]) t),
+      (g, a : con, x150 : cn-of a (pi (K[..]) (\l. t)), b : con,
+       z150 : cn-of b (K[..]) |- cn-of (C[a, b]) t),
     X2 : (g |- kd-wf K)
   | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
   ; solve [_ |- X]
