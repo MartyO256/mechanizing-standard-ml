@@ -142,3 +142,40 @@ and tunmap : etp -> kind -> type =
 
 | tunmap/one : tunmap eone one
 ;
+
+schema unmap-block = some [a : con] block (x : eterm, xt : unmap x a);
+
+schema conblock+unmap-block = block (a : con)
+                            + some [a : con] block (x : eterm, xt : unmap x a);
+
+proof unmap-resp : (g : conblock+unmap-block) [g |- eterm-eq M M'] ->
+                     [g |- con-eq C C'] ->
+                        [g |- unmap M C] -> [g |- unmap M' C'] =
+/ total /
+intros
+{ g : conblock+unmap-block,
+  M : (g |- eterm),
+  M' : (g |- eterm),
+  C : (g |- con),
+  C' : (g |- con)
+| x : [g |- eterm-eq M M'], x1 : [g |- con-eq C C'], x2 : [g |- unmap M C]
+; split x as
+  case eterm-eq/i:
+  { g : conblock+unmap-block,
+    M' : (g |- eterm),
+    C : (g |- con),
+    C' : (g |- con)
+  | x : [g |- eterm-eq M' M'],
+    x1 : [g |- con-eq C C'],
+    x2 : [g |- unmap M' C]
+  ; split x1 as
+    case con-eq/i:
+    { g : conblock+unmap-block, M' : (g |- eterm), C' : (g |- con)
+    | x : [g |- eterm-eq M' M'],
+      x1 : [g |- con-eq C' C'],
+      x2 : [g |- unmap M' C']
+    ; solve x2
+    }
+  }
+}
+;

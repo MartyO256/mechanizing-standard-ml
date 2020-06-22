@@ -1,12 +1,24 @@
 % Syntax
 
-tp : type.
+LF tp : type =
+| t : tp
+| pi : tp -> (atom -> tp) -> tp
+| sigma : tp -> (atom -> tp) -> tp
+| sing : atom -> tp
+| one : tp
+
+and atom : type =
+| const : constant -> atom
+| app : atom -> term -> atom
+| pi1 : atom -> atom
+| pi2 : atom -> atom
+
+and term : type =
+| at : atom -> term
+| lam : (atom -> term) -> term
+| pair : term -> term -> term
+| star : term
+;
 --name tp A.
-
-atom : type.
 --name atom R.
-
-term : type.
 --name term M.
-
-app	: atom -> term -> atom.
