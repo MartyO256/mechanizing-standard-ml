@@ -1,0 +1,43 @@
+% Definitions
+
+LF expand-il : con -> kind -> con -> type =
+| expand-il/t : expand-il R t R
+
+| expand-il/pi : ({x : con} expand-il x A (M x)) ->
+                   ({x : con} expand-il (app R (M x)) (B x) (N x)) ->
+                   expand-il R (pi A B) (lam A N)
+
+| expand-il/sigma : expand-il (pi1 R) A M ->
+                      expand-il (pi2 R) (B (pi1 R)) N ->
+                      expand-il R (sigma A B) (pair M N)
+
+| expand-il/sing : expand-il R (sing R') R'
+
+| expand-il/one : expand-il R one star
+;
+
+LF skof-il : skel -> kind -> (con -> kind) -> type =
+| skof-il/t : skof-il kt one (\l. t)
+
+| skof-il/pi :
+  skof-il As C (\y. A y) ->
+    skof-il Bs D (\z. B z) ->
+    ({y : con} {x : con} expand-il x (A y) (X y x)) ->
+    skof-il
+      (kpi As Bs)
+      (sigma C (\y. pi (A y) (\l. D)))
+      (\w. pi (A (pi1 w)) (\x. B (app (pi2 w) (X (pi1 w) x))))
+
+| skof-il/sigma :
+  skof-il As C (\y. A y) ->
+    skof-il Bs D (\z. B z) ->
+    ({y : con} {x : con} expand-il x (A y) (X y x)) ->
+    skof-il
+      (ksigma As Bs)
+      (sigma C (\y. pi (A y) (\l. D)))
+      (\w. sigma (A (pi1 w)) (\x. B (app (pi2 w) (X (pi1 w) x))))
+
+| skof-il/sing : skof-il ksing t (\x. sing x)
+
+| skof-il/one : skof-il kone one (\l. one)
+;

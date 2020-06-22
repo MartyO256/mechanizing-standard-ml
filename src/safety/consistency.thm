@@ -77,3 +77,68 @@ and tmap : kind -> etp -> type =
 | tmap/one : tmap one eone
 ;
 
+% Map from the singleton language
+
+LF unmap : eterm -> con -> type =
+| unmap/app : unmap M1 C1 -> unmap M2 C2 -> unmap (eapp M1 M2) (app C1 C2)
+
+| unmap/pi1 : unmap M C -> unmap (epi1 M) (pi1 C)
+
+| unmap/pi2 : unmap M C -> unmap (epi2 M) (pi2 C)
+
+| unmap/lam : tunmap A K ->
+                ({x : eterm} {a : con} unmap x a -> unmap (M x) (C a)) ->
+                unmap (elam A M) (lam K C)
+
+| unmap/pair : unmap M1 C1 -> unmap M2 C2 -> unmap (epair M1 M2) (pair C1 C2)
+
+| unmap/star : unmap estar star
+
+| unmap/unit : unmap (econst const/unit) unit
+
+| unmap/void : unmap (econst const/void) void
+
+| unmap/prod : unmap (econst const/prod) (lam t (\a. lam t (\b. prod a b)))
+
+| unmap/arrow : unmap (econst const/arrow) (lam t (\a. lam t (\b. arrow a b)))
+
+| unmap/plus : unmap (econst const/plus) (lam t (\a. lam t (\b. plus a b)))
+
+| unmap/ref : unmap (econst const/ref) (lam t (\a. ref a))
+
+| unmap/tag : unmap (econst const/tag) (lam t (\a. tag a))
+
+| unmap/tagged : unmap (econst const/tagged) tagged
+
+| unmap/rec :
+    skof-il SK K L ->
+      unmap (econst (const/rec SK))
+        (lam
+          (sigma K
+            (\a. sigma
+              (pi (pi (L a) (\l. t)) (\k. (pi (L a) (\l. t))))
+              (\l. (L a))
+            )
+          )
+          (\b. rec'
+            (L (pi1 b)) (\c. \d. app (app (pi1 (pi2 b)) c) d) (pi2 (pi2 b))
+          )
+        )
+
+| unmap/labeled : unmap (econst (const/labeled I)) (lam t (\a. labeled I a))
+
+and tunmap : etp -> kind -> type =
+| tunmap/t : tunmap et t
+
+| tunmap/sing : unmap M C -> tunmap (esing M) (sing C)
+
+| tunmap/pi : tunmap A1 K1 ->
+                ({x : eterm} {a : con} unmap x a -> tunmap (A2 x) (K2 a)) ->
+                tunmap (epi A1 A2) (pi K1 K2)
+
+| tunmap/sigma : tunmap A1 K1 ->
+                   ({x : eterm} {a : con} unmap x a -> tunmap (A2 x) (K2 a)) ->
+                   tunmap (esigma A1 A2) (sigma K1 K2)
+
+| tunmap/one : tunmap eone one
+;
