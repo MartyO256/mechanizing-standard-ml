@@ -8,6 +8,10 @@ LF eterm-eq : eterm -> eterm -> type =
 | eterm-eq/i : eterm-eq M M
 ;
 
+LF etp-eq : etp -> etp -> type =
+| etp-eq/i : etp-eq A A
+;
+
 LF term-eq : term -> term -> type =
 | term-eq/i : term-eq M M
 ;
