@@ -179,3 +179,36 @@ intros
   }
 }
 ;
+
+proof tunmap-resp : (g : conblock+unmap-block) [g |- etp-eq A A'] ->
+                      [g |- kind-eq K K'] ->
+                         [g |- tunmap A K] -> [g |- tunmap A' K'] =
+/ total /
+intros
+{ g : conblock+unmap-block,
+  A : (g |- etp),
+  A' : (g |- etp),
+  K : (g |- kind),
+  K' : (g |- kind)
+| x : [g |- etp-eq A A'], x1 : [g |- kind-eq K K'], x2 : [g |- tunmap A K]
+; split x as
+  case etp-eq/i:
+  { g : conblock+unmap-block,
+    A' : (g |- etp),
+    K : (g |- kind),
+    K' : (g |- kind)
+  | x : [g |- etp-eq A' A'],
+    x1 : [g |- kind-eq K K'],
+    x2 : [g |- tunmap A' K]
+  ; split x1 as
+    case kind-eq/i:
+    { g : conblock+unmap-block, A' : (g |- etp), K' : (g |- kind)
+    | x : [g |- etp-eq A' A'],
+      x1 : [g |- kind-eq K' K'],
+      x2 : [g |- tunmap A' K']
+    ; solve x2
+    }
+  }
+}
+;
+
