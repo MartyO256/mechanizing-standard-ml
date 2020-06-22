@@ -1,8 +1,22 @@
-% atom-eq as an equivalence relation
+% Equalities
 
 LF atom-eq : atom -> atom -> type =
 | atom-eq/i : atom-eq R R
 ;
+
+LF eterm-eq : eterm -> eterm -> type =
+| eterm-eq/i : eterm-eq M M
+;
+
+LF term-eq : term -> term -> type =
+| term-eq/i : term-eq M M
+;
+
+LF tp-eq : tp -> tp -> type =
+| tp-eq/i : tp-eq T T
+;
+
+% Symmetry
 
 proof atom-eq-symm : [ |- atom-eq R R'] -> [ |- atom-eq R' R] =
 / total /
@@ -18,6 +32,36 @@ intros
 }
 ;
 
+proof term-eq-symm : [ |- term-eq M N] -> [ |- term-eq N M] =
+/ total /
+intros
+{ M : ( |- term), N : ( |- term)
+| x : [ |- term-eq M N]
+; split x as
+  case term-eq/i:
+  { N : ( |- term)
+  | x : [ |- term-eq N N]
+  ; solve x
+  }
+}
+;
+
+proof tp-eq-symm : [ |- tp-eq A B] -> [ |- tp-eq B A] =
+/ total /
+intros
+{ A : ( |- tp), B : ( |- tp)
+| x : [ |- tp-eq A B]
+; split x as
+  case tp-eq/i:
+  { B : ( |- tp)
+  | x : [ |- tp-eq B B]
+  ; solve x
+  }
+}
+;
+
+% Transitivity
+
 proof atom-eq-trans : [ |- atom-eq R1 R2] ->
                         [ |- atom-eq R2 R3] -> [ |- atom-eq R1 R3] =
 / total /
@@ -29,26 +73,6 @@ intros
   { R1 : ( |- atom), R2 : ( |- atom)
   | x : [ |- atom-eq R1 R1], x1 : [ |- atom-eq R1 R2]
   ; solve x1
-  }
-}
-;
-
-% term-eq as an equivalence relation
-
-LF term-eq : term -> term -> type =
-| term-eq/i : term-eq M M
-;
-
-proof term-eq-symm : [ |- term-eq M N] -> [ |- term-eq N M] =
-/ total /
-intros
-{ M : ( |- term), N : ( |- term)
-| x : [ |- term-eq M N]
-; split x as
-  case term-eq/i:
-  { N : ( |- term)
-  | x : [ |- term-eq N N]
-  ; solve x
   }
 }
 ;
@@ -68,26 +92,6 @@ intros
 }
 ;
 
-% tp-eq as an equivalence relation
-
-LF tp-eq : tp -> tp -> type =
-| tp-eq/i : tp-eq T T
-;
-
-proof tp-eq-symm : [ |- tp-eq A B] -> [ |- tp-eq B A] =
-/ total /
-intros
-{ A : ( |- tp), B : ( |- tp)
-| x : [ |- tp-eq A B]
-; split x as
-  case tp-eq/i:
-  { B : ( |- tp)
-  | x : [ |- tp-eq B B]
-  ; solve x
-  }
-}
-;
-
 proof tp-eq-trans : [ |- tp-eq A B] -> [ |- tp-eq B C] -> [ |- tp-eq A C] =
 / total /
 intros
@@ -102,7 +106,7 @@ intros
 }
 ;
 
-% Respective equality
+% Cons Lemmas
 
 proof app-resp : [ |- atom-eq R R'] ->
                    [ |- term-eq M M'] -> [ |- atom-eq (app R M) (app R' M')] =
