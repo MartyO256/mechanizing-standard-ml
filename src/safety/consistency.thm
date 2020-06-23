@@ -212,3 +212,24 @@ intros
 }
 ;
 
+% Injectivity Lemmas
+
+proof injective-prod/a : [ |- cn-equiv (prod T1a T1b) (prod T2a T2b) t] ->
+                           [ |- cn-equiv T1a T2a t] =
+/ total /
+intros
+{ T1a : ( |- con), T1b : ( |- con), T2a : ( |- con), T2b : ( |- con)
+| x : [ |- cn-equiv (prod T1a T1b) (prod T2a T2b) t]
+; ?
+}
+;
+
+proof injective-prod/b : [ |- cn-equiv (prod T1a T1b) (prod T2a T2b) t] ->
+                           [ |- cn-equiv T1b T2b t] =
+/ total /
+intros
+{ T1a : ( |- con), T1b : ( |- con), T2a : ( |- con), T2b : ( |- con)
+| x : [ |- cn-equiv (prod T1a T1b) (prod T2a T2b) t]
+; ?
+}
+;
