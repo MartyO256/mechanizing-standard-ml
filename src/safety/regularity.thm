@@ -16,7 +16,7 @@ intros
 }
 ;
 
-% FIXME: by inhabitation [g, a : con, d : cn-of a (K1[..]) |- X[.., a]] as q2 Ill-typed expression.
+% FIXME: `by inhabitation [g, a : con, d : cn-of a (K1[..]) |- X[.., a]] as q2` Ill-typed expression.
 proof inhabitation : (g : conbind) [g |- kd-wf K] ->
                        [g |- inhabitation/existsC K] =
 / total 1 /
