@@ -1,3 +1,31 @@
+% Constant Types
+
+LF ctp : type =
+| ct : ctp
+| cpi : ctp -> (catom -> ctp) -> ctp
+| csigma : ctp -> (catom -> ctp) -> ctp
+| csing : catom -> ctp
+| cone : ctp
+
+and catom : type =
+| capp : catom -> cterm -> catom
+| cpi1 : catom -> catom
+| cpi2 : catom -> catom
+
+and cterm : type =
+| cat : catom -> cterm
+| clam : ctp -> (catom -> cterm) -> cterm
+| cpair : cterm -> cterm -> cterm
+| cstar : cterm
+;
+--name ctp A.
+--name catom R.
+--name cterm M.
+
+schema catomblock = block (xc : catom);
+
+% Skeletons
+
 LF skel : type =
 | kt : skel
 | kpi : skel -> skel -> skel
@@ -18,9 +46,3 @@ LF constant : type =
 | const/labeled : label -> constant
 ;
 --name constant K.
-
-catom : type.
---name catom R.
-
-cterm : type.
---name cterm M.
