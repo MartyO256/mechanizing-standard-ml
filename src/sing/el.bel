@@ -16,3 +16,5 @@ and eterm : type =
 | epair : eterm -> eterm -> eterm
 | estar : eterm
 ;
+
+schema evar = block (ex : eterm);
