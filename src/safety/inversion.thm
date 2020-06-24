@@ -13,28 +13,19 @@ intros
     T : ( |- con),
     T' : ( |- con),
     C : ( |- con),
-    X1 : ( |- cn-equiv C T' t),
-    X2 : ( |- tm-of F (tm/abort E T) C)
+    X : ( |- cn-equiv C T' t),
+    X1 : ( |- tm-of F (tm/abort E T) C)
   | x : [ |- tm-of F (tm/abort E T) T']
-  ; solve inversion-tm/abort/tm-of [ |- X2]
+  ; solve inversion-tm/abort/tm-of [ |- X1]
   }
   case tm-of/abort:
   { F : ( |- sttp),
     E : ( |- term),
     T' : ( |- con),
-    X1 : ( |- cn-of T' t),
-    X2 : ( |- tm-of F E void)
+    X : ( |- cn-of T' t),
+    X1 : ( |- tm-of F E void)
   | x : [ |- tm-of F (tm/abort E T') T']
-  ; solve [ |- X2]
-  }
-  case tm-of/var:
-  { F : ( |- sttp),
-    E : ( |- term),
-    T : ( |- con),
-    T' : ( |- con),
-    X1 : ( |- tm-assm (tm/abort E T) T')
-  | x : [ |- tm-of F (tm/abort E T) T']
-  ; impossible [ |- X1]
+  ; solve [ |- X1]
   }
 }
 ;
@@ -52,29 +43,20 @@ intros
     T : ( |- con),
     T' : ( |- con),
     C : ( |- con),
-    X1 : ( |- cn-equiv C T' t),
-    X2 : ( |- tm-of F (tm/abort E T) C)
+    X : ( |- cn-equiv C T' t),
+    X1 : ( |- tm-of F (tm/abort E T) C)
   | x : [ |- tm-of F (tm/abort E T) T']
-  ; by inversion-tm/abort/cn-equiv [ |- X2] as L unboxed;
-    solve [ |- cn-equiv/trans L X1]
+  ; by inversion-tm/abort/cn-equiv [ |- X1] as Q unboxed;
+    solve [ |- cn-equiv/trans Q X]
   }
   case tm-of/abort:
   { F : ( |- sttp),
     E : ( |- term),
     T' : ( |- con),
-    X1 : ( |- cn-of T' t),
-    X2 : ( |- tm-of F E void)
+    X : ( |- cn-of T' t),
+    X1 : ( |- tm-of F E void)
   | x : [ |- tm-of F (tm/abort E T') T']
-  ; solve [ |- cn-equiv/refl X1]
-  }
-  case tm-of/var:
-  { F : ( |- sttp),
-    E : ( |- term),
-    T : ( |- con),
-    T' : ( |- con),
-    X1 : ( |- tm-assm (tm/abort E T) T')
-  | x : [ |- tm-of F (tm/abort E T) T']
-  ; impossible [ |- X1]
+  ; solve [ |- cn-equiv/refl X]
   }
 }
 ;
@@ -144,14 +126,6 @@ intros
       solve [ |- cn-equiv/refl (cn-of/ref X1)]
     }
   }
-  case tm-of/var:
-  { F : ( |- sttp),
-    L : ( |- location),
-    T : ( |- con),
-    X : ( |- tm-assm (tm/refloc L) T)
-  | x : [ |- tm-of F (tm/refloc L) T]
-  ; impossible [ |- X]
-  }
 }
 ;
 
@@ -177,8 +151,7 @@ intros
     X : ( |- cn-equiv C T t),
     X1 : ( |- tm-of F (tm/refloc L) C)
   | x : [ |- tm-of F (tm/refloc L) T]
-  ; by inversion-tm/refloc/st-lookup [ |- X1] as q;
-    solve q
+  ; solve inversion-tm/refloc/st-lookup [ |- X1]
   }
   case tm-of/refloc:
   { F : ( |- sttp),
@@ -188,14 +161,6 @@ intros
     X2 : ( |- st-lookup F L (et/ref C))
   | x : [ |- tm-of F (tm/refloc L) (ref C)]
   ; solve [ |- inversion-tm/refloc/st-lookup/existsT'/i C X2]
-  }
-  case tm-of/var:
-  { F : ( |- sttp),
-    L : ( |- location),
-    T : ( |- con),
-    X : ( |- tm-assm (tm/refloc L) T)
-  | x : [ |- tm-of F (tm/refloc L) T]
-  ; impossible [ |- X]
   }
 }
 ;
@@ -221,8 +186,7 @@ intros
     X : ( |- cn-equiv C T t),
     X1 : ( |- tm-of F (tm/refloc L) C)
   | x : [ |- tm-of F (tm/refloc L) T]
-  ; by inversion-tm/refloc/cn-of [ |- X1] as q;
-    solve q
+  ; solve inversion-tm/refloc/cn-of [ |- X1]
   }
   case tm-of/refloc:
   { F : ( |- sttp),
@@ -232,14 +196,6 @@ intros
     X2 : ( |- st-lookup F L (et/ref C))
   | x : [ |- tm-of F (tm/refloc L) (ref C)]
   ; solve [ |- inversion-tm/refloc/cn-of/existsT'/i C X1]
-  }
-  case tm-of/var:
-  { F : ( |- sttp),
-    L : ( |- location),
-    T : ( |- con),
-    X : ( |- tm-assm (tm/refloc L) T)
-  | x : [ |- tm-of F (tm/refloc L) T]
-  ; impossible [ |- X]
   }
 }
 ;
@@ -259,9 +215,9 @@ intros
     X : ( |- cn-equiv C T t),
     X1 : ( |- tm-of F (tm/deref E) C)
   | x : [ |- tm-of F (tm/deref E) T]
-  ; by inversion-tm/deref [ |- X1] as Q1 unboxed;
-    by [ |- cn-equiv/ref X] as Q2 unboxed;
-    solve [ |- tm-of/equiv Q2 Q1]
+  ; by [ |- cn-equiv/ref X] as Q1 unboxed;
+    by inversion-tm/deref [ |- X1] as Q2 unboxed;
+    solve [ |- tm-of/equiv Q1 Q2]
   }
   case tm-of/deref:
   { F : ( |- sttp),
@@ -270,14 +226,6 @@ intros
     X : ( |- tm-of F E (ref T))
   | x : [ |- tm-of F (tm/deref E) T]
   ; solve [ |- X]
-  }
-  case tm-of/var:
-  { F : ( |- sttp),
-    E : ( |- term),
-    T : ( |- con),
-    X : ( |- tm-assm (tm/deref E) T)
-  | x : [ |- tm-of F (tm/deref E) T]
-  ; impossible [ |- X]
   }
 }
 ;
@@ -347,14 +295,6 @@ intros
       solve [ |- cn-equiv/refl (cn-of/tag X1)]
     }
   }
-  case tm-of/var:
-  { F : ( |- sttp),
-    L : ( |- location),
-    T : ( |- con),
-    X : ( |- tm-assm (tm/tagloc L) T)
-  | x : [ |- tm-of F (tm/tagloc L) T]
-  ; impossible [ |- X]
-  }
 }
 ;
 
@@ -380,8 +320,7 @@ intros
     X : ( |- cn-equiv C T t),
     X1 : ( |- tm-of F (tm/tagloc L) C)
   | x : [ |- tm-of F (tm/tagloc L) T]
-  ; by inversion-tm/tagloc/st-lookup [ |- X1] as q;
-    solve q
+  ; solve inversion-tm/tagloc/st-lookup [ |- X1]
   }
   case tm-of/tagloc:
   { F : ( |- sttp),
@@ -391,14 +330,6 @@ intros
     X2 : ( |- st-lookup F L (et/tag C))
   | x : [ |- tm-of F (tm/tagloc L) (tag C)]
   ; solve [ |- inversion-tm/tagloc/st-lookup/existsT'/i C X2]
-  }
-  case tm-of/var:
-  { F : ( |- sttp),
-    L : ( |- location),
-    T : ( |- con),
-    X : ( |- tm-assm (tm/tagloc L) T)
-  | x : [ |- tm-of F (tm/tagloc L) T]
-  ; impossible [ |- X]
   }
 }
 ;
@@ -424,8 +355,7 @@ intros
     X : ( |- cn-equiv C T t),
     X1 : ( |- tm-of F (tm/tagloc L) C)
   | x : [ |- tm-of F (tm/tagloc L) T]
-  ; by inversion-tm/tagloc/cn-of [ |- X1] as q;
-    solve q
+  ; solve inversion-tm/tagloc/cn-of [ |- X1]
   }
   case tm-of/tagloc:
   { F : ( |- sttp),
@@ -435,14 +365,6 @@ intros
     X2 : ( |- st-lookup F L (et/tag C))
   | x : [ |- tm-of F (tm/tagloc L) (tag C)]
   ; solve [ |- inversion-tm/tagloc/cn-of/existsT'/i C X1]
-  }
-  case tm-of/var:
-  { F : ( |- sttp),
-    L : ( |- location),
-    T : ( |- con),
-    X : ( |- tm-assm (tm/tagloc L) T)
-  | x : [ |- tm-of F (tm/tagloc L) T]
-  ; impossible [ |- X]
   }
 }
 ;
@@ -469,14 +391,6 @@ intros
   { F : ( |- sttp), T' : ( |- con), X : ( |- cn-of T' t)
   | x : [ |- tm-of F (tm/newtag T') (tag T')]
   ; solve [ |- cn-equiv/refl (cn-of/tag X)]
-  }
-  case tm-of/var:
-  { F : ( |- sttp),
-    T' : ( |- con),
-    T : ( |- con),
-    X : ( |- tm-assm (tm/newtag T') T)
-  | x : [ |- tm-of F (tm/newtag T') T]
-  ; impossible [ |- X]
   }
 }
 ;
@@ -510,15 +424,6 @@ intros
   | x : [ |- tm-of F (tm/tag E E1) tagged]
   ; solve [ |- cn-equiv/refl cn-of/tagged]
   }
-  case tm-of/var:
-  { F : ( |- sttp),
-    E : ( |- term),
-    E1 : ( |- term),
-    T : ( |- con),
-    X : ( |- tm-assm (tm/tag E E1) T)
-  | x : [ |- tm-of F (tm/tag E E1) T]
-  ; impossible [ |- X]
-  }
 }
 ;
 
@@ -545,8 +450,7 @@ intros
     X : ( |- cn-equiv C T t),
     X1 : ( |- tm-of F (tm/tag E E1) C)
   | x : [ |- tm-of F (tm/tag E E1) T]
-  ; by inversion-tm/tag/tm-of1 [ |- X1] as q;
-    solve q
+  ; solve inversion-tm/tag/tm-of1 [ |- X1]
   }
   case tm-of/tag:
   { F : ( |- sttp),
@@ -557,15 +461,6 @@ intros
     X1 : ( |- tm-of F E (tag C))
   | x : [ |- tm-of F (tm/tag E E1) tagged]
   ; solve [ |- inversion-tm/tag/tm-of1/existsT'/i C X1]
-  }
-  case tm-of/var:
-  { F : ( |- sttp),
-    E : ( |- term),
-    E1 : ( |- term),
-    T : ( |- con),
-    X : ( |- tm-assm (tm/tag E E1) T)
-  | x : [ |- tm-of F (tm/tag E E1) T]
-  ; impossible [ |- X]
   }
 }
 ;
@@ -593,8 +488,7 @@ intros
     X : ( |- cn-equiv C T t),
     X1 : ( |- tm-of F (tm/tag E E1) C)
   | x : [ |- tm-of F (tm/tag E E1) T]
-  ; by inversion-tm/tag/tm-of2 [ |- X1] as q;
-    solve q
+  ; solve inversion-tm/tag/tm-of2 [ |- X1]
   }
   case tm-of/tag:
   { F : ( |- sttp),
@@ -605,15 +499,6 @@ intros
     X1 : ( |- tm-of F E (tag C))
   | x : [ |- tm-of F (tm/tag E E1) tagged]
   ; solve [ |- inversion-tm/tag/tm-of2/existsT'/i C X]
-  }
-  case tm-of/var:
-  { F : ( |- sttp),
-    E : ( |- term),
-    E1 : ( |- term),
-    T : ( |- con),
-    X : ( |- tm-assm (tm/tag E E1) T)
-  | x : [ |- tm-of F (tm/tag E E1) T]
-  ; impossible [ |- X]
   }
 }
 ;
@@ -651,9 +536,9 @@ intros
       X3 : ( |- tm-of F E (labeled X2 C))
     | x : [ |- tm-of F (tm/out E) T],
       q : [ |- inversion-tm/out/existsL F E C]
-    ; by [ |- cn-equiv/labeled X] as Q unboxed;
-      by [ |- tm-of/equiv Q X3] as Q1 unboxed;
-      solve [ |- inversion-tm/out/existsL/i X2 Q1]
+    ; by [ |- cn-equiv/labeled X] as Q1 unboxed;
+      by [ |- tm-of/equiv Q1 X3] as Q2 unboxed;
+      solve [ |- inversion-tm/out/existsL/i X2 Q2]
     }
   }
   case tm-of/out:
@@ -664,14 +549,6 @@ intros
     X1 : ( |- tm-of F E (labeled X T))
   | x : [ |- tm-of F (tm/out E) T]
   ; solve [ |- inversion-tm/out/existsL/i X X1]
-  }
-  case tm-of/var:
-  { F : ( |- sttp),
-    E : ( |- term),
-    T : ( |- con),
-    X : ( |- tm-assm (tm/out E) T)
-  | x : [ |- tm-of F (tm/out E) T]
-  ; impossible [ |- X]
   }
 }
 ;
@@ -704,15 +581,6 @@ intros
   | x : [ |- tm-of F (tm/raise E T) T]
   ; solve [ |- cn-equiv/refl X]
   }
-  case tm-of/var:
-  { F : ( |- sttp),
-    E : ( |- term),
-    T' : ( |- con),
-    T : ( |- con),
-    X : ( |- tm-assm (tm/raise E T') T)
-  | x : [ |- tm-of F (tm/raise E T') T]
-  ; impossible [ |- X]
-  }
 }
 
 and proof inversion-tm/raise/tm-of : [ |- tm-of F (tm/raise E T') T] ->
@@ -742,15 +610,6 @@ intros
   | x : [ |- tm-of F (tm/raise E T) T]
   ; solve [ |- X1]
   }
-  case tm-of/var:
-  { F : ( |- sttp),
-    E : ( |- term),
-    T' : ( |- con),
-    T : ( |- con),
-    X : ( |- tm-assm (tm/raise E T') T)
-  | x : [ |- tm-of F (tm/raise E T') T]
-  ; impossible [ |- X]
-  }
 }
 ;
 
@@ -771,8 +630,7 @@ intros
   | x : [ |- tm-of F (tm/snd M) T]
   ; by [ |- sg-equiv/datom X] as Q1 unboxed;
     by inversion-tm/snd [ |- X1] as Q2 unboxed;
-    by md-of/equiv [ |- Q1] [ |- Q2] as q;
-    solve q
+    solve md-of/equiv [ |- Q1] [ |- Q2]
   }
   case tm-of/snd:
   { F : ( |- sttp),
@@ -782,14 +640,6 @@ intros
     X : ( |- md-of P F M (sg/datom T))
   | x : [ |- tm-of F (tm/snd M) T]
   ; solve md-of-forget [ |- X]
-  }
-  case tm-of/var:
-  { F : ( |- sttp),
-    M : ( |- module'),
-    T : ( |- con),
-    X : ( |- tm-assm (tm/snd M) T)
-  | x : [ |- tm-of F (tm/snd M) T]
-  ; impossible [ |- X]
   }
 }
 ;

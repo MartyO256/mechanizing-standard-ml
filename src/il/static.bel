@@ -1,6 +1,5 @@
 % Judgements
 
-tm-assm : term -> con -> type.
 md-assm : module' -> sg -> type.
 
 % Kind Formation
@@ -208,8 +207,6 @@ and cn-equiv : con -> con -> kind -> type =
 % Term Formation
 
 LF tm-of : sttp -> term -> con -> type =
-| tm-of/var : tm-assm X T -> tm-of F X T
-
 | tm-of/unit : tm-of F tm/unit unit
 
 | tm-of/abort : cn-of T t -> tm-of F E void -> tm-of F (tm/abort E T) T
@@ -222,7 +219,7 @@ LF tm-of : sttp -> term -> con -> type =
 
 | tm-of/pi2 : tm-of F E (prod T1 T2) -> tm-of F (tm/pi2 E) T2
 
-| tm-of/lam : ({ x : term } tm-assm x T1 -> tm-of F (E x) T2) ->
+| tm-of/lam : ({x : term} {u : {F' : sttp} tm-of F' x T1} tm-of F (E x) T2) ->
                 cn-of T1 t ->
                 tm-of F (tm/lam T1 (\x. E x)) (arrow T1 T2)
 
@@ -238,10 +235,11 @@ LF tm-of : sttp -> term -> con -> type =
                 tm-of F E T2 ->
                 tm-of F (tm/in2 E T1) (plus T1 T2)
 
-| tm-of/case : ({ x : term } tm-assm x T1 -> tm-of F (E1 x) T) ->
-                 ({ x : term } tm-assm x T2 -> tm-of F (E2 x) T) ->
-                 tm-of F E (plus T1 T2) ->
-                 tm-of F (tm/case E E1 E2) T
+| tm-of/case :
+  ({ x : term } {u : {F' : sttp} tm-of F' x T1} tm-of F (E1 x) T) ->
+    ({ x : term } {u : {F' : sttp} tm-of F' x T2} tm-of F (E2 x) T) ->
+    tm-of F E (plus T1 T2) ->
+    tm-of F (tm/case E E1 E2) T
 
 | tm-of/refloc : cn-of T t ->
                    st-lookup F L (et/ref T) ->
@@ -265,11 +263,12 @@ LF tm-of : sttp -> term -> con -> type =
                 tm-of F E1 (tag T) ->
                 tm-of F (tm/tag E1 E2) tagged
 
-| tm-of/iftag : tm-of F E4 T ->
-                  ({ x : term } tm-assm x T' -> tm-of F (E3 x) T) ->
-                  tm-of F E2 (tag T') ->
-                  tm-of F E1 tagged ->
-                  tm-of F (tm/iftag E1 E2 E3 E4) T
+| tm-of/iftag :
+  tm-of F E4 T ->
+    ({ x : term } {u : {F' : sttp} tm-of F' x T'} tm-of F (E3 x) T) ->
+    tm-of F E2 (tag T') ->
+    tm-of F E1 tagged ->
+    tm-of F (tm/iftag E1 E2 E3 E4) T
 
 | tm-of/unroll : tm-of F E (rec' K C1 C2) ->
                    tm-of F (tm/unroll E) (C1 (lam K (\a. rec' K C1 a)) C2)
@@ -280,13 +279,15 @@ LF tm-of : sttp -> term -> con -> type =
 
 | tm-of/raise : cn-of T t -> tm-of F E tagged -> tm-of F (tm/raise E T) T
 
-| tm-of/try : ({ x : term } tm-assm x tagged -> tm-of F (E2 x) T) ->
-                tm-of F E1 T ->
-                tm-of F (tm/try E1 (\x. E2 x)) T
+| tm-of/try :
+  ({ x : term } {u : {F' : sttp} tm-of F' x tagged} tm-of F (E2 x) T) ->
+    tm-of F E1 T ->
+    tm-of F (tm/try E1 (\x. E2 x)) T
 
-| tm-of/lett : ({ x : term } tm-assm x T1 -> tm-of F (E2 x) T2) ->
-                 tm-of F E1 T1 ->
-                 tm-of F (tm/lett E1 (\x. E2 x)) T2
+| tm-of/lett :
+  ({ x : term } {u : {F' : sttp} tm-of F' x T1} tm-of F (E2 x) T2) ->
+    tm-of F E1 T1 ->
+    tm-of F (tm/lett E1 (\x. E2 x)) T2
 
 | tm-of/snd : md-of P F M (sg/datom T) -> tm-of F (tm/snd M) T
 
@@ -447,9 +448,10 @@ and md-of : purity -> sttp -> module' -> sg -> type =
                    md-of P F (M2 a m) (S2 a)) ->
                  md-of P F (md/letp M1 M2) (S2 C1)
 
-| md-of/lete : tm-of F E T ->
-                 ({ x : term } tm-assm x T -> md-of P F (M x) S) ->
-                 md-of P F (md/lete E T (\x. M x)) S
+| md-of/lete :
+  tm-of F E T ->
+    ({ x : term } {u : {F' : sttp} tm-of F' x T} md-of P F (M x) S) ->
+    md-of P F (md/lete E T (\x. M x)) S
 
 | md-of/seal : md-of P F M S -> md-of impure F (md/seal M S) S
 
