@@ -363,14 +363,13 @@ intros
     T : (g |- con),
     K1 : (g |- kind),
     K2 : (g, a22 : con |- kind),
-    X : (g, a : con, x178 : cn-of a (K1[..]) |- kd-wf (K2[.., a])),
+    X : (g, a : con, y179 : cn-of a (K1[..]) |- kd-wf (K2[.., a])),
     X1 : (g |- cn-of (pi2 T) (K2[.., pi1 T])),
     X2 : (g |- cn-of (pi1 T) K1)
-  | x : [g |- cn-of T (sigma K1 (\x97. K2))],
+  | x : [g |- cn-of T (sigma K1 (\y98. K2))],
     x1 : [g |- similar T T],
     x2 : [g |- kd-sub (sigma K1 (\y98. K2)) t]
-  ; by typeish-sub x2 [g |- typeish/t] as q;
-    impossible q
+  ; impossible typeish-sub x2 [g |- typeish/t]
   }
   case cn-of/extpi:
   { g : conbind,
@@ -378,14 +377,13 @@ intros
     K1 : (g |- kind),
     K2 : (g, a21 : con |- kind),
     X :
-      (g, a : con, y177 : cn-of a (K1[..]) |-
+      (g, a : con, z177 : cn-of a (K1[..]) |-
          cn-of (app (T[..]) a) (K2[.., a])),
-    X1 : (g |- cn-of T (pi K1 (\x96. K2)))
-  | x : [g |- cn-of T (pi K1 (\x96. K2))],
+    X1 : (g |- cn-of T (pi K1 (\y97. K2)))
+  | x : [g |- cn-of T (pi K1 (\y97. K2))],
     x1 : [g |- similar T T],
     x2 : [g |- kd-sub (pi K1 (\y97. K2)) t]
-  ; by typeish-sub x2 [g |- typeish/t] as q;
-    impossible q
+  ; impossible typeish-sub x2 [g |- typeish/t]
   }
   case cn-of/sing:
   { g : conbind, T : (g |- con), X : (g |- cn-of T t)
@@ -408,14 +406,14 @@ intros
     C1 : (g |- con),
     X : (g |- kd-wf K1),
     X1 :
-      (g, a : con, y175 : cn-of a (pi (K1[..]) (\l. t)), b : con,
-       x175 : cn-of b (K1[..]) |- cn-of (C[.., a, b]) t),
+      (g, a : con, z175 : cn-of a (pi (K1[..]) (\l. t)), b : con,
+       y176 : cn-of b (K1[..]) |- cn-of (C[.., a, b]) t),
     X2 : (g |- cn-of C1 K1)
-  | x : [g |- cn-of (rec' K1 (\x104. \z104. C) C1) t],
+  | x : [g |- cn-of (rec' K1 (\y105. \x105. C) C1) t],
     x1 :
       [g |-
          similar
-           (rec' K1 (\x104. \z104. C) C1) (rec' K1 (\x104. \z104. C) C1)],
+           (rec' K1 (\y105. \x105. C) C1) (rec' K1 (\y105. \x105. C) C1)],
     x2 : [g |- kd-sub t t]
   ; solve x
   }
@@ -501,7 +499,7 @@ intros
     K2 : (g, a18 : con |- kind),
     K1 : (g |- kind),
     X : (g |- cn-of C K1),
-    X1 : (g |- cn-of C1 (pi K1 (\x96. K2)))
+    X1 : (g |- cn-of C1 (pi K1 (\y97. K2)))
   | x : [g |- cn-of (app C1 C) (K2[.., C])],
     x1 : [g |- similar (app C1 C) (app C1 C)],
     x2 : [g |- kd-sub (K2[.., C]) t]
@@ -512,11 +510,12 @@ intros
     K1 : (g |- kind),
     C : (g, a16 : con |- con),
     K2 : (g, a17 : con |- kind),
-    X : (g, a : con, x170 : cn-of a (K1[..]) |- cn-of (C[.., a]) (K2[.., a])),
-    X1 : (g |- kd-wf K1)
-  | x : [g |- cn-of (lam K1 (\y75. C)) (pi K1 (\z71. K2))],
-    x1 : [g |- similar (lam K1 (\y75. C)) (lam K1 (\y75. C))],
-    x2 : [g |- kd-sub (pi K1 (\z71. K2)) t]
+    X : (g |- kd-wf K1),
+    X1 :
+      (g, a : con, y171 : cn-of a (K1[..]) |- cn-of (C[.., a]) (K2[.., a]))
+  | x : [g |- cn-of (lam K1 (\x100. C)) (pi K1 (\y97. K2))],
+    x1 : [g |- similar (lam K1 (\x100. C)) (lam K1 (\x100. C))],
+    x2 : [g |- kd-sub (pi K1 (\y97. K2)) t]
   ; impossible x1
   }
   case cn-of/pi2:
@@ -524,7 +523,7 @@ intros
     C : (g |- con),
     K2 : (g, a15 : con |- kind),
     K1 : (g |- kind),
-    X : (g |- cn-of C (sigma K1 (\x97. K2)))
+    X : (g |- cn-of C (sigma K1 (\y98. K2)))
   | x : [g |- cn-of (pi2 C) (K2[.., pi1 C])],
     x1 : [g |- similar (pi2 C) (pi2 C)],
     x2 : [g |- kd-sub (K2[.., pi1 C]) t]
@@ -535,7 +534,7 @@ intros
     C : (g |- con),
     K : (g |- kind),
     K2 : (g, a14 : con |- kind),
-    X : (g |- cn-of C (sigma K (\x97. K2)))
+    X : (g |- cn-of C (sigma K (\y98. K2)))
   | x : [g |- cn-of (pi1 C) K],
     x1 : [g |- similar (pi1 C) (pi1 C)],
     x2 : [g |- kd-sub K t]
@@ -547,12 +546,12 @@ intros
     C1 : (g |- con),
     K1 : (g |- kind),
     K2 : (g, a13 : con |- kind),
-    X : (g, a : con, z168 : cn-of a (K1[..]) |- kd-wf (K2[.., a])),
-    X1 : (g |- cn-of C (K2[.., C1])),
-    X2 : (g |- cn-of C1 K1)
-  | x : [g |- cn-of (pair C1 C) (sigma K1 (\x97. K2))],
-    x1 : [g |- similar (pair C1 C) (pair C1 C)],
-    x2 : [g |- kd-sub (sigma K1 (\z72. K2)) t]
+    X : (g |- cn-of C K1),
+    X1 : (g |- cn-of C1 (K2[.., C])),
+    X2 : (g, a : con, x169 : cn-of a (K1[..]) |- kd-wf (K2[.., a]))
+  | x : [g |- cn-of (pair C C1) (sigma K1 (\y98. K2))],
+    x1 : [g |- similar (pair C C1) (pair C C1)],
+    x2 : [g |- kd-sub (sigma K1 (\y98. K2)) t]
   ; impossible x1
   }
   case #.2:

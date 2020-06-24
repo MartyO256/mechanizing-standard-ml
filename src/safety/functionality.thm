@@ -60,8 +60,6 @@ LF sg-equiv-i : ctx -> sg -> sg -> type =
 
 % Proof Skeletons
 
-cn-assm : cn-of C K -> type.
-
 LF mkind : type =
 | mkind/t : mkind
 | mkind/pi : mkind -> mkind -> mkind
@@ -97,13 +95,11 @@ LF mkd-wf : kd-wf A -> mkind -> type =
 | mkd-wf/t : mkd-wf kd-wf/t mkind/t
 
 | mkd-wf/pi : mkd-wf D1 A1 ->
-                ({ x : con } { d : cn-of x K } cn-assm d ->
-                  mkd-wf (D2 x d) A2) ->
+                ({ x : con } { d : cn-of x K } mkd-wf (D2 x d) A2) ->
                 mkd-wf (kd-wf/pi D1 D2) (mkind/pi A1 A2)
 
 | mkd-wf/sigma : mkd-wf D1 A1 ->
-                   ({ x : con } { d : cn-of x K } cn-assm d ->
-                     mkd-wf (D2 x d) A2) ->
+                   ({ x : con } { d : cn-of x K } mkd-wf (D2 x d) A2) ->
                    mkd-wf (kd-wf/sigma D1 D2) (mkind/sigma A1 A2)
 
 | mkd-wf/sing : mcn-of D M -> mkd-wf (kd-wf/sing D) (mkind/sing M)
@@ -111,11 +107,11 @@ LF mkd-wf : kd-wf A -> mkind -> type =
 | mkd-wf/one : mkd-wf kd-wf/one mkind/one
 
 and mcn-of : cn-of M A -> mcon -> type =
-| mcn-of/var : cn-assm D -> mcn-of D mcon/var
+| mcn-of/var : mcn-of D mcon/var
 
 | mcn-of/lam :
   mkd-wf D1 A ->
-    ({ x : con } { d : cn-of x K } cn-assm d -> mcn-of (D2 x d) M) ->
+    ({ x : con } { d : cn-of x K } mcn-of (D2 x d) M) ->
     mcn-of (cn-of/lam D1 D2) (mcon/lam M A)
 
 | mcn-of/app : mcn-of D1 M1 ->
@@ -132,8 +128,7 @@ and mcn-of : cn-of M A -> mcon -> type =
 
 | mcn-of/sing : mcn-of D M -> mcn-of (cn-of/sing D) (mcon/sing M)
 
-| mcn-of/extpi : ({ x : con } { d :cn-of x K } cn-assm d ->
-                     mcn-of (D2 x d) M2) ->
+| mcn-of/extpi : ({ x : con } { d :cn-of x K } mcn-of (D2 x d) M2) ->
                    mcn-of D1 M1 ->
                    mcn-of (cn-of/extpi D2 D1) (mcon/extpi M2 M1)
 
@@ -169,8 +164,8 @@ and mcn-of : cn-of M A -> mcon -> type =
 
 | mcn-of/rec :
   mkd-wf D1 A ->
-    ({x : con} {d : cn-of x _} cn-assm d ->
-     {y : con} {e : cn-of y _} cn-assm e -> mcn-of (D2 x d y e) M2) ->
+    ({x : con} {d : cn-of x _} {y : con} {e : cn-of y _}
+      mcn-of (D2 x d y e) M2) ->
     mcn-of D3 M3 ->
     mcn-of (cn-of/rec D1 D2 D3) (mcon/rec M2 M3 A)
 

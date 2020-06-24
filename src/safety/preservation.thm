@@ -1221,7 +1221,18 @@ proof preservation-tm/tm-of : [ |- tm-of F E T] ->
                                   [ |- step ST E ST' E'] ->
                                     [ |- preservation-tm/tm-of/existsF' E' T] =
 / total 1 /
-?
+intros
+{ F : ( |- sttp),
+  E : ( |- term),
+  T : ( |- con),
+  ST : ( |- store),
+  ST' : ( |- store),
+  E' : ( |- term)
+| x : [ |- tm-of F E T],
+  x1 : [ |- store-of F ST F],
+  x2 : [ |- step ST E ST' E']
+; ?
+}
 ;
 
 LF preservation-tm/store-of/existsF' : store -> type =
@@ -1236,7 +1247,18 @@ proof preservation-tm/store-of :
       [ |- step ST E ST' E'] ->
         [ |- preservation-tm/store-of/existsF' ST'] =
 / total 1 /
-?
+intros
+{ F : ( |- sttp),
+  E : ( |- term),
+  T : ( |- con),
+  ST : ( |- store),
+  ST' : ( |- store),
+  E' : ( |- term)
+| x : [ |- tm-of F E T],
+  x1 : [ |- store-of F ST F],
+  x2 : [ |- step ST E ST' E']
+; ?
+}
 ;
 
 LF preservation-tm/extends/existsF' : sttp -> type =
@@ -1250,5 +1272,16 @@ proof preservation-tm/extends : [ |- tm-of F E T] ->
                                     [ |- step ST E ST' E'] ->
                                       [ |- preservation-tm/extends/existsF' F] =
 / total 1 /
-?
+intros
+{ F : ( |- sttp),
+  E : ( |- term),
+  T : ( |- con),
+  ST : ( |- store),
+  ST' : ( |- store),
+  E' : ( |- term)
+| x : [ |- tm-of F E T],
+  x1 : [ |- store-of F ST F],
+  x2 : [ |- step ST E ST' E']
+; ?
+}
 ;
