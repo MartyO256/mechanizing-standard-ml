@@ -90,12 +90,11 @@ and cn-of : con -> kind -> type =
 
 | cn-of/tagged : cn-of tagged t
 
-| cn-of/rec :
-  kd-wf K ->
-    ({a : con} cn-of a (pi K (\l. t)) ->
-     {b : con} cn-of b K -> cn-of (C1 a b) t) ->
-    cn-of C2 K ->
-    cn-of (rec' K C1 C2) t
+| cn-of/rec : cn-of C2 K ->
+                ({ a : con } cn-of a (pi K (\l. t)) ->
+                  { b : con } cn-of b K -> cn-of (C1 a b) t) ->
+                kd-wf K ->
+                cn-of (rec' K C1 C2) t
 
 | cn-of/labeled : cn-of C t -> cn-of (labeled I C) t
 
