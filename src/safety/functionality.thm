@@ -166,14 +166,12 @@ and mcn-of : cn-of M A -> mcon -> type =
 
 | mcn-of/tagged : mcn-of cn-of/tagged mcon/tagged
 
-%{ FIXME: Type synthesis fails
-| mcn-of/rec : mcn-of D3 M3 ->
-                 ({ x : con } { d : cn-of x K1 } cn-assm d ->
-                   { y : con } { e : cn-of y K2 } cn-assm e ->
-                   mcn-of (D2 x d y e) M2) ->
-                 mkd-wf D1 A ->
-                 mcn-of (cn-of/rec D3 D2 D1) (mcon/rec M3 M2 A)
-}%
+| mcn-of/rec :
+  mkd-wf D1 A ->
+    ({x : con} {d : cn-of x _} cn-assm d ->
+     {y : con} {e : cn-of y _} cn-assm e -> mcn-of (D2 x d y e) M2) ->
+    mcn-of D3 M3 ->
+    mcn-of (cn-of/rec D1 D2 D3) (mcon/rec M2 M3 A)
 
 | mcn-of/labeled : mcn-of D DM -> mcn-of (cn-of/labeled D) (mcon/labeled DM)
 ;

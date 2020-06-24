@@ -328,10 +328,10 @@ intros
     T : (g |- con),
     K1 : (g |- kind),
     K2 : (g, a22 : con |- kind),
-    X : (g, a : con, z153 : cn-of a (K1[..]) |- kd-wf (K2[.., a])),
+    X : (g, a : con, x178 : cn-of a (K1[..]) |- kd-wf (K2[.., a])),
     X1 : (g |- cn-of (pi2 T) (K2[.., pi1 T])),
     X2 : (g |- cn-of (pi1 T) K1)
-  | x : [g |- cn-of T (sigma K1 (\z72. K2))],
+  | x : [g |- cn-of T (sigma K1 (\x97. K2))],
     x1 : [g |- similar T T],
     x2 : [g |- kd-sub (sigma K1 (\z72. K2)) t]
   ; by typeish-sub x2 [g |- typeish/t] as q;
@@ -343,10 +343,10 @@ intros
     K1 : (g |- kind),
     K2 : (g, a21 : con |- kind),
     X :
-      (g, a : con, x152 : cn-of a (K1[..]) |-
+      (g, a : con, y177 : cn-of a (K1[..]) |-
          cn-of (app (T[..]) a) (K2[.., a])),
-    X1 : (g |- cn-of T (pi K1 (\z71. K2)))
-  | x : [g |- cn-of T (pi K1 (\z71. K2))],
+    X1 : (g |- cn-of T (pi K1 (\x96. K2)))
+  | x : [g |- cn-of T (pi K1 (\x96. K2))],
     x1 : [g |- similar T T],
     x2 : [g |- kd-sub (pi K1 (\z71. K2)) t]
   ; by typeish-sub x2 [g |- typeish/t] as q;
@@ -369,16 +369,18 @@ intros
   case cn-of/rec:
   { g : conbind,
     K1 : (g |- kind),
-    C1 : (g, a20 : con, a19 : con |- con),
-    C : (g |- con),
-    X : (g |- cn-of C K1),
+    C : (g, a20 : con, a19 : con |- con),
+    C1 : (g |- con),
+    X : (g |- kd-wf K1),
     X1 :
-      (g, a : con, x150 : cn-of a (pi (K1[..]) (\l. t)), b : con,
-       z150 : cn-of b (K1[..]) |- cn-of (C1[.., a, b]) t),
-    X2 : (g |- kd-wf K1)
-  | x : [g |- cn-of (rec' K1 (\z79. \y80. C1) C) t],
+      (g, a : con, y175 : cn-of a (pi (K1[..]) (\l. t)), b : con,
+       x175 : cn-of b (K1[..]) |- cn-of (C[.., a, b]) t),
+    X2 : (g |- cn-of C1 K1)
+  | x : [g |- cn-of (rec' K1 (\x104. \z104. C) C1) t],
     x1 :
-      [g |- similar (rec' K1 (\z79. \y80. C1) C) (rec' K1 (\z79. \y80. C1) C)],
+      [g |-
+         similar
+           (rec' K1 (\x104. \z104. C) C1) (rec' K1 (\x104. \z104. C) C1)],
     x2 : [g |- kd-sub t t]
   ; solve x
   }
@@ -464,7 +466,7 @@ intros
     K2 : (g, a18 : con |- kind),
     K1 : (g |- kind),
     X : (g |- cn-of C K1),
-    X1 : (g |- cn-of C1 (pi K1 (\z71. K2)))
+    X1 : (g |- cn-of C1 (pi K1 (\x96. K2)))
   | x : [g |- cn-of (app C1 C) (K2[.., C])],
     x1 : [g |- similar (app C1 C) (app C1 C)],
     x2 : [g |- kd-sub (K2[.., C]) t]
@@ -475,7 +477,7 @@ intros
     K1 : (g |- kind),
     C : (g, a16 : con |- con),
     K2 : (g, a17 : con |- kind),
-    X : (g, a : con, z145 : cn-of a (K1[..]) |- cn-of (C[.., a]) (K2[.., a])),
+    X : (g, a : con, x170 : cn-of a (K1[..]) |- cn-of (C[.., a]) (K2[.., a])),
     X1 : (g |- kd-wf K1)
   | x : [g |- cn-of (lam K1 (\y75. C)) (pi K1 (\z71. K2))],
     x1 : [g |- similar (lam K1 (\y75. C)) (lam K1 (\y75. C))],
@@ -487,7 +489,7 @@ intros
     C : (g |- con),
     K2 : (g, a15 : con |- kind),
     K1 : (g |- kind),
-    X : (g |- cn-of C (sigma K1 (\z72. K2)))
+    X : (g |- cn-of C (sigma K1 (\x97. K2)))
   | x : [g |- cn-of (pi2 C) (K2[.., pi1 C])],
     x1 : [g |- similar (pi2 C) (pi2 C)],
     x2 : [g |- kd-sub (K2[.., pi1 C]) t]
@@ -498,7 +500,7 @@ intros
     C : (g |- con),
     K : (g |- kind),
     K2 : (g, a14 : con |- kind),
-    X : (g |- cn-of C (sigma K (\z72. K2)))
+    X : (g |- cn-of C (sigma K (\x97. K2)))
   | x : [g |- cn-of (pi1 C) K],
     x1 : [g |- similar (pi1 C) (pi1 C)],
     x2 : [g |- kd-sub K t]
@@ -510,10 +512,10 @@ intros
     C : (g |- con),
     K1 : (g |- kind),
     K2 : (g, a13 : con |- kind),
-    X : (g, a : con, y144 : cn-of a (K1[..]) |- kd-wf (K2[.., a])),
+    X : (g, a : con, z168 : cn-of a (K1[..]) |- kd-wf (K2[.., a])),
     X1 : (g |- cn-of C (K2[.., C1])),
     X2 : (g |- cn-of C1 K1)
-  | x : [g |- cn-of (pair C1 C) (sigma K1 (\z72. K2))],
+  | x : [g |- cn-of (pair C1 C) (sigma K1 (\x97. K2))],
     x1 : [g |- similar (pair C1 C) (pair C1 C)],
     x2 : [g |- kd-sub (sigma K1 (\z72. K2)) t]
   ; impossible x1
@@ -776,14 +778,14 @@ proof inversion-rec/kd-wf :
 intros
 { g : conbind,
   K : (g |- kind),
-  C : (z79 : con, y80 : con |- con),
+  C : (x104 : con, z104 : con |- con),
   C1 : (g |- con)
 | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
 ; split x as
   case cn-of/subsume:
   { g : conbind,
     K : (g |- kind),
-    C : (z79 : con, y80 : con |- con),
+    C : (x104 : con, z104 : con |- con),
     C1 : (g |- con),
     K1 : (g |- kind),
     X : (g |- kd-sub K1 t),
@@ -795,15 +797,15 @@ intros
   case cn-of/rec:
   { g : conbind,
     K : (g |- kind),
-    C : (z79 : con, y80 : con |- con),
+    C : (x104 : con, z104 : con |- con),
     C1 : (g |- con),
-    X : (g |- cn-of C1 K),
+    X : (g |- kd-wf K),
     X1 :
-      (g, a : con, x150 : cn-of a (pi (K[..]) (\l. t)), b : con,
-       z150 : cn-of b (K[..]) |- cn-of (C[a, b]) t),
-    X2 : (g |- kd-wf K)
+      (g, a : con, y175 : cn-of a (pi (K[..]) (\l. t)), b : con,
+       x175 : cn-of b (K[..]) |- cn-of (C[a, b]) t),
+    X2 : (g |- cn-of C1 K)
   | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
-  ; solve [_ |- X2]
+  ; solve [_ |- X]
   }
 }
 ;
@@ -817,36 +819,36 @@ proof inversion-rec/1 :
 intros
 { g : conbind,
   K : (g |- kind),
-  C : (z79 : con, y80 : con |- con),
+  C : (x104 : con, z104 : con |- con),
   C1 : (g |- con)
 | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
 ; split x as
   case cn-of/subsume:
   { g : conbind,
     K : (g |- kind),
-    C : (z79 : con, y80 : con |- con),
+    C : (x104 : con, z104 : con |- con),
     C1 : (g |- con),
     K1 : (g |- kind),
     X : (g |- kd-sub K1 t),
     X1 : (g |- cn-of (rec' K (\x. \y. C[x, y]) C1) K1)
   | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
-  ; by type-inversion [g |- X1] [g |- similar/rec ] [g |- X] as Q unboxed;
+  ; by type-inversion [_ |- X1] [_ |- similar/rec ] [_ |- X] as Q unboxed;
     ?
   }
   case cn-of/rec:
   { g : conbind,
     K : (g |- kind),
-    C : (z79 : con, y80 : con |- con),
+    C : (x104 : con, z104 : con |- con),
     C1 : (g |- con),
-    X : (g |- cn-of C1 K),
+    X : (g |- kd-wf K),
     X1 :
-      (g, a : con, x150 : cn-of a (pi (K[..]) (\l. t)), b : con,
-       z150 : cn-of b (K[..]) |- cn-of (C[a, b]) t),
-    X2 : (g |- kd-wf K)
+      (g, a : con, y175 : cn-of a (pi (K[..]) (\l. t)), b : con,
+       x175 : cn-of b (K[..]) |- cn-of (C[a, b]) t),
+    X2 : (g |- cn-of C1 K)
   | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
   ; solve
-      [_, a : con, x150 : cn-of a (pi (K[..]) (\l. t)), b : con,
-       z150 : cn-of b (K[..]) |- X1]
+      [_, a : con, y175 : cn-of a (pi (K[..]) (\l. t)), b : con,
+       x175 : cn-of b (K[..]) |- X1]
   }
 }
 ;
@@ -859,14 +861,14 @@ proof inversion-rec/2 :
 intros
 { g : conbind,
   K : (g |- kind),
-  C : (z79 : con, y80 : con |- con),
+  C : (x104 : con, z104 : con |- con),
   C1 : (g |- con)
 | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
 ; split x as
   case cn-of/subsume:
   { g : conbind,
     K : (g |- kind),
-    C : (z79 : con, y80 : con |- con),
+    C : (x104 : con, z104 : con |- con),
     C1 : (g |- con),
     K1 : (g |- kind),
     X : (g |- kd-sub K1 t),
@@ -878,15 +880,15 @@ intros
   case cn-of/rec:
   { g : conbind,
     K : (g |- kind),
-    C : (z79 : con, y80 : con |- con),
+    C : (x104 : con, z104 : con |- con),
     C1 : (g |- con),
-    X : (g |- cn-of C1 K),
+    X : (g |- kd-wf K),
     X1 :
-      (g, a : con, x150 : cn-of a (pi (K[..]) (\l. t)), b : con,
-       z150 : cn-of b (K[..]) |- cn-of (C[a, b]) t),
-    X2 : (g |- kd-wf K)
+      (g, a : con, y175 : cn-of a (pi (K[..]) (\l. t)), b : con,
+       x175 : cn-of b (K[..]) |- cn-of (C[a, b]) t),
+    X2 : (g |- cn-of C1 K)
   | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
-  ; solve [_ |- X]
+  ; solve [_ |- X2]
   }
 }
 ;
