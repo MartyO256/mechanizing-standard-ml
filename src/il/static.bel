@@ -8,12 +8,14 @@ md-assm : module' -> sg -> type.
 LF kd-wf : kind -> type =
 | kd-wf/t : kd-wf t
 | kd-wf/sing : cn-of C t -> kd-wf (sing C)
-| kd-wf/pi : ({ a : con } cn-of a K1 -> kd-wf (K2 a)) ->
-               kd-wf K1 ->
-               kd-wf (pi K1 K2)
-| kd-wf/sigma : ({ a : con } cn-of a K1 -> kd-wf (K2 a)) ->
-                  kd-wf K1 ->
-                  kd-wf (sigma K1 K2)
+| kd-wf/pi :
+  kd-wf K1 ->
+    ({ a : con } cn-of a K1 -> kd-wf (K2 a)) ->
+    kd-wf (pi K1 K2)
+| kd-wf/sigma :
+  kd-wf K1 ->
+    ({ a : con } cn-of a K1 -> kd-wf (K2 a)) ->
+    kd-wf (sigma K1 K2)
 | kd-wf/one : kd-wf one
 
 % Kind Equivalence
@@ -57,18 +59,20 @@ and kd-sub : kind -> kind -> type =
 % Constructor Formation
 
 and cn-of : con -> kind -> type =
-| cn-of/pair : ({ a : con } cn-of a K1 -> kd-wf (K2 a)) ->
-                 cn-of C2 (K2 C1) ->
-                 cn-of C1 K1 ->
-                 cn-of (pair C1 C2) (sigma K1 K2)
+| cn-of/pair :
+  cn-of C1 K1 ->
+    cn-of C2 (K2 C1) ->
+    ({ a : con } cn-of a K1 -> kd-wf (K2 a)) ->
+    cn-of (pair C1 C2) (sigma K1 K2)
 
 | cn-of/pi1 : cn-of C (sigma K1 K2) -> cn-of (pi1 C) K1
 
 | cn-of/pi2 : cn-of C (sigma K1 K2) -> cn-of (pi2 C) (K2 (pi1 C))
 
-| cn-of/lam : ({ a : con } cn-of a K1 -> cn-of (C a) (K2 a)) ->
-                kd-wf K1 ->
-                cn-of (lam K1 C) (pi K1 K2)
+| cn-of/lam :
+  kd-wf K1 ->
+    ({ a : con } cn-of a K1 -> cn-of (C a) (K2 a)) ->
+    cn-of (lam K1 C) (pi K1 K2)
 
 | cn-of/app : cn-of C2 K1 -> cn-of C1 (pi K1 K2) -> cn-of (app C1 C2) (K2 C2)
 

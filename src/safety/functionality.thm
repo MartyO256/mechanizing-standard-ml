@@ -99,12 +99,12 @@ LF mkd-wf : kd-wf A -> mkind -> type =
 | mkd-wf/pi : mkd-wf D1 A1 ->
                 ({ x : con } { d : cn-of x K } cn-assm d ->
                   mkd-wf (D2 x d) A2) ->
-                mkd-wf (kd-wf/pi D2 D1) (mkind/pi A2 A1)
+                mkd-wf (kd-wf/pi D1 D2) (mkind/pi A1 A2)
 
 | mkd-wf/sigma : mkd-wf D1 A1 ->
                    ({ x : con } { d : cn-of x K } cn-assm d ->
                      mkd-wf (D2 x d) A2) ->
-                   mkd-wf (kd-wf/sigma D2 D1) (mkind/sigma A2 A1)
+                   mkd-wf (kd-wf/sigma D1 D2) (mkind/sigma A1 A2)
 
 | mkd-wf/sing : mcn-of D M -> mkd-wf (kd-wf/sing D) (mkind/sing M)
 
@@ -113,9 +113,10 @@ LF mkd-wf : kd-wf A -> mkind -> type =
 and mcn-of : cn-of M A -> mcon -> type =
 | mcn-of/var : cn-assm D -> mcn-of D mcon/var
 
-| mcn-of/lam : ({ x : con } { d : cn-of x K } cn-assm d -> mcn-of (D2 x d) M) ->
-                 mkd-wf D1 A ->
-                 mcn-of (cn-of/lam D2 D1) (mcon/lam M A)
+| mcn-of/lam :
+  mkd-wf D1 A ->
+    ({ x : con } { d : cn-of x K } cn-assm d -> mcn-of (D2 x d) M) ->
+    mcn-of (cn-of/lam D1 D2) (mcon/lam M A)
 
 | mcn-of/app : mcn-of D1 M1 ->
                  mcn-of D2 M2 ->
@@ -123,7 +124,7 @@ and mcn-of : cn-of M A -> mcon -> type =
 
 | mcn-of/pair : mcn-of D1 M1 ->
                   mcn-of D2 M2 ->
-                  mcn-of (cn-of/pair _ D2 D1) (mcon/pair M2 M1)
+                  mcn-of (cn-of/pair D1 D2 _) (mcon/pair M2 M1)
 
 | mcn-of/pi1 : mcn-of D M -> mcn-of (cn-of/pi1 D) (mcon/pi1 M)
 
