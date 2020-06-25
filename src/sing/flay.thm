@@ -29,8 +29,6 @@ intros
 }
 ;
 
-% FIXME: `by [g, x : eterm |- flay/pi X5[..] X9[.., x]] as Q unboxed` Ill-typed spine.
-% FIXME: `by [g, x : eterm |- flay/sigma X5[..] X9[.., x]] as Q unboxed` Ill-typed spine.
 proof can-flay : (g : evar) {A : [g |- etp]} [g |- can-flay/existKM A] =
 / total 1 /
 intros
@@ -81,7 +79,15 @@ intros
         X9 : (g, z62 : eterm |- flay X1 X7[] X8)
       | q1 : [g |- can-flay/existKM X],
         q2 : [g, z62 : eterm |- can-flay/existKM X1]
-      ; ?
+      ; suffices by
+          can-flay/existKM/i [ |- ksigma X3 X7]
+            [g |- epair X4 (elam X (\x. X8))] toshow
+        [g |-
+           flay
+             (esigma X (\x. X1))
+             (ksigma X3[] X7[]) (epair X4 (elam X (\x. X8)))] {
+          solve [g |- flay/sigma X5 (\x. X9)]
+        }
       }
     }
   }
@@ -113,7 +119,14 @@ intros
         X9 : (g, x : eterm |- flay X1 X7[] X8)
       | q1 : [g |- can-flay/existKM X],
         q2 : [g, x : eterm |- can-flay/existKM X1]
-      ; ?
+      ; suffices by
+          can-flay/existKM/i [ |- kpi X3 X7]
+            [g |- epair X4 (elam X (\x1. X8))] toshow
+        [g |-
+           flay
+             (epi X (\x67. X1)) (kpi X3[] X7[]) (epair X4 (elam X (\x1. X8)))] {
+          solve [g |- flay/pi X5 (\x1. X9)]
+        }
       }
     }
   }
