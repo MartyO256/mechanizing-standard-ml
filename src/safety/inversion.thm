@@ -79,6 +79,7 @@ intros
 }
 ;
 
+% TODO: Depends on `tm-of-reg`
 proof inversion-tm/pair/cn-equiv :
   [ |- tm-of F (tm/pair E1 E2) T] ->
     [ |- inversion-tm/pair/cn-equiv/existT1T2 T] =
@@ -219,6 +220,73 @@ intros
   }
 }
 ;
+
+LF inversion-tm/pi1/existsT2 : sttp -> term -> con -> type =
+| inversion-tm/pi1/existsT2/i :
+  { T2 : con } tm-of F E (prod T1 T2) ->
+    inversion-tm/pi1/existsT2 F E T1
+;
+
+proof inversion-tm/pi1/existsT2/i :
+  { T2 : [ |- con] } [ |- tm-of F E (prod T1 T2)] ->
+    [ |- inversion-tm/pi1/existsT2 F E T1] =
+/ total /
+intros
+{ F : ( |- sttp), E : ( |- term), T : ( |- con), T1 : ( |- con)
+| x : [ |- tm-of F E (prod T T1)]
+; by x as X unboxed;
+  solve [ |- inversion-tm/pi1/existsT2/i T1 X]
+}
+;
+
+% TODO: Depends on `tm-of-reg`, `inversion-prod/1`
+proof inversion-tm/pi1 :
+  [ |- tm-of F (tm/pi1 E) T1] ->
+    [ |- inversion-tm/pi1/existsT2 F E T1] =
+/ total 1 /
+intros
+{ F : ( |- sttp), E : ( |- term), T : ( |- con)
+| x : [ |- tm-of F (tm/pi1 E) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/pi1 E) C)
+  | x : [ |- tm-of F (tm/pi1 E) T]
+  ; by inversion-tm/pi1 [ |- X1] as q;
+    split q as
+    case inversion-tm/pi1/existsT2/i:
+    { F : ( |- sttp),
+      E : ( |- term),
+      T : ( |- con),
+      C : ( |- con),
+      X : ( |- cn-equiv C T t),
+      X1 : ( |- tm-of F (tm/pi1 E) C),
+      C2 : ( |- con),
+      X2 : ( |- tm-of F E (prod C C2))
+    | x : [ |- tm-of F (tm/pi1 E) T],
+      q : [ |- inversion-tm/pi1/existsT2 F E C]
+    ; ?
+    }
+  }
+  case tm-of/pi1:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T : ( |- con),
+    C1 : ( |- con),
+    X : ( |- tm-of F E (prod T C1))
+  | x : [ |- tm-of F (tm/pi1 E) T]
+  ; suffices by inversion-tm/pi1/existsT2/i [ |- C1] toshow
+    [ |- tm-of F E (prod T C1)] {
+      solve [ |- X]
+    }
+  }
+}
+;
+
 
 LF inversion-tm/refloc/cn-equiv/existsT' : con -> type =
 | inversion-tm/refloc/cn-equiv/existsT'/i :
