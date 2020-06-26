@@ -287,6 +287,71 @@ intros
 }
 ;
 
+LF inversion-tm/pi2/existsT1 : sttp -> term -> con -> type =
+| inversion-tm/pi2/existsT1/i :
+  { T1 : con } tm-of F E (prod T1 T2) ->
+    inversion-tm/pi2/existsT1 F E T2
+;
+
+proof inversion-tm/pi2/existsT1/i :
+  { T1 : [ |- con] } [ |- tm-of F E (prod T1 T2)] ->
+    [ |- inversion-tm/pi2/existsT1 F E T2] =
+/ total /
+intros
+{ F : ( |- sttp), E : ( |- term), T : ( |- con), T1 : ( |- con)
+| x : [ |- tm-of F E (prod T1 T)]
+; by x as X unboxed;
+  solve [ |- inversion-tm/pi2/existsT1/i T1 X]
+}
+;
+
+% TODO: Depends on `tm-of-reg`, `inversion-prod/2`
+proof inversion-tm/pi2 :
+  [ |- tm-of F (tm/pi2 E) T2] ->
+    [ |- inversion-tm/pi2/existsT1 F E T2] =
+/ total 1 /
+intros
+{ F : ( |- sttp), E : ( |- term), T : ( |- con)
+| x : [ |- tm-of F (tm/pi2 E) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/pi2 E) C)
+  | x : [ |- tm-of F (tm/pi2 E) T]
+  ; by inversion-tm/pi2 [ |- X1] as q;
+    split q as
+    case inversion-tm/pi2/existsT1/i:
+    { F : ( |- sttp),
+      E : ( |- term),
+      T : ( |- con),
+      C : ( |- con),
+      X : ( |- cn-equiv C T t),
+      X1 : ( |- tm-of F (tm/pi2 E) C),
+      C2 : ( |- con),
+      X2 : ( |- tm-of F E (prod C2 C))
+    | x : [ |- tm-of F (tm/pi2 E) T],
+      q : [ |- inversion-tm/pi2/existsT1 F E C]
+    ; ?
+    }
+  }
+  case tm-of/pi2:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- tm-of F E (prod C T))
+  | x : [ |- tm-of F (tm/pi2 E) T]
+  ; suffices by inversion-tm/pi2/existsT1/i [ |- C] toshow
+    [ |- tm-of F E (prod C T)] {
+      solve [ |- X]
+    }
+  }
+}
+;
 
 LF inversion-tm/refloc/cn-equiv/existsT' : con -> type =
 | inversion-tm/refloc/cn-equiv/existsT'/i :
