@@ -200,6 +200,13 @@ and cn-equiv : con -> con -> kind -> type =
                    cn-equiv (pi2 (pair C1 C2)) C2 K2
 ;
 
+% Derived Rules
+
+proof cn-equiv/unit : [ |- cn-equiv unit unit t] =
+/ total /
+solve [ |- cn-equiv/refl cn-of/unit]
+;
+
 % Term Formation
 
 LF tm-of : sttp -> term -> con -> type =
