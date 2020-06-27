@@ -267,10 +267,10 @@ LF tm-of : sttp -> term -> con -> type =
                 tm-of F (tm/tag E1 E2) tagged
 
 | tm-of/iftag :
-  tm-of F E4 T ->
-    ({ x : term } {u : {F' : sttp} tm-of F' x T'} tm-of F (E3 x) T) ->
+  tm-of F E1 tagged ->
     tm-of F E2 (tag T') ->
-    tm-of F E1 tagged ->
+    ({ x : term } {u : {F' : sttp} tm-of F' x T'} tm-of F (E3 x) T) ->
+    tm-of F E4 T ->
     tm-of F (tm/iftag E1 E2 E3 E4) T
 
 | tm-of/unroll : tm-of F E (rec' K C1 C2) ->

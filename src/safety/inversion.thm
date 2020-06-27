@@ -1854,6 +1854,249 @@ intros
 }
 ;
 
+proof inversion-tm/iftag/1 :
+  [ |- tm-of F (tm/iftag E1 E2 (\x. E3) E4) T] ->
+    [ |- tm-of F E1 tagged] =
+/ total 1 /
+intros
+{ F : ( |- sttp),
+  E : ( |- term),
+  E1 : ( |- term),
+  E2 : (z124 : term |- term),
+  E3 : ( |- term),
+  T : ( |- con)
+| x : [ |- tm-of F (tm/iftag E E1 (\x. E2) E3) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    E : ( |- term),
+    E1 : ( |- term),
+    E2 : (z124 : term |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/iftag E E1 (\x. E2) E3) C)
+  | x : [ |- tm-of F (tm/iftag E E1 (\x. E2) E3) T]
+  ; solve inversion-tm/iftag/1 [ |- X1]
+  }
+  case tm-of/iftag:
+  { F : ( |- sttp),
+    E : ( |- term),
+    E1 : ( |- term),
+    E2 : (z124 : term |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- tm-of F E tagged),
+    X1 : ( |- tm-of F E1 (tag C)),
+    X2 : (x : term, u : {F' : sttp}  tm-of F' x C[] |- tm-of F[] (E2[x]) T[]),
+    X3 : ( |- tm-of F E3 T)
+  | x : [ |- tm-of F (tm/iftag E E1 (\x. E2) E3) T]
+  ; solve [ |- X]
+  }
+}
+;
+
+LF inversion-tm/iftag/2/existsT' : sttp -> term -> type =
+| inversion-tm/iftag/2/existsT'/i :
+  { T' : con } tm-of F E2 (tag T') ->
+    inversion-tm/iftag/2/existsT' F E2
+;
+
+proof inversion-tm/iftag/2/existsT'/i :
+  { T' : [ |- con] } [ |- tm-of F E2 (tag T')] ->
+    [ |- inversion-tm/iftag/2/existsT' F E2] =
+/ total /
+intros
+{ F : ( |- sttp), E : ( |- term), T' : ( |- con)
+| x : [ |- tm-of F E (tag T')]
+; by x as X unboxed;
+  solve [ |- inversion-tm/iftag/2/existsT'/i T' X]
+}
+;
+
+proof inversion-tm/iftag/2 :
+  [ |- tm-of F (tm/iftag E1 E2 (\x. E3) E4) T] ->
+    [ |- inversion-tm/iftag/2/existsT' F E2] =
+/ total 1 /
+intros
+{ F : ( |- sttp),
+  E : ( |- term),
+  E1 : ( |- term),
+  E2 : (z124 : term |- term),
+  E3 : ( |- term),
+  T : ( |- con)
+| x : [ |- tm-of F (tm/iftag E E1 (\x. E2) E3) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    E : ( |- term),
+    E1 : ( |- term),
+    E2 : (z124 : term |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/iftag E E1 (\x. E2) E3) C)
+  | x : [ |- tm-of F (tm/iftag E E1 (\x. E2) E3) T]
+  ; solve inversion-tm/iftag/2 [ |- X1]
+  }
+  case tm-of/iftag:
+  { F : ( |- sttp),
+    E : ( |- term),
+    E1 : ( |- term),
+    E2 : (z124 : term |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- tm-of F E tagged),
+    X1 : ( |- tm-of F E1 (tag C)),
+    X2 : (x : term, u : {F' : sttp}  tm-of F' x C[] |- tm-of F[] (E2[x]) T[]),
+    X3 : ( |- tm-of F E3 T)
+  | x : [ |- tm-of F (tm/iftag E E1 (\x. E2) E3) T]
+  ; suffices by inversion-tm/iftag/2/existsT'/i [ |- C] toshow
+    [ |- tm-of F E1 (tag C)] {
+      solve [ |- X1]
+    }
+  }
+}
+;
+
+LF inversion-tm/iftag/3/existsT' : sttp -> (term -> term) -> con -> type =
+| inversion-tm/iftag/3/existsT'/i :
+  { T' : con }
+  ({ x : term } { u : { F' : sttp } tm-of F' x T'} tm-of F (E3 x) T) ->
+    inversion-tm/iftag/3/existsT' F E3 T
+;
+
+proof inversion-tm/iftag/3/existsT'/i :
+  { T' : [ |- con] }
+  [x : term, u : { F' : sttp } tm-of F' x T'[] |- tm-of F[] (E3[x]) T[]] ->
+    [ |- inversion-tm/iftag/3/existsT' F (\x. E3) T] =
+/ total /
+intros
+{ F : ( |- sttp), E : (x : term |- term), T : ( |- con), T' : ( |- con)
+| x : [x : term, u : {F' : sttp}  tm-of F' x T'[] |- tm-of F[] (E[x]) T[]]
+; by x as X unboxed;
+  solve [ |- inversion-tm/iftag/3/existsT'/i T' (\x. \u. X)]
+}
+;
+
+proof inversion-tm/iftag/3 :
+  [ |- tm-of F (tm/iftag E1 E2 (\x. E3) E4) T] ->
+    [ |- inversion-tm/iftag/3/existsT' F (\x. E3) T] =
+/ total 1 /
+intros
+{ F : ( |- sttp),
+  E : ( |- term),
+  E1 : ( |- term),
+  E2 : (z124 : term |- term),
+  E3 : ( |- term),
+  T : ( |- con)
+| x : [ |- tm-of F (tm/iftag E E1 (\x. E2) E3) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    E : ( |- term),
+    E1 : ( |- term),
+    E2 : (z124 : term |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/iftag E E1 (\x. E2) E3) C)
+  | x : [ |- tm-of F (tm/iftag E E1 (\x. E2) E3) T]
+  ; by inversion-tm/iftag/3 [ |- X1] as q;
+    split q as
+    case inversion-tm/iftag/3/existsT'/i:
+    { F : ( |- sttp),
+      E : ( |- term),
+      E1 : ( |- term),
+      E2 : (z124 : term |- term),
+      E3 : ( |- term),
+      T : ( |- con),
+      C : ( |- con),
+      X : ( |- cn-equiv C T t),
+      X1 : ( |- tm-of F (tm/iftag E E1 (\x. E2) E3) C),
+      C2 : ( |- con),
+      X2 :
+        (x : term, u : {F' : sttp}  tm-of F' x C2[] |- tm-of F[] (E2[x]) C[])
+    | x : [ |- tm-of F (tm/iftag E E1 (\x. E2) E3) T],
+      q : [ |- inversion-tm/iftag/3/existsT' F (\x. E2) C]
+    ; suffices by inversion-tm/iftag/3/existsT'/i [ |- C2] toshow
+      [x : term, u : {F' : sttp}  tm-of F' x C2[] |- tm-of F[] (E2[x]) T[]] {
+        solve
+          [x : term, u : {F' : sttp}  tm-of F' x C2[] |- tm-of/equiv X[] X2]
+      }
+    }
+  }
+  case tm-of/iftag:
+  { F : ( |- sttp),
+    E : ( |- term),
+    E1 : ( |- term),
+    E2 : (z124 : term |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- tm-of F E tagged),
+    X1 : ( |- tm-of F E1 (tag C)),
+    X2 : (x : term, u : {F' : sttp}  tm-of F' x C[] |- tm-of F[] (E2[x]) T[]),
+    X3 : ( |- tm-of F E3 T)
+  | x : [ |- tm-of F (tm/iftag E E1 (\x. E2) E3) T]
+  ; suffices by inversion-tm/iftag/3/existsT'/i [ |- C] toshow
+    [x : term, u : {F' : sttp}  tm-of F' x C[] |- tm-of F[] (E2[x]) T[]] {
+      solve [x : term, u : {F' : sttp}  tm-of F' x C[] |- X2]
+    }
+  }
+}
+;
+
+proof inversion-tm/iftag/4 :
+  [ |- tm-of F (tm/iftag E1 E2 (\x. E3) E4) T] ->
+    [ |- tm-of F E4 T] =
+/ total 1 /
+intros
+{ F : ( |- sttp),
+  E : ( |- term),
+  E1 : ( |- term),
+  E2 : (z124 : term |- term),
+  E3 : ( |- term),
+  T : ( |- con)
+| x : [ |- tm-of F (tm/iftag E E1 (\x. E2) E3) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    E : ( |- term),
+    E1 : ( |- term),
+    E2 : (z124 : term |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/iftag E E1 (\x. E2) E3) C)
+  | x : [ |- tm-of F (tm/iftag E E1 (\x. E2) E3) T]
+  ; by inversion-tm/iftag/4 [ |- X1] as Q unboxed;
+    solve [ |- tm-of/equiv X Q]
+  }
+  case tm-of/iftag:
+  { F : ( |- sttp),
+    E : ( |- term),
+    E1 : ( |- term),
+    E2 : (z124 : term |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- tm-of F E tagged),
+    X1 : ( |- tm-of F E1 (tag C)),
+    X2 : (x : term, u : {F' : sttp}  tm-of F' x C[] |- tm-of F[] (E2[x]) T[]),
+    X3 : ( |- tm-of F E3 T)
+  | x : [ |- tm-of F (tm/iftag E E1 (\x. E2) E3) T]
+  ; solve [ |- X3]
+  }
+}
+;
+
 LF inversion-tm/out/existsL : sttp -> term -> con -> type =
 | inversion-tm/out/existsL/i : { L : label } tm-of F E (labeled L T) ->
                                  inversion-tm/out/existsL F E T
