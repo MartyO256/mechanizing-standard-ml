@@ -273,6 +273,14 @@ LF tm-of : sttp -> term -> con -> type =
     tm-of F E4 T ->
     tm-of F (tm/iftag E1 E2 E3 E4) T
 
+| tm-of/roll :
+  tm-of F E (C1 (lam K (\a. rec' K C1 a)) C2) ->
+    kd-wf K ->
+    ({ a : con } cn-of a (pi K (\l. t)) ->
+      { b : con } cn-of b K -> cn-of (C1 a b) t) ->
+    cn-of C2 K ->
+    tm-of F (tm/roll E K C1 C2) (rec' K C1 C2)
+
 | tm-of/unroll : tm-of F E (rec' K C1 C2) ->
                    tm-of F (tm/unroll E) (C1 (lam K (\a. rec' K C1 a)) C2)
 
