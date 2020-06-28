@@ -2731,6 +2731,74 @@ intros
 }
 ;
 
+proof inversion-tm/try/tm-of1 :
+  [ |- tm-of F (tm/try E1 (\x. E2)) T] ->
+    [ |- tm-of F E1 T] =
+/ total 1 /
+intros
+{ F : ( |- sttp), E : ( |- term), E1 : (z129 : term |- term), T : ( |- con)
+| x : [ |- tm-of F (tm/try E (\x. E1)) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    E : ( |- term),
+    E1 : (z129 : term |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/try E (\x. E1)) C)
+  | x : [ |- tm-of F (tm/try E (\x. E1)) T]
+  ; by inversion-tm/try/tm-of1 [ |- X1] as Q unboxed;
+    solve [ |- tm-of/equiv X Q]
+  }
+  case tm-of/try:
+  { F : ( |- sttp),
+    E : ( |- term),
+    E1 : (z129 : term |- term),
+    T : ( |- con),
+    X :
+      (x : term, u : {F' : sttp}  tm-of F' x tagged |- tm-of F[] (E1[x]) T[]),
+    X1 : ( |- tm-of F E T)
+  | x : [ |- tm-of F (tm/try E (\x. E1)) T]
+  ; solve [ |- X1]
+  }
+}
+;
+
+proof inversion-tm/try/tm-of2 :
+  [ |- tm-of F (tm/try E1 (\x. E2)) T] ->
+    [x : term, u : { F' : sttp } tm-of F' x tagged |- tm-of F[] (E2[x]) T[]] =
+/ total 1 /
+intros
+{ F : ( |- sttp), E : ( |- term), E1 : (z129 : term |- term), T : ( |- con)
+| x : [ |- tm-of F (tm/try E (\x. E1)) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    E : ( |- term),
+    E1 : (z129 : term |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/try E (\x. E1)) C)
+  | x : [ |- tm-of F (tm/try E (\x. E1)) T]
+  ; by inversion-tm/try/tm-of2 [ |- X1] as Q unboxed;
+    solve [x : term, u : {F' : sttp}  tm-of F' x tagged |- tm-of/equiv X[] Q]
+  }
+  case tm-of/try:
+  { F : ( |- sttp),
+    E : ( |- term),
+    E1 : (z129 : term |- term),
+    T : ( |- con),
+    X :
+      (x : term, u : {F' : sttp}  tm-of F' x tagged |- tm-of F[] (E1[x]) T[]),
+    X1 : ( |- tm-of F E T)
+  | x : [ |- tm-of F (tm/try E (\x. E1)) T]
+  ; solve [x : term, u : {F' : sttp}  tm-of F' x tagged |- X]
+  }
+}
+;
+
 proof inversion-tm/snd : [ |- tm-of F (tm/snd M) T] ->
                            [ |- md-of impure F M (sg/datom T)] =
 / total 1 /
