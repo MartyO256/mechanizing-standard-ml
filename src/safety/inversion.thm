@@ -2501,6 +2501,126 @@ intros
 }
 ;
 
+LF inversion-tm/in/cn-equiv/existsT' : label -> con -> type =
+| inversion-tm/in/cn-equiv/existsT'/i :
+  { T' : con } cn-equiv (labeled I T') T t ->
+    inversion-tm/in/cn-equiv/existsT' I T
+;
+
+proof inversion-tm/in/cn-equiv/existsT'/i :
+  { T' : [ |- con] } [ |- cn-equiv (labeled I T') T t] ->
+    [ |- inversion-tm/in/cn-equiv/existsT' I T] =
+/ total /
+intros
+{ I : ( |- label), T : ( |- con), T' : ( |- con)
+| x : [ |- cn-equiv (labeled I T') T t]
+; by x as X unboxed;
+  solve [ |- inversion-tm/in/cn-equiv/existsT'/i T' X]
+}
+;
+
+% TODO: Depends on `tm-of-reg`
+proof inversion-tm/in/cn-equiv :
+  [ |- tm-of F (tm/in I E) T] ->
+    [ |- inversion-tm/in/cn-equiv/existsT' I T] =
+/ total 1 /
+intros
+{ F : ( |- sttp), I : ( |- label), E : ( |- term), T : ( |- con)
+| x : [ |- tm-of F (tm/in I E) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    I : ( |- label),
+    E : ( |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/in I E) C)
+  | x : [ |- tm-of F (tm/in I E) T]
+  ; by inversion-tm/in/cn-equiv [ |- X1] as q;
+    split q as
+    case inversion-tm/in/cn-equiv/existsT'/i:
+    { F : ( |- sttp),
+      I : ( |- label),
+      E : ( |- term),
+      T : ( |- con),
+      C : ( |- con),
+      X : ( |- cn-equiv C T t),
+      X1 : ( |- tm-of F (tm/in I E) C),
+      C2 : ( |- con),
+      X3 : ( |- cn-equiv (labeled I C2) C t)
+    | x : [ |- tm-of F (tm/in I E) T],
+      q : [ |- inversion-tm/in/cn-equiv/existsT' I C]
+    ; suffices by inversion-tm/in/cn-equiv/existsT'/i [ |- C2] toshow
+      [ |- cn-equiv (labeled I C2) T t] {
+        solve [ |- cn-equiv/trans X3 X]
+      }
+    }
+  }
+  case tm-of/in:
+  { F : ( |- sttp),
+    I : ( |- label),
+    E : ( |- term),
+    C : ( |- con),
+    X1 : ( |- tm-of F E C)
+  | x : [ |- tm-of F (tm/in I E) (labeled I C)]
+  ; ?
+  }
+}
+;
+
+LF inversion-tm/in/tm-of/existsT' : sttp -> term -> type =
+| inversion-tm/in/tm-of/existsT'/i :
+  { T' : con } tm-of F E T' ->
+    inversion-tm/in/tm-of/existsT' F E
+;
+
+proof inversion-tm/in/tm-of/existsT'/i :
+  { T' : [ |- con] } [ |- tm-of F E T'] ->
+    [ |- inversion-tm/in/tm-of/existsT' F E] =
+/ total /
+intros
+{ F : ( |- sttp), E : ( |- term), T' : ( |- con)
+| x : [ |- tm-of F E T']
+; by x as X unboxed;
+  solve [ |- inversion-tm/in/tm-of/existsT'/i T' X]
+}
+;
+
+proof inversion-tm/in/tm-of :
+  [ |- tm-of F (tm/in I E) T] ->
+    [ |- inversion-tm/in/tm-of/existsT' F E] =
+/ total 1 /
+intros
+{ F : ( |- sttp), I : ( |- label), E : ( |- term), T : ( |- con)
+| x : [ |- tm-of F (tm/in I E) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    I : ( |- label),
+    E : ( |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/in I E) C)
+  | x : [ |- tm-of F (tm/in I E) T]
+  ; solve inversion-tm/in/tm-of [ |- X1]
+  }
+  case tm-of/in:
+  { F : ( |- sttp),
+    I : ( |- label),
+    E : ( |- term),
+    C : ( |- con),
+    X1 : ( |- tm-of F E C)
+  | x : [ |- tm-of F (tm/in I E) (labeled I C)]
+  ; suffices by inversion-tm/in/tm-of/existsT'/i [ |- C] toshow
+    [ |- tm-of F E C] {
+      solve [ |- X1]
+    }
+  }
+}
+;
+
 LF inversion-tm/out/existsL : sttp -> term -> con -> type =
 | inversion-tm/out/existsL/i : { L : label } tm-of F E (labeled L T) ->
                                  inversion-tm/out/existsL F E T
