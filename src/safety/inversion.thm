@@ -2799,6 +2799,136 @@ intros
 }
 ;
 
+LF inversion-tm/lett/tm-of1/existsT1 : sttp -> term -> type =
+| inversion-tm/lett/tm-of1/existsT1/i :
+  { T1 : con } tm-of F E1 T1 ->
+    inversion-tm/lett/tm-of1/existsT1 F E1
+;
+
+proof inversion-tm/lett/tm-of1/existsT1/i :
+  { T1 : [ |- con] } [ |- tm-of F E1 T1] ->
+    [ |- inversion-tm/lett/tm-of1/existsT1 F E1] =
+/ total /
+intros
+{ F : ( |- sttp), E : ( |- term), T : ( |- con)
+| x : [ |- tm-of F E T]
+; by x as X unboxed;
+  solve [ |- inversion-tm/lett/tm-of1/existsT1/i T X]
+}
+;
+
+proof inversion-tm/lett/tm-of1 :
+  [ |- tm-of F (tm/lett E1 (\x. E2)) T] ->
+    [ |- inversion-tm/lett/tm-of1/existsT1 F E1] =
+/ total 1 /
+intros
+{ F : ( |- sttp), E : ( |- term), E1 : (z130 : term |- term), T : ( |- con)
+| x : [ |- tm-of F (tm/lett E (\x. E1)) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    E : ( |- term),
+    E1 : (z130 : term |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/lett E (\x. E1)) C)
+  | x : [ |- tm-of F (tm/lett E (\x. E1)) T]
+  ; solve inversion-tm/lett/tm-of1 [ |- X1]
+  }
+  case tm-of/lett:
+  { F : ( |- sttp),
+    E : ( |- term),
+    E1 : (z130 : term |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : (x : term, u : {F' : sttp}  tm-of F' x C[] |- tm-of F[] (E1[x]) T[]),
+    X1 : ( |- tm-of F E C)
+  | x : [ |- tm-of F (tm/lett E (\x. E1)) T]
+  ; suffices by inversion-tm/lett/tm-of1/existsT1/i [ |- C] toshow
+    [ |- tm-of F E C] {
+      solve [ |- X1]
+    }
+  }
+}
+;
+
+LF inversion-tm/lett/tm-of2/existsT1 : sttp -> (term -> term) -> con -> type =
+| inversion-tm/lett/tm-of2/existsT1/i :
+  { T1 : con }
+  ({ x : term } { u : { F' : sttp } tm-of F' x T1 } tm-of F (E2 x) T) ->
+    inversion-tm/lett/tm-of2/existsT1 F E2 T
+;
+
+proof inversion-tm/lett/tm-of2/existsT1/i :
+  { T1 : [ |- con] }
+  [x : term, u : { F' : sttp } tm-of F' x T1[] |- tm-of F[] (E2[x]) T[]] ->
+    [ |- inversion-tm/lett/tm-of2/existsT1 F (\x. E2) T] =
+/ total /
+intros
+{ F : ( |- sttp), E : (x : term |- term), T : ( |- con), T1 : ( |- con)
+| x : [x : term, u : {F' : sttp}  tm-of F' x T1[] |- tm-of F[] (E[x]) T[]]
+; by x as X unboxed;
+  solve [ |- inversion-tm/lett/tm-of2/existsT1/i T1 (\x. \u. X)]
+}
+;
+
+proof inversion-tm/lett/tm-of2 :
+  [ |- tm-of F (tm/lett E1 (\x. E2)) T] ->
+    [ |- inversion-tm/lett/tm-of2/existsT1 F (\x. E2) T] =
+/ total 1 /
+intros
+{ F : ( |- sttp), E : ( |- term), E1 : (z130 : term |- term), T : ( |- con)
+| x : [ |- tm-of F (tm/lett E (\x. E1)) T]
+; split x as
+  case tm-of/equiv:
+  { F : ( |- sttp),
+    E : ( |- term),
+    E1 : (z130 : term |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : ( |- cn-equiv C T t),
+    X1 : ( |- tm-of F (tm/lett E (\x. E1)) C)
+  | x : [ |- tm-of F (tm/lett E (\x. E1)) T]
+  ; by inversion-tm/lett/tm-of2 [ |- X1] as q;
+    split q as
+    case inversion-tm/lett/tm-of2/existsT1/i:
+    { F : ( |- sttp),
+      E : ( |- term),
+      E1 : (z130 : term |- term),
+      T : ( |- con),
+      C : ( |- con),
+      X : ( |- cn-equiv C T t),
+      X1 : ( |- tm-of F (tm/lett E (\x. E1)) C),
+      C2 : ( |- con),
+      X2 :
+        (x : term, u : {F' : sttp}  tm-of F' x C2[] |- tm-of F[] (E1[x]) C[])
+    | x : [ |- tm-of F (tm/lett E (\x. E1)) T],
+      q : [ |- inversion-tm/lett/tm-of2/existsT1 F (\x. E1) C]
+    ; suffices by inversion-tm/lett/tm-of2/existsT1/i [ |- C2] toshow
+      [x : term, u : {F' : sttp}  tm-of F' x C2[] |- tm-of F[] (E1[x]) T[]] {
+        solve
+          [x : term, u : {F' : sttp}  tm-of F' x C2[] |- tm-of/equiv X[] X2]
+      }
+    }
+  }
+  case tm-of/lett:
+  { F : ( |- sttp),
+    E : ( |- term),
+    E1 : (z130 : term |- term),
+    T : ( |- con),
+    C : ( |- con),
+    X : (x : term, u : {F' : sttp}  tm-of F' x C[] |- tm-of F[] (E1[x]) T[]),
+    X1 : ( |- tm-of F E C)
+  | x : [ |- tm-of F (tm/lett E (\x. E1)) T]
+  ; suffices by inversion-tm/lett/tm-of2/existsT1/i [ |- C] toshow
+    [x : term, u : {F' : sttp}  tm-of F' x C[] |- tm-of F[] (E1[x]) T[]] {
+      solve [x : term, u : {F' : sttp}  tm-of F' x C[] |- X]
+    }
+  }
+}
+;
+
 proof inversion-tm/snd : [ |- tm-of F (tm/snd M) T] ->
                            [ |- md-of impure F M (sg/datom T)] =
 / total 1 /
