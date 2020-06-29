@@ -12,7 +12,7 @@ LF value : term -> type =
 | value/roll : value E -> value (tm/roll E _ _ _)
 | value/in : value E -> value (tm/in I E)
 ;
---name value Dvalue.
+--name value Dvalue val.
 
 LF value-md : module' -> type =
 | value-md/unit : value-md md/unit
@@ -23,4 +23,4 @@ LF value-md : module' -> type =
 | value-md/lam : value-md (md/lam _ _)
 | value-md/in : value-md M -> value-md (md/in L M)
 ;
---name value-md Dvalue.
+--name value-md Dvalue val.

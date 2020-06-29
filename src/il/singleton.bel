@@ -19,7 +19,7 @@ LF single : kind -> (con -> kind) -> type =
 
 | single/one : single one (\x. one)
 ;
---name single Dsingle.
+--name single Dsingle single.
 
 LF single-sg : sg -> (con -> sg) -> type =
 | single-sg/satom :

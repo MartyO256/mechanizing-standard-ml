@@ -7,25 +7,137 @@ proof single-resp :
   [g |- single K (\x. Ks)] ->
     [g |- single K' (\x. Ks')] =
 / total /
-?
+intros
+{ g : conblock,
+  K : (g |- kind),
+  K' : (g |- kind),
+  Ks : (g, a : con |- kind),
+  Ks' : (g, a : con |- kind)
+| eq : [g |- kind-eq K K'],
+  eq1 : [g, a : con |- kind-eq Ks Ks'],
+  single : [g |- single K (\x. Ks)]
+; split eq as
+  case kind-eq/i:
+  { g : conblock,
+    K' : (g |- kind),
+    Ks : (g, a : con |- kind),
+    Ks' : (g, a : con |- kind)
+  | eq : [g |- kind-eq K' K'],
+    eq1 : [g, a : con |- kind-eq Ks Ks'],
+    single : [g |- single K' (\x. Ks)]
+  ; split eq1 as
+    case kind-eq/i:
+    { g : conblock, K' : (g |- kind), Ks' : (g, a : con |- kind)
+    | eq : [g |- kind-eq K' K'],
+      eq1 : [g, a : con |- kind-eq Ks' Ks'],
+      single : [g |- single K' (\x. Ks')]
+    ; solve single
+    }
+  }
+}
 ;
 
-LF can-single/existsKs : kind -> type =
-| can-single/existsKs/i :
-  { Ks : con -> kind } single K Ks -> can-single/existsKs K
+LF single/existKs : kind -> type =
+| single/existKs/i : { Ks : con -> kind } single K Ks -> single/existKs K
 ;
 
-proof can-single/existsKs/i :
+proof single/existKs/i :
   (g : conblock) { Ks : [g, a : con |- kind] } [g |- single K (\x. Ks)] ->
-    [g |- can-single/existsKs K] =
+    [g |- single/existKs K] =
 / total /
-?
+intros
+{ g : conblock, K : (g |- kind), Ks : (g, a : con |- kind)
+| single : [g |- single K (\x. Ks)]
+; by single as Dsingle unboxed;
+  solve [_ |- single/existKs/i (\a. Ks) Dsingle]
+}
 ;
 
 proof can-single :
-  (g : conblock) { K : [g |- kind] } [g |- can-single/existsKs K] =
+  (g : conblock) { K : [g |- kind] } [g |- single/existKs K] =
 / total 1 /
-?
+intros
+{ g : conblock, K : (g |- kind)
+|
+; split [_ |- K] as
+  case one:
+  { g : conblock
+  |
+  ; suffices by single/existKs/i [_, a : con |- one] toshow
+    [g |- single one (\x. one)] {
+      solve [_ |- single/one]
+    }
+  }
+  case sigma:
+  { g : conblock, K1 : (g |- kind), K2 : (g, x100 : con |- kind)
+  |
+  ; split can-single [g |- K1] as
+    case single/existKs/i:
+    { g : conblock,
+      K1 : (g |- kind),
+      K2 : (g, x100 : con |- kind),
+      K4 : (g, z492 : con |- kind),
+      Dsingle : (g |- single K1 (\y318. K4))
+    |
+    ; split can-single [g, x100 : con |- K2] as
+      case single/existKs/i:
+      { g : conblock,
+        K1 : (g |- kind),
+        K2 : (g, x100 : con |- kind),
+        K4 : (g, z492 : con |- kind),
+        Dsingle : (g |- single K1 (\y318. K4)),
+        K6 : (g, x100 : con, z492 : con |- kind),
+        Dsingle1 : (g, x100 : con |- single K2 (\y318. K6))
+      |
+      ; suffices by
+          single/existKs/i
+            [g, a : con |- sigma (K4[.., pi1 a]) (\l. K6[.., pi1 a, pi2 a])] toshow
+        [g |-
+           single
+             (sigma K1 (\a. K2))
+             (\b. sigma (K4[.., pi1 b]) (\l. K6[.., pi1 b, pi2 b]))] {
+          solve [g |- single/sigma Dsingle (\l. Dsingle1)]
+        }
+      }
+    }
+  }
+  case pi:
+  { g : conblock, K1 : (g |- kind), K2 : (g, x99 : con |- kind)
+  |
+  ; split can-single [g, x99 : con |- K2] as
+    case single/existKs/i:
+    { g : conblock,
+      K1 : (g |- kind),
+      K2 : (g, x99 : con |- kind),
+      K4 : (g, x99 : con, z492 : con |- kind),
+      Dsingle : (g, x99 : con |- single K2 (\y318. K4))
+    |
+    ; suffices by
+        single/existKs/i
+          [g, a : con |- pi (K1[..]) (\a1. K4[.., a1, app a a1])] toshow
+      [g |-
+         single (pi K1 (\a. K2)) (\b. pi (K1[..]) (\a. K4[.., a, app b a]))] {
+        solve [g |- single/pi (\a. Dsingle)]
+      }
+    }
+  }
+  case sing:
+  { g : conblock, C : (g |- con)
+  |
+  ; suffices by single/existKs/i [_, a : con |- sing a] toshow
+    [g |- single (sing C) (\b. sing b)] {
+      solve [_ |- single/sing ]
+    }
+  }
+  case t:
+  { g : conblock
+  |
+  ; suffices by single/existKs/i [_, a : con |- sing a] toshow
+    [g |- single t (\b. sing b)] {
+      solve [_ |- single/t]
+    }
+  }
+}
 ;
 
 proof single-fun :
@@ -34,12 +146,198 @@ proof single-fun :
   [g |- single K (\x. Ks')] ->
     [g, a : con |- kind-eq (Ks[.., a]) (Ks'[.., a])] =
 / total 1 /
-?
+intros
+{ g : conblock,
+  K : (g |- kind),
+  Ks : (g, y318 : con |- kind),
+  Ks' : (g, y318 : con |- kind)
+| x : [g |- single K (\x. Ks)], single : [g |- single K (\x. Ks')]
+; split x as
+  case single/one:
+  { g : conblock, Ks' : (g, y318 : con |- kind)
+  | x : [g |- single one (\x. one)], single : [g |- single one (\x. Ks')]
+  ; split single as
+    case single/one:
+    { g : conblock
+    | x : [g |- single one (\x. one)], single : [g |- single one (\x. one)]
+    ; solve [_, a : con |- kind-eq/i ]
+    }
+  }
+  case single/sigma:
+  { g : conblock,
+    K1 : (g |- kind),
+    K3 : (g, a92 : con |- kind),
+    K2 : (g, a91 : con |- kind),
+    K4 : (g, a94 : con, a93 : con |- kind),
+    Ks' : (g, y318 : con |- kind),
+    Dsingle : (g |- single K1 (\y318. K2)),
+    Dsingle1 : (g, a : con |- single K3 (\b. K4))
+  | x :
+      [g |-
+         single
+           (sigma K1 (\a. K3))
+           (\x. sigma (K2[.., pi1 x]) (\x1. K4[.., pi1 x, pi2 x]))],
+    single : [g |- single (sigma K1 (\a. K3)) (\x. Ks')]
+  ; split single as
+    case single/sigma:
+    { g : conblock,
+      K1 : (g |- kind),
+      K3 : (g, a92 : con |- kind),
+      K2 : (g, a91 : con |- kind),
+      K4 : (g, a94 : con, a93 : con |- kind),
+      K6 : (g, a91 : con |- kind),
+      K8 : (g, a94 : con, a93 : con |- kind),
+      Dsingle : (g |- single K1 (\y318. K2)),
+      Dsingle1 : (g, a : con |- single K3 (\b. K4)),
+      Dsingle2 : (g |- single K1 (\y318. K6)),
+      Dsingle3 : (g, a : con |- single K3 (\b. K8))
+    | x :
+        [g |-
+           single
+             (sigma K1 (\a. K3))
+             (\x. sigma (K2[.., pi1 x]) (\x1. K4[.., pi1 x, pi2 x]))],
+      single :
+        [g |-
+           single
+             (sigma K1 (\a. K3))
+             (\x. sigma (K6[.., pi1 x]) (\x1. K8[.., pi1 x, pi2 x]))]
+    ; split single-fun [g |- Dsingle] [g |- Dsingle2] as
+      case kind-eq/i:
+      { g : conblock,
+        K1 : (g |- kind),
+        K3 : (g, a92 : con |- kind),
+        K6 : (g, a91 : con |- kind),
+        K4 : (g, a94 : con, a93 : con |- kind),
+        K8 : (g, a94 : con, a93 : con |- kind),
+        Dsingle : (g |- single K1 (\y318. K6)),
+        Dsingle1 : (g, a : con |- single K3 (\b. K4)),
+        Dsingle2 : (g |- single K1 (\y318. K6)),
+        Dsingle3 : (g, a : con |- single K3 (\b. K8))
+      | x :
+          [g |-
+             single
+               (sigma K1 (\a. K3))
+               (\x. sigma (K6[.., pi1 x]) (\x1. K4[.., pi1 x, pi2 x]))],
+        single :
+          [g |-
+             single
+               (sigma K1 (\a. K3))
+               (\x. sigma (K6[.., pi1 x]) (\x1. K8[.., pi1 x, pi2 x]))]
+      ; split single-fun [g, a : con |- Dsingle1] [g, a : con |- Dsingle3] as
+        case kind-eq/i:
+        { g : conblock,
+          K1 : (g |- kind),
+          K3 : (g, a92 : con |- kind),
+          K6 : (g, a91 : con |- kind),
+          K8 : (g, a94 : con, a93 : con |- kind),
+          Dsingle : (g |- single K1 (\y318. K6)),
+          Dsingle1 : (g, a : con |- single K3 (\b. K8)),
+          Dsingle2 : (g |- single K1 (\y318. K6)),
+          Dsingle3 : (g, a : con |- single K3 (\b. K8))
+        | x :
+            [g |-
+               single
+                 (sigma K1 (\a. K3))
+                 (\x. sigma (K6[.., pi1 x]) (\x1. K8[.., pi1 x, pi2 x]))],
+          single :
+            [g |-
+               single
+                 (sigma K1 (\a. K3))
+                 (\x. sigma (K6[.., pi1 x]) (\x1. K8[.., pi1 x, pi2 x]))]
+        ; solve [g, a : con |- kind-eq/i ]
+        }
+      }
+    }
+  }
+  case single/pi:
+  { g : conblock,
+    K3 : (g |- kind),
+    K1 : (g, a88 : con |- kind),
+    K2 : (g, a90 : con, a89 : con |- kind),
+    Ks' : (g, y318 : con |- kind),
+    Dsingle : (g, a : con |- single K1 (\b. K2))
+  | x :
+      [g |-
+         single (pi K3 (\a. K1)) (\x. pi (K3[..]) (\a. K2[.., a, app x a]))],
+    single : [g |- single (pi K3 (\a. K1)) (\x. Ks')]
+  ; split single as
+    case single/pi:
+    { g : conblock,
+      K3 : (g |- kind),
+      K1 : (g, a88 : con |- kind),
+      K2 : (g, a90 : con, a89 : con |- kind),
+      K5 : (g, a90 : con, a89 : con |- kind),
+      Dsingle : (g, a : con |- single K1 (\b. K2)),
+      Dsingle1 : (g, a : con |- single K1 (\b. K5))
+    | x :
+        [g |-
+           single (pi K3 (\a. K1)) (\x. pi (K3[..]) (\a. K2[.., a, app x a]))],
+      single :
+        [g |-
+           single (pi K3 (\a. K1)) (\x. pi (K3[..]) (\a. K5[.., a, app x a]))]
+    ; split single-fun [g, a : con |- Dsingle] [g, a : con |- Dsingle1] as
+      case kind-eq/i:
+      { g : conblock,
+        K3 : (g |- kind),
+        K1 : (g, a88 : con |- kind),
+        K5 : (g, a90 : con, a89 : con |- kind),
+        Dsingle : (g, a : con |- single K1 (\b. K5)),
+        Dsingle1 : (g, a : con |- single K1 (\b. K5))
+      | x :
+          [g |-
+             single
+               (pi K3 (\a. K1)) (\x. pi (K3[..]) (\a. K5[.., a, app x a]))],
+        single :
+          [g |-
+             single
+               (pi K3 (\a. K1)) (\x. pi (K3[..]) (\a. K5[.., a, app x a]))]
+      ; solve [g, a : con |- kind-eq/i ]
+      }
+    }
+  }
+  case single/sing:
+  { g : conblock, C : (g |- con), Ks' : (g, y318 : con |- kind)
+  | x : [g |- single (sing C) (\x. sing x)],
+    single : [g |- single (sing C) (\x. Ks')]
+  ; split single as
+    case single/sing:
+    { g : conblock, C : (g |- con)
+    | x : [g |- single (sing C) (\x. sing x)],
+      single : [g |- single (sing C) (\x. sing x)]
+    ; solve [_, a : con |- kind-eq/i ]
+    }
+  }
+  case single/t:
+  { g : conblock, Ks' : (g, y318 : con |- kind)
+  | x : [g |- single t (\x. sing x)], single : [g |- single t (\x. Ks')]
+  ; split single as
+    case single/t:
+    { g : conblock
+    | x : [g |- single t (\x. sing x)], single : [g |- single t (\x. sing x)]
+    ; solve [_, a : con |- kind-eq/i ]
+    }
+  }
+}
 ;
 
 % Signature Lemmas
 
 proof md-of-forget : [ |- md-of P F M S] -> [ |- md-of impure F M S] =
 / total /
-?
+intros
+{ P : ( |- purity), F : ( |- sttp), M : ( |- module'), S : ( |- sg)
+| mof : [ |- md-of P F M S]
+; split [ |- P] as
+  case impure:
+  { F : ( |- sttp), M : ( |- module'), S : ( |- sg)
+  | mof : [ |- md-of impure F M S]
+  ; solve mof
+  }
+  case pure:
+  { F : ( |- sttp), M : ( |- module'), S : ( |- sg)
+  | mof : [ |- md-of pure F M S]
+  ; by mof as Dof unboxed;
+    solve [ |- md-of/forget Dof]
+  }
+}
 ;

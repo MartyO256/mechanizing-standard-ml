@@ -1,15 +1,24 @@
 LF cterm-eq : cterm -> cterm -> type =
 | cterm-eq/i : cterm-eq M M
 ;
---name cterm-eq Deq.
+--name cterm-eq Deq eq.
 
 LF catom-eq : catom -> catom -> type =
 | catom-eq/i : catom-eq R R
 ;
---name catom-eq Deq.
+--name catom-eq Deq eq.
 
 proof catom-resp-cterm : { R : [ x : cterm |- catom] } [ |- cterm-eq M M'] ->
                            [ |- catom-eq (R[M]) (R[M'])] =
 / total /
-?
+intros
+{ M : ( |- cterm), M' : ( |- cterm), R : (x : cterm |- catom)
+| eq : [ |- cterm-eq M M']
+; split eq as
+  case cterm-eq/i:
+  { M' : ( |- cterm), R : (x : cterm |- catom)
+  | eq : [ |- cterm-eq M' M']
+  ; solve [ |- catom-eq/i ]
+  }
+}
 ;

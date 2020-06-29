@@ -3,43 +3,70 @@
 LF atom-eq : atom -> atom -> type =
 | atom-eq/i : atom-eq R R
 ;
---name atom-eq Deq.
+--name atom-eq Deq eq.
 
 LF eterm-eq : eterm -> eterm -> type =
 | eterm-eq/i : eterm-eq M M
 ;
---name eterm-eq Deq.
+--name eterm-eq Deq eq.
 
 LF etp-eq : etp -> etp -> type =
 | etp-eq/i : etp-eq A A
 ;
---name etp-eq Deq.
+--name etp-eq Deq eq.
 
 LF term-eq : term -> term -> type =
 | term-eq/i : term-eq M M
 ;
---name term-eq Deq.
+--name term-eq Deq eq.
 
 LF tp-eq : tp -> tp -> type =
 | tp-eq/i : tp-eq T T
 ;
---name tp-eq Deq.
+--name tp-eq Deq eq.
 
 % Symmetry
 
 proof atom-eq-symm : [ |- atom-eq R R'] -> [ |- atom-eq R' R] =
 / total /
-?
+intros
+{ R : ( |- atom), R' : ( |- atom)
+| eq : [ |- atom-eq R R']
+; split eq as
+  case atom-eq/i:
+  { R' : ( |- atom)
+  | eq : [ |- atom-eq R' R']
+  ; solve eq
+  }
+}
 ;
 
 proof term-eq-symm : [ |- term-eq M N] -> [ |- term-eq N M] =
 / total /
-?
+intros
+{ M : ( |- term), N : ( |- term)
+| eq : [ |- term-eq M N]
+; split eq as
+  case term-eq/i:
+  { N : ( |- term)
+  | eq : [ |- term-eq N N]
+  ; solve eq
+  }
+}
 ;
 
 proof tp-eq-symm : [ |- tp-eq A B] -> [ |- tp-eq B A] =
 / total /
-?
+intros
+{ A : ( |- tp), B : ( |- tp)
+| eq : [ |- tp-eq A B]
+; split eq as
+  case tp-eq/i:
+  { B : ( |- tp)
+  | eq : [ |- tp-eq B B]
+  ; solve eq
+  }
+}
 ;
 
 % Transitivity
@@ -47,18 +74,45 @@ proof tp-eq-symm : [ |- tp-eq A B] -> [ |- tp-eq B A] =
 proof atom-eq-trans : [ |- atom-eq R1 R2] ->
                         [ |- atom-eq R2 R3] -> [ |- atom-eq R1 R3] =
 / total /
-?
+intros
+{ R : ( |- atom), R1 : ( |- atom), R2 : ( |- atom)
+| eq : [ |- atom-eq R R1], eq1 : [ |- atom-eq R1 R2]
+; split eq as
+  case atom-eq/i:
+  { R1 : ( |- atom), R2 : ( |- atom)
+  | eq : [ |- atom-eq R1 R1], eq1 : [ |- atom-eq R1 R2]
+  ; solve eq1
+  }
+}
 ;
 
 proof term-eq-trans : [ |- term-eq M N] ->
                         [ |- term-eq N O] -> [ |- term-eq M O] =
 / total /
-?
+intros
+{ M : ( |- term), N : ( |- term), O : ( |- term)
+| eq : [ |- term-eq M N], eq1 : [ |- term-eq N O]
+; split eq as
+  case term-eq/i:
+  { N : ( |- term), O : ( |- term)
+  | eq : [ |- term-eq N N], eq1 : [ |- term-eq N O]
+  ; solve eq1
+  }
+}
 ;
 
 proof tp-eq-trans : [ |- tp-eq A B] -> [ |- tp-eq B C] -> [ |- tp-eq A C] =
 / total /
-?
+intros
+{ A : ( |- tp), B : ( |- tp), C : ( |- tp)
+| eq : [ |- tp-eq A B], eq1 : [ |- tp-eq B C]
+; split eq as
+  case tp-eq/i:
+  { B : ( |- tp), C : ( |- tp)
+  | eq : [ |- tp-eq B B], eq1 : [ |- tp-eq B C]
+  ; solve eq1
+  }
+}
 ;
 
 % Cons Lemmas
@@ -66,43 +120,111 @@ proof tp-eq-trans : [ |- tp-eq A B] -> [ |- tp-eq B C] -> [ |- tp-eq A C] =
 proof app-resp : [ |- atom-eq R R'] ->
                    [ |- term-eq M M'] -> [ |- atom-eq (app R M) (app R' M')] =
 / total /
-?
+intros
+{ R : ( |- atom), R' : ( |- atom), M : ( |- term), M' : ( |- term)
+| eq : [ |- atom-eq R R'], eq1 : [ |- term-eq M M']
+; split eq as
+  case atom-eq/i:
+  { R' : ( |- atom), M : ( |- term), M' : ( |- term)
+  | eq : [ |- atom-eq R' R'], eq1 : [ |- term-eq M M']
+  ; split eq1 as
+    case term-eq/i:
+    { R' : ( |- atom), M' : ( |- term)
+    | eq : [ |- atom-eq R' R'], eq1 : [ |- term-eq M' M']
+    ; solve [ |- atom-eq/i ]
+    }
+  }
+}
 ;
 
 proof atom-resp-atom : { R : [ x : atom |- atom] } [ |- atom-eq Q Q'] ->
                          [ |- atom-eq (R[Q]) (R[Q'])] =
 / total /
-?
+intros
+{ Q : ( |- atom), Q' : ( |- atom), R : (x : atom |- atom)
+| eq : [ |- atom-eq Q Q']
+; split eq as
+  case atom-eq/i:
+  { Q' : ( |- atom), R : (x : atom |- atom)
+  | eq : [ |- atom-eq Q' Q']
+  ; solve [ |- atom-eq/i ]
+  }
+}
 ;
 
 proof term-resp-term : { M : [ x : term |- term] } [ |- term-eq N N'] ->
                          [ |- term-eq (M[N]) (M[N'])] =
 / total /
-?
+intros
+{ N : ( |- term), N' : ( |- term), M : (x : term |- term)
+| eq : [ |- term-eq N N']
+; split eq as
+  case term-eq/i:
+  { N' : ( |- term), M : (x : term |- term)
+  | eq : [ |- term-eq N' N']
+  ; solve [ |- term-eq/i ]
+  }
+}
 ;
 
 proof tp-resp-tp : { A : [ x : tp |- tp] } [ |- tp-eq B B'] ->
                      [ |- tp-eq (A[B]) (A[B'])] =
 / total /
-?
+intros
+{ B : ( |- tp), B' : ( |- tp), A : (x : tp |- tp)
+| eq : [ |- tp-eq B B']
+; split eq as
+  case tp-eq/i:
+  { B' : ( |- tp), A : (x : tp |- tp)
+  | eq : [ |- tp-eq B' B']
+  ; solve [ |- tp-eq/i ]
+  }
+}
 ;
 
 proof term-resp-atom : { M : [ x : atom |- term] } [ |- atom-eq R R'] ->
                          [ |- term-eq (M[R]) (M[R'])] =
 / total /
-?
+intros
+{ R : ( |- atom), R' : ( |- atom), M : (x : atom |- term)
+| eq : [ |- atom-eq R R']
+; split eq as
+  case atom-eq/i:
+  { R' : ( |- atom), M : (x : atom |- term)
+  | eq : [ |- atom-eq R' R']
+  ; solve [ |- term-eq/i ]
+  }
+}
 ;
 
 proof tp-resp-atom : { A : [ x : atom |- tp] } [ |- atom-eq R R'] ->
                        [ |- tp-eq (A[R]) (A[R'])] =
 / total /
-?
+intros
+{ R : ( |- atom), R' : ( |- atom), A : (x : atom |- tp)
+| eq : [ |- atom-eq R R']
+; split eq as
+  case atom-eq/i:
+  { R' : ( |- atom), A : (x : atom |- tp)
+  | eq : [ |- atom-eq R' R']
+  ; solve [ |- tp-eq/i ]
+  }
+}
 ;
 
 proof tp-resp-term : { A : [ x : term |- tp] } [ |- term-eq M M'] ->
                        [ |- tp-eq (A[M]) (A[M'])] =
 / total /
-?
+intros
+{ M : ( |- term), M' : ( |- term), A : (x : term |- tp)
+| eq : [ |- term-eq M M']
+; split eq as
+  case term-eq/i:
+  { M' : ( |- term), A : (x : term |- tp)
+  | eq : [ |- term-eq M' M']
+  ; solve [ |- tp-eq/i ]
+  }
+}
 ;
 
 % Cdr lemmas
@@ -110,5 +232,14 @@ proof tp-resp-term : { A : [ x : term |- tp] } [ |- term-eq M M'] ->
 proof atom-eq-cdr-app : [ |- atom-eq (app R M) (app R' M')] ->
                           [ |- atom-eq R R'] -> [ |- term-eq M M'] =
 / total /
-?
+intros
+{ R : ( |- atom), M : ( |- term), R' : ( |- atom), M' : ( |- term)
+| eq : [ |- atom-eq (app R M) (app R' M')], eq1 : [ |- atom-eq R R']
+; split eq as
+  case atom-eq/i:
+  { R' : ( |- atom), M' : ( |- term)
+  | eq : [ |- atom-eq (app R' M') (app R' M')], eq1 : [ |- atom-eq R' R']
+  ; solve [ |- term-eq/i ]
+  }
+}
 ;

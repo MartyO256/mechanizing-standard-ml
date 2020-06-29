@@ -3,88 +3,142 @@
 LF con-eq : con -> con -> type =
 | con-eq/i : con-eq C C
 ;
---name con-eq Deq.
+--name con-eq Deq eq.
 
 LF entp-eq : entp -> entp -> type =
 | entp-eq/i : entp-eq ET ET
 ;
---name entp-eq Deq.
+--name entp-eq Deq eq.
 
 LF entry-eq : entry -> entry -> type =
 | entry-eq/i : entry-eq EN EN
 ;
---name entry-eq Deq.
+--name entry-eq Deq eq.
 
 LF kind-eq : kind -> kind -> type =
 | kind-eq/i : kind-eq K K
 ;
---name kind-eq Deq.
+--name kind-eq Deq eq.
 
 LF module-eq : module' -> module' -> type =
 | module-eq/i : module-eq M M
 ;
---name module-eq Deq.
+--name module-eq Deq eq.
 
 LF name-eq : name -> name -> type =
 | name-eq/i : name-eq L L
 ;
---name name-eq Deq.
+--name name-eq Deq eq.
 
 LF purity-eq : purity -> purity -> type =
 | purity-eq/i : purity-eq P P
 ;
---name purity-eq Deq.
+--name purity-eq Deq eq.
 
 LF sg-eq : sg -> sg -> type =
 | sg-eq/i : sg-eq S S
 ;
---name sg-eq Deq.
+--name sg-eq Deq eq.
 
 LF store-eq : store -> store -> type =
 | store-eq/i : store-eq ST ST
 ;
---name store-eq Deq.
+--name store-eq Deq eq.
 
 LF sttp-eq : sttp -> sttp -> type =
 | sttp-eq/i : sttp-eq F F
 ;
---name sttp-eq Deq.
+--name sttp-eq Deq eq.
 
 LF term-eq : term -> term -> type =
 | term-eq/i : term-eq E E
 ;
---name term-eq Deq.
+--name term-eq Deq eq.
 
 % Symmetry
 
 proof con-eq-symm : [ |- con-eq C1 C2] -> [ |- con-eq C2 C1] =
 / total /
-?
+intros
+{ C : ( |- con), C1 : ( |- con)
+| eq : [ |- con-eq C C1]
+; split eq as
+  case con-eq/i:
+  { C1 : ( |- con)
+  | eq : [ |- con-eq C1 C1]
+  ; solve eq
+  }
+}
 ;
 
 proof kind-eq-symm : [ |- kind-eq K1 K2] -> [ |- kind-eq K2 K1] =
 / total /
-?
+intros
+{ K : ( |- kind), K1 : ( |- kind)
+| eq : [ |- kind-eq K K1]
+; split eq as
+  case kind-eq/i:
+  { K1 : ( |- kind)
+  | eq : [ |- kind-eq K1 K1]
+  ; solve eq
+  }
+}
 ;
 
 proof name-eq-symm : [ |- name-eq L1 L2] -> [ |- name-eq L2 L1] =
 / total /
-?
+intros
+{ L : ( |- name), L1 : ( |- name)
+| eq : [ |- name-eq L L1]
+; split eq as
+  case name-eq/i:
+  { L1 : ( |- name)
+  | eq : [ |- name-eq L1 L1]
+  ; solve eq
+  }
+}
 ;
 
 proof sg-eq-symm : [ |- sg-eq S1 S2] -> [ |- sg-eq S2 S1] =
 / total /
-?
+intros
+{ S : ( |- sg), S1 : ( |- sg)
+| eq : [ |- sg-eq S S1]
+; split eq as
+  case sg-eq/i:
+  { S1 : ( |- sg)
+  | eq : [ |- sg-eq S1 S1]
+  ; solve eq
+  }
+}
 ;
 
 proof term-eq-symm : [ |- term-eq E1 E2] -> [ |- term-eq E2 E1] =
 / total /
-?
+intros
+{ E : ( |- term), E1 : ( |- term)
+| eq : [ |- term-eq E E1]
+; split eq as
+  case term-eq/i:
+  { E1 : ( |- term)
+  | eq : [ |- term-eq E1 E1]
+  ; solve eq
+  }
+}
 ;
 
 proof module-eq-symm : [ |- module-eq M1 M2] -> [ |- module-eq M2 M1] =
 / total /
-?
+intros
+{ M : ( |- module'), M1 : ( |- module')
+| eq : [ |- module-eq M M1]
+; split eq as
+  case module-eq/i:
+  { M1 : ( |- module')
+  | eq : [ |- module-eq M1 M1]
+  ; solve eq
+  }
+}
 ;
 
 % Transitivity
@@ -93,28 +147,64 @@ proof con-eq-trans : [ |- con-eq C1 C2] ->
                        [ |- con-eq C2 C3] ->
                        [ |- con-eq C1 C3] =
 / total /
-?
+intros
+{ C : ( |- con), C1 : ( |- con), C2 : ( |- con)
+| eq : [ |- con-eq C C1], eq1 : [ |- con-eq C1 C2]
+; split eq as
+  case con-eq/i:
+  { C1 : ( |- con), C2 : ( |- con)
+  | eq : [ |- con-eq C1 C1], eq1 : [ |- con-eq C1 C2]
+  ; solve eq1
+  }
+}
 ;
 
 proof module-eq-trans : [ |- module-eq M1 M2] ->
                           [ |- module-eq M2 M3] ->
                           [ |- module-eq M1 M3] =
 / total /
-?
+intros
+{ M : ( |- module'), M1 : ( |- module'), M2 : ( |- module')
+| eq : [ |- module-eq M M1], eq1 : [ |- module-eq M1 M2]
+; split eq as
+  case module-eq/i:
+  { M1 : ( |- module'), M2 : ( |- module')
+  | eq : [ |- module-eq M1 M1], eq1 : [ |- module-eq M1 M2]
+  ; solve eq1
+  }
+}
 ;
 
 proof name-eq-trans : [ |- name-eq L1 L2] ->
                         [ |- name-eq L2 L3] ->
                         [ |- name-eq L1 L3] =
 / total /
-?
+intros
+{ L : ( |- name), L1 : ( |- name), L2 : ( |- name)
+| eq : [ |- name-eq L L1], eq1 : [ |- name-eq L1 L2]
+; split eq as
+  case name-eq/i:
+  { L1 : ( |- name), L2 : ( |- name)
+  | eq : [ |- name-eq L1 L1], eq1 : [ |- name-eq L1 L2]
+  ; solve eq1
+  }
+}
 ;
 
 proof sg-eq-trans : [ |- sg-eq S1 S2] ->
                       [ |- sg-eq S2 S3] ->
                       [ |- sg-eq S1 S3] =
 / total /
-?
+intros
+{ S : ( |- sg), S1 : ( |- sg), S2 : ( |- sg)
+| eq : [ |- sg-eq S S1], eq1 : [ |- sg-eq S1 S2]
+; split eq as
+  case sg-eq/i:
+  { S1 : ( |- sg), S2 : ( |- sg)
+  | eq : [ |- sg-eq S1 S1], eq1 : [ |- sg-eq S1 S2]
+  ; solve eq1
+  }
+}
 ;
 
 % Cons Lemmas
@@ -122,117 +212,326 @@ proof sg-eq-trans : [ |- sg-eq S1 S2] ->
 proof con-resp-con : { C : [ c : con |- con] } [ |- con-eq C1 C1'] ->
                        [ |- con-eq (C[C1]) (C[C1'])] =
 / total /
-?
+intros
+{ C : ( |- con), C1' : ( |- con), C1 : (c : con |- con)
+| eq : [ |- con-eq C C1']
+; split eq as
+  case con-eq/i:
+  { C1' : ( |- con), C1 : (c : con |- con)
+  | eq : [ |- con-eq C1' C1']
+  ; solve [ |- con-eq/i ]
+  }
+}
 ;
 
 proof con-resp-con2 : { C : [ c1 : con, c2: con |- con] } [ |- con-eq C1 C1'] ->
                         [ |- con-eq C2 C2'] ->
                           [ |- con-eq (C[C1, C2]) (C[C1', C2'])] =
 / total /
-?
+intros
+{ C : ( |- con),
+  C1' : ( |- con),
+  C1 : ( |- con),
+  C2' : ( |- con),
+  C2 : (c1 : con, c2 : con |- con)
+| eq : [ |- con-eq C C1'], eq1 : [ |- con-eq C1 C2']
+; split eq as
+  case con-eq/i:
+  { C1' : ( |- con),
+    C1 : ( |- con),
+    C2' : ( |- con),
+    C2 : (c1 : con, c2 : con |- con)
+  | eq : [ |- con-eq C1' C1'], eq1 : [ |- con-eq C1 C2']
+  ; split eq1 as
+    case con-eq/i:
+    { C1' : ( |- con), C2' : ( |- con), C2 : (c1 : con, c2 : con |- con)
+    | eq : [ |- con-eq C1' C1'], eq1 : [ |- con-eq C2' C2']
+    ; solve [ |- con-eq/i ]
+    }
+  }
+}
 ;
 
 proof con-resp-kind : { C : [ k : kind |- con] } [ |- kind-eq K K'] ->
                         [ |- con-eq (C[K]) (C[K'])] =
 / total /
-?
+intros
+{ K : ( |- kind), K' : ( |- kind), C : (k : kind |- con)
+| eq : [ |- kind-eq K K']
+; split eq as
+  case kind-eq/i:
+  { K' : ( |- kind), C : (k : kind |- con)
+  | eq : [ |- kind-eq K' K']
+  ; solve [ |- con-eq/i ]
+  }
+}
 ;
 
 proof kind-resp-con : { K : [ c : con |- kind] } [ |- con-eq C C'] ->
                         [ |- kind-eq (K[C]) (K[C'])] =
 / total /
-?
+intros
+{ C : ( |- con), C' : ( |- con), K : (c : con |- kind)
+| eq : [ |- con-eq C C']
+; split eq as
+  case con-eq/i:
+  { C' : ( |- con), K : (c : con |- kind)
+  | eq : [ |- con-eq C' C']
+  ; solve [ |- kind-eq/i ]
+  }
+}
 ;
 
 proof kind-resp-kind : { K : [ k : kind |- kind] } [ |- kind-eq K1 K1'] ->
                          [ |- kind-eq (K[K1]) (K[K1'])] =
 / total /
-?
+intros
+{ K : ( |- kind), K1' : ( |- kind), K1 : (k : kind |- kind)
+| eq : [ |- kind-eq K K1']
+; split eq as
+  case kind-eq/i:
+  { K1' : ( |- kind), K1 : (k : kind |- kind)
+  | eq : [ |- kind-eq K1' K1']
+  ; solve [ |- kind-eq/i ]
+  }
+}
 ;
 
 proof module-resp-con : { M : [ c : con |- module'] } [ |- con-eq C1 C2] ->
                           [ |- module-eq (M[C1]) (M[C2])] =
 / total /
-?
+intros
+{ C : ( |- con), C1 : ( |- con), M : (c : con |- module')
+| eq : [ |- con-eq C C1]
+; split eq as
+  case con-eq/i:
+  { C1 : ( |- con), M : (c : con |- module')
+  | eq : [ |- con-eq C1 C1]
+  ; solve [ |- module-eq/i ]
+  }
+}
 ;
 
 proof module-resp-module : { M : [ m : module' |- module'] }
                            [ |- module-eq M1 M2] ->
                              [ |- module-eq (M[M1]) (M[M2])] =
 / total /
-?
+intros
+{ M : ( |- module'), M1 : ( |- module'), M2 : (m : module' |- module')
+| eq : [ |- module-eq M M1]
+; split eq as
+  case module-eq/i:
+  { M1 : ( |- module'), M2 : (m : module' |- module')
+  | eq : [ |- module-eq M1 M1]
+  ; solve [ |- module-eq/i ]
+  }
+}
 ;
 
 proof module-resp-term : { M : [ x : term |- module'] } [ |- term-eq E E'] ->
                            [ |- module-eq (M[E]) (M[E'])] =
 / total /
-?
+intros
+{ E : ( |- term), E' : ( |- term), M : (x : term |- module')
+| eq : [ |- term-eq E E']
+; split eq as
+  case term-eq/i:
+  { E' : ( |- term), M : (x : term |- module')
+  | eq : [ |- term-eq E' E']
+  ; solve [ |- module-eq/i ]
+  }
+}
 ;
 
 proof pair-resp : [ |- con-eq C1 C1'] ->
                     [ |- con-eq C2 C2'] ->
                       [ |- con-eq (pair C1 C2) (pair C1' C2')] =
 / total /
-?
+intros
+{ C : ( |- con), C1' : ( |- con), C1 : ( |- con), C2' : ( |- con)
+| eq : [ |- con-eq C C1'], eq1 : [ |- con-eq C1 C2']
+; split eq as
+  case con-eq/i:
+  { C1' : ( |- con), C1 : ( |- con), C2' : ( |- con)
+  | eq : [ |- con-eq C1' C1'], eq1 : [ |- con-eq C1 C2']
+  ; split eq1 as
+    case con-eq/i:
+    { C1' : ( |- con), C2' : ( |- con)
+    | eq : [ |- con-eq C1' C1'], eq1 : [ |- con-eq C2' C2']
+    ; solve [ |- con-eq/i ]
+    }
+  }
+}
 ;
 
-proof pi-resp : (g : conblock) [g |- kind-eq K1 K1'] ->
-                  [g, a : con |- kind-eq (K2[a]) (K2'[a])] ->
-                    [g |- kind-eq (pi K1 (\x. K2[x]))
-                      (pi K1' (\x. K2'[x]))] =
+proof pi-resp :
+  (g : conblock)
+  [g |- kind-eq K1 K1'] ->
+  [g, a : con |- kind-eq (K2[a]) (K2'[a])] ->
+    [g |- kind-eq (pi K1 (\x. K2[x])) (pi K1' (\x. K2'[x]))] =
 / total /
-?
+intros
+{ g : conblock,
+  K : (g |- kind),
+  K1' : (g |- kind),
+  K1 : (a : con |- kind),
+  K2' : (a : con |- kind)
+| eq : [g |- kind-eq K K1'], eq1 : [g, a : con |- kind-eq (K1[a]) (K2'[a])]
+; split eq as
+  case kind-eq/i:
+  { g : conblock,
+    K1' : (g |- kind),
+    K1 : (a : con |- kind),
+    K2' : (a : con |- kind)
+  | eq : [g |- kind-eq K1' K1'],
+    eq1 : [g, a : con |- kind-eq (K1[a]) (K2'[a])]
+  ; split eq1 as
+    case kind-eq/i:
+    { g : conblock, K1' : (g |- kind), K2' : (a : con |- kind)
+    | eq : [g |- kind-eq K1' K1'],
+      eq1 : [g, a : con |- kind-eq (K2'[a]) (K2'[a])]
+    ; solve [_ |- kind-eq/i ]
+    }
+  }
+}
 ;
 
 proof sg-resp-con : { S : [ c : con |- sg] } [ |- con-eq C C'] ->
                       [ |- sg-eq (S[C]) (S[C'])] =
 / total /
-?
+intros
+{ C : ( |- con), C' : ( |- con), S : (c : con |- sg)
+| eq : [ |- con-eq C C']
+; split eq as
+  case con-eq/i:
+  { C' : ( |- con), S : (c : con |- sg)
+  | eq : [ |- con-eq C' C']
+  ; solve [ |- sg-eq/i ]
+  }
+}
 ;
 
 proof sg-resp-kind : { S : [ k : kind |- sg] } [ |- kind-eq K K'] ->
                        [ |- sg-eq (S[K]) (S[K'])] =
 / total /
-?
+intros
+{ K : ( |- kind), K' : ( |- kind), S : (k : kind |- sg)
+| eq : [ |- kind-eq K K']
+; split eq as
+  case kind-eq/i:
+  { K' : ( |- kind), S : (k : kind |- sg)
+  | eq : [ |- kind-eq K' K']
+  ; solve [ |- sg-eq/i ]
+  }
+}
 ;
 
 proof sg-resp-name : { S : [ l : name |- sg] } [ |- name-eq L1 L2] ->
                        [ |- sg-eq (S[L1]) (S[L2])] =
 / total /
-?
+intros
+{ L : ( |- name), L1 : ( |- name), S : (l : name |- sg)
+| eq : [ |- name-eq L L1]
+; split eq as
+  case name-eq/i:
+  { L1 : ( |- name), S : (l : name |- sg)
+  | eq : [ |- name-eq L1 L1]
+  ; solve [ |- sg-eq/i ]
+  }
+}
 ;
 
 proof sg-resp-sg : { S : [ s : sg |- sg] } [ |- sg-eq S1 S2] ->
                      [ |- sg-eq (S[S1]) (S[S2])] =
 / total /
-?
+intros
+{ S : ( |- sg), S1 : ( |- sg), S2 : (s : sg |- sg)
+| eq : [ |- sg-eq S S1]
+; split eq as
+  case sg-eq/i:
+  { S1 : ( |- sg), S2 : (s : sg |- sg)
+  | eq : [ |- sg-eq S1 S1]
+  ; solve [ |- sg-eq/i ]
+  }
+}
 ;
 
-proof sigma-resp : (g : conblock) [g |- kind-eq K1 K1'] ->
-                     [g, a : con |- kind-eq (K2[a]) (K2'[a])] ->
-                       [g |- kind-eq (sigma K1 (\x. K2[x]))
-                         (sigma K1' (\x. K2'[x]))] =
+proof sigma-resp :
+  (g : conblock)
+  [g |- kind-eq K1 K1'] ->
+  [g, a : con |- kind-eq (K2[a]) (K2'[a])] ->
+    [g |- kind-eq (sigma K1 (\x. K2[x])) (sigma K1' (\x. K2'[x]))] =
 / total /
-?
+intros
+{ g : conblock,
+  K : (g |- kind),
+  K1' : (g |- kind),
+  K1 : (a : con |- kind),
+  K2' : (a : con |- kind)
+| eq : [g |- kind-eq K K1'], eq1 : [g, a : con |- kind-eq (K1[a]) (K2'[a])]
+; split eq as
+  case kind-eq/i:
+  { g : conblock,
+    K1' : (g |- kind),
+    K1 : (a : con |- kind),
+    K2' : (a : con |- kind)
+  | eq : [g |- kind-eq K1' K1'],
+    eq1 : [g, a : con |- kind-eq (K1[a]) (K2'[a])]
+  ; split eq1 as
+    case kind-eq/i:
+    { g : conblock, K1' : (g |- kind), K2' : (a : con |- kind)
+    | eq : [g |- kind-eq K1' K1'],
+      eq1 : [g, a : con |- kind-eq (K2'[a]) (K2'[a])]
+    ; solve [_ |- kind-eq/i ]
+    }
+  }
+}
 ;
 
 proof store-resp-store : { ST : [ st : store |- store] }
                          [ |- store-eq ST1 ST1'] ->
                            [ |- store-eq (ST[ST1]) (ST[ST1'])] =
 / total /
-?
+intros
+{ ST : ( |- store), ST1' : ( |- store), ST1 : (st : store |- store)
+| eq : [ |- store-eq ST ST1']
+; split eq as
+  case store-eq/i:
+  { ST1' : ( |- store), ST1 : (st : store |- store)
+  | eq : [ |- store-eq ST1' ST1']
+  ; solve [ |- store-eq/i ]
+  }
+}
 ;
 
 proof term-resp-module : { E : [ m : module' |- term] } [ |- module-eq M M'] ->
                            [ |- term-eq (E[M]) (E[M'])] =
 / total /
-?
+intros
+{ M : ( |- module'), M' : ( |- module'), E : (m : module' |- term)
+| eq : [ |- module-eq M M']
+; split eq as
+  case module-eq/i:
+  { M' : ( |- module'), E : (m : module' |- term)
+  | eq : [ |- module-eq M' M']
+  ; solve [ |- term-eq/i ]
+  }
+}
 ;
 
 proof term-resp-term : { E : [ x : term |- term] } [ |- term-eq E1 E1'] ->
                          [ |- term-eq (E[E1]) (E[E1'])] =
 / total /
-?
+intros
+{ E : ( |- term), E1' : ( |- term), E1 : (x : term |- term)
+| eq : [ |- term-eq E E1']
+; split eq as
+  case term-eq/i:
+  { E1' : ( |- term), E1 : (x : term |- term)
+  | eq : [ |- term-eq E1' E1']
+  ; solve [ |- term-eq/i ]
+  }
+}
 ;
 
 % Cdr Lemmas
@@ -240,13 +539,31 @@ proof term-resp-term : { E : [ x : term |- term] } [ |- term-eq E1 E1'] ->
 proof entp-eq-invert-tag : [ |- entp-eq (et/tag T) (et/tag T')] ->
                              [ |- con-eq T T'] =
 / total /
-?
+intros
+{ T : ( |- con), T' : ( |- con)
+| eq : [ |- entp-eq (et/tag T) (et/tag T')]
+; split eq as
+  case entp-eq/i:
+  { T' : ( |- con)
+  | eq : [ |- entp-eq (et/tag T') (et/tag T')]
+  ; solve [ |- con-eq/i ]
+  }
+}
 ;
 
 proof entry-eq-invert-ref : [ |- entry-eq (entry/ref E) (entry/ref E')] ->
                               [ |- term-eq E E'] =
 / total /
-?
+intros
+{ E : ( |- term), E' : ( |- term)
+| eq : [ |- entry-eq (entry/ref E) (entry/ref E')]
+; split eq as
+  case entry-eq/i:
+  { E' : ( |- term)
+  | eq : [ |- entry-eq (entry/ref E') (entry/ref E')]
+  ; solve [ |- term-eq/i ]
+  }
+}
 ;
 
 proof kind-eq-pi-invert/1 :
@@ -254,7 +571,20 @@ proof kind-eq-pi-invert/1 :
   [g |- kind-eq (pi K1 (\x. K2[x])) (pi K1' (\x. K2'[x]))] ->
     [g |- kind-eq K1 K1'] =
 / total /
-?
+intros
+{ g : conblock,
+  K : (g |- kind),
+  K1 : (y97 : con |- kind),
+  K1' : (g |- kind),
+  K2' : (y97 : con |- kind)
+| eq : [g |- kind-eq (pi K (\x. K1[x])) (pi K1' (\x. K2'[x]))]
+; split eq as
+  case kind-eq/i:
+  { g : conblock, K1' : (g |- kind), K2' : (y97 : con |- kind)
+  | eq : [g |- kind-eq (pi K1' (\x. K2'[x])) (pi K1' (\x. K2'[x]))]
+  ; solve [_ |- kind-eq/i ]
+  }
+}
 ;
 
 proof kind-eq-pi-invert/2 :
@@ -262,7 +592,20 @@ proof kind-eq-pi-invert/2 :
   [g |- kind-eq (pi K1 (\x. K2[x])) (pi K1' (\x. K2'[x]))] ->
     [g, a : con |- kind-eq (K2[a]) (K2'[a])] =
 / total /
-?
+intros
+{ g : conblock,
+  K : (g |- kind),
+  K1 : (y97 : con |- kind),
+  K1' : (g |- kind),
+  K2' : (y97 : con |- kind)
+| eq : [g |- kind-eq (pi K (\x. K1[x])) (pi K1' (\x. K2'[x]))]
+; split eq as
+  case kind-eq/i:
+  { g : conblock, K1' : (g |- kind), K2' : (y97 : con |- kind)
+  | eq : [g |- kind-eq (pi K1' (\x. K2'[x])) (pi K1' (\x. K2'[x]))]
+  ; solve [_, a : con |- kind-eq/i ]
+  }
+}
 ;
 
 proof kind-eq-sigma-invert/1 :
@@ -270,7 +613,20 @@ proof kind-eq-sigma-invert/1 :
   [g |- kind-eq (sigma K1 (\x. K2[x])) (sigma K1' (\x. K2'[x]))] ->
     [g |- kind-eq K1 K1'] =
 / total /
-?
+intros
+{ g : conblock,
+  K : (g |- kind),
+  K1 : (y98 : con |- kind),
+  K1' : (g |- kind),
+  K2' : (y98 : con |- kind)
+| eq : [g |- kind-eq (sigma K (\x. K1[x])) (sigma K1' (\x. K2'[x]))]
+; split eq as
+  case kind-eq/i:
+  { g : conblock, K1' : (g |- kind), K2' : (y98 : con |- kind)
+  | eq : [g |- kind-eq (sigma K1' (\x. K2'[x])) (sigma K1' (\x. K2'[x]))]
+  ; solve [_ |- kind-eq/i ]
+  }
+}
 ;
 
 proof kind-eq-sigma-invert/2 :
@@ -278,86 +634,207 @@ proof kind-eq-sigma-invert/2 :
   [g |- kind-eq (sigma K1 (\x. K2[x])) (sigma K1' (\x. K2'[x]))] ->
     [g, a : con |- kind-eq (K2[a]) (K2'[a]) ] =
 / total /
-?
+intros
+{ g : conblock,
+  K : (g |- kind),
+  K1 : (y98 : con |- kind),
+  K1' : (g |- kind),
+  K2' : (y98 : con |- kind)
+| eq : [g |- kind-eq (sigma K (\x. K1[x])) (sigma K1' (\x. K2'[x]))]
+; split eq as
+  case kind-eq/i:
+  { g : conblock, K1' : (g |- kind), K2' : (y98 : con |- kind)
+  | eq : [g |- kind-eq (sigma K1' (\x. K2'[x])) (sigma K1' (\x. K2'[x]))]
+  ; solve [_, a : con |- kind-eq/i ]
+  }
+}
 ;
 
 proof module-eq-pi1-invert : [ |- module-eq (md/pi1 M) (md/pi1 M')] ->
                                [ |- module-eq M M'] =
 / total /
-?
+intros
+{ M : ( |- module'), M' : ( |- module')
+| eq : [ |- module-eq (md/pi1 M) (md/pi1 M')]
+; split eq as
+  case module-eq/i:
+  { M' : ( |- module')
+  | eq : [ |- module-eq (md/pi1 M') (md/pi1 M')]
+  ; solve [ |- module-eq/i ]
+  }
+}
 ;
 
 proof module-eq-pi2-invert : [ |- module-eq (md/pi2 M) (md/pi2 M')] ->
                                [ |- module-eq M M'] =
 / total /
-?
+intros
+{ M : ( |- module'), M' : ( |- module')
+| eq : [ |- module-eq (md/pi2 M) (md/pi2 M')]
+; split eq as
+  case module-eq/i:
+  { M' : ( |- module')
+  | eq : [ |- module-eq (md/pi2 M') (md/pi2 M')]
+  ; solve [ |- module-eq/i ]
+  }
+}
 ;
 
 proof module-eq-out-invert : [ |- module-eq (md/out M) (md/out M')] ->
                                [ |- module-eq M M'] =
 / total /
-?
+intros
+{ M : ( |- module'), M' : ( |- module')
+| eq : [ |- module-eq (md/out M) (md/out M')]
+; split eq as
+  case module-eq/i:
+  { M' : ( |- module')
+  | eq : [ |- module-eq (md/out M') (md/out M')]
+  ; solve [ |- module-eq/i ]
+  }
+}
 ;
 
 proof sg-eq-named-invert/name-eq :
   [ |- sg-eq (sg/named L S) (sg/named L' S')] ->
     [ |- name-eq L L'] =
 / total /
-?
+intros
+{ L : ( |- name), S : ( |- sg), L' : ( |- name), S' : ( |- sg)
+| eq : [ |- sg-eq (sg/named L S) (sg/named L' S')]
+; split eq as
+  case sg-eq/i:
+  { L' : ( |- name), S' : ( |- sg)
+  | eq : [ |- sg-eq (sg/named L' S') (sg/named L' S')]
+  ; solve [ |- name-eq/i ]
+  }
+}
 ;
 
 proof sg-eq-named-invert/sg-eq :
   [ |- sg-eq (sg/named L S) (sg/named L' S')] ->
     [ |- sg-eq S S'] =
 / total /
-?
+intros
+{ L : ( |- name), S : ( |- sg), L' : ( |- name), S' : ( |- sg)
+| eq : [ |- sg-eq (sg/named L S) (sg/named L' S')]
+; split eq as
+  case sg-eq/i:
+  { L' : ( |- name), S' : ( |- sg)
+  | eq : [ |- sg-eq (sg/named L' S') (sg/named L' S')]
+  ; solve [ |- sg-eq/i ]
+  }
+}
 ;
 
 proof sg-eq-pi-invert/1 :
   [ |- sg-eq (sg/pi S1 (\x. S2[x])) (sg/pi S1' (\x. S2'[x]))] ->
     [ |- sg-eq S1 S1'] =
 / total /
-?
+intros
+{ S : ( |- sg),
+  S1 : (z111 : con |- sg),
+  S1' : ( |- sg),
+  S2' : (z111 : con |- sg)
+| eq : [ |- sg-eq (sg/pi S (\x. S1[x])) (sg/pi S1' (\x. S2'[x]))]
+; split eq as
+  case sg-eq/i:
+  { S1' : ( |- sg), S2' : (y114 : con |- sg)
+  | eq : [ |- sg-eq (sg/pi S1' (\x. S2'[x])) (sg/pi S1' (\x. S2'[x]))]
+  ; solve [ |- sg-eq/i ]
+  }
+}
 ;
 
 proof sg-eq-pi-invert/2 :
   [ |- sg-eq (sg/pi S1 (\x. S2[x])) (sg/pi S1' (\x. S2'[x]))] ->
     [ a : con |- sg-eq (S2[a]) (S2'[a])] =
 / total /
-?
+intros
+{ S : ( |- sg),
+  S1 : (z111 : con |- sg),
+  S1' : ( |- sg),
+  S2' : (z111 : con |- sg)
+| eq : [ |- sg-eq (sg/pi S (\x. S1[x])) (sg/pi S1' (\x. S2'[x]))]
+; split eq as
+  case sg-eq/i:
+  { S1' : ( |- sg), S2' : (y114 : con |- sg)
+  | eq : [ |- sg-eq (sg/pi S1' (\x. S2'[x])) (sg/pi S1' (\x. S2'[x]))]
+  ; solve [a : con |- sg-eq/i ]
+  }
+}
 ;
 
 proof sg-eq-sigma-invert/1 :
   [ |- sg-eq (sg/sigma S1 (\x. S2[x])) (sg/sigma S1' (\x. S2'[x]))] ->
     [ |- sg-eq S1 S1'] =
 / total /
-?
+intros
+{ S : ( |- sg),
+  S1 : (z112 : con |- sg),
+  S1' : ( |- sg),
+  S2' : (z112 : con |- sg)
+| eq : [ |- sg-eq (sg/sigma S (\x. S1[x])) (sg/sigma S1' (\x. S2'[x]))]
+; split eq as
+  case sg-eq/i:
+  { S1' : ( |- sg), S2' : (y115 : con |- sg)
+  | eq : [ |- sg-eq (sg/sigma S1' (\x. S2'[x])) (sg/sigma S1' (\x. S2'[x]))]
+  ; solve [ |- sg-eq/i ]
+  }
+}
 ;
 
 proof sg-eq-sigma-invert/2 :
   [ |- sg-eq (sg/sigma S1 (\x. S2[x])) (sg/sigma S1' (\x. S2'[x]))] ->
     [ a : con |- sg-eq (S2[a]) (S2'[a])] =
 / total /
-?
+intros
+{ S : ( |- sg),
+  S1 : (z112 : con |- sg),
+  S1' : ( |- sg),
+  S2' : (z112 : con |- sg)
+| eq : [ |- sg-eq (sg/sigma S (\x. S1[x])) (sg/sigma S1' (\x. S2'[x]))]
+; split eq as
+  case sg-eq/i:
+  { S1' : ( |- sg), S2' : (y115 : con |- sg)
+  | eq : [ |- sg-eq (sg/sigma S1' (\x. S2'[x])) (sg/sigma S1' (\x. S2'[x]))]
+  ; solve [a : con |- sg-eq/i ]
+  }
+}
 ;
 
 % Contradiction
 
 proof kind-eq-sigma-t : [ |- kind-eq (sigma K (\k. C[k])) t] -> [ |- false] =
 / total /
-?
+intros
+{ K : ( |- kind), C : (y98 : con |- kind)
+| eq : [ |- kind-eq (sigma K (\k. C[k])) t]
+; impossible eq
+}
 ;
 
 proof kind-eq-sigma-pi :
   [ |- kind-eq (sigma K (\k. C[k])) (pi K' (\k. C'[k]))] ->
     [ |- false] =
 / total /
-?
+intros
+{ K : ( |- kind),
+  C : (y98 : con |- kind),
+  K' : ( |- kind),
+  C' : (y97 : con |- kind)
+| eq : [ |- kind-eq (sigma K (\k. C[k])) (pi K' (\k. C'[k]))]
+; impossible eq
+}
 ;
 
 proof kind-eq-t-sing : [ |- kind-eq t (sing C)] -> [ |- false] =
 / total /
-?
+intros
+{ C : ( |- con)
+| eq : [ |- kind-eq t (sing C)]
+; impossible eq
+}
 ;
 
 % Respects Equality Lemmas
@@ -369,7 +846,47 @@ proof cn-equiv-resp :
   [ |- cn-equiv C1 C2 K] ->
     [ |- cn-equiv C1' C2' K'] =
 / total /
-?
+intros
+{ C : ( |- con),
+  C1' : ( |- con),
+  C1 : ( |- con),
+  C2' : ( |- con),
+  K : ( |- kind),
+  K' : ( |- kind)
+| eq : [ |- con-eq C C1'],
+  eq1 : [ |- con-eq C1 C2'],
+  eq2 : [ |- kind-eq K K'],
+  equiv : [ |- cn-equiv C C1 K]
+; split eq as
+  case con-eq/i:
+  { C1' : ( |- con),
+    C1 : ( |- con),
+    C2' : ( |- con),
+    K : ( |- kind),
+    K' : ( |- kind)
+  | eq : [ |- con-eq C1' C1'],
+    eq1 : [ |- con-eq C1 C2'],
+    eq2 : [ |- kind-eq K K'],
+    equiv : [ |- cn-equiv C1' C1 K]
+  ; split eq1 as
+    case con-eq/i:
+    { C1' : ( |- con), C2' : ( |- con), K : ( |- kind), K' : ( |- kind)
+    | eq : [ |- con-eq C1' C1'],
+      eq1 : [ |- con-eq C2' C2'],
+      eq2 : [ |- kind-eq K K'],
+      equiv : [ |- cn-equiv C1' C2' K]
+    ; split eq2 as
+      case kind-eq/i:
+      { C1' : ( |- con), C2' : ( |- con), K' : ( |- kind)
+      | eq : [ |- con-eq C1' C1'],
+        eq1 : [ |- con-eq C2' C2'],
+        eq2 : [ |- kind-eq K' K'],
+        equiv : [ |- cn-equiv C1' C2' K']
+      ; solve equiv
+      }
+    }
+  }
+}
 ;
 
 proof cn-of-resp :
@@ -378,14 +895,50 @@ proof cn-of-resp :
   [ |- cn-of C K] ->
     [ |- cn-of C' K'] =
 / total /
-?
+intros
+{ C : ( |- con), C' : ( |- con), K : ( |- kind), K' : ( |- kind)
+| eq : [ |- con-eq C C'], eq1 : [ |- kind-eq K K'], cof : [ |- cn-of C K]
+; split eq as
+  case con-eq/i:
+  { C' : ( |- con), K : ( |- kind), K' : ( |- kind)
+  | eq : [ |- con-eq C' C'], eq1 : [ |- kind-eq K K'], cof : [ |- cn-of C' K]
+  ; split eq1 as
+    case kind-eq/i:
+    { C' : ( |- con), K' : ( |- kind)
+    | eq : [ |- con-eq C' C'],
+      eq1 : [ |- kind-eq K' K'],
+      cof : [ |- cn-of C' K']
+    ; solve cof
+    }
+  }
+}
 ;
 
 proof kd-equiv-resp : [ |- kind-eq K1 K1'] ->
                         [ |- kind-eq K2 K2'] ->
                           [ |- kd-equiv K1 K2] -> [ |- kd-equiv K1' K2'] =
 / total /
-?
+intros
+{ K : ( |- kind), K1' : ( |- kind), K1 : ( |- kind), K2' : ( |- kind)
+| eq : [ |- kind-eq K K1'],
+  eq1 : [ |- kind-eq K1 K2'],
+  equiv : [ |- kd-equiv K K1]
+; split eq as
+  case kind-eq/i:
+  { K1' : ( |- kind), K1 : ( |- kind), K2' : ( |- kind)
+  | eq : [ |- kind-eq K1' K1'],
+    eq1 : [ |- kind-eq K1 K2'],
+    equiv : [ |- kd-equiv K1' K1]
+  ; split eq1 as
+    case kind-eq/i:
+    { K1' : ( |- kind), K2' : ( |- kind)
+    | eq : [ |- kind-eq K1' K1'],
+      eq1 : [ |- kind-eq K2' K2'],
+      equiv : [ |- kd-equiv K1' K2']
+    ; solve equiv
+    }
+  }
+}
 ;
 
 proof kd-sub-resp :
@@ -394,12 +947,41 @@ proof kd-sub-resp :
   [ |- kd-sub K1 K2] ->
     [ |- kd-sub K1' K2'] =
 / total /
-?
+intros
+{ K : ( |- kind), K1' : ( |- kind), K1 : ( |- kind), K2' : ( |- kind)
+| eq : [ |- kind-eq K K1'],
+  eq1 : [ |- kind-eq K1 K2'],
+  sub : [ |- kd-sub K K1]
+; split eq as
+  case kind-eq/i:
+  { K1' : ( |- kind), K1 : ( |- kind), K2' : ( |- kind)
+  | eq : [ |- kind-eq K1' K1'],
+    eq1 : [ |- kind-eq K1 K2'],
+    sub : [ |- kd-sub K1' K1]
+  ; split eq1 as
+    case kind-eq/i:
+    { K1' : ( |- kind), K2' : ( |- kind)
+    | eq : [ |- kind-eq K1' K1'],
+      eq1 : [ |- kind-eq K2' K2'],
+      sub : [ |- kd-sub K1' K2']
+    ; solve sub
+    }
+  }
+}
 ;
 
 proof kd-wf-resp : [ |- kind-eq K K'] -> [ |- kd-wf K] -> [ |- kd-wf K'] =
 / total /
-?
+intros
+{ K : ( |- kind), K' : ( |- kind)
+| eq : [ |- kind-eq K K'], wf : [ |- kd-wf K]
+; split eq as
+  case kind-eq/i:
+  { K' : ( |- kind)
+  | eq : [ |- kind-eq K' K'], wf : [ |- kd-wf K']
+  ; solve wf
+  }
+}
 ;
 
 proof md-fst-resp :
@@ -408,7 +990,25 @@ proof md-fst-resp :
   [ |- md-fst M1 C1] ->
     [ |- md-fst M2 C2] =
 / total /
-?
+intros
+{ M : ( |- module'), M1 : ( |- module'), C : ( |- con), C1 : ( |- con)
+| eq : [ |- module-eq M M1], eq1 : [ |- con-eq C C1], fst : [ |- md-fst M C]
+; split eq as
+  case module-eq/i:
+  { M1 : ( |- module'), C : ( |- con), C1 : ( |- con)
+  | eq : [ |- module-eq M1 M1],
+    eq1 : [ |- con-eq C C1],
+    fst : [ |- md-fst M1 C]
+  ; split eq1 as
+    case con-eq/i:
+    { M1 : ( |- module'), C1 : ( |- con)
+    | eq : [ |- module-eq M1 M1],
+      eq1 : [ |- con-eq C1 C1],
+      fst : [ |- md-fst M1 C1]
+    ; solve fst
+    }
+  }
+}
 ;
 
 proof md-of-resp :
@@ -419,7 +1019,76 @@ proof md-of-resp :
   [ |- md-of P F M S] ->
     [ |- md-of P' F' M' S'] =
 / total /
-?
+intros
+{ P : ( |- purity),
+  P' : ( |- purity),
+  F : ( |- sttp),
+  F' : ( |- sttp),
+  M : ( |- module'),
+  M' : ( |- module'),
+  S : ( |- sg),
+  S' : ( |- sg)
+| eq : [ |- purity-eq P P'],
+  eq1 : [ |- sttp-eq F F'],
+  eq2 : [ |- module-eq M M'],
+  eq3 : [ |- sg-eq S S'],
+  mof : [ |- md-of P F M S]
+; split eq as
+  case purity-eq/i:
+  { P' : ( |- purity),
+    F : ( |- sttp),
+    F' : ( |- sttp),
+    M : ( |- module'),
+    M' : ( |- module'),
+    S : ( |- sg),
+    S' : ( |- sg)
+  | eq : [ |- purity-eq P' P'],
+    eq1 : [ |- sttp-eq F F'],
+    eq2 : [ |- module-eq M M'],
+    eq3 : [ |- sg-eq S S'],
+    mof : [ |- md-of P' F M S]
+  ; split eq1 as
+    case sttp-eq/i:
+    { P' : ( |- purity),
+      F' : ( |- sttp),
+      M : ( |- module'),
+      M' : ( |- module'),
+      S : ( |- sg),
+      S' : ( |- sg)
+    | eq : [ |- purity-eq P' P'],
+      eq1 : [ |- sttp-eq F' F'],
+      eq2 : [ |- module-eq M M'],
+      eq3 : [ |- sg-eq S S'],
+      mof : [ |- md-of P' F' M S]
+    ; split eq2 as
+      case module-eq/i:
+      { P' : ( |- purity),
+        F' : ( |- sttp),
+        M' : ( |- module'),
+        S : ( |- sg),
+        S' : ( |- sg)
+      | eq : [ |- purity-eq P' P'],
+        eq1 : [ |- sttp-eq F' F'],
+        eq2 : [ |- module-eq M' M'],
+        eq3 : [ |- sg-eq S S'],
+        mof : [ |- md-of P' F' M' S]
+      ; split eq3 as
+        case sg-eq/i:
+        { P' : ( |- purity),
+          F' : ( |- sttp),
+          M' : ( |- module'),
+          S' : ( |- sg)
+        | eq : [ |- purity-eq P' P'],
+          eq1 : [ |- sttp-eq F' F'],
+          eq2 : [ |- module-eq M' M'],
+          eq3 : [ |- sg-eq S' S'],
+          mof : [ |- md-of P' F' M' S']
+        ; solve mof
+        }
+      }
+    }
+  }
+}
 ;
 
 proof sg-equiv-resp :
@@ -428,7 +1097,27 @@ proof sg-equiv-resp :
   [ |- sg-equiv S1 S2] ->
     [ |- sg-equiv S1' S2'] =
 / total /
-?
+intros
+{ S : ( |- sg), S1' : ( |- sg), S1 : ( |- sg), S2' : ( |- sg)
+| eq : [ |- sg-eq S S1'],
+  eq1 : [ |- sg-eq S1 S2'],
+  equiv : [ |- sg-equiv S S1]
+; split eq as
+  case sg-eq/i:
+  { S1' : ( |- sg), S1 : ( |- sg), S2' : ( |- sg)
+  | eq : [ |- sg-eq S1' S1'],
+    eq1 : [ |- sg-eq S1 S2'],
+    equiv : [ |- sg-equiv S1' S1]
+  ; split eq1 as
+    case sg-eq/i:
+    { S1' : ( |- sg), S2' : ( |- sg)
+    | eq : [ |- sg-eq S1' S1'],
+      eq1 : [ |- sg-eq S2' S2'],
+      equiv : [ |- sg-equiv S1' S2']
+    ; solve equiv
+    }
+  }
+}
 ;
 
 proof sg-fst-resp :
@@ -437,7 +1126,23 @@ proof sg-fst-resp :
   [ |- sg-fst S K] ->
     [ |- sg-fst S' K'] =
 / total /
-?
+intros
+{ S : ( |- sg), S' : ( |- sg), K : ( |- kind), K' : ( |- kind)
+| eq : [ |- sg-eq S S'], eq1 : [ |- kind-eq K K'], fst : [ |- sg-fst S K]
+; split eq as
+  case sg-eq/i:
+  { S' : ( |- sg), K : ( |- kind), K' : ( |- kind)
+  | eq : [ |- sg-eq S' S'], eq1 : [ |- kind-eq K K'], fst : [ |- sg-fst S' K]
+  ; split eq1 as
+    case kind-eq/i:
+    { S' : ( |- sg), K' : ( |- kind)
+    | eq : [ |- sg-eq S' S'],
+      eq1 : [ |- kind-eq K' K'],
+      fst : [ |- sg-fst S' K']
+    ; solve fst
+    }
+  }
+}
 ;
 
 proof sg-sub-resp :
@@ -446,7 +1151,25 @@ proof sg-sub-resp :
   [ |- sg-sub S1 S2] ->
     [ |- sg-sub S1' S2'] =
 / total /
-?
+intros
+{ S : ( |- sg), S1' : ( |- sg), S1 : ( |- sg), S2' : ( |- sg)
+| eq : [ |- sg-eq S S1'], eq1 : [ |- sg-eq S1 S2'], sub : [ |- sg-sub S S1]
+; split eq as
+  case sg-eq/i:
+  { S1' : ( |- sg), S1 : ( |- sg), S2' : ( |- sg)
+  | eq : [ |- sg-eq S1' S1'],
+    eq1 : [ |- sg-eq S1 S2'],
+    sub : [ |- sg-sub S1' S1]
+  ; split eq1 as
+    case sg-eq/i:
+    { S1' : ( |- sg), S2' : ( |- sg)
+    | eq : [ |- sg-eq S1' S1'],
+      eq1 : [ |- sg-eq S2' S2'],
+      sub : [ |- sg-sub S1' S2']
+    ; solve sub
+    }
+  }
+}
 ;
 
 proof sg-wf-resp :
@@ -454,7 +1177,16 @@ proof sg-wf-resp :
   [ |- sg-wf S] ->
     [ |- sg-wf S'] =
 / total /
-?
+intros
+{ S : ( |- sg), S' : ( |- sg)
+| eq : [ |- sg-eq S S'], wf : [ |- sg-wf S]
+; split eq as
+  case sg-eq/i:
+  { S' : ( |- sg)
+  | eq : [ |- sg-eq S' S'], wf : [ |- sg-wf S']
+  ; solve wf
+  }
+}
 ;
 
 proof step-resp :
@@ -465,7 +1197,76 @@ proof step-resp :
   [ |- step ST1 E1 ST2 E2] ->
     [ |- step ST1' E1' ST2' E2'] =
 / total /
-?
+intros
+{ ST : ( |- store),
+  ST1' : ( |- store),
+  E : ( |- term),
+  E1' : ( |- term),
+  ST1 : ( |- store),
+  ST2' : ( |- store),
+  E1 : ( |- term),
+  E2' : ( |- term)
+| eq : [ |- store-eq ST ST1'],
+  eq1 : [ |- term-eq E E1'],
+  eq2 : [ |- store-eq ST1 ST2'],
+  eq3 : [ |- term-eq E1 E2'],
+  step : [ |- step ST E ST1 E1]
+; split eq as
+  case store-eq/i:
+  { ST1' : ( |- store),
+    E : ( |- term),
+    E1' : ( |- term),
+    ST1 : ( |- store),
+    ST2' : ( |- store),
+    E1 : ( |- term),
+    E2' : ( |- term)
+  | eq : [ |- store-eq ST1' ST1'],
+    eq1 : [ |- term-eq E E1'],
+    eq2 : [ |- store-eq ST1 ST2'],
+    eq3 : [ |- term-eq E1 E2'],
+    step : [ |- step ST1' E ST1 E1]
+  ; split eq1 as
+    case term-eq/i:
+    { ST1' : ( |- store),
+      E1' : ( |- term),
+      ST1 : ( |- store),
+      ST2' : ( |- store),
+      E1 : ( |- term),
+      E2' : ( |- term)
+    | eq : [ |- store-eq ST1' ST1'],
+      eq1 : [ |- term-eq E1' E1'],
+      eq2 : [ |- store-eq ST1 ST2'],
+      eq3 : [ |- term-eq E1 E2'],
+      step : [ |- step ST1' E1' ST1 E1]
+    ; split eq2 as
+      case store-eq/i:
+      { ST1' : ( |- store),
+        E1' : ( |- term),
+        ST2' : ( |- store),
+        E1 : ( |- term),
+        E2' : ( |- term)
+      | eq : [ |- store-eq ST1' ST1'],
+        eq1 : [ |- term-eq E1' E1'],
+        eq2 : [ |- store-eq ST2' ST2'],
+        eq3 : [ |- term-eq E1 E2'],
+        step : [ |- step ST1' E1' ST2' E1]
+      ; split eq3 as
+        case term-eq/i:
+        { ST1' : ( |- store),
+          E1' : ( |- term),
+          ST2' : ( |- store),
+          E2' : ( |- term)
+        | eq : [ |- store-eq ST1' ST1'],
+          eq1 : [ |- term-eq E1' E1'],
+          eq2 : [ |- store-eq ST2' ST2'],
+          eq3 : [ |- term-eq E2' E2'],
+          step : [ |- step ST1' E1' ST2' E2']
+        ; solve step
+        }
+      }
+    }
+  }
+}
 ;
 
 proof step-md-resp :
@@ -476,7 +1277,76 @@ proof step-md-resp :
   [ |- step-md ST1 M1 ST2 M2] ->
     [ |- step-md ST1' M1' ST2' M2'] =
 / total /
-?
+intros
+{ ST : ( |- store),
+  ST1' : ( |- store),
+  M : ( |- module'),
+  M1' : ( |- module'),
+  ST1 : ( |- store),
+  ST2' : ( |- store),
+  M1 : ( |- module'),
+  M2' : ( |- module')
+| eq : [ |- store-eq ST ST1'],
+  eq1 : [ |- module-eq M M1'],
+  eq2 : [ |- store-eq ST1 ST2'],
+  eq3 : [ |- module-eq M1 M2'],
+  step : [ |- step-md ST M ST1 M1]
+; split eq as
+  case store-eq/i:
+  { ST1' : ( |- store),
+    M : ( |- module'),
+    M1' : ( |- module'),
+    ST1 : ( |- store),
+    ST2' : ( |- store),
+    M1 : ( |- module'),
+    M2' : ( |- module')
+  | eq : [ |- store-eq ST1' ST1'],
+    eq1 : [ |- module-eq M M1'],
+    eq2 : [ |- store-eq ST1 ST2'],
+    eq3 : [ |- module-eq M1 M2'],
+    step : [ |- step-md ST1' M ST1 M1]
+  ; split eq1 as
+    case module-eq/i:
+    { ST1' : ( |- store),
+      M1' : ( |- module'),
+      ST1 : ( |- store),
+      ST2' : ( |- store),
+      M1 : ( |- module'),
+      M2' : ( |- module')
+    | eq : [ |- store-eq ST1' ST1'],
+      eq1 : [ |- module-eq M1' M1'],
+      eq2 : [ |- store-eq ST1 ST2'],
+      eq3 : [ |- module-eq M1 M2'],
+      step : [ |- step-md ST1' M1' ST1 M1]
+    ; split eq2 as
+      case store-eq/i:
+      { ST1' : ( |- store),
+        M1' : ( |- module'),
+        ST2' : ( |- store),
+        M1 : ( |- module'),
+        M2' : ( |- module')
+      | eq : [ |- store-eq ST1' ST1'],
+        eq1 : [ |- module-eq M1' M1'],
+        eq2 : [ |- store-eq ST2' ST2'],
+        eq3 : [ |- module-eq M1 M2'],
+        step : [ |- step-md ST1' M1' ST2' M1]
+      ; split eq3 as
+        case module-eq/i:
+        { ST1' : ( |- store),
+          M1' : ( |- module'),
+          ST2' : ( |- store),
+          M2' : ( |- module')
+        | eq : [ |- store-eq ST1' ST1'],
+          eq1 : [ |- module-eq M1' M1'],
+          eq2 : [ |- store-eq ST2' ST2'],
+          eq3 : [ |- module-eq M2' M2'],
+          step : [ |- step-md ST1' M1' ST2' M2']
+        ; solve step
+        }
+      }
+    }
+  }
+}
 ;
 
 proof tm-of-resp :
@@ -486,7 +1356,47 @@ proof tm-of-resp :
   [ |- tm-of F E T] ->
     [ |- tm-of F' E' T'] =
 / total /
-?
+intros
+{ F : ( |- sttp),
+  F' : ( |- sttp),
+  E : ( |- term),
+  E' : ( |- term),
+  T : ( |- con),
+  T' : ( |- con)
+| eq : [ |- sttp-eq F F'],
+  eq1 : [ |- term-eq E E'],
+  eq2 : [ |- con-eq T T'],
+  tof : [ |- tm-of F E T]
+; split eq as
+  case sttp-eq/i:
+  { F' : ( |- sttp),
+    E : ( |- term),
+    E' : ( |- term),
+    T : ( |- con),
+    T' : ( |- con)
+  | eq : [ |- sttp-eq F' F'],
+    eq1 : [ |- term-eq E E'],
+    eq2 : [ |- con-eq T T'],
+    tof : [ |- tm-of F' E T]
+  ; split eq1 as
+    case term-eq/i:
+    { F' : ( |- sttp), E' : ( |- term), T : ( |- con), T' : ( |- con)
+    | eq : [ |- sttp-eq F' F'],
+      eq1 : [ |- term-eq E' E'],
+      eq2 : [ |- con-eq T T'],
+      tof : [ |- tm-of F' E' T]
+    ; split eq2 as
+      case con-eq/i:
+      { F' : ( |- sttp), E' : ( |- term), T' : ( |- con)
+      | eq : [ |- sttp-eq F' F'],
+        eq1 : [ |- term-eq E' E'],
+        eq2 : [ |- con-eq T' T'],
+        tof : [ |- tm-of F' E' T']
+      ; solve tof
+      }
+    }
+  }
+}
 ;
 
 proof value-resp :
@@ -494,7 +1404,16 @@ proof value-resp :
   [ |- value E] ->
     [ |- value E'] =
 / total /
-?
+intros
+{ E : ( |- term), E' : ( |- term)
+| eq : [ |- term-eq E E'], val : [ |- value E]
+; split eq as
+  case term-eq/i:
+  { E' : ( |- term)
+  | eq : [ |- term-eq E' E'], val : [ |- value E']
+  ; solve val
+  }
+}
 ;
 
 proof value-md-resp :
@@ -502,5 +1421,14 @@ proof value-md-resp :
   [ |- value-md M] ->
     [ |- value-md M'] =
 / total /
-?
+intros
+{ M : ( |- module'), M' : ( |- module')
+| eq : [ |- module-eq M M'], val : [ |- value-md M]
+; split eq as
+  case module-eq/i:
+  { M' : ( |- module')
+  | eq : [ |- module-eq M' M'], val : [ |- value-md M']
+  ; solve val
+  }
+}
 ;

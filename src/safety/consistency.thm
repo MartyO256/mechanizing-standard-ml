@@ -142,6 +142,10 @@ and tunmap : etp -> kind -> type =
 
 | tunmap/one : tunmap eone one
 ;
+--name map Dmap map.
+--name tmap Dtmap tmap.
+--name unmap Dunmap unmap.
+--name tunmap Dtunmap tunmap.
 
 schema unmap-block = some [a : con] block (x : eterm, xt : unmap x a);
 
@@ -155,7 +159,34 @@ proof unmap-resp :
   [g |- unmap M C] ->
     [g |- unmap M' C'] =
 / total /
-?
+intros
+{ g : conblock+unmap-block,
+  M : (g |- eterm),
+  M' : (g |- eterm),
+  C : (g |- con),
+  C' : (g |- con)
+| eq : [g |- eterm-eq M M'],
+  eq1 : [g |- con-eq C C'],
+  unmap : [g |- unmap M C]
+; split eq as
+  case eterm-eq/i:
+  { g : conblock+unmap-block,
+    M' : (g |- eterm),
+    C : (g |- con),
+    C' : (g |- con)
+  | eq : [g |- eterm-eq M' M'],
+    eq1 : [g |- con-eq C C'],
+    unmap : [g |- unmap M' C]
+  ; split eq1 as
+    case con-eq/i:
+    { g : conblock+unmap-block, M' : (g |- eterm), C' : (g |- con)
+    | eq : [g |- eterm-eq M' M'],
+      eq1 : [g |- con-eq C' C'],
+      unmap : [g |- unmap M' C']
+    ; solve unmap
+    }
+  }
+}
 ;
 
 proof tunmap-resp :
@@ -165,7 +196,34 @@ proof tunmap-resp :
   [g |- tunmap A K] ->
     [g |- tunmap A' K'] =
 / total /
-?
+intros
+{ g : conblock+unmap-block,
+  A : (g |- etp),
+  A' : (g |- etp),
+  K : (g |- kind),
+  K' : (g |- kind)
+| eq : [g |- etp-eq A A'],
+  eq1 : [g |- kind-eq K K'],
+  tunmap : [g |- tunmap A K]
+; split eq as
+  case etp-eq/i:
+  { g : conblock+unmap-block,
+    A' : (g |- etp),
+    K : (g |- kind),
+    K' : (g |- kind)
+  | eq : [g |- etp-eq A' A'],
+    eq1 : [g |- kind-eq K K'],
+    tunmap : [g |- tunmap A' K]
+  ; split eq1 as
+    case kind-eq/i:
+    { g : conblock+unmap-block, A' : (g |- etp), K' : (g |- kind)
+    | eq : [g |- etp-eq A' A'],
+      eq1 : [g |- kind-eq K' K'],
+      tunmap : [g |- tunmap A' K']
+    ; solve tunmap
+    }
+  }
+}
 ;
 
 % Injectivity Lemmas
@@ -174,12 +232,20 @@ proof injective-prod/a :
   [ |- cn-equiv (prod T1a T1b) (prod T2a T2b) t] ->
     [ |- cn-equiv T1a T2a t] =
 / total /
-?
+intros
+{ T1a : ( |- con), T1b : ( |- con), T2a : ( |- con), T2b : ( |- con)
+| equiv : [ |- cn-equiv (prod T1a T1b) (prod T2a T2b) t]
+; ?
+}
 ;
 
 proof injective-prod/b :
   [ |- cn-equiv (prod T1a T1b) (prod T2a T2b) t] ->
     [ |- cn-equiv T1b T2b t] =
 / total /
-?
+intros
+{ T1a : ( |- con), T1b : ( |- con), T2a : ( |- con), T2b : ( |- con)
+| equiv : [ |- cn-equiv (prod T1a T1b) (prod T2a T2b) t]
+; ?
+}
 ;

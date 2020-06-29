@@ -3,12 +3,14 @@
 LF location : type =
 | location/i : nat -> location
 ;
+--name location Dloc loc.
 
 LF loc-lt : location -> location -> type =
 | loc-lt/i : lt N N' -> loc-lt (location/i N) (location/i N')
 ;
+--name loc-lt Dlt lt.
 
-proof loc-lt/i' : [ |- lt N N'] -> [ |- loc-lt (location/i N) (location/i N')] =
+proof loc-lt/i : [ |- lt N N'] -> [ |- loc-lt (location/i N) (location/i N')] =
 / total /
 intros
 { N : ( |- nat), N' : ( |- nat)
@@ -26,6 +28,7 @@ LF loc-neq : location -> location -> type =
 LF loc-succ : location -> location -> type =
 | loc-succ/i : loc-succ (location/i N) (location/i (succ N))
 ;
+--name loc-succ Dsucc succ.
 
 LF compare-loc : location -> location -> type =
 | compare-loc/eq : compare-loc L L

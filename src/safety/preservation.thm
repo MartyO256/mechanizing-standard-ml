@@ -4,20 +4,54 @@ LF extends : sttp -> sttp -> type =
 | extends/nil : extends F F
 | extends/cons : extends F1 F2 -> extends F1 (st/cons F2 _ _)
 ;
+--name extends Dextends extends.
 
 proof monotonicity-lookup :
   [ |- st-lookup F L ET] ->
   [ |- extends F F'] ->
     [ |- st-lookup F' L ET] =
 / total 2 /
-?
+intros
+{ F : ( |- sttp), L : ( |- location), ET : ( |- entp), F' : ( |- sttp)
+| lookup : [ |- st-lookup F L ET], x : [ |- extends F F']
+; split x as
+  case extends/cons:
+  { F : ( |- sttp),
+    L : ( |- location),
+    ET : ( |- entp),
+    F2 : ( |- sttp),
+    X : ( |- location),
+    ET1 : ( |- entp),
+    Dextends : ( |- extends F F2)
+  | lookup : [ |- st-lookup F L ET], x : [ |- extends F (st/cons F2 X ET1)]
+  ; by monotonicity-lookup lookup [ |- Dextends] as Q unboxed;
+    solve [ |- st-lookup/miss Q]
+  }
+  case extends/nil:
+  { F' : ( |- sttp), L : ( |- location), ET : ( |- entp)
+  | lookup : [ |- st-lookup F' L ET], x : [ |- extends F' F']
+  ; solve lookup
+  }
+}
 ;
 
 % Locations
 
 proof loc-lt-antisymm : [ |- loc-lt L L] -> [ |- false] =
 / total /
-?
+intros
+{ L : ( |- location)
+| lt : [ |- loc-lt L L]
+; split lt as
+  case loc-lt/i:
+  { N : ( |- nat), Dlt : ( |- lt N N)
+  | lt : [ |- loc-lt (location/i N) (location/i N)]
+  ; suffices by lt-antisymm toshow
+    [ |- lt N N] {
+      solve [ |- Dlt]
+    }
+  }
+}
 ;
 
 proof loc-lt-trans :
@@ -25,12 +59,45 @@ proof loc-lt-trans :
   [ |- loc-lt L2 L3] ->
     [ |- loc-lt L1 L3] =
 / total /
-?
+intros
+{ L : ( |- location), L1 : ( |- location), L2 : ( |- location)
+| lt : [ |- loc-lt L L1], lt1 : [ |- loc-lt L1 L2]
+; split lt as
+  case loc-lt/i:
+  { N : ( |- nat), N1 : ( |- nat), L2 : ( |- location), Dlt : ( |- lt N N1)
+  | lt : [ |- loc-lt (location/i N) (location/i N1)],
+    lt1 : [ |- loc-lt (location/i N1) L2]
+  ; split lt1 as
+    case loc-lt/i:
+    { N : ( |- nat),
+      N1 : ( |- nat),
+      N3 : ( |- nat),
+      Dlt : ( |- lt N N1),
+      Dlt1 : ( |- lt N1 N3)
+    | lt : [ |- loc-lt (location/i N) (location/i N1)],
+      lt1 : [ |- loc-lt (location/i N1) (location/i N3)]
+    ; by lt-trans [ |- Dlt] [ |- Dlt1] as Dlt2 unboxed;
+      solve [ |- loc-lt/i Dlt2]
+    }
+  }
+}
 ;
 
 proof loc-succ-lt : [ |- loc-succ L L'] -> [ |- loc-lt L L'] =
 / total /
-?
+intros
+{ L : ( |- location), L' : ( |- location)
+| succ : [ |- loc-succ L L']
+; split succ as
+  case loc-succ/i:
+  { N : ( |- nat)
+  | succ : [ |- loc-succ (location/i N) (location/i (succ N))]
+  ; suffices by loc-lt/i toshow
+    [ |- lt N (succ N)] {
+      suffices by lt-succ [ |- N] toshow
+    }
+  }
+}
 ;
 
 % Stores
@@ -40,7 +107,27 @@ proof store-bounds-increase :
   [ |- loc-lt L L'] ->
     [ |- store-bounds ST L'] =
 / total 1 /
-?
+intros
+{ ST : ( |- store), L : ( |- location), L' : ( |- location)
+| x : [ |- store-bounds ST L], lt : [ |- loc-lt L L']
+; split x as
+  case store-bounds/cons:
+  { ST1 : ( |- store),
+    X : ( |- location),
+    EN : ( |- entry),
+    L : ( |- location),
+    L' : ( |- location),
+    Dlt : ( |- loc-lt X L)
+  | x : [ |- store-bounds (store/cons ST1 X EN) L], lt : [ |- loc-lt L L']
+  ; by loc-lt-trans [ |- Dlt] lt as Dlt1 unboxed;
+    solve [ |- store-bounds/cons Dlt1]
+  }
+  case store-bounds/nil:
+  { L : ( |- location), L' : ( |- location)
+  | x : [ |- store-bounds store/nil L], lt : [ |- loc-lt L L']
+  ; solve [ |- store-bounds/nil ]
+  }
+}
 ;
 
 proof store-bounds-update :
@@ -48,7 +135,65 @@ proof store-bounds-update :
   [ |- store-update ST X EN ST'] ->
     [ |- store-bounds ST' L] =
 / total /
-?
+intros
+{ ST : ( |- store),
+  L : ( |- location),
+  X : ( |- location),
+  EN : ( |- entry),
+  ST' : ( |- store)
+| bounds : [ |- store-bounds ST L], x : [ |- store-update ST X EN ST']
+; split bounds as
+  case store-bounds/cons:
+  { ST1 : ( |- store),
+    X1 : ( |- location),
+    EN1 : ( |- entry),
+    L : ( |- location),
+    X : ( |- location),
+    EN : ( |- entry),
+    ST' : ( |- store),
+    Dlt : ( |- loc-lt X1 L)
+  | bounds : [ |- store-bounds (store/cons ST1 X1 EN1) L],
+    x : [ |- store-update (store/cons ST1 X1 EN1) X EN ST']
+  ; split x as
+    case store-update/miss:
+    { ST1 : ( |- store),
+      X1 : ( |- location),
+      EN1 : ( |- entry),
+      L : ( |- location),
+      X : ( |- location),
+      EN : ( |- entry),
+      ST3 : ( |- store),
+      Dlt : ( |- loc-lt X1 L),
+      Dupdate : ( |- store-update ST1 X EN ST3)
+    | bounds : [ |- store-bounds (store/cons ST1 X1 EN1) L],
+      x :
+        [ |-
+           store-update (store/cons ST1 X1 EN1) X EN (store/cons ST3 X1 EN1)]
+    ; solve [ |- store-bounds/cons Dlt]
+    }
+    case store-update/hit:
+    { ST1 : ( |- store),
+      X : ( |- location),
+      EN1 : ( |- entry),
+      L : ( |- location),
+      EN : ( |- entry),
+      Dlt : ( |- loc-lt X L)
+    | bounds : [ |- store-bounds (store/cons ST1 X EN1) L],
+      x :
+        [ |- store-update (store/cons ST1 X EN1) X EN (store/cons ST1 X EN)]
+    ; solve [ |- store-bounds/cons Dlt]
+    }
+  }
+  case store-bounds/nil:
+  { L : ( |- location),
+    X : ( |- location),
+    EN : ( |- entry),
+    ST' : ( |- store)
+  | bounds : [ |- store-bounds store/nil L],
+    x : [ |- store-update store/nil X EN ST']
+  ; impossible x
+  }
+}
 ;
 
 proof store-bounds-update :
@@ -56,7 +201,65 @@ proof store-bounds-update :
   [ |- store-update ST X EN ST'] ->
     [ |- store-bounds ST' L] =
 / total /
-?
+intros
+{ ST : ( |- store),
+  L : ( |- location),
+  X : ( |- location),
+  EN : ( |- entry),
+  ST' : ( |- store)
+| bounds : [ |- store-bounds ST L], x : [ |- store-update ST X EN ST']
+; split bounds as
+  case store-bounds/cons:
+  { ST1 : ( |- store),
+    X1 : ( |- location),
+    EN1 : ( |- entry),
+    L : ( |- location),
+    X : ( |- location),
+    EN : ( |- entry),
+    ST' : ( |- store),
+    Dlt : ( |- loc-lt X1 L)
+  | bounds : [ |- store-bounds (store/cons ST1 X1 EN1) L],
+    x : [ |- store-update (store/cons ST1 X1 EN1) X EN ST']
+  ; split x as
+    case store-update/miss:
+    { ST1 : ( |- store),
+      X1 : ( |- location),
+      EN1 : ( |- entry),
+      L : ( |- location),
+      X : ( |- location),
+      EN : ( |- entry),
+      ST3 : ( |- store),
+      Dlt : ( |- loc-lt X1 L),
+      Dupdate : ( |- store-update ST1 X EN ST3)
+    | bounds : [ |- store-bounds (store/cons ST1 X1 EN1) L],
+      x :
+        [ |-
+           store-update (store/cons ST1 X1 EN1) X EN (store/cons ST3 X1 EN1)]
+    ; solve [ |- store-bounds/cons Dlt]
+    }
+    case store-update/hit:
+    { ST1 : ( |- store),
+      X : ( |- location),
+      EN1 : ( |- entry),
+      L : ( |- location),
+      EN : ( |- entry),
+      Dlt : ( |- loc-lt X L)
+    | bounds : [ |- store-bounds (store/cons ST1 X EN1) L],
+      x :
+        [ |- store-update (store/cons ST1 X EN1) X EN (store/cons ST1 X EN)]
+    ; solve [ |- store-bounds/cons Dlt]
+    }
+  }
+  case store-bounds/nil:
+  { L : ( |- location),
+    X : ( |- location),
+    EN : ( |- entry),
+    ST' : ( |- store)
+  | bounds : [ |- store-bounds store/nil L],
+    x : [ |- store-update store/nil X EN ST']
+  ; impossible x
+  }
+}
 ;
 
 proof store-lookup-bound :
@@ -65,7 +268,111 @@ proof store-lookup-bound :
   [ |- store-bounds ST L] ->
     [ |- false] =
 / total 1 /
-?
+intros
+{ F : ( |- sttp),
+  ST : ( |- store),
+  F1 : ( |- sttp),
+  L : ( |- location),
+  EN : ( |- entry)
+| x : [ |- store-of F ST F1],
+  x1 : [ |- store-lookup ST L EN],
+  bounds : [ |- store-bounds ST L]
+; split x as
+  case store-of/cons:
+  { F : ( |- sttp),
+    ST1 : ( |- store),
+    X : ( |- location),
+    EN1 : ( |- entry),
+    F3 : ( |- sttp),
+    ET : ( |- entp),
+    L : ( |- location),
+    EN : ( |- entry),
+    Dbounds : ( |- store-bounds ST1 X),
+    X1 : ( |- entry-of F EN1 ET),
+    Dof : ( |- store-of F ST1 F3)
+  | x : [ |- store-of F (store/cons ST1 X EN1) (st/cons F3 X ET)],
+    x1 : [ |- store-lookup (store/cons ST1 X EN1) L EN],
+    bounds : [ |- store-bounds (store/cons ST1 X EN1) L]
+  ; split x1 as
+    case store-lookup/miss:
+    { F : ( |- sttp),
+      ST1 : ( |- store),
+      X : ( |- location),
+      EN1 : ( |- entry),
+      F3 : ( |- sttp),
+      ET : ( |- entp),
+      L : ( |- location),
+      EN : ( |- entry),
+      Dbounds : ( |- store-bounds ST1 X),
+      X1 : ( |- entry-of F EN1 ET),
+      Dof : ( |- store-of F ST1 F3),
+      Dlookup : ( |- store-lookup ST1 L EN)
+    | x : [ |- store-of F (store/cons ST1 X EN1) (st/cons F3 X ET)],
+      x1 : [ |- store-lookup (store/cons ST1 X EN1) L EN],
+      bounds : [ |- store-bounds (store/cons ST1 X EN1) L]
+    ; split bounds as
+      case store-bounds/cons:
+      { F : ( |- sttp),
+        ST1 : ( |- store),
+        X : ( |- location),
+        EN1 : ( |- entry),
+        F3 : ( |- sttp),
+        ET : ( |- entp),
+        L : ( |- location),
+        EN : ( |- entry),
+        Dbounds : ( |- store-bounds ST1 X),
+        X1 : ( |- entry-of F EN1 ET),
+        Dof : ( |- store-of F ST1 F3),
+        Dlookup : ( |- store-lookup ST1 L EN),
+        Dlt : ( |- loc-lt X L)
+      | x : [ |- store-of F (store/cons ST1 X EN1) (st/cons F3 X ET)],
+        x1 : [ |- store-lookup (store/cons ST1 X EN1) L EN],
+        bounds : [ |- store-bounds (store/cons ST1 X EN1) L]
+      ; solve
+          store-lookup-bound [ |- Dof] [ |- Dlookup]
+            (store-bounds-increase [ |- Dbounds] [ |- Dlt])
+      }
+    }
+    case store-lookup/hit:
+    { F : ( |- sttp),
+      ST1 : ( |- store),
+      L : ( |- location),
+      EN : ( |- entry),
+      F3 : ( |- sttp),
+      ET : ( |- entp),
+      Dbounds : ( |- store-bounds ST1 L),
+      X1 : ( |- entry-of F EN ET),
+      Dof : ( |- store-of F ST1 F3)
+    | x : [ |- store-of F (store/cons ST1 L EN) (st/cons F3 L ET)],
+      x1 : [ |- store-lookup (store/cons ST1 L EN) L EN],
+      bounds : [ |- store-bounds (store/cons ST1 L EN) L]
+    ; split bounds as
+      case store-bounds/cons:
+      { F : ( |- sttp),
+        ST1 : ( |- store),
+        L : ( |- location),
+        EN : ( |- entry),
+        F3 : ( |- sttp),
+        ET : ( |- entp),
+        Dbounds : ( |- store-bounds ST1 L),
+        X1 : ( |- entry-of F EN ET),
+        Dof : ( |- store-of F ST1 F3),
+        Dlt : ( |- loc-lt L L)
+      | x : [ |- store-of F (store/cons ST1 L EN) (st/cons F3 L ET)],
+        x1 : [ |- store-lookup (store/cons ST1 L EN) L EN],
+        bounds : [ |- store-bounds (store/cons ST1 L EN) L]
+      ; solve loc-lt-antisymm [ |- Dlt]
+      }
+    }
+  }
+  case store-of/nil:
+  { F : ( |- sttp), L : ( |- location), EN : ( |- entry)
+  | x : [ |- store-of F store/nil st/nil],
+    x1 : [ |- store-lookup store/nil L EN],
+    bounds : [ |- store-bounds store/nil L]
+  ; impossible x1
+  }
+}
 ;
 
 proof store-update-bound :
@@ -74,7 +381,122 @@ proof store-update-bound :
   [ |- store-bounds ST L] ->
     [ |- false] =
 / total 1 /
-?
+intros
+{ F : ( |- sttp),
+  ST : ( |- store),
+  F' : ( |- sttp),
+  L : ( |- location),
+  EN : ( |- entry),
+  ST' : ( |- store)
+| x : [ |- store-of F ST F'],
+  x1 : [ |- store-update ST L EN ST'],
+  bounds : [ |- store-bounds ST L]
+; split x as
+  case store-of/cons:
+  { F : ( |- sttp),
+    ST1 : ( |- store),
+    X : ( |- location),
+    EN1 : ( |- entry),
+    F2 : ( |- sttp),
+    ET : ( |- entp),
+    L : ( |- location),
+    EN : ( |- entry),
+    ST' : ( |- store),
+    Dbounds : ( |- store-bounds ST1 X),
+    X1 : ( |- entry-of F EN1 ET),
+    Dof : ( |- store-of F ST1 F2)
+  | x : [ |- store-of F (store/cons ST1 X EN1) (st/cons F2 X ET)],
+    x1 : [ |- store-update (store/cons ST1 X EN1) L EN ST'],
+    bounds : [ |- store-bounds (store/cons ST1 X EN1) L]
+  ; split x1 as
+    case store-update/miss:
+    { F : ( |- sttp),
+      ST1 : ( |- store),
+      X : ( |- location),
+      EN1 : ( |- entry),
+      F2 : ( |- sttp),
+      ET : ( |- entp),
+      L : ( |- location),
+      EN : ( |- entry),
+      ST3 : ( |- store),
+      Dbounds : ( |- store-bounds ST1 X),
+      X1 : ( |- entry-of F EN1 ET),
+      Dof : ( |- store-of F ST1 F2),
+      Dupdate : ( |- store-update ST1 L EN ST3)
+    | x : [ |- store-of F (store/cons ST1 X EN1) (st/cons F2 X ET)],
+      x1 :
+        [ |- store-update (store/cons ST1 X EN1) L EN (store/cons ST3 X EN1)],
+      bounds : [ |- store-bounds (store/cons ST1 X EN1) L]
+    ; split bounds as
+      case store-bounds/cons:
+      { F : ( |- sttp),
+        ST1 : ( |- store),
+        X : ( |- location),
+        EN1 : ( |- entry),
+        F2 : ( |- sttp),
+        ET : ( |- entp),
+        L : ( |- location),
+        EN : ( |- entry),
+        ST3 : ( |- store),
+        Dbounds : ( |- store-bounds ST1 X),
+        X1 : ( |- entry-of F EN1 ET),
+        Dof : ( |- store-of F ST1 F2),
+        Dupdate : ( |- store-update ST1 L EN ST3),
+        Dlt : ( |- loc-lt X L)
+      | x : [ |- store-of F (store/cons ST1 X EN1) (st/cons F2 X ET)],
+        x1 :
+          [ |-
+             store-update (store/cons ST1 X EN1) L EN (store/cons ST3 X EN1)],
+        bounds : [ |- store-bounds (store/cons ST1 X EN1) L]
+      ; solve
+          store-update-bound [ |- Dof] [ |- Dupdate]
+            (store-bounds-increase [ |- Dbounds] [ |- Dlt])
+      }
+    }
+    case store-update/hit:
+    { F : ( |- sttp),
+      ST1 : ( |- store),
+      L : ( |- location),
+      EN1 : ( |- entry),
+      F2 : ( |- sttp),
+      ET : ( |- entp),
+      EN : ( |- entry),
+      Dbounds : ( |- store-bounds ST1 L),
+      X1 : ( |- entry-of F EN1 ET),
+      Dof : ( |- store-of F ST1 F2)
+    | x : [ |- store-of F (store/cons ST1 L EN1) (st/cons F2 L ET)],
+      x1 :
+        [ |- store-update (store/cons ST1 L EN1) L EN (store/cons ST1 L EN)],
+      bounds : [ |- store-bounds (store/cons ST1 L EN1) L]
+    ; split bounds as
+      case store-bounds/cons:
+      { F : ( |- sttp),
+        ST1 : ( |- store),
+        L : ( |- location),
+        EN1 : ( |- entry),
+        F2 : ( |- sttp),
+        ET : ( |- entp),
+        EN : ( |- entry),
+        Dbounds : ( |- store-bounds ST1 L),
+        X1 : ( |- entry-of F EN1 ET),
+        Dof : ( |- store-of F ST1 F2),
+        Dlt : ( |- loc-lt L L)
+      | x : [ |- store-of F (store/cons ST1 L EN1) (st/cons F2 L ET)],
+        x1 :
+          [ |- store-update (store/cons ST1 L EN1) L EN (store/cons ST1 L EN)],
+        bounds : [ |- store-bounds (store/cons ST1 L EN1) L]
+      ; solve loc-lt-antisymm [ |- Dlt]
+      }
+    }
+  }
+  case store-of/nil:
+  { F : ( |- sttp), L : ( |- location), EN : ( |- entry), ST' : ( |- store)
+  | x : [ |- store-of F store/nil st/nil],
+    x1 : [ |- store-update store/nil L EN ST'],
+    bounds : [ |- store-bounds store/nil L]
+  ; impossible x1
+  }
+}
 ;
 
 proof sttp-lookup-bound :
@@ -83,7 +505,111 @@ proof sttp-lookup-bound :
   [ |- store-bounds ST L] ->
     [ |- false] =
 / total 1 /
-?
+intros
+{ F' : ( |- sttp),
+  ST : ( |- store),
+  F : ( |- sttp),
+  L : ( |- location),
+  ET : ( |- entp)
+| x : [ |- store-of F' ST F],
+  lookup : [ |- st-lookup F L ET],
+  bounds : [ |- store-bounds ST L]
+; split x as
+  case store-of/cons:
+  { F' : ( |- sttp),
+    ST1 : ( |- store),
+    X : ( |- location),
+    EN : ( |- entry),
+    F2 : ( |- sttp),
+    ET1 : ( |- entp),
+    L : ( |- location),
+    ET : ( |- entp),
+    Dbounds : ( |- store-bounds ST1 X),
+    X1 : ( |- entry-of F' EN ET1),
+    Dof : ( |- store-of F' ST1 F2)
+  | x : [ |- store-of F' (store/cons ST1 X EN) (st/cons F2 X ET1)],
+    lookup : [ |- st-lookup (st/cons F2 X ET1) L ET],
+    bounds : [ |- store-bounds (store/cons ST1 X EN) L]
+  ; split lookup as
+    case st-lookup/miss:
+    { F' : ( |- sttp),
+      ST1 : ( |- store),
+      X : ( |- location),
+      EN : ( |- entry),
+      F2 : ( |- sttp),
+      ET1 : ( |- entp),
+      L : ( |- location),
+      ET : ( |- entp),
+      Dbounds : ( |- store-bounds ST1 X),
+      X1 : ( |- entry-of F' EN ET1),
+      Dof : ( |- store-of F' ST1 F2),
+      Dlookup : ( |- st-lookup F2 L ET)
+    | x : [ |- store-of F' (store/cons ST1 X EN) (st/cons F2 X ET1)],
+      lookup : [ |- st-lookup (st/cons F2 X ET1) L ET],
+      bounds : [ |- store-bounds (store/cons ST1 X EN) L]
+    ; split bounds as
+      case store-bounds/cons:
+      { F' : ( |- sttp),
+        ST1 : ( |- store),
+        X : ( |- location),
+        EN : ( |- entry),
+        F2 : ( |- sttp),
+        ET1 : ( |- entp),
+        L : ( |- location),
+        ET : ( |- entp),
+        Dbounds : ( |- store-bounds ST1 X),
+        X1 : ( |- entry-of F' EN ET1),
+        Dof : ( |- store-of F' ST1 F2),
+        Dlookup : ( |- st-lookup F2 L ET),
+        Dlt : ( |- loc-lt X L)
+      | x : [ |- store-of F' (store/cons ST1 X EN) (st/cons F2 X ET1)],
+        lookup : [ |- st-lookup (st/cons F2 X ET1) L ET],
+        bounds : [ |- store-bounds (store/cons ST1 X EN) L]
+      ; solve
+          sttp-lookup-bound [ |- Dof] [ |- Dlookup]
+            (store-bounds-increase [ |- Dbounds] [ |- Dlt])
+      }
+    }
+    case st-lookup/hit:
+    { F' : ( |- sttp),
+      ST1 : ( |- store),
+      L : ( |- location),
+      EN : ( |- entry),
+      F2 : ( |- sttp),
+      ET : ( |- entp),
+      Dbounds : ( |- store-bounds ST1 L),
+      X1 : ( |- entry-of F' EN ET),
+      Dof : ( |- store-of F' ST1 F2)
+    | x : [ |- store-of F' (store/cons ST1 L EN) (st/cons F2 L ET)],
+      lookup : [ |- st-lookup (st/cons F2 L ET) L ET],
+      bounds : [ |- store-bounds (store/cons ST1 L EN) L]
+    ; split bounds as
+      case store-bounds/cons:
+      { F' : ( |- sttp),
+        ST1 : ( |- store),
+        L : ( |- location),
+        EN : ( |- entry),
+        F2 : ( |- sttp),
+        ET : ( |- entp),
+        Dbounds : ( |- store-bounds ST1 L),
+        X1 : ( |- entry-of F' EN ET),
+        Dof : ( |- store-of F' ST1 F2),
+        Dlt : ( |- loc-lt L L)
+      | x : [ |- store-of F' (store/cons ST1 L EN) (st/cons F2 L ET)],
+        lookup : [ |- st-lookup (st/cons F2 L ET) L ET],
+        bounds : [ |- store-bounds (store/cons ST1 L EN) L]
+      ; solve loc-lt-antisymm [ |- Dlt]
+      }
+    }
+  }
+  case store-of/nil:
+  { F' : ( |- sttp), L : ( |- location), ET : ( |- entp)
+  | x : [ |- store-of F' store/nil st/nil],
+    lookup : [ |- st-lookup st/nil L ET],
+    bounds : [ |- store-bounds store/nil L]
+  ; impossible lookup
+  }
+}
 ;
 
 proof store-lookup-bound :
@@ -92,7 +618,111 @@ proof store-lookup-bound :
   [ |- store-bounds ST L] ->
     [ |- false] =
 / total 1 /
-?
+intros
+{ F : ( |- sttp),
+  ST : ( |- store),
+  F' : ( |- sttp),
+  L : ( |- location),
+  EN : ( |- entry)
+| x : [ |- store-of F ST F'],
+  x1 : [ |- store-lookup ST L EN],
+  bounds : [ |- store-bounds ST L]
+; split x as
+  case store-of/cons:
+  { F : ( |- sttp),
+    ST1 : ( |- store),
+    X : ( |- location),
+    EN1 : ( |- entry),
+    F2 : ( |- sttp),
+    ET : ( |- entp),
+    L : ( |- location),
+    EN : ( |- entry),
+    Dbounds : ( |- store-bounds ST1 X),
+    X1 : ( |- entry-of F EN1 ET),
+    Dof : ( |- store-of F ST1 F2)
+  | x : [ |- store-of F (store/cons ST1 X EN1) (st/cons F2 X ET)],
+    x1 : [ |- store-lookup (store/cons ST1 X EN1) L EN],
+    bounds : [ |- store-bounds (store/cons ST1 X EN1) L]
+  ; split x1 as
+    case store-lookup/miss:
+    { F : ( |- sttp),
+      ST1 : ( |- store),
+      X : ( |- location),
+      EN1 : ( |- entry),
+      F2 : ( |- sttp),
+      ET : ( |- entp),
+      L : ( |- location),
+      EN : ( |- entry),
+      Dbounds : ( |- store-bounds ST1 X),
+      X1 : ( |- entry-of F EN1 ET),
+      Dof : ( |- store-of F ST1 F2),
+      Dlookup : ( |- store-lookup ST1 L EN)
+    | x : [ |- store-of F (store/cons ST1 X EN1) (st/cons F2 X ET)],
+      x1 : [ |- store-lookup (store/cons ST1 X EN1) L EN],
+      bounds : [ |- store-bounds (store/cons ST1 X EN1) L]
+    ; split bounds as
+      case store-bounds/cons:
+      { F : ( |- sttp),
+        ST1 : ( |- store),
+        X : ( |- location),
+        EN1 : ( |- entry),
+        F2 : ( |- sttp),
+        ET : ( |- entp),
+        L : ( |- location),
+        EN : ( |- entry),
+        Dbounds : ( |- store-bounds ST1 X),
+        X1 : ( |- entry-of F EN1 ET),
+        Dof : ( |- store-of F ST1 F2),
+        Dlookup : ( |- store-lookup ST1 L EN),
+        Dlt : ( |- loc-lt X L)
+      | x : [ |- store-of F (store/cons ST1 X EN1) (st/cons F2 X ET)],
+        x1 : [ |- store-lookup (store/cons ST1 X EN1) L EN],
+        bounds : [ |- store-bounds (store/cons ST1 X EN1) L]
+      ; solve
+          store-lookup-bound [ |- Dof] [ |- Dlookup]
+            (store-bounds-increase [ |- Dbounds] [ |- Dlt])
+      }
+    }
+    case store-lookup/hit:
+    { F : ( |- sttp),
+      ST1 : ( |- store),
+      L : ( |- location),
+      EN : ( |- entry),
+      F2 : ( |- sttp),
+      ET : ( |- entp),
+      Dbounds : ( |- store-bounds ST1 L),
+      X1 : ( |- entry-of F EN ET),
+      Dof : ( |- store-of F ST1 F2)
+    | x : [ |- store-of F (store/cons ST1 L EN) (st/cons F2 L ET)],
+      x1 : [ |- store-lookup (store/cons ST1 L EN) L EN],
+      bounds : [ |- store-bounds (store/cons ST1 L EN) L]
+    ; split bounds as
+      case store-bounds/cons:
+      { F : ( |- sttp),
+        ST1 : ( |- store),
+        L : ( |- location),
+        EN : ( |- entry),
+        F2 : ( |- sttp),
+        ET : ( |- entp),
+        Dbounds : ( |- store-bounds ST1 L),
+        X1 : ( |- entry-of F EN ET),
+        Dof : ( |- store-of F ST1 F2),
+        Dlt : ( |- loc-lt L L)
+      | x : [ |- store-of F (store/cons ST1 L EN) (st/cons F2 L ET)],
+        x1 : [ |- store-lookup (store/cons ST1 L EN) L EN],
+        bounds : [ |- store-bounds (store/cons ST1 L EN) L]
+      ; solve loc-lt-antisymm [ |- Dlt]
+      }
+    }
+  }
+  case store-of/nil:
+  { F : ( |- sttp), L : ( |- location), EN : ( |- entry)
+  | x : [ |- store-of F store/nil st/nil],
+    x1 : [ |- store-lookup store/nil L EN],
+    bounds : [ |- store-bounds store/nil L]
+  ; impossible x1
+  }
+}
 ;
 
 proof preservation-lookup :
@@ -101,7 +731,147 @@ proof preservation-lookup :
   [ |- store-lookup ST L EN] ->
     [ |- entry-of F1 EN ET] =
 / total 1 /
-?
+intros
+{ F : ( |- sttp),
+  ST : ( |- store),
+  F1 : ( |- sttp),
+  L : ( |- location),
+  ET : ( |- entp),
+  EN : ( |- entry)
+| x : [ |- store-of F ST F1],
+  lookup : [ |- st-lookup F1 L ET],
+  lookup1 : [ |- store-lookup ST L EN]
+; split x as
+  case store-of/cons:
+  { F : ( |- sttp),
+    ST1 : ( |- store),
+    X : ( |- location),
+    EN1 : ( |- entry),
+    F3 : ( |- sttp),
+    ET1 : ( |- entp),
+    L : ( |- location),
+    ET : ( |- entp),
+    EN : ( |- entry),
+    Dbounds : ( |- store-bounds ST1 X),
+    X1 : ( |- entry-of F EN1 ET1),
+    Dof : ( |- store-of F ST1 F3)
+  | x : [ |- store-of F (store/cons ST1 X EN1) (st/cons F3 X ET1)],
+    lookup : [ |- st-lookup (st/cons F3 X ET1) L ET],
+    lookup1 : [ |- store-lookup (store/cons ST1 X EN1) L EN]
+  ; split lookup as
+    case st-lookup/miss:
+    { F : ( |- sttp),
+      ST1 : ( |- store),
+      X : ( |- location),
+      EN1 : ( |- entry),
+      F3 : ( |- sttp),
+      ET1 : ( |- entp),
+      L : ( |- location),
+      ET : ( |- entp),
+      EN : ( |- entry),
+      Dbounds : ( |- store-bounds ST1 X),
+      X1 : ( |- entry-of F EN1 ET1),
+      Dof : ( |- store-of F ST1 F3),
+      Dlookup : ( |- st-lookup F3 L ET)
+    | x : [ |- store-of F (store/cons ST1 X EN1) (st/cons F3 X ET1)],
+      lookup : [ |- st-lookup (st/cons F3 X ET1) L ET],
+      lookup1 : [ |- store-lookup (store/cons ST1 X EN1) L EN]
+    ; split lookup1 as
+      case store-lookup/miss:
+      { F : ( |- sttp),
+        ST1 : ( |- store),
+        X : ( |- location),
+        EN1 : ( |- entry),
+        F3 : ( |- sttp),
+        ET1 : ( |- entp),
+        L : ( |- location),
+        ET : ( |- entp),
+        EN : ( |- entry),
+        Dbounds : ( |- store-bounds ST1 X),
+        X1 : ( |- entry-of F EN1 ET1),
+        Dof : ( |- store-of F ST1 F3),
+        Dlookup : ( |- st-lookup F3 L ET),
+        Dlookup1 : ( |- store-lookup ST1 L EN)
+      | x : [ |- store-of F (store/cons ST1 X EN1) (st/cons F3 X ET1)],
+        lookup : [ |- st-lookup (st/cons F3 X ET1) L ET],
+        lookup1 : [ |- store-lookup (store/cons ST1 X EN1) L EN]
+      ; solve preservation-lookup [ |- Dof] [ |- Dlookup] [ |- Dlookup1]
+      }
+      case store-lookup/hit:
+      { F : ( |- sttp),
+        ST1 : ( |- store),
+        L : ( |- location),
+        EN : ( |- entry),
+        F3 : ( |- sttp),
+        ET1 : ( |- entp),
+        ET : ( |- entp),
+        Dbounds : ( |- store-bounds ST1 L),
+        X1 : ( |- entry-of F EN ET1),
+        Dof : ( |- store-of F ST1 F3),
+        Dlookup : ( |- st-lookup F3 L ET)
+      | x : [ |- store-of F (store/cons ST1 L EN) (st/cons F3 L ET1)],
+        lookup : [ |- st-lookup (st/cons F3 L ET1) L ET],
+        lookup1 : [ |- store-lookup (store/cons ST1 L EN) L EN]
+      ; impossible sttp-lookup-bound [ |- Dof] [ |- Dlookup] [ |- Dbounds]
+      }
+    }
+    case st-lookup/hit:
+    { F : ( |- sttp),
+      ST1 : ( |- store),
+      L : ( |- location),
+      EN1 : ( |- entry),
+      F3 : ( |- sttp),
+      ET : ( |- entp),
+      EN : ( |- entry),
+      Dbounds : ( |- store-bounds ST1 L),
+      X1 : ( |- entry-of F EN1 ET),
+      Dof : ( |- store-of F ST1 F3)
+    | x : [ |- store-of F (store/cons ST1 L EN1) (st/cons F3 L ET)],
+      lookup : [ |- st-lookup (st/cons F3 L ET) L ET],
+      lookup1 : [ |- store-lookup (store/cons ST1 L EN1) L EN]
+    ; split lookup1 as
+      case store-lookup/miss:
+      { F : ( |- sttp),
+        ST1 : ( |- store),
+        L : ( |- location),
+        EN1 : ( |- entry),
+        F3 : ( |- sttp),
+        ET : ( |- entp),
+        EN : ( |- entry),
+        Dbounds : ( |- store-bounds ST1 L),
+        X1 : ( |- entry-of F EN1 ET),
+        Dof : ( |- store-of F ST1 F3),
+        Dlookup : ( |- store-lookup ST1 L EN)
+      | x : [ |- store-of F (store/cons ST1 L EN1) (st/cons F3 L ET)],
+        lookup : [ |- st-lookup (st/cons F3 L ET) L ET],
+        lookup1 : [ |- store-lookup (store/cons ST1 L EN1) L EN]
+      ; impossible store-lookup-bound [ |- Dof] [ |- Dlookup] [ |- Dbounds]
+      }
+      case store-lookup/hit:
+      { F : ( |- sttp),
+        ST1 : ( |- store),
+        L : ( |- location),
+        EN : ( |- entry),
+        F3 : ( |- sttp),
+        ET : ( |- entp),
+        Dbounds : ( |- store-bounds ST1 L),
+        X1 : ( |- entry-of F EN ET),
+        Dof : ( |- store-of F ST1 F3)
+      | x : [ |- store-of F (store/cons ST1 L EN) (st/cons F3 L ET)],
+        lookup : [ |- st-lookup (st/cons F3 L ET) L ET],
+        lookup1 : [ |- store-lookup (store/cons ST1 L EN) L EN]
+      ; solve [ |- X1]
+      }
+    }
+  }
+  case store-of/nil:
+  { F : ( |- sttp), L : ( |- location), ET : ( |- entp), EN : ( |- entry)
+  | x : [ |- store-of F store/nil st/nil],
+    lookup : [ |- st-lookup st/nil L ET],
+    lookup1 : [ |- store-lookup store/nil L EN]
+  ; impossible lookup
+  }
+}
 ;
 
 proof preservation-update :
@@ -111,7 +881,180 @@ proof preservation-update :
   [ |- entry-of F1 EN ET] ->
     [ |- store-of F1 ST' F2] =
 / total 1 /
-?
+intros
+{ F : ( |- sttp),
+  ST : ( |- store),
+  F1 : ( |- sttp),
+  L : ( |- location),
+  ET : ( |- entp),
+  EN : ( |- entry),
+  ST' : ( |- store)
+| x : [ |- store-of F ST F1],
+  lookup : [ |- st-lookup F1 L ET],
+  update : [ |- store-update ST L EN ST'],
+  eof : [ |- entry-of F EN ET]
+; split x as
+  case store-of/cons:
+  { F : ( |- sttp),
+    ST1 : ( |- store),
+    Dloc : ( |- location),
+    EN1 : ( |- entry),
+    F3 : ( |- sttp),
+    ET1 : ( |- entp),
+    L : ( |- location),
+    ET : ( |- entp),
+    EN : ( |- entry),
+    ST' : ( |- store),
+    Dbounds : ( |- store-bounds ST1 Dloc),
+    Dof : ( |- entry-of F EN1 ET1),
+    Dof1 : ( |- store-of F ST1 F3)
+  | x : [ |- store-of F (store/cons ST1 Dloc EN1) (st/cons F3 Dloc ET1)],
+    lookup : [ |- st-lookup (st/cons F3 Dloc ET1) L ET],
+    update : [ |- store-update (store/cons ST1 Dloc EN1) L EN ST'],
+    eof : [ |- entry-of F EN ET]
+  ; split lookup as
+    case st-lookup/miss:
+    { F : ( |- sttp),
+      ST1 : ( |- store),
+      Dloc : ( |- location),
+      EN1 : ( |- entry),
+      F3 : ( |- sttp),
+      ET1 : ( |- entp),
+      L : ( |- location),
+      ET : ( |- entp),
+      EN : ( |- entry),
+      ST' : ( |- store),
+      Dbounds : ( |- store-bounds ST1 Dloc),
+      Dof : ( |- entry-of F EN1 ET1),
+      Dof1 : ( |- store-of F ST1 F3),
+      Dlookup : ( |- st-lookup F3 L ET)
+    | x : [ |- store-of F (store/cons ST1 Dloc EN1) (st/cons F3 Dloc ET1)],
+      lookup : [ |- st-lookup (st/cons F3 Dloc ET1) L ET],
+      update : [ |- store-update (store/cons ST1 Dloc EN1) L EN ST'],
+      eof : [ |- entry-of F EN ET]
+    ; split update as
+      case store-update/miss:
+      { F : ( |- sttp),
+        ST1 : ( |- store),
+        Dloc : ( |- location),
+        EN1 : ( |- entry),
+        F3 : ( |- sttp),
+        ET1 : ( |- entp),
+        L : ( |- location),
+        ET : ( |- entp),
+        EN : ( |- entry),
+        ST3 : ( |- store),
+        Dbounds : ( |- store-bounds ST1 Dloc),
+        Dof : ( |- entry-of F EN1 ET1),
+        Dof1 : ( |- store-of F ST1 F3),
+        Dlookup : ( |- st-lookup F3 L ET),
+        Dupdate : ( |- store-update ST1 L EN ST3)
+      | x : [ |- store-of F (store/cons ST1 Dloc EN1) (st/cons F3 Dloc ET1)],
+        lookup : [ |- st-lookup (st/cons F3 Dloc ET1) L ET],
+        update :
+          [ |-
+             store-update
+               (store/cons ST1 Dloc EN1) L EN (store/cons ST3 Dloc EN1)],
+        eof : [ |- entry-of F EN ET]
+      ; by preservation-update [ |- Dof1] [ |- Dlookup] [ |- Dupdate] eof
+        as Dsof unboxed;
+        by store-bounds-update [ |- Dbounds] [ |- Dupdate]
+        as Dbounds1 unboxed;
+        solve [ |- store-of/cons Dbounds1 Dof Dsof]
+      }
+      case store-update/hit:
+      { F : ( |- sttp),
+        ST1 : ( |- store),
+        L : ( |- location),
+        EN1 : ( |- entry),
+        F3 : ( |- sttp),
+        ET1 : ( |- entp),
+        ET : ( |- entp),
+        EN : ( |- entry),
+        Dbounds : ( |- store-bounds ST1 L),
+        Dof : ( |- entry-of F EN1 ET1),
+        Dof1 : ( |- store-of F ST1 F3),
+        Dlookup : ( |- st-lookup F3 L ET)
+      | x : [ |- store-of F (store/cons ST1 L EN1) (st/cons F3 L ET1)],
+        lookup : [ |- st-lookup (st/cons F3 L ET1) L ET],
+        update :
+          [ |- store-update (store/cons ST1 L EN1) L EN (store/cons ST1 L EN)],
+        eof : [ |- entry-of F EN ET]
+      ; impossible sttp-lookup-bound [ |- Dof1] [ |- Dlookup] [ |- Dbounds]
+      }
+    }
+    case st-lookup/hit:
+    { F : ( |- sttp),
+      ST1 : ( |- store),
+      L : ( |- location),
+      EN1 : ( |- entry),
+      F3 : ( |- sttp),
+      ET : ( |- entp),
+      EN : ( |- entry),
+      ST' : ( |- store),
+      Dbounds : ( |- store-bounds ST1 L),
+      Dof : ( |- entry-of F EN1 ET),
+      Dof1 : ( |- store-of F ST1 F3)
+    | x : [ |- store-of F (store/cons ST1 L EN1) (st/cons F3 L ET)],
+      lookup : [ |- st-lookup (st/cons F3 L ET) L ET],
+      update : [ |- store-update (store/cons ST1 L EN1) L EN ST'],
+      eof : [ |- entry-of F EN ET]
+    ; split update as
+      case store-update/miss:
+      { F : ( |- sttp),
+        ST1 : ( |- store),
+        L : ( |- location),
+        EN1 : ( |- entry),
+        F3 : ( |- sttp),
+        ET : ( |- entp),
+        EN : ( |- entry),
+        ST3 : ( |- store),
+        Dbounds : ( |- store-bounds ST1 L),
+        Dof : ( |- entry-of F EN1 ET),
+        Dof1 : ( |- store-of F ST1 F3),
+        Dupdate : ( |- store-update ST1 L EN ST3)
+      | x : [ |- store-of F (store/cons ST1 L EN1) (st/cons F3 L ET)],
+        lookup : [ |- st-lookup (st/cons F3 L ET) L ET],
+        update :
+          [ |-
+             store-update (store/cons ST1 L EN1) L EN (store/cons ST3 L EN1)],
+        eof : [ |- entry-of F EN ET]
+      ; impossible store-update-bound [ |- Dof1] [ |- Dupdate] [ |- Dbounds]
+      }
+      case store-update/hit:
+      { F : ( |- sttp),
+        ST1 : ( |- store),
+        L : ( |- location),
+        EN1 : ( |- entry),
+        F3 : ( |- sttp),
+        ET : ( |- entp),
+        EN : ( |- entry),
+        Dbounds : ( |- store-bounds ST1 L),
+        Dof : ( |- entry-of F EN1 ET),
+        Dof1 : ( |- store-of F ST1 F3)
+      | x : [ |- store-of F (store/cons ST1 L EN1) (st/cons F3 L ET)],
+        lookup : [ |- st-lookup (st/cons F3 L ET) L ET],
+        update :
+          [ |- store-update (store/cons ST1 L EN1) L EN (store/cons ST1 L EN)],
+        eof : [ |- entry-of F EN ET]
+      ; by eof as Dof2 unboxed;
+        solve [ |- store-of/cons Dbounds Dof2 Dof1]
+      }
+    }
+  }
+  case store-of/nil:
+  { F : ( |- sttp),
+    L : ( |- location),
+    ET : ( |- entp),
+    EN : ( |- entry),
+    ST' : ( |- store)
+  | x : [ |- store-of F store/nil st/nil],
+    lookup : [ |- st-lookup st/nil L ET],
+    update : [ |- store-update store/nil L EN ST'],
+    eof : [ |- entry-of F EN ET]
+  ; impossible lookup
+  }
+}
 ;
 
 proof st-lookup-fun :
@@ -120,12 +1063,171 @@ proof st-lookup-fun :
   [ |- st-lookup F L ET'] ->
     [ |- entp-eq ET ET'] =
 / total 1 /
-?
+intros
+{ F' : ( |- sttp),
+  ST : ( |- store),
+  F : ( |- sttp),
+  L : ( |- location),
+  ET : ( |- entp),
+  ET' : ( |- entp)
+| x : [ |- store-of F' ST F],
+  lookup : [ |- st-lookup F L ET],
+  lookup1 : [ |- st-lookup F L ET']
+; split x as
+  case store-of/cons:
+  { F' : ( |- sttp),
+    ST1 : ( |- store),
+    Dloc : ( |- location),
+    EN : ( |- entry),
+    F2 : ( |- sttp),
+    ET1 : ( |- entp),
+    L : ( |- location),
+    ET : ( |- entp),
+    ET' : ( |- entp),
+    Dbounds : ( |- store-bounds ST1 Dloc),
+    Dof : ( |- entry-of F' EN ET1),
+    Dof1 : ( |- store-of F' ST1 F2)
+  | x : [ |- store-of F' (store/cons ST1 Dloc EN) (st/cons F2 Dloc ET1)],
+    lookup : [ |- st-lookup (st/cons F2 Dloc ET1) L ET],
+    lookup1 : [ |- st-lookup (st/cons F2 Dloc ET1) L ET']
+  ; split lookup as
+    case st-lookup/miss:
+    { F' : ( |- sttp),
+      ST1 : ( |- store),
+      Dloc : ( |- location),
+      EN : ( |- entry),
+      F2 : ( |- sttp),
+      ET1 : ( |- entp),
+      L : ( |- location),
+      ET : ( |- entp),
+      ET' : ( |- entp),
+      Dbounds : ( |- store-bounds ST1 Dloc),
+      Dof : ( |- entry-of F' EN ET1),
+      Dof1 : ( |- store-of F' ST1 F2),
+      Dlookup : ( |- st-lookup F2 L ET)
+    | x : [ |- store-of F' (store/cons ST1 Dloc EN) (st/cons F2 Dloc ET1)],
+      lookup : [ |- st-lookup (st/cons F2 Dloc ET1) L ET],
+      lookup1 : [ |- st-lookup (st/cons F2 Dloc ET1) L ET']
+    ; split lookup1 as
+      case st-lookup/miss:
+      { F' : ( |- sttp),
+        ST1 : ( |- store),
+        Dloc : ( |- location),
+        EN : ( |- entry),
+        F2 : ( |- sttp),
+        ET1 : ( |- entp),
+        L : ( |- location),
+        ET : ( |- entp),
+        ET' : ( |- entp),
+        Dbounds : ( |- store-bounds ST1 Dloc),
+        Dof : ( |- entry-of F' EN ET1),
+        Dof1 : ( |- store-of F' ST1 F2),
+        Dlookup : ( |- st-lookup F2 L ET),
+        Dlookup1 : ( |- st-lookup F2 L ET')
+      | x : [ |- store-of F' (store/cons ST1 Dloc EN) (st/cons F2 Dloc ET1)],
+        lookup : [ |- st-lookup (st/cons F2 Dloc ET1) L ET],
+        lookup1 : [ |- st-lookup (st/cons F2 Dloc ET1) L ET']
+      ; solve st-lookup-fun [ |- Dof1] [ |- Dlookup] [ |- Dlookup1]
+      }
+      case st-lookup/hit:
+      { F' : ( |- sttp),
+        ST1 : ( |- store),
+        L : ( |- location),
+        EN : ( |- entry),
+        F2 : ( |- sttp),
+        ET' : ( |- entp),
+        ET : ( |- entp),
+        Dbounds : ( |- store-bounds ST1 L),
+        Dof : ( |- entry-of F' EN ET'),
+        Dof1 : ( |- store-of F' ST1 F2),
+        Dlookup : ( |- st-lookup F2 L ET)
+      | x : [ |- store-of F' (store/cons ST1 L EN) (st/cons F2 L ET')],
+        lookup : [ |- st-lookup (st/cons F2 L ET') L ET],
+        lookup1 : [ |- st-lookup (st/cons F2 L ET') L ET']
+      ; impossible sttp-lookup-bound [ |- Dof1] [ |- Dlookup] [ |- Dbounds]
+      }
+    }
+    case st-lookup/hit:
+    { F' : ( |- sttp),
+      ST1 : ( |- store),
+      L : ( |- location),
+      EN : ( |- entry),
+      F2 : ( |- sttp),
+      ET : ( |- entp),
+      ET' : ( |- entp),
+      Dbounds : ( |- store-bounds ST1 L),
+      Dof : ( |- entry-of F' EN ET),
+      Dof1 : ( |- store-of F' ST1 F2)
+    | x : [ |- store-of F' (store/cons ST1 L EN) (st/cons F2 L ET)],
+      lookup : [ |- st-lookup (st/cons F2 L ET) L ET],
+      lookup1 : [ |- st-lookup (st/cons F2 L ET) L ET']
+    ; split lookup1 as
+      case st-lookup/miss:
+      { F' : ( |- sttp),
+        ST1 : ( |- store),
+        L : ( |- location),
+        EN : ( |- entry),
+        F2 : ( |- sttp),
+        ET : ( |- entp),
+        ET' : ( |- entp),
+        Dbounds : ( |- store-bounds ST1 L),
+        Dof : ( |- entry-of F' EN ET),
+        Dof1 : ( |- store-of F' ST1 F2),
+        Dlookup : ( |- st-lookup F2 L ET')
+      | x : [ |- store-of F' (store/cons ST1 L EN) (st/cons F2 L ET)],
+        lookup : [ |- st-lookup (st/cons F2 L ET) L ET],
+        lookup1 : [ |- st-lookup (st/cons F2 L ET) L ET']
+      ; impossible sttp-lookup-bound [ |- Dof1] [ |- Dlookup] [ |- Dbounds]
+      }
+      case st-lookup/hit:
+      { F' : ( |- sttp),
+        ST1 : ( |- store),
+        L : ( |- location),
+        EN : ( |- entry),
+        F2 : ( |- sttp),
+        ET' : ( |- entp),
+        Dbounds : ( |- store-bounds ST1 L),
+        Dof : ( |- entry-of F' EN ET'),
+        Dof1 : ( |- store-of F' ST1 F2)
+      | x : [ |- store-of F' (store/cons ST1 L EN) (st/cons F2 L ET')],
+        lookup : [ |- st-lookup (st/cons F2 L ET') L ET'],
+        lookup1 : [ |- st-lookup (st/cons F2 L ET') L ET']
+      ; solve [ |- entp-eq/i ]
+      }
+    }
+  }
+  case store-of/nil:
+  { F' : ( |- sttp), L : ( |- location), ET : ( |- entp), ET' : ( |- entp)
+  | x : [ |- store-of F' store/nil st/nil],
+    lookup : [ |- st-lookup st/nil L ET],
+    lookup1 : [ |- st-lookup st/nil L ET']
+  ; impossible lookup
+  }
+}
 ;
 
 proof nextloc-bounds : [ |- nextloc ST L] -> [ |- store-bounds ST L] =
 / total /
-?
+intros
+{ ST : ( |- store), L : ( |- location)
+| nextloc : [ |- nextloc ST L]
+; split nextloc as
+  case nextloc/cons:
+  { ST1 : ( |- store),
+    Dloc : ( |- location),
+    EN : ( |- entry),
+    L : ( |- location),
+    Dsucc : ( |- loc-succ Dloc L)
+  | nextloc : [ |- nextloc (store/cons ST1 Dloc EN) L]
+  ; by loc-succ-lt [ |- Dsucc] as Dlt unboxed;
+    solve [ |- store-bounds/cons Dlt]
+  }
+  case nextloc/nil:
+  { 
+  | nextloc : [ |- nextloc store/nil (location/i zero)]
+  ; solve [ |- store-bounds/nil ]
+  }
+}
 ;
 
 % Preservation

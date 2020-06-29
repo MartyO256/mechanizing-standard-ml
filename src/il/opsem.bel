@@ -5,7 +5,7 @@ LF store-lookup : store -> location -> entry -> type =
 | store-lookup/miss : store-lookup ST L EN ->
                         store-lookup (store/cons ST _ _) L EN
 ;
---name store-lookup Dlookup.
+--name store-lookup Dlookup lookup.
 
 LF store-update : store -> location -> entry -> store -> type =
 | store-update/hit : store-update (store/cons ST L _) L EN (store/cons ST L EN)
@@ -13,13 +13,13 @@ LF store-update : store -> location -> entry -> store -> type =
                         store-update (store/cons ST L EN) L' EN'
                           (store/cons ST' L EN)
 ;
---name store-update Dupdate.
+--name store-update Dupdate update.
 
 LF nextloc : store -> location -> type =
 | nextloc/nil : nextloc store/nil (location/i zero)
 | nextloc/cons : loc-succ L L' -> nextloc (store/cons _ L _) L'
 ;
---name nextloc Dnextloc.
+--name nextloc Dnextloc nextloc.
 
 % Evaluation
 
@@ -471,7 +471,7 @@ and raises-md : module' -> term -> type =
     raises-md (md/lete E T (\x. M x)) V
 ;
 
---name step Dstep.
---name step-md Dstep.
---name raises Draises.
---name raises-md Draises.
+--name step Dstep step.
+--name step-md Dstep step.
+--name raises Draises raises.
+--name raises-md Draises raises.

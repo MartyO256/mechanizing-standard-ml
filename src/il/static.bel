@@ -222,12 +222,12 @@ and cn-equiv : con -> con -> kind -> type =
     cn-equiv (pi2 (pair C1 C2)) C2 K2
 ;
 
---name kd-wf Dwf.
---name kd-equiv Dequiv.
---name kd-sub Dsub.
+--name kd-wf Dwf wf.
+--name kd-equiv Dequiv equiv.
+--name kd-sub Dsub sub.
 
---name cn-of Dof.
---name cn-equiv Dequiv.
+--name cn-of Dof cof.
+--name cn-equiv Dequiv equiv.
 
 % Derived Rules
 
@@ -652,12 +652,19 @@ and md-fst : module' -> con -> type =
     md-fst (md/lete E T (\x. M x)) C
 ;
 
---name tm-of Dof.
---name st-lookup Dlookup.
---name sg-wf Dwf.
---name sg-equiv Dequiv.
---name sg-sub Dsub.
---name md-of Dof.
+--name tm-of Dof tof.
+
+--name st-lookup Dlookup lookup.
+
+--name entry-of Dof eof.
+
+--name sg-wf Dwf wf.
+--name sg-equiv Dequiv equiv.
+--name sg-sub Dsub sub.
+--name sg-fst Dfst fst.
+
+--name md-of Dof mof.
+--name md-fst Dfst fst.
 
 % Derived Rules
 
@@ -670,10 +677,10 @@ intros
   P : ( |- purity),
   F : ( |- sttp),
   M : ( |- module')
-| x : [ |- sg-equiv S S'], x1 : [ |- md-of P F M S]
-; by x as X unboxed;
-  by x1 as X1 unboxed;
-  solve [ |- md-of/subsume X1 (sg-sub/refl X)]
+| equiv : [ |- sg-equiv S S'], mof : [ |- md-of P F M S]
+; by equiv as Dequiv unboxed;
+  by mof as Dof unboxed;
+  solve [ |- md-of/subsume Dof (sg-sub/refl Dequiv)]
 }
 ;
 
@@ -684,6 +691,7 @@ LF store-bounds : store -> location -> type =
 
 | store-bounds/cons : loc-lt L L' -> store-bounds (store/cons _ L _) L'
 ;
+--name store-bounds Dbounds bounds.
 
 LF store-of : sttp -> store -> sttp -> type =
 | store-of/nil : store-of F store/nil st/nil
@@ -693,6 +701,7 @@ LF store-of : sttp -> store -> sttp -> type =
                     store-of F ST F' ->
                     store-of F (store/cons ST L EN) (st/cons F' L ET)
 ;
+--name store-of Dof sof.
 
 % Schemas
 

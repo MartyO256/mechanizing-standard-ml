@@ -33,6 +33,7 @@ LF skel : type =
 | ksing : skel
 | kone : skel
 ;
+--name skel Dskel.
 
 LF constant : type =
 | const/arrow : constant

@@ -53,21 +53,120 @@ and proof cn-equiv-reg/kd-wf :
 ;
 
 LF inhabitation/existsC : kind -> type =
-| inhabitation/existsC/i : {C : con} cn-of C K -> inhabitation/existsC K
+| inhabitation/existsC/i : { C : con } cn-of C K -> inhabitation/existsC K
 ;
 
 proof inhabitation/existsC/i :
-  (g : conbind) {C : [g |- con]} [g |- cn-of C K] ->
+  (g : conbind) { C : [g |- con] } [g |- cn-of C K] ->
     [g |- inhabitation/existsC K] =
 / total /
-?
+intros
+{ g : conbind, K : (g |- kind), C : (g |- con)
+| cof : [g |- cn-of C K]
+; by cof as Dof unboxed;
+  solve [_ |- inhabitation/existsC/i C Dof]
+}
 ;
 
 proof inhabitation :
   (g : conbind) [g |- kd-wf K] ->
     [g |- inhabitation/existsC K] =
 / total 1 /
-?
+intros
+{ g : conbind, K : (g |- kind)
+| x : [g |- kd-wf K]
+; split x as
+  case kd-wf/one:
+  { g : conbind
+  | x : [g |- kd-wf one]
+  ; suffices by inhabitation/existsC/i [_ |- star] toshow
+    [g |- cn-of star one] {
+      solve [_ |- cn-of/star]
+    }
+  }
+  case kd-wf/sigma:
+  { g : conbind,
+    K1 : (g |- kind),
+    K2 : (g, a4 : con |- kind),
+    Dwf : (g |- kd-wf K1),
+    Dwf1 : (g, a : con, z160 : cn-of a (K1[..]) |- kd-wf (K2[.., a]))
+  | x : [g |- kd-wf (sigma K1 (\x100. K2))]
+  ; split inhabitation [g |- Dwf] as
+    case inhabitation/existsC/i:
+    { g : conbind,
+      K1 : (g |- kind),
+      K2 : (g, a4 : con |- kind),
+      Dwf : (g |- kd-wf K1),
+      Dwf1 : (g, a : con, z160 : cn-of a (K1[..]) |- kd-wf (K2[.., a])),
+      C : (g |- con),
+      Dof : (g |- cn-of C K1)
+    | x : [g |- kd-wf (sigma K1 (\x100. K2))]
+    ; split
+      inhabitation
+        [g, b : block (a : con, d : cn-of a (K1[..])) |- Dwf1[.., b.1, b.2]] as
+      case inhabitation/existsC/i:
+      { g : conbind,
+        K1 : (g |- kind),
+        K3 : (g, a : con |- kind),
+        Dwf : (g |- kd-wf K1),
+        Dwf1 : (g, a : con, z160 : cn-of a (K1[..]) |- kd-wf (K3[.., a])),
+        C : (g |- con),
+        Dof : (g |- cn-of C K1),
+        C1 : (g, a : con |- con),
+        Dof1 :
+          (g, a : con, y665 : cn-of a (K1[..]) |-
+             cn-of (C1[.., a]) (K3[.., a]))
+      | x : [g |- kd-wf (sigma K1 (\x100. K3))]
+      ; suffices by inhabitation/existsC/i [g |- pair C (C1[.., C])] toshow
+        [g |- cn-of (pair C (C1[.., C])) (sigma K1 (\y. K3))] {
+          solve [g |- cn-of/pair Dof (Dof1[.., C, Dof]) (\x. \y. Dwf1)]
+        }
+      }
+    }
+  }
+  case kd-wf/pi:
+  { g : conbind,
+    K1 : (g |- kind),
+    K2 : (g, a3 : con |- kind),
+    Dwf : (g |- kd-wf K1),
+    Dwf1 : (g, a : con, z159 : cn-of a (K1[..]) |- kd-wf (K2[.., a]))
+  | x : [g |- kd-wf (pi K1 (\x99. K2))]
+  ; split
+    inhabitation
+      [_, b : block (a : con, d : cn-of a (K1[..])) |- Dwf1[.., b.1, b.2]] as
+    case inhabitation/existsC/i:
+    { g : conbind,
+      K1 : (g |- kind),
+      K3 : (g, a : con |- kind),
+      Dwf : (g |- kd-wf K1),
+      Dwf1 : (g, a : con, z159 : cn-of a (K1[..]) |- kd-wf (K3[.., a])),
+      C : (g, a : con |- con),
+      Dof :
+        (g, a : con, y668 : cn-of a (K1[..]) |- cn-of (C[.., a]) (K3[.., a]))
+    | x : [g |- kd-wf (pi K1 (\x99. K3))]
+    ; suffices by inhabitation/existsC/i [_ |- lam K1 (\x. C)] toshow
+      [g |- cn-of (lam K1 (\x. C)) (pi K1 (\y. K3))] {
+        solve [_ |- cn-of/lam Dwf (\x. \y. Dof)]
+      }
+    }
+  }
+  case kd-wf/sing:
+  { g : conbind, C : (g |- con), Dof : (g |- cn-of C t)
+  | x : [g |- kd-wf (sing C)]
+  ; suffices by inhabitation/existsC/i [g |- C] toshow
+    [g |- cn-of C (sing C)] {
+      solve [g |- cn-of/sing Dof]
+    }
+  }
+  case kd-wf/t:
+  { g : conbind
+  | x : [g |- kd-wf t]
+  ; suffices by inhabitation/existsC/i [g |- unit] toshow
+    [g |- cn-of unit t] {
+      solve [g |- cn-of/unit]
+    }
+  }
+}
 ;
 
 % Similarity
@@ -84,6 +183,7 @@ LF similar : con -> con -> type =
 | similar/rec : similar (rec' _ _ _) (rec' _ _ _)
 | similar/labeled : similar (labeled _ _) (labeled _ _)
 ;
+--name similar Dsim sim.
 
 % Type Formation Inversion
 
@@ -91,20 +191,150 @@ LF typeish : kind -> type =
 | typeish/t : typeish t
 | typeish/sing : typeish (sing _)
 ;
+--name typeish Dtypeish typeish.
 
 proof typeish-equiv :
   (g : conbind) [g |- kd-equiv K1 K2] ->
     [g |- typeish K2] ->
       [g |- typeish K1] =
 / total 1 /
-?
+intros
+{ g : conbind, K : (g |- kind), K1 : (g |- kind)
+| x : [g |- kd-equiv K K1], typeish : [g |- typeish K1]
+; split x as
+  case kd-equiv/sigma:
+  { g : conbind,
+    K2 : (g |- kind),
+    K4 : (g, a7 : con |- kind),
+    K3 : (g |- kind),
+    K5 : (g, a8 : con |- kind),
+    Dequiv : (g |- kd-equiv K2 K3),
+    Dequiv1 :
+      (g, a : con, x162 : cn-of a (K2[..]) |-
+         kd-equiv (K4[.., a]) (K5[.., a]))
+  | x : [g |- kd-equiv (sigma K2 (\x98. K4)) (sigma K3 (\x98. K5))],
+    typeish : [g |- typeish (sigma K3 (\x98. K5))]
+  ; impossible typeish
+  }
+  case kd-equiv/pi:
+  { g : conbind,
+    K2 : (g |- kind),
+    K4 : (g, a5 : con |- kind),
+    K3 : (g |- kind),
+    K5 : (g, a6 : con |- kind),
+    Dequiv : (g |- kd-equiv K2 K3),
+    Dequiv1 :
+      (g, a : con, x161 : cn-of a (K2[..]) |-
+         kd-equiv (K4[.., a]) (K5[.., a]))
+  | x : [g |- kd-equiv (pi K2 (\x97. K4)) (pi K3 (\x97. K5))],
+    typeish : [g |- typeish (pi K3 (\x97. K5))]
+  ; impossible typeish
+  }
+  case kd-equiv/sing:
+  { g : conbind,
+    C : (g |- con),
+    C1 : (g |- con),
+    Dequiv : (g |- cn-equiv C C1 t)
+  | x : [g |- kd-equiv (sing C) (sing C1)],
+    typeish : [g |- typeish (sing C1)]
+  ; solve [_ |- typeish/sing ]
+  }
+  case kd-equiv/trans:
+  { g : conbind,
+    K : (g |- kind),
+    K1 : (g |- kind),
+    K3 : (g |- kind),
+    Dequiv : (g |- kd-equiv K K3),
+    Dequiv1 : (g |- kd-equiv K3 K1)
+  | x : [g |- kd-equiv K K1], typeish : [g |- typeish K1]
+  ; by typeish-equiv [_ |- Dequiv1] typeish as typeish1;
+    solve typeish-equiv [_ |- Dequiv] typeish1
+  }
+  case kd-equiv/symm:
+  { g : conbind,
+    K : (g |- kind),
+    K1 : (g |- kind),
+    Dequiv : (g |- kd-equiv K1 K)
+  | x : [g |- kd-equiv K K1], typeish : [g |- typeish K1]
+  ; solve typeish-equiv' [_ |- Dequiv] typeish
+  }
+  case kd-equiv/refl:
+  { g : conbind, K1 : (g |- kind), Dwf : (g |- kd-wf K1)
+  | x : [g |- kd-equiv K1 K1], typeish : [g |- typeish K1]
+  ; solve typeish
+  }
+}
 
 and proof typeish-equiv' :
   (g : conbind) [g |- kd-equiv K1 K2] ->
     [g |- typeish K1] ->
       [g |- typeish K2] =
 / total 1 /
-?
+intros
+{ g : conbind, K : (g |- kind), K1 : (g |- kind)
+| x : [g |- kd-equiv K K1], typeish : [g |- typeish K]
+; split x as
+  case kd-equiv/sigma:
+  { g : conbind,
+    K2 : (g |- kind),
+    K4 : (g, a7 : con |- kind),
+    K3 : (g |- kind),
+    K5 : (g, a8 : con |- kind),
+    Dequiv : (g |- kd-equiv K2 K3),
+    Dequiv1 :
+      (g, a : con, x162 : cn-of a (K2[..]) |-
+         kd-equiv (K4[.., a]) (K5[.., a]))
+  | x : [g |- kd-equiv (sigma K2 (\x98. K4)) (sigma K3 (\x98. K5))],
+    typeish : [g |- typeish (sigma K2 (\x98. K4))]
+  ; impossible typeish
+  }
+  case kd-equiv/pi:
+  { g : conbind,
+    K2 : (g |- kind),
+    K4 : (g, a5 : con |- kind),
+    K3 : (g |- kind),
+    K5 : (g, a6 : con |- kind),
+    Dequiv : (g |- kd-equiv K2 K3),
+    Dequiv1 :
+      (g, a : con, x161 : cn-of a (K2[..]) |-
+         kd-equiv (K4[.., a]) (K5[.., a]))
+  | x : [g |- kd-equiv (pi K2 (\x97. K4)) (pi K3 (\x97. K5))],
+    typeish : [g |- typeish (pi K2 (\x97. K4))]
+  ; impossible typeish
+  }
+  case kd-equiv/sing:
+  { g : conbind,
+    C : (g |- con),
+    C1 : (g |- con),
+    Dequiv : (g |- cn-equiv C C1 t)
+  | x : [g |- kd-equiv (sing C) (sing C1)], typeish : [g |- typeish (sing C)]
+  ; solve [_ |- typeish/sing ]
+  }
+  case kd-equiv/trans:
+  { g : conbind,
+    K : (g |- kind),
+    K1 : (g |- kind),
+    K3 : (g |- kind),
+    Dequiv : (g |- kd-equiv K K3),
+    Dequiv1 : (g |- kd-equiv K3 K1)
+  | x : [g |- kd-equiv K K1], typeish : [g |- typeish K]
+  ; by typeish-equiv' [_ |- Dequiv] typeish as typeish1;
+    solve typeish-equiv' [_ |- Dequiv1] typeish1
+  }
+  case kd-equiv/symm:
+  { g : conbind,
+    K : (g |- kind),
+    K1 : (g |- kind),
+    Dequiv : (g |- kd-equiv K1 K)
+  | x : [g |- kd-equiv K K1], typeish : [g |- typeish K]
+  ; solve typeish-equiv [_ |- Dequiv] typeish
+  }
+  case kd-equiv/refl:
+  { g : conbind, K1 : (g |- kind), Dwf : (g |- kd-wf K1)
+  | x : [g |- kd-equiv K1 K1], typeish : [g |- typeish K1]
+  ; solve typeish
+  }
+}
 ;
 
 proof typeish-sub :
@@ -112,7 +342,63 @@ proof typeish-sub :
     [g |- typeish K2] ->
       [g |- typeish K1] =
 / total 1 /
-?
+intros
+{ g : conbind, K : (g |- kind), K1 : (g |- kind)
+| x : [g |- kd-sub K K1], typeish : [g |- typeish K1]
+; split x as
+  case kd-sub/sigma:
+  { g : conbind,
+    K3 : (g |- kind),
+    K4 : (g, a11 : con |- kind),
+    K2 : (g |- kind),
+    K5 : (g, a12 : con |- kind),
+    Dsub : (g |- kd-sub K2 K3),
+    Dsub1 :
+      (g, a : con, y167 : cn-of a (K3[..]) |- kd-sub (K4[.., a]) (K5[.., a])),
+    Dwf : (g, a : con, z166 : cn-of a (K2[..]) |- kd-wf (K5[.., a]))
+  | x : [g |- kd-sub (sigma K3 (\x98. K4)) (sigma K2 (\x98. K5))],
+    typeish : [g |- typeish (sigma K2 (\x98. K5))]
+  ; impossible typeish
+  }
+  case kd-sub/pi:
+  { g : conbind,
+    K3 : (g |- kind),
+    K4 : (g, a9 : con |- kind),
+    K2 : (g |- kind),
+    K5 : (g, a10 : con |- kind),
+    Dsub : (g |- kd-sub K2 K3),
+    Dsub1 :
+      (g, a : con, x165 : cn-of a (K2[..]) |- kd-sub (K4[.., a]) (K5[.., a])),
+    Dwf : (g, a : con, y165 : cn-of a (K3[..]) |- kd-wf (K4[.., a]))
+  | x : [g |- kd-sub (pi K3 (\x97. K4)) (pi K2 (\x97. K5))],
+    typeish : [g |- typeish (pi K2 (\x97. K5))]
+  ; impossible typeish
+  }
+  case kd-sub/sing-t:
+  { g : conbind, C : (g |- con), Dof : (g |- cn-of C t)
+  | x : [g |- kd-sub (sing C) t], typeish : [g |- typeish t]
+  ; solve [_ |- typeish/sing ]
+  }
+  case kd-sub/trans:
+  { g : conbind,
+    K : (g |- kind),
+    K1 : (g |- kind),
+    K3 : (g |- kind),
+    Dsub : (g |- kd-sub K K3),
+    Dsub1 : (g |- kd-sub K3 K1)
+  | x : [g |- kd-sub K K1], typeish : [g |- typeish K1]
+  ; by typeish-sub [_ |- Dsub1] typeish as typeish1;
+    solve typeish-sub [_ |- Dsub] typeish1
+  }
+  case kd-sub/refl:
+  { g : conbind,
+    K : (g |- kind),
+    K1 : (g |- kind),
+    Dequiv : (g |- kd-equiv K K1)
+  | x : [g |- kd-sub K K1], typeish : [g |- typeish K1]
+  ; solve typeish-equiv [_ |- Dequiv] typeish
+  }
+}
 ;
 
 proof type-inversion :
@@ -121,7 +407,228 @@ proof type-inversion :
       [g |- kd-sub K t] ->
         [g |- cn-of T t] =
 / total 1 /
-?
+intros
+{ g : conbind, T : (g |- con), K : (g |- kind)
+| x : [g |- cn-of T K], sim : [g |- similar T T], sub : [g |- kd-sub K t]
+; split x as
+  case cn-of/subsume:
+  { g : conbind,
+    T : (g |- con),
+    K : (g |- kind),
+    K1 : (g |- kind),
+    Dof : (g |- cn-of T K1),
+    Dsub : (g |- kd-sub K1 K)
+  | x : [g |- cn-of T K], sim : [g |- similar T T], sub : [g |- kd-sub K t]
+  ; by sub as Dsub1 unboxed;
+    solve type-inversion [_ |- Dof] sim [_ |- kd-sub/trans Dsub Dsub1]
+  }
+  case cn-of/extsigma:
+  { g : conbind,
+    T : (g |- con),
+    K1 : (g |- kind),
+    K2 : (g, a23 : con |- kind),
+    Dof : (g |- cn-of (pi1 T) K1),
+    Dof1 : (g |- cn-of (pi2 T) (K2[.., pi1 T])),
+    Dwf : (g, a : con, y178 : cn-of a (K1[..]) |- kd-wf (K2[.., a]))
+  | x : [g |- cn-of T (sigma K1 (\x98. K2))],
+    sim : [g |- similar T T],
+    sub : [g |- kd-sub (sigma K1 (\x98. K2)) t]
+  ; impossible typeish-sub sub [_ |- typeish/t]
+  }
+  case cn-of/extpi:
+  { g : conbind,
+    T : (g |- con),
+    K1 : (g |- kind),
+    K3 : (g, a22 : con |- kind),
+    K2 : (g, a21 : con |- kind),
+    Dof : (g |- cn-of T (pi K1 (\x97. K2))),
+    Dof1 :
+      (g, a : con, z176 : cn-of a (K1[..]) |-
+         cn-of (app (T[..]) a) (K3[.., a]))
+  | x : [g |- cn-of T (pi K1 (\x97. K3))],
+    sim : [g |- similar T T],
+    sub : [g |- kd-sub (pi K1 (\x97. K3)) t]
+  ; impossible typeish-sub sub [_ |- typeish/t]
+  }
+  case cn-of/sing:
+  { g : conbind, T : (g |- con), Dof : (g |- cn-of T t)
+  | x : [g |- cn-of T (sing T)],
+    sim : [g |- similar T T],
+    sub : [g |- kd-sub (sing T) t]
+  ; solve [_ |- Dof]
+  }
+  case cn-of/labeled:
+  { g : conbind, X : (g |- label), C : (g |- con), Dof : (g |- cn-of C t)
+  | x : [g |- cn-of (labeled X C) t],
+    sim : [g |- similar (labeled X C) (labeled X C)],
+    sub : [g |- kd-sub t t]
+  ; solve x
+  }
+  case cn-of/rec:
+  { g : conbind,
+    K1 : (g |- kind),
+    C : (g, a20 : con, a19 : con |- con),
+    C1 : (g |- con),
+    Dwf : (g |- kd-wf K1),
+    Dof :
+      (g, a : con, z174 : cn-of a (pi (K1[..]) (\l. t)), b : con,
+       y175 : cn-of b (K1[..]) |- cn-of (C[.., a, b]) t),
+    Dof1 : (g |- cn-of C1 K1)
+  | x : [g |- cn-of (rec' K1 (\x105. \z105. C) C1) t],
+    sim :
+      [g |-
+         similar
+           (rec' K1 (\x105. \z105. C) C1) (rec' K1 (\x105. \z105. C) C1)],
+    sub : [g |- kd-sub t t]
+  ; solve x
+  }
+  case cn-of/tagged:
+  { g : conbind
+  | x : [g |- cn-of tagged t],
+    sim : [g |- similar tagged tagged],
+    sub : [g |- kd-sub t t]
+  ; solve x
+  }
+  case cn-of/tag:
+  { g : conbind, C : (g |- con), Dof : (g |- cn-of C t)
+  | x : [g |- cn-of (tag C) t],
+    sim : [g |- similar (tag C) (tag C)],
+    sub : [g |- kd-sub t t]
+  ; solve x
+  }
+  case cn-of/ref:
+  { g : conbind, C : (g |- con), Dof : (g |- cn-of C t)
+  | x : [g |- cn-of (ref C) t],
+    sim : [g |- similar (ref C) (ref C)],
+    sub : [g |- kd-sub t t]
+  ; solve x
+  }
+  case cn-of/plus:
+  { g : conbind,
+    C : (g |- con),
+    C1 : (g |- con),
+    Dof : (g |- cn-of C t),
+    Dof1 : (g |- cn-of C1 t)
+  | x : [g |- cn-of (plus C C1) t],
+    sim : [g |- similar (plus C C1) (plus C C1)],
+    sub : [g |- kd-sub t t]
+  ; solve x
+  }
+  case cn-of/arrow:
+  { g : conbind,
+    C : (g |- con),
+    C1 : (g |- con),
+    Dof : (g |- cn-of C t),
+    Dof1 : (g |- cn-of C1 t)
+  | x : [g |- cn-of (arrow C C1) t],
+    sim : [g |- similar (arrow C C1) (arrow C C1)],
+    sub : [g |- kd-sub t t]
+  ; solve x
+  }
+  case cn-of/prod:
+  { g : conbind,
+    C : (g |- con),
+    C1 : (g |- con),
+    Dof : (g |- cn-of C t),
+    Dof1 : (g |- cn-of C1 t)
+  | x : [g |- cn-of (prod C C1) t],
+    sim : [g |- similar (prod C C1) (prod C C1)],
+    sub : [g |- kd-sub t t]
+  ; solve x
+  }
+  case cn-of/void:
+  { g : conbind
+  | x : [g |- cn-of void t],
+    sim : [g |- similar void void],
+    sub : [g |- kd-sub t t]
+  ; solve x
+  }
+  case cn-of/unit:
+  { g : conbind
+  | x : [g |- cn-of unit t],
+    sim : [g |- similar unit unit],
+    sub : [g |- kd-sub t t]
+  ; solve x
+  }
+  case cn-of/star:
+  { g : conbind
+  | x : [g |- cn-of star one],
+    sim : [g |- similar star star],
+    sub : [g |- kd-sub one t]
+  ; impossible sim
+  }
+  case cn-of/app:
+  { g : conbind,
+    C1 : (g |- con),
+    C : (g |- con),
+    K2 : (g, a18 : con |- kind),
+    K1 : (g |- kind),
+    Dof : (g |- cn-of C K1),
+    Dof1 : (g |- cn-of C1 (pi K1 (\x97. K2)))
+  | x : [g |- cn-of (app C1 C) (K2[.., C])],
+    sim : [g |- similar (app C1 C) (app C1 C)],
+    sub : [g |- kd-sub (K2[.., C]) t]
+  ; impossible sim
+  }
+  case cn-of/lam:
+  { g : conbind,
+    K1 : (g |- kind),
+    C : (g, a16 : con |- con),
+    K2 : (g, a17 : con |- kind),
+    Dwf : (g |- kd-wf K1),
+    Dof :
+      (g, a : con, y170 : cn-of a (K1[..]) |- cn-of (C[.., a]) (K2[.., a]))
+  | x : [g |- cn-of (lam K1 (\z100. C)) (pi K1 (\x97. K2))],
+    sim : [g |- similar (lam K1 (\z100. C)) (lam K1 (\z100. C))],
+    sub : [g |- kd-sub (pi K1 (\x97. K2)) t]
+  ; impossible sim
+  }
+  case cn-of/pi2:
+  { g : conbind,
+    C : (g |- con),
+    K2 : (g, a15 : con |- kind),
+    K1 : (g |- kind),
+    Dof : (g |- cn-of C (sigma K1 (\x98. K2)))
+  | x : [g |- cn-of (pi2 C) (K2[.., pi1 C])],
+    sim : [g |- similar (pi2 C) (pi2 C)],
+    sub : [g |- kd-sub (K2[.., pi1 C]) t]
+  ; impossible sim
+  }
+  case cn-of/pi1:
+  { g : conbind,
+    C : (g |- con),
+    K : (g |- kind),
+    K2 : (g, a14 : con |- kind),
+    Dof : (g |- cn-of C (sigma K (\x98. K2)))
+  | x : [g |- cn-of (pi1 C) K],
+    sim : [g |- similar (pi1 C) (pi1 C)],
+    sub : [g |- kd-sub K t]
+  ; impossible sim
+  }
+  case cn-of/pair:
+  { g : conbind,
+    C : (g |- con),
+    C1 : (g |- con),
+    K1 : (g |- kind),
+    K2 : (g, a13 : con |- kind),
+    Dof : (g |- cn-of C K1),
+    Dof1 : (g |- cn-of C1 (K2[.., C])),
+    Dwf : (g, a : con, x168 : cn-of a (K1[..]) |- kd-wf (K2[.., a]))
+  | x : [g |- cn-of (pair C C1) (sigma K1 (\x98. K2))],
+    sim : [g |- similar (pair C C1) (pair C C1)],
+    sub : [g |- kd-sub (sigma K1 (\x98. K2)) t]
+  ; impossible sim
+  }
+  case #.2:
+  { g : conbind,
+    K : (g |- kind),
+    #cof : #(g |- block (a : con, d : cn-of a (K[..])))
+  | x : [g |- cn-of #cof.1 K],
+    sim : [g |- similar #cof.1 #cof.1],
+    sub : [g |- kd-sub K t]
+  ; impossible sim
+  }
+}
 ;
 
 % FIXME: `solve inversion-prod/1 [_|-Q]` Recursive call not structurally smaller.
@@ -129,7 +636,32 @@ proof inversion-prod/1 :
   (g : conbind) [g |- cn-of (prod T1 T2) t] ->
     [g |- cn-of T1 t] =
 / total 1 /
-?
+intros
+{ g : conbind, T : (g |- con), T1 : (g |- con)
+| x : [g |- cn-of (prod T T1) t]
+; split x as
+  case cn-of/subsume:
+  { g : conbind,
+    T : (g |- con),
+    T1 : (g |- con),
+    K : (g |- kind),
+    Dof : (g |- cn-of (prod T T1) K),
+    Dsub : (g |- kd-sub K t)
+  | x : [g |- cn-of (prod T T1) t]
+  ; by type-inversion [_ |- Dof] [_ |- similar/prod ] [_ |- Dsub]
+    as Q unboxed;
+    ?
+  }
+  case cn-of/prod:
+  { g : conbind,
+    T : (g |- con),
+    T1 : (g |- con),
+    Dof : (g |- cn-of T t),
+    Dof1 : (g |- cn-of T1 t)
+  | x : [g |- cn-of (prod T T1) t]
+  ; solve [_ |- Dof]
+  }
+}
 ;
 
 % FIXME: `solve inversion-prod/2 [_|-Q]` Recursive call not structurally smaller.
@@ -137,7 +669,32 @@ proof inversion-prod/2 :
   (g : conbind) [g |- cn-of (prod T1 T2) t] ->
     [g |- cn-of T2 t] =
 / total 1 /
-?
+intros
+{ g : conbind, T : (g |- con), T1 : (g |- con)
+| x : [g |- cn-of (prod T T1) t]
+; split x as
+  case cn-of/subsume:
+  { g : conbind,
+    T : (g |- con),
+    T1 : (g |- con),
+    K : (g |- kind),
+    Dof : (g |- cn-of (prod T T1) K),
+    Dsub : (g |- kd-sub K t)
+  | x : [g |- cn-of (prod T T1) t]
+  ; by type-inversion [_ |- Dof] [_ |- similar/prod ] [_ |- Dsub]
+    as Q unboxed;
+    ?
+  }
+  case cn-of/prod:
+  { g : conbind,
+    T : (g |- con),
+    T1 : (g |- con),
+    Dof : (g |- cn-of T t),
+    Dof1 : (g |- cn-of T1 t)
+  | x : [g |- cn-of (prod T T1) t]
+  ; solve [_ |- Dof1]
+  }
+}
 ;
 
 % FIXME: `solve inversion-arrow/1 [_|-Q]` Recursive call not structurally smaller.
@@ -145,7 +702,32 @@ proof inversion-arrow/1 :
   (g : conbind) [g |- cn-of (arrow T1 T2) t] ->
     [g |- cn-of T1 t] =
 / total 1 /
-?
+intros
+{ g : conbind, T : (g |- con), T1 : (g |- con)
+| x : [g |- cn-of (arrow T T1) t]
+; split x as
+  case cn-of/subsume:
+  { g : conbind,
+    T : (g |- con),
+    T1 : (g |- con),
+    K : (g |- kind),
+    Dof : (g |- cn-of (arrow T T1) K),
+    Dsub : (g |- kd-sub K t)
+  | x : [g |- cn-of (arrow T T1) t]
+  ; by type-inversion [_ |- Dof] [_ |- similar/arrow ] [_ |- Dsub]
+    as Q unboxed;
+    ?
+  }
+  case cn-of/arrow:
+  { g : conbind,
+    T : (g |- con),
+    T1 : (g |- con),
+    Dof : (g |- cn-of T t),
+    Dof1 : (g |- cn-of T1 t)
+  | x : [g |- cn-of (arrow T T1) t]
+  ; solve [_ |- Dof]
+  }
+}
 ;
 
 % FIXME: `solve inversion-arrow/2 [_|-Q]` Recursive call not structurally smaller.
@@ -153,7 +735,32 @@ proof inversion-arrow/2 :
   (g : conbind) [g |- cn-of (arrow T1 T2) t] ->
     [g |- cn-of T2 t] =
 / total 1 /
-?
+intros
+{ g : conbind, T : (g |- con), T1 : (g |- con)
+| x : [g |- cn-of (arrow T T1) t]
+; split x as
+  case cn-of/subsume:
+  { g : conbind,
+    T : (g |- con),
+    T1 : (g |- con),
+    K : (g |- kind),
+    Dof : (g |- cn-of (arrow T T1) K),
+    Dsub : (g |- kd-sub K t)
+  | x : [g |- cn-of (arrow T T1) t]
+  ; by type-inversion [_ |- Dof] [_ |- similar/arrow ] [_ |- Dsub]
+    as Q unboxed;
+    ?
+  }
+  case cn-of/arrow:
+  { g : conbind,
+    T : (g |- con),
+    T1 : (g |- con),
+    Dof : (g |- cn-of T t),
+    Dof1 : (g |- cn-of T1 t)
+  | x : [g |- cn-of (arrow T T1) t]
+  ; solve [_ |- Dof1]
+  }
+}
 ;
 
 % FIXME: `solve inversion-plus/1 [_|-Q]` Recursive call not structurally smaller.
@@ -161,7 +768,32 @@ proof inversion-plus/1 :
   (g : conbind) [g |- cn-of (plus T1 T2) t] ->
     [g |- cn-of T1 t] =
 / total 1 /
-?
+intros
+{ g : conbind, T : (g |- con), T1 : (g |- con)
+| x : [g |- cn-of (plus T T1) t]
+; split x as
+  case cn-of/subsume:
+  { g : conbind,
+    T : (g |- con),
+    T1 : (g |- con),
+    K : (g |- kind),
+    Dof : (g |- cn-of (plus T T1) K),
+    Dsub : (g |- kd-sub K t)
+  | x : [g |- cn-of (plus T T1) t]
+  ; by type-inversion [_ |- Dof] [_ |- similar/plus ] [_ |- Dsub]
+    as Q unboxed;
+    ?
+  }
+  case cn-of/plus:
+  { g : conbind,
+    T : (g |- con),
+    T1 : (g |- con),
+    Dof : (g |- cn-of T t),
+    Dof1 : (g |- cn-of T1 t)
+  | x : [g |- cn-of (plus T T1) t]
+  ; solve [_ |- Dof]
+  }
+}
 ;
 
 % FIXME: `solve inversion-plus/2 [_|-Q]` Recursive call not structurally smaller.
@@ -169,7 +801,32 @@ proof inversion-plus/2 :
   (g : conbind) [g |- cn-of (plus T1 T2) t] ->
     [g |- cn-of T2 t] =
 / total 1 /
-?
+intros
+{ g : conbind, T : (g |- con), T1 : (g |- con)
+| x : [g |- cn-of (plus T T1) t]
+; split x as
+  case cn-of/subsume:
+  { g : conbind,
+    T : (g |- con),
+    T1 : (g |- con),
+    K : (g |- kind),
+    Dof : (g |- cn-of (plus T T1) K),
+    Dsub : (g |- kd-sub K t)
+  | x : [g |- cn-of (plus T T1) t]
+  ; by type-inversion [_ |- Dof] [_ |- similar/plus ] [_ |- Dsub]
+    as Q unboxed;
+    ?
+  }
+  case cn-of/plus:
+  { g : conbind,
+    T : (g |- con),
+    T1 : (g |- con),
+    Dof : (g |- cn-of T t),
+    Dof1 : (g |- cn-of T1 t)
+  | x : [g |- cn-of (plus T T1) t]
+  ; solve [_ |- Dof1]
+  }
+}
 ;
 
 % FIXME: `solve inversion-ref [_|-Q]` Recursive call not structurally smaller.
@@ -177,7 +834,26 @@ proof inversion-ref :
   (g : conbind) [g |- cn-of (ref T) t] ->
     [g |- cn-of T t] =
 / total 1 /
-?
+intros
+{ g : conbind, T : (g |- con)
+| x : [g |- cn-of (ref T) t]
+; split x as
+  case cn-of/subsume:
+  { g : conbind,
+    T : (g |- con),
+    K : (g |- kind),
+    Dof : (g |- cn-of (ref T) K),
+    Dsub : (g |- kd-sub K t)
+  | x : [g |- cn-of (ref T) t]
+  ; by type-inversion [_ |- Dof] [_ |- similar/ref ] [_ |- Dsub] as Q unboxed;
+    ?
+  }
+  case cn-of/ref:
+  { g : conbind, T : (g |- con), Dof : (g |- cn-of T t)
+  | x : [g |- cn-of (ref T) t]
+  ; solve [_ |- Dof]
+  }
+}
 ;
 
 % FIXME: `solve inversion-tag [_|-Q]` Recursive call not structurally smaller.
@@ -185,7 +861,26 @@ proof inversion-tag :
   (g : conbind) [g |- cn-of (tag T) t] ->
     [g |- cn-of T t] =
 / total 1 /
-?
+intros
+{ g : conbind, T : (g |- con)
+| x : [g |- cn-of (tag T) t]
+; split x as
+  case cn-of/subsume:
+  { g : conbind,
+    T : (g |- con),
+    K : (g |- kind),
+    Dof : (g |- cn-of (tag T) K),
+    Dsub : (g |- kd-sub K t)
+  | x : [g |- cn-of (tag T) t]
+  ; by type-inversion [_ |- Dof] [_ |- similar/tag ] [_ |- Dsub] as Q unboxed;
+    ?
+  }
+  case cn-of/tag:
+  { g : conbind, T : (g |- con), Dof : (g |- cn-of T t)
+  | x : [g |- cn-of (tag T) t]
+  ; solve [_ |- Dof]
+  }
+}
 ;
 
 % FIXME: `solve inversion-rec/kd-wf [_|-Q]` Recursive call not structurally smaller.
@@ -193,7 +888,39 @@ proof inversion-rec/kd-wf :
   (g : conbind) [g |- cn-of (rec' K (\x. \y. C1[x, y]) C2) t] ->
     [g |- kd-wf K] =
 / total 1 /
-?
+intros
+{ g : conbind,
+  K : (g |- kind),
+  C : (x107 : con, z107 : con |- con),
+  C1 : (g |- con)
+| x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
+; split x as
+  case cn-of/subsume:
+  { g : conbind,
+    K : (g |- kind),
+    C : (x107 : con, z107 : con |- con),
+    C1 : (g |- con),
+    K1 : (g |- kind),
+    Dof : (g |- cn-of (rec' K (\x. \y. C[x, y]) C1) K1),
+    Dsub : (g |- kd-sub K1 t)
+  | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
+  ; by type-inversion [_ |- Dof] [_ |- similar/rec ] [_ |- Dsub] as Q unboxed;
+    ?
+  }
+  case cn-of/rec:
+  { g : conbind,
+    K : (g |- kind),
+    C : (x107 : con, z107 : con |- con),
+    C1 : (g |- con),
+    Dwf : (g |- kd-wf K),
+    Dof :
+      (g, a : con, z176 : cn-of a (pi (K[..]) (\l. t)), b : con,
+       y177 : cn-of b (K[..]) |- cn-of (C[a, b]) t),
+    Dof1 : (g |- cn-of C1 K)
+  | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
+  ; solve [_ |- Dwf]
+  }
+}
 ;
 
 % FIXME: `solve inversion-rec/1 [_|-Q]` Recursive call not structurally smaller.
@@ -202,7 +929,41 @@ proof inversion-rec/1 :
     [g, a : con, da : cn-of a (pi (K[..]) (\l. t)),
         b : con, db : cn-of b (K[..]) |- cn-of (C1[a, b]) t] =
 / total 1 /
-?
+intros
+{ g : conbind,
+  K : (g |- kind),
+  C : (x107 : con, z107 : con |- con),
+  C1 : (g |- con)
+| x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
+; split x as
+  case cn-of/subsume:
+  { g : conbind,
+    K : (g |- kind),
+    C : (x107 : con, z107 : con |- con),
+    C1 : (g |- con),
+    K1 : (g |- kind),
+    Dof : (g |- cn-of (rec' K (\x. \y. C[x, y]) C1) K1),
+    Dsub : (g |- kd-sub K1 t)
+  | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
+  ; by type-inversion [_ |- Dof] [_ |- similar/rec ] [_ |- Dsub] as Q unboxed;
+    ?
+  }
+  case cn-of/rec:
+  { g : conbind,
+    K : (g |- kind),
+    C : (x107 : con, z107 : con |- con),
+    C1 : (g |- con),
+    Dwf : (g |- kd-wf K),
+    Dof :
+      (g, a : con, z176 : cn-of a (pi (K[..]) (\l. t)), b : con,
+       y177 : cn-of b (K[..]) |- cn-of (C[a, b]) t),
+    Dof1 : (g |- cn-of C1 K)
+  | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
+  ; solve
+      [_, a : con, z176 : cn-of a (pi (K[..]) (\l. t)), b : con,
+       y177 : cn-of b (K[..]) |- Dof]
+  }
+}
 ;
 
 % FIXME: `solve inversion-rec/2 [_|-Q]` Recursive call not structurally smaller.
@@ -210,7 +971,39 @@ proof inversion-rec/2 :
   (g : conbind) [g |- cn-of (rec' K (\x. \y. C1[x, y]) C2) t] ->
     [g |- cn-of C2 K] =
 / total 1 /
-?
+intros
+{ g : conbind,
+  K : (g |- kind),
+  C : (x107 : con, z107 : con |- con),
+  C1 : (g |- con)
+| x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
+; split x as
+  case cn-of/subsume:
+  { g : conbind,
+    K : (g |- kind),
+    C : (x107 : con, z107 : con |- con),
+    C1 : (g |- con),
+    K1 : (g |- kind),
+    Dof : (g |- cn-of (rec' K (\x. \y. C[x, y]) C1) K1),
+    Dsub : (g |- kd-sub K1 t)
+  | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
+  ; by type-inversion [_ |- Dof] [_ |- similar/rec ] [_ |- Dsub] as Q unboxed;
+    ?
+  }
+  case cn-of/rec:
+  { g : conbind,
+    K : (g |- kind),
+    C : (x107 : con, z107 : con |- con),
+    C1 : (g |- con),
+    Dwf : (g |- kd-wf K),
+    Dof :
+      (g, a : con, z176 : cn-of a (pi (K[..]) (\l. t)), b : con,
+       y177 : cn-of b (K[..]) |- cn-of (C[a, b]) t),
+    Dof1 : (g |- cn-of C1 K)
+  | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
+  ; solve [_ |- Dof1]
+  }
+}
 ;
 
 % FIXME: `solve inversion-labeled [_|-Q]` Recursive call not structurally smaller.
@@ -218,5 +1011,26 @@ proof inversion-labeled :
   (g : conbind) [g |- cn-of (labeled I T) t] ->
     [g |- cn-of T t] =
 / total 1 /
-?
+intros
+{ g : conbind, I : (g |- label), T : (g |- con)
+| x : [g |- cn-of (labeled I T) t]
+; split x as
+  case cn-of/subsume:
+  { g : conbind,
+    I : (g |- label),
+    T : (g |- con),
+    K : (g |- kind),
+    Dof : (g |- cn-of (labeled I T) K),
+    Dsub : (g |- kd-sub K t)
+  | x : [g |- cn-of (labeled I T) t]
+  ; by type-inversion [_ |- Dof] [_ |- similar/labeled ] [_ |- Dsub]
+    as Q unboxed;
+    ?
+  }
+  case cn-of/labeled:
+  { g : conbind, I : (g |- label), T : (g |- con), Dof : (g |- cn-of T t)
+  | x : [g |- cn-of (labeled I T) t]
+  ; solve [_ |- Dof]
+  }
+}
 ;

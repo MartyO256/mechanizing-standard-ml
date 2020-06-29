@@ -13,24 +13,28 @@ LF nat : type =
 LF nat-eq : nat -> nat -> type =
 | nat-eq/i : nat-eq N N
 ;
+--name nat-eq Deq eq.
 
 % The "sum" relation on the natural numbers.
 LF sum : nat -> nat -> nat -> type =
 | sum/z : sum zero N N
 | sum/s : sum N1 N2 N3 -> sum (succ N1) N2 (succ N3)
 ;
+--name sum Dsum sum.
 
 % The "less than or equal" relation on the natural numbers.
 LF leq : nat -> nat -> type =
 | leq/z : leq zero N
 | leq/s : leq N1 N2 -> leq (succ N1) (succ N2)
 ;
+--name leq Dleq leq.
 
 % The "less than" relation on the natural numbers.
 LF lt : nat -> nat -> type =
 | lt/z : lt zero (succ N)
 | lt/s : lt N1 N2 -> lt (succ N1) (succ N2)
 ;
+--name lt Dlt lt.
 
 % The "not equals" relation on the natural numbers.
 LF neq : nat -> nat -> type =
@@ -38,6 +42,7 @@ LF neq : nat -> nat -> type =
 | neq/sz : neq (succ N) zero
 | neq/ss : neq N1 N2 -> neq (succ N1) (succ N2)
 ;
+--name neq Dneq neq.
 
 % The "maximum" relation on the natural numbers.
 LF max : nat -> nat -> nat -> type =
@@ -45,3 +50,4 @@ LF max : nat -> nat -> nat -> type =
 | max/*z : max N zero N
 | max/s : max N1 N2 N3 -> max (succ N1) (succ N2) (succ N3)
 ;
+--name max Dmax max.

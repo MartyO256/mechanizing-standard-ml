@@ -26,39 +26,46 @@ LF kd-wf-i : ctx -> kind -> type =
 | kd-wf-i/nil : kd-wf A -> kd-wf-i nil A
 | kd-wf-i/cons : (cn-of X A -> kd-wf-i G B) -> kd-wf-i (cons G X A) B
 ;
+--name kd-wf-i Dwf wf.
 
 LF cn-of-i : ctx -> con -> kind -> type =
 | cn-of-i/nil : cn-of M A -> cn-of-i nil M A
 | cn-of-i/cons : (cn-of X A -> cn-of-i G M B) -> cn-of-i (cons G X A) M B
 ;
+--name cn-of-i Dof cof.
 
 LF kd-sub-i : ctx -> kind -> kind -> type =
 | kd-sub-i/nil : kd-sub B C -> kd-sub-i nil B C
 | kd-sub-i/cons : (cn-of X A -> kd-sub-i G B C) -> kd-sub-i (cons G X A) B C
 ;
+--name kd-sub-i Dsub sub.
 
 LF kd-equiv-i : ctx -> kind -> kind -> type =
 | kd-equiv-i/nil : kd-equiv B C -> kd-equiv-i nil B C
 | kd-equiv-i/cons : (cn-of X A -> kd-equiv-i G B C) ->
                       kd-equiv-i (cons G X A) B C
 ;
+--name kd-equiv-i Dequiv equiv.
 
 LF cn-equiv-i : ctx -> con -> con -> kind -> type =
 | cn-equiv-i/nil : cn-equiv M N B -> cn-equiv-i nil M N B
 | cn-equiv-i/cons : (cn-of X A -> cn-equiv-i G M N B) ->
                       cn-equiv-i (cons G X A) M N B
 ;
+--name cn-equiv-i Dequiv equiv.
 
 LF sg-wf-i : ctx -> sg -> type =
 | sg-wf-i/nil : sg-wf A -> sg-wf-i nil A
 | sg-wf-i/cons : (cn-of X A -> sg-wf-i G B) -> sg-wf-i (cons G X A) B
 ;
+--name sg-wf-i Dwf wf.
 
 LF sg-equiv-i : ctx -> sg -> sg -> type =
 | sg-equiv-i/nil : sg-equiv B C -> sg-equiv-i nil B C
 | sg-equiv-i/cons : (cn-of X A -> sg-equiv-i G B C) ->
                       sg-equiv-i (cons G X A) B C
 ;
+--name sg-equiv-i Dequiv equiv.
 
 % Proof Skeletons
 
@@ -179,6 +186,7 @@ and mcn-of : cn-of M A -> mcon -> type =
 LF ctx-eq : ctx -> ctx -> type =
 | ctx-eq/i : ctx-eq G G
 ;
+--name ctx-eq Deq eq.
 
 proof cn-of-i-resp :
   [ |- ctx-eq G G'] ->
@@ -187,7 +195,47 @@ proof cn-of-i-resp :
   [ |- cn-of-i G M A] ->
     [ |- cn-of-i G' M' A'] =
 / total /
-?
+intros
+{ G : ( |- ctx),
+  G' : ( |- ctx),
+  M : ( |- con),
+  M' : ( |- con),
+  A : ( |- kind),
+  A' : ( |- kind)
+| eq : [ |- ctx-eq G G'],
+  eq1 : [ |- con-eq M M'],
+  eq2 : [ |- kind-eq A A'],
+  cof : [ |- cn-of-i G M A]
+; split eq as
+  case ctx-eq/i:
+  { G' : ( |- ctx),
+    M : ( |- con),
+    M' : ( |- con),
+    A : ( |- kind),
+    A' : ( |- kind)
+  | eq : [ |- ctx-eq G' G'],
+    eq1 : [ |- con-eq M M'],
+    eq2 : [ |- kind-eq A A'],
+    cof : [ |- cn-of-i G' M A]
+  ; split eq1 as
+    case con-eq/i:
+    { G' : ( |- ctx), M' : ( |- con), A : ( |- kind), A' : ( |- kind)
+    | eq : [ |- ctx-eq G' G'],
+      eq1 : [ |- con-eq M' M'],
+      eq2 : [ |- kind-eq A A'],
+      cof : [ |- cn-of-i G' M' A]
+    ; split eq2 as
+      case kind-eq/i:
+      { G' : ( |- ctx), M' : ( |- con), A' : ( |- kind)
+      | eq : [ |- ctx-eq G' G'],
+        eq1 : [ |- con-eq M' M'],
+        eq2 : [ |- kind-eq A' A'],
+        cof : [ |- cn-of-i G' M' A']
+      ; solve cof
+      }
+    }
+  }
+}
 ;
 
 proof cn-equiv-i-resp :
@@ -198,7 +246,73 @@ proof cn-equiv-i-resp :
   [ |- cn-equiv-i G M N A] ->
     [ |- cn-equiv-i G' M' N' A'] =
 / total /
-?
+intros
+{ G : ( |- ctx),
+  G' : ( |- ctx),
+  M : ( |- con),
+  M' : ( |- con),
+  N : ( |- con),
+  N' : ( |- con),
+  A : ( |- kind),
+  A' : ( |- kind)
+| eq : [ |- ctx-eq G G'],
+  eq1 : [ |- con-eq M M'],
+  eq2 : [ |- con-eq N N'],
+  eq3 : [ |- kind-eq A A'],
+  equiv : [ |- cn-equiv-i G M N A]
+; split eq as
+  case ctx-eq/i:
+  { G' : ( |- ctx),
+    M : ( |- con),
+    M' : ( |- con),
+    N : ( |- con),
+    N' : ( |- con),
+    A : ( |- kind),
+    A' : ( |- kind)
+  | eq : [ |- ctx-eq G' G'],
+    eq1 : [ |- con-eq M M'],
+    eq2 : [ |- con-eq N N'],
+    eq3 : [ |- kind-eq A A'],
+    equiv : [ |- cn-equiv-i G' M N A]
+  ; split eq1 as
+    case con-eq/i:
+    { G' : ( |- ctx),
+      M' : ( |- con),
+      N : ( |- con),
+      N' : ( |- con),
+      A : ( |- kind),
+      A' : ( |- kind)
+    | eq : [ |- ctx-eq G' G'],
+      eq1 : [ |- con-eq M' M'],
+      eq2 : [ |- con-eq N N'],
+      eq3 : [ |- kind-eq A A'],
+      equiv : [ |- cn-equiv-i G' M' N A]
+    ; split eq2 as
+      case con-eq/i:
+      { G' : ( |- ctx),
+        M' : ( |- con),
+        N' : ( |- con),
+        A : ( |- kind),
+        A' : ( |- kind)
+      | eq : [ |- ctx-eq G' G'],
+        eq1 : [ |- con-eq M' M'],
+        eq2 : [ |- con-eq N' N'],
+        eq3 : [ |- kind-eq A A'],
+        equiv : [ |- cn-equiv-i G' M' N' A]
+      ; split eq3 as
+        case kind-eq/i:
+        { G' : ( |- ctx), M' : ( |- con), N' : ( |- con), A' : ( |- kind)
+        | eq : [ |- ctx-eq G' G'],
+          eq1 : [ |- con-eq M' M'],
+          eq2 : [ |- con-eq N' N'],
+          eq3 : [ |- kind-eq A' A'],
+          equiv : [ |- cn-equiv-i G' M' N' A']
+        ; solve equiv
+        }
+      }
+    }
+  }
+}
 ;
 
 proof kd-equiv-i-resp :
@@ -208,5 +322,45 @@ proof kd-equiv-i-resp :
   [ |- kd-equiv-i G A B] ->
     [ |- kd-equiv-i G' A' B'] =
 / total /
-?
+intros
+{ G : ( |- ctx),
+  G' : ( |- ctx),
+  A : ( |- kind),
+  A' : ( |- kind),
+  B : ( |- kind),
+  B' : ( |- kind)
+| eq : [ |- ctx-eq G G'],
+  eq1 : [ |- kind-eq A A'],
+  eq2 : [ |- kind-eq B B'],
+  equiv : [ |- kd-equiv-i G A B]
+; split eq as
+  case ctx-eq/i:
+  { G' : ( |- ctx),
+    A : ( |- kind),
+    A' : ( |- kind),
+    B : ( |- kind),
+    B' : ( |- kind)
+  | eq : [ |- ctx-eq G' G'],
+    eq1 : [ |- kind-eq A A'],
+    eq2 : [ |- kind-eq B B'],
+    equiv : [ |- kd-equiv-i G' A B]
+  ; split eq1 as
+    case kind-eq/i:
+    { G' : ( |- ctx), A' : ( |- kind), B : ( |- kind), B' : ( |- kind)
+    | eq : [ |- ctx-eq G' G'],
+      eq1 : [ |- kind-eq A' A'],
+      eq2 : [ |- kind-eq B B'],
+      equiv : [ |- kd-equiv-i G' A' B]
+    ; split eq2 as
+      case kind-eq/i:
+      { G' : ( |- ctx), A' : ( |- kind), B' : ( |- kind)
+      | eq : [ |- ctx-eq G' G'],
+        eq1 : [ |- kind-eq A' A'],
+        eq2 : [ |- kind-eq B' B'],
+        equiv : [ |- kd-equiv-i G' A' B']
+      ; solve equiv
+      }
+    }
+  }
+}
 ;
