@@ -13,6 +13,7 @@ LF flay : etp -> skel -> eterm -> type =
 
 | flay/one : flay eone kone estar
 ;
+--name flay Dflay.
 
 LF can-flay/existKM : etp -> type =
 | can-flay/existKM/i : {K : skel} {M : eterm} flay A K M -> can-flay/existKM A
@@ -21,122 +22,10 @@ LF can-flay/existKM : etp -> type =
 proof can-flay/existKM/i : (g : evar) {K : [ |- skel]} {M : [g |- eterm]}
                            [g |- flay A K[] M] -> [g |- can-flay/existKM A] =
 / total /
-intros
-{ g : evar, A : (g |- etp), K : ( |- skel), M : (g |- eterm)
-| x : [g |- flay A K[] M]
-; by x as X unboxed;
-  solve [_ |- can-flay/existKM/i K[] M X]
-}
+?
 ;
 
 proof can-flay : (g : evar) {A : [g |- etp]} [g |- can-flay/existKM A] =
 / total 1 /
-intros
-{ g : evar, A : (g |- etp)
-|
-; split [_ |- A] as
-  case eone:
-  { g : evar
-  |
-  ; suffices by can-flay/existKM/i [ |- kone] [g |- estar] toshow
-    [g |- flay eone kone estar] {
-      solve [g |- flay/one]
-    }
-  }
-  case esing:
-  { g : evar, X : (g |- eterm)
-  |
-  ; suffices by can-flay/existKM/i [ |- ksing] [g |- X] toshow
-    [g |- flay (esing X) ksing X] {
-      solve [g |- flay/sing ]
-    }
-  }
-  case esigma:
-  { g : evar, X : (g |- etp), X1 : (g, z62 : eterm |- etp)
-  |
-  ; by can-flay [_ |- X] as q1;
-    by can-flay [_, z62 : eterm |- X1] as q2;
-    split q1 as
-    case can-flay/existKM/i:
-    { g : evar,
-      X : (g |- etp),
-      X1 : (g, z62 : eterm |- etp),
-      X3 : ( |- skel),
-      X4 : (g |- eterm),
-      X5 : (g |- flay X X3[] X4)
-    | q1 : [g |- can-flay/existKM X],
-      q2 : [g, z62 : eterm |- can-flay/existKM X1]
-    ; split q2 as
-      case can-flay/existKM/i:
-      { g : evar,
-        X : (g |- etp),
-        X1 : (g, z62 : eterm |- etp),
-        X3 : ( |- skel),
-        X4 : (g |- eterm),
-        X5 : (g |- flay X X3[] X4),
-        X7 : ( |- skel),
-        X8 : (g, z62 : eterm |- eterm),
-        X9 : (g, z62 : eterm |- flay X1 X7[] X8)
-      | q1 : [g |- can-flay/existKM X],
-        q2 : [g, z62 : eterm |- can-flay/existKM X1]
-      ; suffices by
-          can-flay/existKM/i [ |- ksigma X3 X7]
-            [g |- epair X4 (elam X (\x. X8))] toshow
-        [g |-
-           flay
-             (esigma X (\x. X1))
-             (ksigma X3[] X7[]) (epair X4 (elam X (\x. X8)))] {
-          solve [g |- flay/sigma X5 (\x. X9)]
-        }
-      }
-    }
-  }
-  case epi:
-  { g : evar, X : (g |- etp), X1 : (g, z61 : eterm |- etp)
-  |
-  ; by can-flay [g |- X] as q1;
-    by can-flay [g, x : eterm |- X1] as q2;
-    split q1 as
-    case can-flay/existKM/i:
-    { g : evar,
-      X : (g |- etp),
-      X1 : (g, z61 : eterm |- etp),
-      X3 : ( |- skel),
-      X4 : (g |- eterm),
-      X5 : (g |- flay X X3[] X4)
-    | q1 : [g |- can-flay/existKM X],
-      q2 : [g, x : eterm |- can-flay/existKM X1]
-    ; split q2 as
-      case can-flay/existKM/i:
-      { g : evar,
-        X : (g |- etp),
-        X1 : (g, z61 : eterm |- etp),
-        X3 : ( |- skel),
-        X4 : (g |- eterm),
-        X5 : (g |- flay X X3[] X4),
-        X7 : ( |- skel),
-        X8 : (g, x : eterm |- eterm),
-        X9 : (g, x : eterm |- flay X1 X7[] X8)
-      | q1 : [g |- can-flay/existKM X],
-        q2 : [g, x : eterm |- can-flay/existKM X1]
-      ; suffices by
-          can-flay/existKM/i [ |- kpi X3 X7]
-            [g |- epair X4 (elam X (\x1. X8))] toshow
-        [g |-
-           flay
-             (epi X (\x67. X1)) (kpi X3[] X7[]) (epair X4 (elam X (\x1. X8)))] {
-          solve [g |- flay/pi X5 (\x1. X9)]
-        }
-      }
-    }
-  }
-  case et:
-  { g : evar
-  |
-  ; suffices by can-flay/existKM/i [ |- kt] [g |- estar] toshow
-    [g |- flay et kt estar] {
-      solve [g |- flay/t]
-    }
-  }
-}
+?
 ;

@@ -3,18 +3,21 @@
 LF expand-il : con -> kind -> con -> type =
 | expand-il/t : expand-il R t R
 
-| expand-il/pi : ({x : con} expand-il x A (M x)) ->
-                   ({x : con} expand-il (app R (M x)) (B x) (N x)) ->
-                   expand-il R (pi A B) (lam A N)
+| expand-il/pi :
+  ({x : con} expand-il x A (M x)) ->
+    ({x : con} expand-il (app R (M x)) (B x) (N x)) ->
+    expand-il R (pi A B) (lam A N)
 
-| expand-il/sigma : expand-il (pi1 R) A M ->
-                      expand-il (pi2 R) (B (pi1 R)) N ->
-                      expand-il R (sigma A B) (pair M N)
+| expand-il/sigma :
+  expand-il (pi1 R) A M ->
+    expand-il (pi2 R) (B (pi1 R)) N ->
+    expand-il R (sigma A B) (pair M N)
 
 | expand-il/sing : expand-il R (sing R') R'
 
 | expand-il/one : expand-il R one star
 ;
+--name expand-il Dexpand-il.
 
 LF skof-il : skel -> kind -> (con -> kind) -> type =
 | skof-il/t : skof-il kt one (\l. t)
@@ -41,3 +44,4 @@ LF skof-il : skel -> kind -> (con -> kind) -> type =
 
 | skof-il/one : skof-il kone one (\l. one)
 ;
+--name skof-il Dskof-il.
