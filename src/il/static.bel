@@ -473,19 +473,25 @@ and sg-sub : sg -> sg -> type =
   sg-sub S S' ->
     sg-sub (sg/named L S) (sg/named L S')
 
+% Signature Fst
+
 and sg-fst : sg -> kind -> type =
-| sg-sub/reflid :
-  sg-wf S ->
-    sg-sub S S
+| sg-fst/one : sg-fst sg/one one
 
-| sg-sub/one : sg-sub sg/one sg/one
+| sg-fst/satom : sg-fst (sg/satom K) K
 
-| sg-sub/datom :
-  cn-equiv T1 T2 t ->
-    sg-sub (sg/datom T1) (sg/datom T2)
-| sg-sub/sgatom :
-  sg-equiv S1 S2 ->
-    sg-sub (sg/sgatom S1) (sg/sgatom S2)
+| sg-fst/datom : sg-fst (sg/datom C) one
+
+| sg-fst/sgatom : sg-fst (sg/sgatom S) one
+
+| sg-fst/pi : sg-fst (sg/pi S1 S2) one
+
+| sg-fst/sigma :
+  sg-fst S1 K1 ->
+    ({ a : con } sg-fst (S2 a) (K2 a)) ->
+    sg-fst (sg/sigma S1 S2) (sigma K1 K2)
+
+| sg-fst/named : sg-fst S K -> sg-fst (sg/named L S) K
 
 % Module Formation
 
