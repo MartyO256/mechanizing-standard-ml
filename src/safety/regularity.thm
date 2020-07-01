@@ -105,7 +105,66 @@ and proof kd-sub-reg/1 :
   (g : conbind-reg) [g |- kd-sub K1 K2] ->
     [g |- kd-wf K1] =
 / total 1 /
-?
+intros
+{ g : conbind-reg, K : (g |- kind), K1 : (g |- kind)
+| x : [g |- kd-sub K K1]
+; split x as
+  case kd-sub/sigma:
+  { g : conbind-reg,
+    K3 : (g |- kind),
+    K4 : (g, a11 : con |- kind),
+    K2 : (g |- kind),
+    K5 : (g, a12 : con |- kind),
+    Dsub : (g |- kd-sub K2 K3),
+    Dsub1 :
+      (g, a : con, y167 : cn-of a (K3[..]) |- kd-sub (K4[.., a]) (K5[.., a])),
+    Dwf : (g, a : con, z166 : cn-of a (K2[..]) |- kd-wf (K5[.., a]))
+  | x : [g |- kd-sub (sigma K3 (\x98. K4)) (sigma K2 (\x98. K5))]
+  ; by kd-sub-reg/2 [g |- Dsub] as Dwf1a unboxed;
+    by kd-sub-reg/1
+         [g, b : block (a : con, da : cn-of a (K3[..])) |-
+            Dsub1[.., b.1, b.2]]
+    as Dwf1b unboxed;
+    solve [g |- kd-wf/sigma Dwf1a (\a. \da. Dwf1b[.., <a; da>])]
+  }
+  case kd-sub/pi:
+  { g : conbind-reg,
+    K3 : (g |- kind),
+    K4 : (g, a9 : con |- kind),
+    K2 : (g |- kind),
+    K5 : (g, a10 : con |- kind),
+    Dsub : (g |- kd-sub K2 K3),
+    Dsub1 :
+      (g, a : con, x165 : cn-of a (K2[..]) |- kd-sub (K4[.., a]) (K5[.., a])),
+    Dwf : (g, a : con, y165 : cn-of a (K3[..]) |- kd-wf (K4[.., a]))
+  | x : [g |- kd-sub (pi K3 (\x97. K4)) (pi K2 (\x97. K5))]
+  ; by kd-sub-reg/2 [g |- Dsub] as Dwf1a unboxed;
+    solve [g |- kd-wf/pi Dwf1a (\a. \da. Dwf)]
+  }
+  case kd-sub/sing-t:
+  { g : conbind-reg, C : (g |- con), Dof : (g |- cn-of C t)
+  | x : [g |- kd-sub (sing C) t]
+  ; solve [g |- kd-wf/sing Dof]
+  }
+  case kd-sub/trans:
+  { g : conbind-reg,
+    K : (g |- kind),
+    K1 : (g |- kind),
+    K3 : (g |- kind),
+    Dsub : (g |- kd-sub K K3),
+    Dsub1 : (g |- kd-sub K3 K1)
+  | x : [g |- kd-sub K K1]
+  ; solve kd-sub-reg/1 [g |- Dsub]
+  }
+  case kd-sub/refl:
+  { g : conbind-reg,
+    K : (g |- kind),
+    K1 : (g |- kind),
+    Dequiv : (g |- kd-equiv K K1)
+  | x : [g |- kd-sub K K1]
+  ; solve kd-equiv-reg/1 [g |- Dequiv]
+  }
+}
 
 and proof kd-sub-reg/2 :
   (g : conbind-reg) [g |- kd-sub K1 K2] ->
