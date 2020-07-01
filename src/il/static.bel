@@ -231,6 +231,17 @@ and cn-equiv : con -> con -> kind -> type =
 
 % Derived Rules
 
+proof cn-of/equiv : [ |- cn-of C K] -> [ |- kd-equiv K K'] -> [ |- cn-of C K'] =
+/ total /
+intros
+{ C : ( |- con), K : ( |- kind), K' : ( |- kind)
+| cof : [ |- cn-of C K], equiv : [ |- kd-equiv K K']
+; by cof as Dof unboxed;
+  by equiv as Dequiv unboxed;
+  solve [ |- cn-of/subsume Dof (kd-sub/refl Dequiv)]
+}
+;
+
 proof cn-equiv/unit : [ |- cn-equiv unit unit t] =
 / total /
 solve [ |- cn-equiv/refl cn-of/unit]
