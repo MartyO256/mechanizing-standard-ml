@@ -481,7 +481,347 @@ and proof cn-equiv-reg/cn-of1 :
   (g : conbind-reg) [g |- cn-equiv C1 C2 K] ->
     [g |- cn-of C1 K] =
 / total 1 /
-?
+intros
+{ g : conbind-reg, C : (g |- con), C1 : (g |- con), K : (g |- kind)
+| x : [g |- cn-equiv C C1 K]
+; split x as
+  case cn-equiv/beta2:
+  { g : conbind-reg,
+    C2 : (g |- con),
+    C1 : (g |- con),
+    K : (g |- kind),
+    K1 : (g |- kind),
+    Dof : (g |- cn-of C2 K1),
+    Dof1 : (g |- cn-of C1 K)
+  | x : [g |- cn-equiv (pi2 (pair C2 C1)) C1 K]
+  ; by cn-of-reg [g |- Dof1] as Dwf2 unboxed;
+    by [g |- cn-of/pair Dof Dof1 (\a1. \a2. Dwf2[..])] as Dof' unboxed;
+    solve [g |- cn-of/pi2 Dof']
+  }
+  case cn-equiv/beta1:
+  { g : conbind-reg,
+    C1 : (g |- con),
+    C3 : (g |- con),
+    K : (g |- kind),
+    K2 : (g |- kind),
+    Dof : (g |- cn-of C1 K),
+    Dof1 : (g |- cn-of C3 K2)
+  | x : [g |- cn-equiv (pi1 (pair C1 C3)) C1 K]
+  ; by cn-of-reg [g |- Dof1] as Dwf1 unboxed;
+    by [g |- cn-of/pair Dof Dof1 (\a1. \a2. Dwf1[..])] as Dof' unboxed;
+    solve [g |- cn-of/pi1 Dof']
+  }
+  case cn-equiv/beta:
+  { g : conbind-reg,
+    K1 : (g |- kind),
+    C3 : (g, a41 : con |- con),
+    C2 : (g |- con),
+    K2 : (g, a42 : con |- kind),
+    Dof : (g |- cn-of C2 K1),
+    Dof1 :
+      (g, a : con, y195 : cn-of a (K1[..]) |- cn-of (C3[.., a]) (K2[.., a]))
+  | x :
+      [g |- cn-equiv (app (lam K1 (\z100. C3)) C2) (C3[.., C2]) (K2[.., C2])]
+  ; by cn-of-reg [g |- Dof] as DwfA unboxed;
+    solve [g |- cn-of/app Dof (cn-of/lam DwfA (\a. \da. Dof1))]
+  }
+  case cn-equiv/subsume:
+  { g : conbind-reg,
+    C : (g |- con),
+    C1 : (g |- con),
+    K : (g |- kind),
+    K1 : (g |- kind),
+    Dsub : (g |- kd-sub K1 K),
+    Dequiv : (g |- cn-equiv C C1 K1)
+  | x : [g |- cn-equiv C C1 K]
+  ; by cn-equiv-reg/cn-of1 [g |- Dequiv] as Dof1 unboxed;
+    solve [g |- cn-of/subsume Dof1 Dsub]
+  }
+  case cn-equiv/one:
+  { g : conbind-reg,
+    C : (g |- con),
+    C1 : (g |- con),
+    Dof : (g |- cn-of C one),
+    Dof1 : (g |- cn-of C1 one)
+  | x : [g |- cn-equiv C C1 one]
+  ; solve [_ |- Dof]
+  }
+  case cn-equiv/extsigma:
+  { g : conbind-reg,
+    C : (g |- con),
+    C1 : (g |- con),
+    K1 : (g |- kind),
+    K2 : (g, a40 : con |- kind),
+    Dequiv : (g |- cn-equiv (pi1 C) (pi1 C1) K1),
+    Dequiv1 : (g |- cn-equiv (pi2 C) (pi2 C1) (K2[.., pi1 C])),
+    Dwf : (g, a : con, z192 : cn-of a (K1[..]) |- kd-wf (K2[.., a]))
+  | x : [g |- cn-equiv C C1 (sigma K1 (\x98. K2))]
+  ; by cn-equiv-reg/cn-of1 [g |- Dequiv] as Dof1a unboxed;
+    by cn-equiv-reg/cn-of1 [g |- Dequiv1] as Dof1b unboxed;
+    solve [g |- cn-of/extsigma Dof1a Dof1b (\a. \da. Dwf)]
+  }
+  case cn-equiv/extpiw:
+  { g : conbind-reg,
+    C : (g |- con),
+    C1 : (g |- con),
+    K1 : (g |- kind),
+    K3 : (g, a39 : con |- kind),
+    K2 : (g, a38 : con |- kind),
+    Dequiv : (g |- cn-equiv C C1 (pi K1 (\x97. K2))),
+    Dequiv1 :
+      (g, a : con, x191 : cn-of a (K1[..]) |-
+         cn-equiv (app (C[..]) a) (app (C1[..]) a) (K3[.., a]))
+  | x : [g |- cn-equiv C C1 (pi K1 (\x97. K3))]
+  ; by cn-equiv-reg/cn-of1 [g |- Dequiv] as Dof1 unboxed;
+    by cn-equiv-reg/cn-of1
+         [g, b : block (a : con, da : cn-of a (K1[..])) |-
+            Dequiv1[.., b.1, b.2]]
+    as Dof1' unboxed;
+    solve [g |- cn-of/extpi Dof1 (\a. \da. Dof1'[.., <a; da>])]
+  }
+  case cn-equiv/extpi:
+  { g : conbind-reg,
+    C : (g |- con),
+    C1 : (g |- con),
+    K1 : (g |- kind),
+    K4 : (g, a37 : con |- kind),
+    K2 : (g, a35 : con |- kind),
+    K3 : (g, a36 : con |- kind),
+    Dof : (g |- cn-of C (pi K1 (\x97. K2))),
+    Dof1 : (g |- cn-of C1 (pi K1 (\x97. K3))),
+    Dequiv :
+      (g, a : con, x190 : cn-of a (K1[..]) |-
+         cn-equiv (app (C[..]) a) (app (C1[..]) a) (K4[.., a]))
+  | x : [g |- cn-equiv C C1 (pi K1 (\x97. K4))]
+  ; by cn-equiv-reg/cn-of1
+     [g, b : block (a : con, da : cn-of a (K1[..])) |- Dequiv[.., b.1, b.2]]
+as Dof1' unboxed;
+    solve [g |- cn-of/extpi Dof (\a. \da. Dof1'[.., <a; da>])]
+  }
+  case cn-equiv/singelim:
+  { g : conbind-reg,
+    C : (g |- con),
+    C1 : (g |- con),
+    Dof : (g |- cn-of C (sing C1))
+  | x : [g |- cn-equiv C C1 t]
+  ; split cn-of-reg [g |- Dof] as
+    case kd-wf/sing:
+    { g : conbind-reg,
+      C : (g |- con),
+      C1 : (g |- con),
+      Dof : (g |- cn-of C (sing C1)),
+      Dof1 : (g |- cn-of C1 t)
+    | x : [g |- cn-equiv C C1 t]
+    ; solve [g |- cn-of/subsume Dof (kd-sub/sing-t Dof1)]
+    }
+  }
+  case cn-equiv/sing:
+  { g : conbind-reg,
+    C : (g |- con),
+    C1 : (g |- con),
+    Dequiv : (g |- cn-equiv C C1 t)
+  | x : [g |- cn-equiv C C1 (sing C)]
+  ; by cn-equiv-reg/cn-of1 [g |- Dequiv] as Dof1 unboxed;
+    solve [g |- cn-of/sing Dof1]
+  }
+  case cn-equiv/labeled:
+  { g : conbind-reg,
+    X : (g |- label),
+    C2 : (g |- con),
+    C3 : (g |- con),
+    Dequiv : (g |- cn-equiv C2 C3 t)
+  | x : [g |- cn-equiv (labeled X C2) (labeled X C3) t]
+  ; by cn-equiv-reg/cn-of1 [g |- Dequiv] as Dof1 unboxed;
+    solve [g |- cn-of/labeled Dof1]
+  }
+  case cn-equiv/rec:
+  { g : conbind-reg,
+    K1 : (g |- kind),
+    C2 : (g, a32 : con, a31 : con |- con),
+    C4 : (g |- con),
+    K2 : (g |- kind),
+    C3 : (g, a34 : con, a33 : con |- con),
+    C5 : (g |- con),
+    Dequiv : (g |- kd-equiv K1 K2),
+    Dequiv1 :
+      (g, a : con, z187 : cn-of a (pi (K1[..]) (\l. t)), b : con,
+       y188 : cn-of b (K1[..]) |- cn-equiv (C2[.., a, b]) (C3[.., a, b]) t),
+    Dequiv2 : (g |- cn-equiv C4 C5 K1)
+  | x :
+      [g |-
+         cn-equiv
+           (rec' K1 (\x105. \z105. C2) C4) (rec' K2 (\x105. \z105. C3) C5) t]
+  ; by kd-equiv-reg/1 [g |- Dequiv] as DwfK1 unboxed;
+    by cn-equiv-reg/cn-of1
+         [g, b1 : block (a : con, da : cn-of a (pi (K1[..]) (\l. t))),
+          b2 : block (b : con, db : cn-of b (K1[..])) |-
+            Dequiv1[.., b1.1, b1.2, b2.1, b2.2]]
+    as DofC1 unboxed;
+    by cn-equiv-reg/cn-of1 [g |- Dequiv2] as DofD1 unboxed;
+    solve
+  [g |- cn-of/rec DwfK1 (\a. \da. \b. \db. DofC1[.., <a; da>, <b; db>]) DofD1]
+  }
+  case cn-equiv/tag:
+  { g : conbind-reg,
+    C2 : (g |- con),
+    C3 : (g |- con),
+    Dequiv : (g |- cn-equiv C2 C3 t)
+  | x : [g |- cn-equiv (tag C2) (tag C3) t]
+  ; by cn-equiv-reg/cn-of1 [g |- Dequiv] as Dof1 unboxed;
+    solve [g |- cn-of/tag Dof1]
+  }
+  case cn-equiv/ref:
+  { g : conbind-reg,
+    C2 : (g |- con),
+    C3 : (g |- con),
+    Dequiv : (g |- cn-equiv C2 C3 t)
+  | x : [g |- cn-equiv (ref C2) (ref C3) t]
+  ; by cn-equiv-reg/cn-of1 [g |- Dequiv] as Dof1 unboxed;
+    solve [g |- cn-of/ref Dof1]
+  }
+  case cn-equiv/plus:
+  { g : conbind-reg,
+    C2 : (g |- con),
+    C4 : (g |- con),
+    C3 : (g |- con),
+    C5 : (g |- con),
+    Dequiv : (g |- cn-equiv C2 C3 t),
+    Dequiv1 : (g |- cn-equiv C4 C5 t)
+  | x : [g |- cn-equiv (plus C2 C4) (plus C3 C5) t]
+  ; by cn-equiv-reg/cn-of1 [g |- Dequiv] as Dof1a unboxed;
+    by cn-equiv-reg/cn-of1 [g |- Dequiv1] as Dof1b unboxed;
+    solve [g |- cn-of/plus Dof1a Dof1b]
+  }
+  case cn-equiv/arrow:
+  { g : conbind-reg,
+    C2 : (g |- con),
+    C4 : (g |- con),
+    C3 : (g |- con),
+    C5 : (g |- con),
+    Dequiv : (g |- cn-equiv C2 C3 t),
+    Dequiv1 : (g |- cn-equiv C4 C5 t)
+  | x : [g |- cn-equiv (arrow C2 C4) (arrow C3 C5) t]
+  ; by cn-equiv-reg/cn-of1 [g |- Dequiv] as Dof1a unboxed;
+    by cn-equiv-reg/cn-of1 [g |- Dequiv1] as Dof1b unboxed;
+    solve [g |- cn-of/arrow Dof1a Dof1b]
+  }
+  case cn-equiv/prod:
+  { g : conbind-reg,
+    C2 : (g |- con),
+    C4 : (g |- con),
+    C3 : (g |- con),
+    C5 : (g |- con),
+    Dequiv : (g |- cn-equiv C2 C3 t),
+    Dequiv1 : (g |- cn-equiv C4 C5 t)
+  | x : [g |- cn-equiv (prod C2 C4) (prod C3 C5) t]
+  ; by cn-equiv-reg/cn-of1 [g |- Dequiv] as Dof1a unboxed;
+    by cn-equiv-reg/cn-of1 [g |- Dequiv1] as Dof1b unboxed;
+    solve [g |- cn-of/prod Dof1a Dof1b]
+  }
+  case cn-equiv/app:
+  { g : conbind-reg,
+    C2 : (g |- con),
+    C4 : (g |- con),
+    C3 : (g |- con),
+    C5 : (g |- con),
+    K2 : (g, a30 : con |- kind),
+    K1 : (g |- kind),
+    Dequiv : (g |- cn-equiv C2 C3 (pi K1 (\x97. K2))),
+    Dequiv1 : (g |- cn-equiv C4 C5 K1)
+  | x : [g |- cn-equiv (app C2 C4) (app C3 C5) (K2[.., C4])]
+  ; by cn-equiv-reg/cn-of1 [g |- Dequiv] as Dof1a unboxed;
+    by cn-equiv-reg/cn-of1 [g |- Dequiv1] as Dof1b unboxed;
+    solve [g |- cn-of/app Dof1b Dof1a]
+  }
+  case cn-equiv/lam:
+  { g : conbind-reg,
+    K1 : (g |- kind),
+    C2 : (g, a27 : con |- con),
+    K2 : (g |- kind),
+    C3 : (g, a28 : con |- con),
+    K3 : (g, a29 : con |- kind),
+    Dequiv : (g |- kd-equiv K1 K2),
+    Dequiv1 :
+      (g, a : con, y183 : cn-of a (K1[..]) |-
+         cn-equiv (C2[.., a]) (C3[.., a]) (K3[.., a]))
+  | x :
+      [g |-
+         cn-equiv
+           (lam K1 (\z100. C2)) (lam K2 (\z100. C3)) (pi K1 (\x97. K3))]
+  ; by kd-equiv-reg/1 [g |- Dequiv] as Dwf1a unboxed;
+    by cn-equiv-reg/cn-of1
+         [g, b : block (a : con, da : cn-of a (K1[..])) |-
+            Dequiv1[.., b.1, b.2]]
+    as Dof1b unboxed;
+    solve [g |- cn-of/lam Dwf1a (\a. \da. Dof1b[.., <a; da>])]
+  }
+  case cn-equiv/pi2:
+  { g : conbind-reg,
+    C2 : (g |- con),
+    C3 : (g |- con),
+    K2 : (g, a26 : con |- kind),
+    K1 : (g |- kind),
+    Dequiv : (g |- cn-equiv C2 C3 (sigma K1 (\x98. K2)))
+  | x : [g |- cn-equiv (pi2 C2) (pi2 C3) (K2[.., pi1 C2])]
+  ; by cn-equiv-reg/cn-of1 [g |- Dequiv] as Dof1 unboxed;
+    solve [g |- cn-of/pi2 Dof1]
+  }
+  case cn-equiv/pi1:
+  { g : conbind-reg,
+    C2 : (g |- con),
+    C3 : (g |- con),
+    K : (g |- kind),
+    K2 : (g, a25 : con |- kind),
+    Dequiv : (g |- cn-equiv C2 C3 (sigma K (\x98. K2)))
+  | x : [g |- cn-equiv (pi1 C2) (pi1 C3) K]
+  ; by cn-equiv-reg/cn-of1 [g |- Dequiv] as Dof1 unboxed;
+    solve [g |- cn-of/pi1 Dof1]
+  }
+  case cn-equiv/pair:
+  { g : conbind-reg,
+    C2 : (g |- con),
+    C4 : (g |- con),
+    C3 : (g |- con),
+    C5 : (g |- con),
+    K1 : (g |- kind),
+    K2 : (g, a24 : con |- kind),
+    Dequiv : (g |- cn-equiv C2 C3 K1),
+    Dequiv1 : (g |- cn-equiv C4 C5 (K2[.., C2])),
+    Dwf : (g, a : con, x181 : cn-of a (K1[..]) |- kd-wf (K2[.., a]))
+  | x : [g |- cn-equiv (pair C2 C4) (pair C3 C5) (sigma K1 (\x98. K2))]
+  ; by cn-equiv-reg/cn-of1 [g |- Dequiv] as Dof1a unboxed;
+    by cn-equiv-reg/cn-of1 [g |- Dequiv1] as Dof1b unboxed;
+    solve [g |- cn-of/pair Dof1a Dof1b (\a. \da. Dwf)]
+  }
+  case cn-equiv/trans:
+  { g : conbind-reg,
+    C : (g |- con),
+    C1 : (g |- con),
+    K : (g |- kind),
+    C3 : (g |- con),
+    Dequiv : (g |- cn-equiv C C3 K),
+    Dequiv1 : (g |- cn-equiv C3 C1 K)
+  | x : [g |- cn-equiv C C1 K]
+  ; solve cn-equiv-reg/cn-of1 [g |- Dequiv]
+  }
+  case cn-equiv/symm:
+  { g : conbind-reg,
+    C : (g |- con),
+    C1 : (g |- con),
+    K : (g |- kind),
+    Dequiv : (g |- cn-equiv C1 C K)
+  | x : [g |- cn-equiv C C1 K]
+  ; solve cn-equiv-reg/cn-of2 [g |- Dequiv]
+  }
+  case cn-equiv/refl:
+  { g : conbind-reg,
+    C1 : (g |- con),
+    K : (g |- kind),
+    Dof : (g |- cn-of C1 K)
+  | x : [g |- cn-equiv C1 C1 K]
+  ; solve [_ |- Dof]
+  }
+}
 
 and proof cn-equiv-reg/cn-of2 :
   (g : conbind-reg) [g |- cn-equiv C1 C2 K] ->
