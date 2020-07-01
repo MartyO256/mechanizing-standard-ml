@@ -125,7 +125,10 @@ intros
     Dof : ( |- tm-of F E C),
     Dof1 : ( |- tm-of F E1 C1)
   | x : [ |- tm-of F (tm/pair E E1) (prod C C1)]
-  ; ?
+  ; suffices by inversion-tm/pair/cn-equiv/existT1T2/i [ |- C] [ |- C1] toshow
+    [ |- cn-equiv (prod C C1) (prod C C1) t] {
+      ?
+    }
   }
 }
 ;
@@ -266,7 +269,10 @@ intros
       C2 : ( |- con),
       Dof1 : ( |- tm-of F E (prod C C2))
     | x : [ |- tm-of F (tm/pi1 E) T]
-    ; ?
+    ; suffices by inversion-tm/pi1/existsT2/i [ |- C2] toshow
+      [ |- tm-of F E (prod T C2)] {
+        ?
+      }
     }
   }
   case tm-of/pi1:
@@ -330,7 +336,10 @@ intros
       C2 : ( |- con),
       Dof1 : ( |- tm-of F E (prod C2 C))
     | x : [ |- tm-of F (tm/pi2 E) T]
-    ; ?
+    ; suffices by inversion-tm/pi2/existsT1/i [ |- C2] toshow
+      [ |- tm-of F E (prod C2 T)] {
+        ?
+      }
     }
   }
   case tm-of/pi2:
@@ -410,7 +419,10 @@ intros
     Dof : ( |- tm-of F E C),
     Dof1 : ( |- cn-of T t)
   | x : [ |- tm-of F (tm/in1 E T) (plus C T)]
-  ; ?
+  ; suffices by inversion-tm/in1/cn-equiv/existsT1/i [ |- C] toshow
+    [ |- cn-equiv (plus C T) (plus C T) t] {
+      ?
+    }
   }
 }
 ;
@@ -562,7 +574,10 @@ intros
     Dof : ( |- tm-of F E C),
     Dof1 : ( |- cn-of T t)
   | x : [ |- tm-of F (tm/in2 E T) (plus T C)]
-  ; ?
+  ; suffices by inversion-tm/in2/cn-equiv/existsT2/i [ |- C] toshow
+    [ |- cn-equiv (plus T C) (plus T C) t] {
+      ?
+    }
   }
 }
 ;
@@ -949,7 +964,10 @@ intros
     Dof1 :
       (x : term, u : {F' : sttp}  tm-of F' x T[] |- tm-of F[] (E[x]) C1[])
   | x : [ |- tm-of F (tm/lam T (\x. E[x])) (arrow T C1)]
-  ; ?
+  ; suffices by inversion-tm/lam/cn-equiv/existsT2/i [ |- C1] toshow
+    [ |- cn-equiv (arrow T C1) (arrow T C1) t] {
+      ?
+    }
   }
 }
 ;
@@ -1079,7 +1097,10 @@ intros
       C2 : ( |- con),
       Dof1 : ( |- tm-of F E (arrow C2 C))
     | x : [ |- tm-of F (tm/app E E1) T]
-    ; ?
+    ; suffices by inversion-tm/app/1/existsT'/i [ |- C2] toshow
+      [ |- tm-of F E (arrow C2 T)] {
+        ?
+      }
     }
   }
   case tm-of/app:
@@ -1345,7 +1366,10 @@ intros
   case tm-of/ref:
   { F : ( |- sttp), E : ( |- term), C : ( |- con), Dof : ( |- tm-of F E C)
   | x : [ |- tm-of F (tm/ref E) (ref C)]
-  ; ?
+  ; suffices by inversion-tm/ref/cn-equiv/existsT'/i [ |- C] toshow
+    [ |- cn-equiv (ref C) (ref C) t] {
+      ?
+    }
   }
 }
 ;
@@ -2548,7 +2572,10 @@ intros
     C : ( |- con),
     Dof : ( |- tm-of F E C)
   | x : [ |- tm-of F (tm/in I E) (labeled I C)]
-  ; ?
+  ; suffices by inversion-tm/in/cn-equiv/existsT'/i [ |- C] toshow
+    [ |- cn-equiv (labeled I C) (labeled I C) t] {
+      ?
+    }
   }
 }
 ;
