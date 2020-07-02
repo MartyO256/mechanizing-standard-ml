@@ -60,30 +60,6 @@ LF inversion-tm/pair/e : sttp -> term -> term -> con -> type =
     inversion-tm/pair/e F E1 E2 T
 ;
 
-proof inversion-tm/pair/i :
-  { T1 : [ |- con] } { T2 : [ |- con] }
-  [ |- cn-equiv (prod T1 T2) T t] ->
-  [ |- tm-of F E1 T1] ->
-  [ |- tm-of F E2 T2] ->
-    [ |- inversion-tm/pair/e F E1 E2 T] =
-/ total /
-intros
-{ T : ( |- con),
-  F : ( |- sttp),
-  E : ( |- term),
-  E1 : ( |- term),
-  T1 : ( |- con),
-  T2 : ( |- con)
-| equiv : [ |- cn-equiv (prod T1 T2) T t],
-  tof : [ |- tm-of F E T1],
-  tof1 : [ |- tm-of F E1 T2]
-; by equiv as Dequiv unboxed;
-  by tof as Dof1 unboxed;
-  by tof1 as Dof2 unboxed;
-  solve [ |- inversion-tm/pair/i T1 T2 Dequiv Dof1 Dof2]
-}
-;
-
 % TODO: Depends on `tm-of-reg`
 proof inversion-tm/pair :
   [ |- tm-of F (tm/pair E1 E2) T] ->
@@ -118,9 +94,7 @@ intros
       Dof2 : ( |- tm-of F E1 C3)
     | x : [ |- tm-of F (tm/pair E E1) T]
     ; by [ |- cn-equiv/trans Dequiv1 Dequiv] as Dequiv2 unboxed;
-      solve
-        inversion-tm/pair/i [ |- C2] [ |- C3] [ |- Dequiv2] [ |- Dof1]
-          [ |- Dof2]
+      solve [ |- inversion-tm/pair/i C2 C3 Dequiv2 Dof1 Dof2]
     }
   }
   case tm-of/pair:
@@ -282,29 +256,6 @@ LF inversion-tm/in1/e : sttp -> term -> con -> con -> type =
     inversion-tm/in1/e F E T T2
 ;
 
-proof inversion-tm/in1/i :
-  { T1 : [ |- con] }
-  [ |- cn-equiv (plus T1 T2) T t] ->
-  [ |- tm-of F E T1] ->
-  [ |- cn-of T2 t] ->
-    [ |- inversion-tm/in1/e F E T T2] =
-/ total /
-intros
-{ T : ( |- con),
-  T1 : ( |- con),
-  F : ( |- sttp),
-  E : ( |- term),
-  T2 : ( |- con)
-| equiv : [ |- cn-equiv (plus T2 T) T1 t],
-  tof : [ |- tm-of F E T2],
-  cof : [ |- cn-of T t]
-; by equiv as Dequiv unboxed;
-  by tof as DofT unboxed;
-  by cof as DofC unboxed;
-  solve [ |- inversion-tm/in1/i T2 Dequiv DofT DofC]
-}
-;
-
 % TODO: Depends on `tm-of-reg`
 proof inversion-tm/in1 :
   [ |- tm-of F (tm/in1 E T2) T] ->
@@ -361,29 +312,6 @@ LF inversion-tm/in2/e : sttp -> term -> con -> con -> type =
   tm-of F E T2 ->
   cn-of T1 t ->
     inversion-tm/in2/e F E T1 T
-;
-
-proof inversion-tm/in2/i :
-  { T2 : [ |- con] }
-  [ |- cn-equiv (plus T1 T2) T t] ->
-  [ |- tm-of F E T2] ->
-  [ |- cn-of T1 t] ->
-    [ |- inversion-tm/in2/e F E T1 T] =
-/ total /
-intros
-{ T : ( |- con),
-  T1 : ( |- con),
-  F : ( |- sttp),
-  E : ( |- term),
-  T2 : ( |- con)
-| equiv : [ |- cn-equiv (plus T T2) T1 t],
-  tof : [ |- tm-of F E T2],
-  cof : [ |- cn-of T t]
-; by equiv as Dequiv unboxed;
-  by tof as DofT unboxed;
-  by cof as DofC unboxed;
-  solve [ |- inversion-tm/in2/i T2 Dequiv DofT DofC]
-}
 ;
 
 % TODO: Depends on `tm-of-reg`
