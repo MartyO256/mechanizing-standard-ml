@@ -1158,28 +1158,18 @@ intros
 }
 ;
 
-LF inversion-tm/in/cn-equiv/existsT' : label -> con -> type =
-| inversion-tm/in/cn-equiv/existsT'/i :
-  { T' : con } cn-equiv (labeled I T') T t ->
-    inversion-tm/in/cn-equiv/existsT' I T
-;
-
-proof inversion-tm/in/cn-equiv/existsT'/i :
-  { T' : [ |- con] } [ |- cn-equiv (labeled I T') T t] ->
-    [ |- inversion-tm/in/cn-equiv/existsT' I T] =
-/ total /
-intros
-{ I : ( |- label), T : ( |- con), T' : ( |- con)
-| equiv : [ |- cn-equiv (labeled I T') T t]
-; by equiv as Dequiv unboxed;
-  solve [ |- inversion-tm/in/cn-equiv/existsT'/i T' Dequiv]
-}
+LF inversion-tm/in/e : sttp -> label -> term -> con -> type =
+| inversion-tm/in/i :
+  { T' : con }
+  cn-equiv (labeled I T') T t ->
+  tm-of F E T' ->
+    inversion-tm/in/e F I E T
 ;
 
 % TODO: Depends on `tm-of-reg`
-proof inversion-tm/in/cn-equiv :
+proof inversion-tm/in :
   [ |- tm-of F (tm/in I E) T] ->
-    [ |- inversion-tm/in/cn-equiv/existsT' I T] =
+    [ |- inversion-tm/in/e F I E T] =
 / total 1 /
 intros
 { F : ( |- sttp), I : ( |- label), E : ( |- term), T : ( |- con)
@@ -1194,8 +1184,8 @@ intros
     Dof : ( |- tm-of F (tm/in I E) C),
     Dequiv : ( |- cn-equiv C T t)
   | x : [ |- tm-of F (tm/in I E) T]
-  ; split inversion-tm/in/cn-equiv [ |- Dof] as
-    case inversion-tm/in/cn-equiv/existsT'/i:
+  ; split inversion-tm/in [ |- Dof] as
+    case inversion-tm/in/i:
     { F : ( |- sttp),
       I : ( |- label),
       E : ( |- term),
@@ -1204,12 +1194,10 @@ intros
       Dof : ( |- tm-of F (tm/in I E) C),
       Dequiv : ( |- cn-equiv C T t),
       C2 : ( |- con),
-      Dequiv1 : ( |- cn-equiv (labeled I C2) C t)
+      Dequiv1 : ( |- cn-equiv (labeled I C2) C t),
+      Dof1 : ( |- tm-of F E C2)
     | x : [ |- tm-of F (tm/in I E) T]
-    ; suffices by inversion-tm/in/cn-equiv/existsT'/i [ |- C2] toshow
-      [ |- cn-equiv (labeled I C2) T t] {
-        solve [ |- cn-equiv/trans Dequiv1 Dequiv]
-      }
+    ; solve [ |- inversion-tm/in/i C2 (cn-equiv/trans Dequiv1 Dequiv) Dof1]
     }
   }
   case tm-of/in:
@@ -1219,62 +1207,7 @@ intros
     C : ( |- con),
     Dof : ( |- tm-of F E C)
   | x : [ |- tm-of F (tm/in I E) (labeled I C)]
-  ; suffices by inversion-tm/in/cn-equiv/existsT'/i [ |- C] toshow
-    [ |- cn-equiv (labeled I C) (labeled I C) t] {
-      ?
-    }
-  }
-}
-;
-
-LF inversion-tm/in/tm-of/existsT' : sttp -> term -> type =
-| inversion-tm/in/tm-of/existsT'/i :
-  { T' : con } tm-of F E T' ->
-    inversion-tm/in/tm-of/existsT' F E
-;
-
-proof inversion-tm/in/tm-of/existsT'/i :
-  { T' : [ |- con] } [ |- tm-of F E T'] ->
-    [ |- inversion-tm/in/tm-of/existsT' F E] =
-/ total /
-intros
-{ F : ( |- sttp), E : ( |- term), T' : ( |- con)
-| tof : [ |- tm-of F E T']
-; by tof as Dof unboxed;
-  solve [ |- inversion-tm/in/tm-of/existsT'/i T' Dof]
-}
-;
-
-proof inversion-tm/in/tm-of :
-  [ |- tm-of F (tm/in I E) T] ->
-    [ |- inversion-tm/in/tm-of/existsT' F E] =
-/ total 1 /
-intros
-{ F : ( |- sttp), I : ( |- label), E : ( |- term), T : ( |- con)
-| x : [ |- tm-of F (tm/in I E) T]
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    I : ( |- label),
-    E : ( |- term),
-    T : ( |- con),
-    C : ( |- con),
-    Dof : ( |- tm-of F (tm/in I E) C),
-    Dequiv : ( |- cn-equiv C T t)
-  | x : [ |- tm-of F (tm/in I E) T]
-  ; solve inversion-tm/in/tm-of [ |- Dof]
-  }
-  case tm-of/in:
-  { F : ( |- sttp),
-    I : ( |- label),
-    E : ( |- term),
-    C : ( |- con),
-    Dof : ( |- tm-of F E C)
-  | x : [ |- tm-of F (tm/in I E) (labeled I C)]
-  ; suffices by inversion-tm/in/tm-of/existsT'/i [ |- C] toshow
-    [ |- tm-of F E C] {
-      solve [ |- Dof]
-    }
+  ; ?
   }
 }
 ;
