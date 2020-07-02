@@ -778,27 +778,18 @@ intros
 }
 ;
 
-LF inversion-tm/tagloc/cn-equiv/existsT' : con -> type =
-| inversion-tm/tagloc/cn-equiv/existsT'/i :
-  { T' : con} cn-equiv (tag T') T t ->
-    inversion-tm/tagloc/cn-equiv/existsT' T
+LF inversion-tm/tagloc/e : sttp -> location -> con -> type =
+| inversion-tm/tagloc/i :
+  { T' : con }
+  cn-equiv (tag T') T t ->
+  st-lookup F L (et/tag T') ->
+  cn-of T' t ->
+    inversion-tm/tagloc/e F L T
 ;
 
-proof inversion-tm/tagloc/cn-equiv/existsT'/i :
-  { T' : [ |- con] } [ |- cn-equiv (tag T') T t] ->
-    [ |- inversion-tm/tagloc/cn-equiv/existsT' T] =
-/ total /
-intros
-{ T : ( |- con), T' : ( |- con)
-| equiv : [ |- cn-equiv (tag T') T t]
-; by equiv as Dequiv unboxed;
-  solve [ |- inversion-tm/tagloc/cn-equiv/existsT'/i T' Dequiv]
-}
-;
-
-proof inversion-tm/tagloc/cn-equiv :
+proof inversion-tm/tagloc :
   [ |- tm-of F (tm/tagloc L) T] ->
-    [ |- inversion-tm/tagloc/cn-equiv/existsT' T] =
+    [ |- inversion-tm/tagloc/e F L T] =
 / total 1 /
 intros
 { F : ( |- sttp), L : ( |- location), T : ( |- con)
@@ -812,8 +803,8 @@ intros
     Dof : ( |- tm-of F (tm/tagloc L) C),
     Dequiv : ( |- cn-equiv C T t)
   | x : [ |- tm-of F (tm/tagloc L) T]
-  ; split inversion-tm/tagloc/cn-equiv [ |- Dof] as
-    case inversion-tm/tagloc/cn-equiv/existsT'/i:
+  ; split inversion-tm/tagloc [ |- Dof] as
+    case inversion-tm/tagloc/i:
     { F : ( |- sttp),
       L : ( |- location),
       T : ( |- con),
@@ -821,12 +812,14 @@ intros
       Dof : ( |- tm-of F (tm/tagloc L) C),
       Dequiv : ( |- cn-equiv C T t),
       C2 : ( |- con),
-      Dequiv1 : ( |- cn-equiv (tag C2) C t)
+      Dequiv1 : ( |- cn-equiv (tag C2) C t),
+      Dlookup : ( |- st-lookup F L (et/tag C2)),
+      Dof1 : ( |- cn-of C2 t)
     | x : [ |- tm-of F (tm/tagloc L) T]
-    ; suffices by inversion-tm/tagloc/cn-equiv/existsT'/i [ |- C2] toshow
-      [ |- cn-equiv (tag C2) T t] {
-        solve [ |- cn-equiv/trans Dequiv1 Dequiv]
-      }
+    ; solve
+        [ |-
+           inversion-tm/tagloc/i C2
+           (cn-equiv/trans Dequiv1 Dequiv) Dlookup Dof1]
     }
   }
   case tm-of/tagloc:
@@ -836,81 +829,9 @@ intros
     Dlookup : ( |- st-lookup F L (et/tag C)),
     Dof : ( |- cn-of C t)
   | x : [ |- tm-of F (tm/tagloc L) (tag C)]
-  ; suffices by inversion-tm/tagloc/cn-equiv/existsT'/i [ |- C] toshow
-    [ |- cn-equiv (tag C) (tag C) t] {
-      solve [ |- cn-equiv/refl (cn-of/tag Dof)]
-    }
-  }
-}
-;
-
-LF inversion-tm/tagloc/st-lookup/existsT' : sttp -> location -> type =
-| inversion-tm/tagloc/st-lookup/existsT'/i :
-  { T' : con } st-lookup F L (et/tag T') ->
-    inversion-tm/tagloc/st-lookup/existsT' F L
-;
-
-proof inversion-tm/tagloc/st-lookup :
-  [ |- tm-of F (tm/tagloc L) T] ->
-    [ |- inversion-tm/tagloc/st-lookup/existsT' F L] =
-/ total 1 /
-intros
-{ F : ( |- sttp), L : ( |- location), T : ( |- con)
-| x : [ |- tm-of F (tm/tagloc L) T]
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    L : ( |- location),
-    T : ( |- con),
-    C : ( |- con),
-    Dof : ( |- tm-of F (tm/tagloc L) C),
-    Dequiv : ( |- cn-equiv C T t)
-  | x : [ |- tm-of F (tm/tagloc L) T]
-  ; solve inversion-tm/tagloc/st-lookup [ |- Dof]
-  }
-  case tm-of/tagloc:
-  { F : ( |- sttp),
-    L : ( |- location),
-    C : ( |- con),
-    Dlookup : ( |- st-lookup F L (et/tag C)),
-    Dof : ( |- cn-of C t)
-  | x : [ |- tm-of F (tm/tagloc L) (tag C)]
-  ; solve [ |- inversion-tm/tagloc/st-lookup/existsT'/i C Dlookup]
-  }
-}
-;
-
-LF inversion-tm/tagloc/cn-of/existsT' : type =
-| inversion-tm/tagloc/cn-of/existsT'/i : { T' : con } cn-of T' t ->
-                                           inversion-tm/tagloc/cn-of/existsT'
-;
-
-proof inversion-tm/tagloc/cn-of :
-  [ |- tm-of F (tm/tagloc L) T] ->
-    [ |- inversion-tm/tagloc/cn-of/existsT'] =
-/ total 1 /
-intros
-{ F : ( |- sttp), L : ( |- location), T : ( |- con)
-| x : [ |- tm-of F (tm/tagloc L) T]
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    L : ( |- location),
-    T : ( |- con),
-    C : ( |- con),
-    Dof : ( |- tm-of F (tm/tagloc L) C),
-    Dequiv : ( |- cn-equiv C T t)
-  | x : [ |- tm-of F (tm/tagloc L) T]
-  ; solve inversion-tm/tagloc/cn-of [ |- Dof]
-  }
-  case tm-of/tagloc:
-  { F : ( |- sttp),
-    L : ( |- location),
-    C : ( |- con),
-    Dlookup : ( |- st-lookup F L (et/tag C)),
-    Dof : ( |- cn-of C t)
-  | x : [ |- tm-of F (tm/tagloc L) (tag C)]
-  ; solve [ |- inversion-tm/tagloc/cn-of/existsT'/i C Dof]
+  ; solve
+      [ |-
+         inversion-tm/tagloc/i C (cn-equiv/refl (cn-of/tag Dof)) Dlookup Dof]
   }
 }
 ;
