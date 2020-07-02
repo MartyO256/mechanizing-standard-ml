@@ -998,59 +998,22 @@ intros
 }
 ;
 
-proof inversion-tm/roll/cn-equiv :
-  [ |- tm-of F (tm/roll E K (\c1. \c2. C1) C2) T] ->
-    [ |- cn-equiv (rec' K (\c1. \c2. C1) C2) T t] =
-/ total 1 /
-intros
-{ F : ( |- sttp),
-  E : ( |- term),
-  K : ( |- kind),
-  C : (z126 : con, y127 : con |- con),
-  C1 : ( |- con),
-  T : ( |- con)
-| x : [ |- tm-of F (tm/roll E K (\c1. \c2. C) C1) T]
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    E : ( |- term),
-    K : ( |- kind),
-    C : (z126 : con, y127 : con |- con),
-    C1 : ( |- con),
-    T : ( |- con),
-    C2 : ( |- con),
-    Dof : ( |- tm-of F (tm/roll E K (\c1. \c2. C) C1) C2),
-    Dequiv : ( |- cn-equiv C2 T t)
-  | x : [ |- tm-of F (tm/roll E K (\c1. \c2. C) C1) T]
-  ; by inversion-tm/roll/cn-equiv [ |- Dof] as Dequiv1 unboxed;
-    solve [ |- cn-equiv/trans Dequiv1 Dequiv]
-  }
-  case tm-of/roll:
-  { F : ( |- sttp),
-    E : ( |- term),
-    K : ( |- kind),
-    C : (z126 : con, y127 : con |- con),
-    C1 : ( |- con),
-    Dof :
-      ( |-
-         tm-of
-           F E (C[lam K (\a. rec' K[] (\x105. \z105. C[x105, z105]) a), C1])),
-    Dwf : ( |- kd-wf K),
-    Dof1 :
-      (a : con, y216 : cn-of a (pi K[] (\l. t)), b : con, x216 : cn-of b K[] |-
-         cn-of (C[a, b]) t),
-    Dof2 : ( |- cn-of C1 K)
-  | x :
-      [ |-
-         tm-of F (tm/roll E K (\c1. \c2. C) C1) (rec' K (\x105. \z105. C) C1)]
-  ; solve [ |- cn-equiv/refl (cn-of/rec Dwf (\a. \da. \b. \db. Dof1) Dof2)]
-  }
-}
+LF inversion-tm/roll/e :
+  sttp -> term -> kind -> (con -> con -> con) -> con -> con -> type =
+| inversion-tm/roll/i :
+  cn-equiv (rec' K C1 C2) T t ->
+  tm-of F E (C1 (lam K (\a. rec' K C1 a)) C2) ->
+  kd-wf K ->
+  ({ a : con } cn-of a (pi K (\l. t)) ->
+   { b : con } cn-of b K ->
+     cn-of (C1 a b) t) ->
+  cn-of C2 K ->
+    inversion-tm/roll/e F E K C1 C2 T
 ;
 
-proof inversion-tm/roll/tm-of :
+proof inversion-tm/roll :
   [ |- tm-of F (tm/roll E K (\c1. \c2. C1) C2) T] ->
-    [ |- tm-of F E (C1[lam K[] (\a. rec' K[] (\c1. \c2. C1[c1, c2]) a), C2[]])] =
+    [ |- inversion-tm/roll/e F E K (\c1. \c2. C1) C2 T] =
 / total 1 /
 intros
 { F : ( |- sttp),
@@ -1072,7 +1035,34 @@ intros
     Dof : ( |- tm-of F (tm/roll E K (\c1. \c2. C) C1) C2),
     Dequiv : ( |- cn-equiv C2 T t)
   | x : [ |- tm-of F (tm/roll E K (\c1. \c2. C) C1) T]
-  ; solve inversion-tm/roll/tm-of [ |- Dof]
+  ; split inversion-tm/roll [ |- Dof] as
+    case inversion-tm/roll/i:
+    { F : ( |- sttp),
+      E : ( |- term),
+      K : ( |- kind),
+      C : (z126 : con, y127 : con |- con),
+      C1 : ( |- con),
+      T : ( |- con),
+      C2 : ( |- con),
+      Dof : ( |- tm-of F (tm/roll E K (\c1. \c2. C) C1) C2),
+      Dequiv : ( |- cn-equiv C2 T t),
+      Dequiv1 : ( |- cn-equiv (rec' K (\x105. \z105. C) C1) C2 t),
+      Dof1 :
+        ( |-
+           tm-of
+             F
+             E (C[lam K (\a. rec' K[] (\x105. \z105. C[x105, z105]) a), C1])),
+      Dwf : ( |- kd-wf K),
+      Dof2 :
+        (a : con, y672 : cn-of a (pi K[] (\l. t)), b : con,
+         x672 : cn-of b K[] |- cn-of (C[a, b]) t),
+      Dof3 : ( |- cn-of C1 K)
+    | x : [ |- tm-of F (tm/roll E K (\c1. \c2. C) C1) T]
+    ; solve
+        [ |-
+           inversion-tm/roll/i (cn-equiv/trans Dequiv1 Dequiv)
+           Dof1 Dwf (\a. \da. \b. \db. Dof2) Dof3]
+    }
   }
   case tm-of/roll:
   { F : ( |- sttp),
@@ -1086,163 +1076,17 @@ intros
            F E (C[lam K (\a. rec' K[] (\x105. \z105. C[x105, z105]) a), C1])),
     Dwf : ( |- kd-wf K),
     Dof1 :
-      (a : con, y216 : cn-of a (pi K[] (\l. t)), b : con, x216 : cn-of b K[] |-
-         cn-of (C[a, b]) t),
-    Dof2 : ( |- cn-of C1 K)
-  | x :
-      [ |-
-         tm-of F (tm/roll E K (\c1. \c2. C) C1) (rec' K (\x105. \z105. C) C1)]
-  ; solve [ |- Dof]
-  }
-}
-;
-
-proof inversion-tm/roll/kd-wf :
-  [ |- tm-of F (tm/roll E K (\c1. \c2. C1) C2) T] ->
-    [ |- kd-wf K] =
-/ total 1 /
-intros
-{ F : ( |- sttp),
-  E : ( |- term),
-  K : ( |- kind),
-  C : (z126 : con, y127 : con |- con),
-  C1 : ( |- con),
-  T : ( |- con)
-| x : [ |- tm-of F (tm/roll E K (\c1. \c2. C) C1) T]
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    E : ( |- term),
-    K : ( |- kind),
-    C : (z126 : con, y127 : con |- con),
-    C1 : ( |- con),
-    T : ( |- con),
-    C2 : ( |- con),
-    Dof : ( |- tm-of F (tm/roll E K (\c1. \c2. C) C1) C2),
-    Dequiv : ( |- cn-equiv C2 T t)
-  | x : [ |- tm-of F (tm/roll E K (\c1. \c2. C) C1) T]
-  ; solve inversion-tm/roll/kd-wf [ |- Dof]
-  }
-  case tm-of/roll:
-  { F : ( |- sttp),
-    E : ( |- term),
-    K : ( |- kind),
-    C : (z126 : con, y127 : con |- con),
-    C1 : ( |- con),
-    Dof :
-      ( |-
-         tm-of
-           F E (C[lam K (\a. rec' K[] (\x105. \z105. C[x105, z105]) a), C1])),
-    Dwf : ( |- kd-wf K),
-    Dof1 :
-      (a : con, y216 : cn-of a (pi K[] (\l. t)), b : con, x216 : cn-of b K[] |-
-         cn-of (C[a, b]) t),
-    Dof2 : ( |- cn-of C1 K)
-  | x :
-      [ |-
-         tm-of F (tm/roll E K (\c1. \c2. C) C1) (rec' K (\x105. \z105. C) C1)]
-  ; solve [ |- Dwf]
-  }
-}
-;
-
-proof inversion-tm/roll/cn-of1 :
-  [ |- tm-of F (tm/roll E K (\c1. \c2. C1) C2) T] ->
-    [a : con, da : cn-of a (pi K[] (\l. t)),
-     b : con, db : cn-of b K[] |- cn-of (C1[a, b]) t] =
-/ total 1 /
-intros
-{ F : ( |- sttp),
-  E : ( |- term),
-  K : ( |- kind),
-  C : (z126 : con, y127 : con |- con),
-  C1 : ( |- con),
-  T : ( |- con)
-| x : [ |- tm-of F (tm/roll E K (\c1. \c2. C) C1) T]
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    E : ( |- term),
-    K : ( |- kind),
-    C : (z126 : con, y127 : con |- con),
-    C1 : ( |- con),
-    T : ( |- con),
-    C2 : ( |- con),
-    Dof : ( |- tm-of F (tm/roll E K (\c1. \c2. C) C1) C2),
-    Dequiv : ( |- cn-equiv C2 T t)
-  | x : [ |- tm-of F (tm/roll E K (\c1. \c2. C) C1) T]
-  ; solve inversion-tm/roll/cn-of1 [ |- Dof]
-  }
-  case tm-of/roll:
-  { F : ( |- sttp),
-    E : ( |- term),
-    K : ( |- kind),
-    C : (z126 : con, y127 : con |- con),
-    C1 : ( |- con),
-    Dof :
-      ( |-
-         tm-of
-           F E (C[lam K (\a. rec' K[] (\x105. \z105. C[x105, z105]) a), C1])),
-    Dwf : ( |- kd-wf K),
-    Dof1 :
-      (a : con, y216 : cn-of a (pi K[] (\l. t)), b : con, x216 : cn-of b K[] |-
+      (a : con, x217 : cn-of a (pi K[] (\l. t)), b : con, z217 : cn-of b K[] |-
          cn-of (C[a, b]) t),
     Dof2 : ( |- cn-of C1 K)
   | x :
       [ |-
          tm-of F (tm/roll E K (\c1. \c2. C) C1) (rec' K (\x105. \z105. C) C1)]
   ; solve
-      [a : con, y216 : cn-of a (pi K[] (\l. t)), b : con, x216 : cn-of b K[] |-
-         Dof1]
-  }
-}
-;
-
-proof inversion-tm/roll/cn-of2 :
-  [ |- tm-of F (tm/roll E K (\c1. \c2. C1) C2) T] ->
-    [ |- cn-of C2 K] =
-/ total 1 /
-intros
-{ F : ( |- sttp),
-  E : ( |- term),
-  K : ( |- kind),
-  C : (z126 : con, y127 : con |- con),
-  C1 : ( |- con),
-  T : ( |- con)
-| x : [ |- tm-of F (tm/roll E K (\c1. \c2. C) C1) T]
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    E : ( |- term),
-    K : ( |- kind),
-    C : (z126 : con, y127 : con |- con),
-    C1 : ( |- con),
-    T : ( |- con),
-    C2 : ( |- con),
-    Dof : ( |- tm-of F (tm/roll E K (\c1. \c2. C) C1) C2),
-    Dequiv : ( |- cn-equiv C2 T t)
-  | x : [ |- tm-of F (tm/roll E K (\c1. \c2. C) C1) T]
-  ; solve inversion-tm/roll/cn-of2 [ |- Dof]
-  }
-  case tm-of/roll:
-  { F : ( |- sttp),
-    E : ( |- term),
-    K : ( |- kind),
-    C : (z126 : con, y127 : con |- con),
-    C1 : ( |- con),
-    Dof :
-      ( |-
-         tm-of
-           F E (C[lam K (\a. rec' K[] (\x105. \z105. C[x105, z105]) a), C1])),
-    Dwf : ( |- kd-wf K),
-    Dof1 :
-      (a : con, y216 : cn-of a (pi K[] (\l. t)), b : con, x216 : cn-of b K[] |-
-         cn-of (C[a, b]) t),
-    Dof2 : ( |- cn-of C1 K)
-  | x :
       [ |-
-         tm-of F (tm/roll E K (\c1. \c2. C) C1) (rec' K (\x105. \z105. C) C1)]
-  ; solve [ |- Dof2]
+         inversion-tm/roll/i (cn-equiv/refl (cn-of/rec Dwf
+                                            (\a. \da. \b. \db. Dof1) Dof2))
+         Dof Dwf (\a. \da. \b. \db. Dof1) Dof2]
   }
 }
 ;
