@@ -51,28 +51,43 @@ intros
 }
 ;
 
-LF inversion-tm/pair/cn-equiv/existT1T2 : con -> type =
-| inversion-tm/pair/cn-equiv/existT1T2/i :
-  { T1 : con } {T2 : con} cn-equiv (prod T1 T2) T t ->
-    inversion-tm/pair/cn-equiv/existT1T2 T
+LF inversion-tm/pair/e : sttp -> term -> term -> con -> type =
+| inversion-tm/pair/i :
+  { T1 : con } { T2 : con }
+  cn-equiv (prod T1 T2) T t ->
+  tm-of F E1 T1 ->
+  tm-of F E2 T2 ->
+    inversion-tm/pair/e F E1 E2 T
 ;
 
-proof inversion-tm/pair/cn-equiv/existT1T2/i :
-  { T1 : [ |- con] } { T2 : [ |- con] } [ |- cn-equiv (prod T1 T2) T t] ->
-    [ |- inversion-tm/pair/cn-equiv/existT1T2 T] =
+proof inversion-tm/pair/i :
+  { T1 : [ |- con] } { T2 : [ |- con] }
+  [ |- cn-equiv (prod T1 T2) T t] ->
+  [ |- tm-of F E1 T1] ->
+  [ |- tm-of F E2 T2] ->
+    [ |- inversion-tm/pair/e F E1 E2 T] =
 / total /
 intros
-{ T : ( |- con), T1 : ( |- con), T2 : ( |- con)
-| equiv : [ |- cn-equiv (prod T1 T2) T t]
+{ T : ( |- con),
+  F : ( |- sttp),
+  E : ( |- term),
+  E1 : ( |- term),
+  T1 : ( |- con),
+  T2 : ( |- con)
+| equiv : [ |- cn-equiv (prod T1 T2) T t],
+  tof : [ |- tm-of F E T1],
+  tof1 : [ |- tm-of F E1 T2]
 ; by equiv as Dequiv unboxed;
-  solve [ |- inversion-tm/pair/cn-equiv/existT1T2/i T1 T2 Dequiv]
+  by tof as Dof1 unboxed;
+  by tof1 as Dof2 unboxed;
+  solve [ |- inversion-tm/pair/i T1 T2 Dequiv Dof1 Dof2]
 }
 ;
 
 % TODO: Depends on `tm-of-reg`
-proof inversion-tm/pair/cn-equiv :
+proof inversion-tm/pair :
   [ |- tm-of F (tm/pair E1 E2) T] ->
-    [ |- inversion-tm/pair/cn-equiv/existT1T2 T] =
+    [ |- inversion-tm/pair/e F E1 E2 T] =
 / total 1 /
 intros
 { F : ( |- sttp), E : ( |- term), E1 : ( |- term), T : ( |- con)
@@ -87,8 +102,8 @@ intros
     Dof : ( |- tm-of F (tm/pair E E1) C),
     Dequiv : ( |- cn-equiv C T t)
   | x : [ |- tm-of F (tm/pair E E1) T]
-  ; split inversion-tm/pair/cn-equiv [ |- Dof] as
-    case inversion-tm/pair/cn-equiv/existT1T2/i:
+  ; split inversion-tm/pair [ |- Dof] as
+    case inversion-tm/pair/i:
     { F : ( |- sttp),
       E : ( |- term),
       E1 : ( |- term),
@@ -98,12 +113,14 @@ intros
       Dequiv : ( |- cn-equiv C T t),
       C2 : ( |- con),
       C3 : ( |- con),
-      Dequiv1 : ( |- cn-equiv (prod C2 C3) C t)
+      Dequiv1 : ( |- cn-equiv (prod C2 C3) C t),
+      Dof1 : ( |- tm-of F E C2),
+      Dof2 : ( |- tm-of F E1 C3)
     | x : [ |- tm-of F (tm/pair E E1) T]
-    ; suffices by inversion-tm/pair/cn-equiv/existT1T2/i [ |- C2] [ |- C3] toshow
-      [ |- cn-equiv (prod C2 C3) T t] {
-        solve [ |- cn-equiv/trans Dequiv1 Dequiv]
-      }
+    ; by [ |- cn-equiv/trans Dequiv1 Dequiv] as Dequiv2 unboxed;
+      solve
+        inversion-tm/pair/i [ |- C2] [ |- C3] [ |- Dequiv2] [ |- Dof1]
+          [ |- Dof2]
     }
   }
   case tm-of/pair:
@@ -115,100 +132,7 @@ intros
     Dof : ( |- tm-of F E C),
     Dof1 : ( |- tm-of F E1 C1)
   | x : [ |- tm-of F (tm/pair E E1) (prod C C1)]
-  ; suffices by inversion-tm/pair/cn-equiv/existT1T2/i [ |- C] [ |- C1] toshow
-    [ |- cn-equiv (prod C C1) (prod C C1) t] {
-      ?
-    }
-  }
-}
-;
-
-LF inversion-tm/pair/tm-of/existsT : sttp -> term -> type =
-| inversion-tm/pair/tm-of/existsT/i :
-  { T : con } tm-of F E T ->
-    inversion-tm/pair/tm-of/existsT F E
-;
-
-proof inversion-tm/pair/tm-of/existsT/i :
-  { T : [ |- con] } [ |- tm-of F E T] ->
-    [ |- inversion-tm/pair/tm-of/existsT F E] =
-/ total /
-intros
-{ F : ( |- sttp), E : ( |- term), T : ( |- con)
-| tof : [ |- tm-of F E T]
-; by tof as Dof unboxed;
-  solve [ |- inversion-tm/pair/tm-of/existsT/i T Dof]
-}
-;
-
-proof inversion-tm/pair/tm-of1 :
-  [ |- tm-of F (tm/pair E1 E2) T] ->
-    [ |- inversion-tm/pair/tm-of/existsT F E1] =
-/ total 1 /
-intros
-{ F : ( |- sttp), E : ( |- term), E1 : ( |- term), T : ( |- con)
-| x : [ |- tm-of F (tm/pair E E1) T]
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    E : ( |- term),
-    E1 : ( |- term),
-    T : ( |- con),
-    C : ( |- con),
-    Dof : ( |- tm-of F (tm/pair E E1) C),
-    Dequiv : ( |- cn-equiv C T t)
-  | x : [ |- tm-of F (tm/pair E E1) T]
-  ; solve inversion-tm/pair/tm-of1 [ |- Dof]
-  }
-  case tm-of/pair:
-  { F : ( |- sttp),
-    E : ( |- term),
-    E1 : ( |- term),
-    C : ( |- con),
-    C1 : ( |- con),
-    Dof : ( |- tm-of F E C),
-    Dof1 : ( |- tm-of F E1 C1)
-  | x : [ |- tm-of F (tm/pair E E1) (prod C C1)]
-  ; suffices by inversion-tm/pair/tm-of/existsT/i [ |- C] toshow
-    [ |- tm-of F E C] {
-      solve [ |- Dof]
-    }
-  }
-}
-;
-
-proof inversion-tm/pair/tm-of2 :
-  [ |- tm-of F (tm/pair E1 E2) T] ->
-    [ |- inversion-tm/pair/tm-of/existsT F E2] =
-/ total 1 /
-intros
-{ F : ( |- sttp), E : ( |- term), E1 : ( |- term), T : ( |- con)
-| x : [ |- tm-of F (tm/pair E E1) T]
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    E : ( |- term),
-    E1 : ( |- term),
-    T : ( |- con),
-    C : ( |- con),
-    Dof : ( |- tm-of F (tm/pair E E1) C),
-    Dequiv : ( |- cn-equiv C T t)
-  | x : [ |- tm-of F (tm/pair E E1) T]
-  ; solve inversion-tm/pair/tm-of2 [ |- Dof]
-  }
-  case tm-of/pair:
-  { F : ( |- sttp),
-    E : ( |- term),
-    E1 : ( |- term),
-    C : ( |- con),
-    C1 : ( |- con),
-    Dof : ( |- tm-of F E C),
-    Dof1 : ( |- tm-of F E1 C1)
-  | x : [ |- tm-of F (tm/pair E E1) (prod C C1)]
-  ; suffices by inversion-tm/pair/tm-of/existsT/i [ |- C1] toshow
-    [ |- tm-of F E1 C1] {
-      solve [ |- Dof1]
-    }
+  ; ?
   }
 }
 ;
