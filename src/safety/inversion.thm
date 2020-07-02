@@ -1314,43 +1314,16 @@ intros
 }
 ;
 
-proof inversion-tm/try/tm-of1 :
-  [ |- tm-of F (tm/try E1 (\x. E2)) T] ->
-    [ |- tm-of F E1 T] =
-/ total 1 /
-intros
-{ F : ( |- sttp), E : ( |- term), E1 : (y130 : term |- term), T : ( |- con)
-| x : [ |- tm-of F (tm/try E (\x. E1)) T]
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    E : ( |- term),
-    E1 : (y130 : term |- term),
-    T : ( |- con),
-    C : ( |- con),
-    Dof : ( |- tm-of F (tm/try E (\x. E1)) C),
-    Dequiv : ( |- cn-equiv C T t)
-  | x : [ |- tm-of F (tm/try E (\x. E1)) T]
-  ; by inversion-tm/try/tm-of1 [ |- Dof] as Dof1 unboxed;
-    solve [ |- tm-of/equiv Dof1 Dequiv]
-  }
-  case tm-of/try:
-  { F : ( |- sttp),
-    E : ( |- term),
-    E1 : (y130 : term |- term),
-    T : ( |- con),
-    Dof : ( |- tm-of F E T),
-    Dof1 :
-      (x : term, u : {F' : sttp}  tm-of F' x tagged |- tm-of F[] (E1[x]) T[])
-  | x : [ |- tm-of F (tm/try E (\x. E1)) T]
-  ; solve [ |- Dof]
-  }
-}
+LF inversion-tm/try/e : sttp -> term -> (term -> term) -> con -> type =
+| inversion-tm/try/i :
+  tm-of F E1 T ->
+  ({ x : term } { u : { F' : sttp } tm-of F' x tagged } tm-of F (E2 x) T) ->
+    inversion-tm/try/e F E1 E2 T
 ;
 
-proof inversion-tm/try/tm-of2 :
+proof inversion-tm/try :
   [ |- tm-of F (tm/try E1 (\x. E2)) T] ->
-    [x : term, u : { F' : sttp } tm-of F' x tagged |- tm-of F[] (E2[x]) T[]] =
+    [ |- inversion-tm/try/e F E1 (\x. E2) T] =
 / total 1 /
 intros
 { F : ( |- sttp), E : ( |- term), E1 : (y130 : term |- term), T : ( |- con)
@@ -1365,10 +1338,25 @@ intros
     Dof : ( |- tm-of F (tm/try E (\x. E1)) C),
     Dequiv : ( |- cn-equiv C T t)
   | x : [ |- tm-of F (tm/try E (\x. E1)) T]
-  ; by inversion-tm/try/tm-of2 [ |- Dof] as Dof1 unboxed;
-    solve
-      [x : term, u : {F' : sttp}  tm-of F' x tagged |-
-         tm-of/equiv Dof1 Dequiv[]]
+  ; split inversion-tm/try [ |- Dof] as
+    case inversion-tm/try/i:
+    { F : ( |- sttp),
+      E : ( |- term),
+      E1 : (y130 : term |- term),
+      T : ( |- con),
+      C : ( |- con),
+      Dof : ( |- tm-of F (tm/try E (\x. E1)) C),
+      Dequiv : ( |- cn-equiv C T t),
+      Dof1 : ( |- tm-of F E C),
+      Dof2 :
+        (x : term, u : {F' : sttp}  tm-of F' x tagged |-
+           tm-of F[] (E1[x]) C[])
+    | x : [ |- tm-of F (tm/try E (\x. E1)) T]
+    ; solve
+        [ |-
+           inversion-tm/try/i (tm-of/equiv Dof1 Dequiv)
+           (\x. \u. tm-of/equiv Dof2 Dequiv[])]
+    }
   }
   case tm-of/try:
   { F : ( |- sttp),
@@ -1379,7 +1367,7 @@ intros
     Dof1 :
       (x : term, u : {F' : sttp}  tm-of F' x tagged |- tm-of F[] (E1[x]) T[])
   | x : [ |- tm-of F (tm/try E (\x. E1)) T]
-  ; solve [x : term, u : {F' : sttp}  tm-of F' x tagged |- Dof1]
+  ; solve [ |- inversion-tm/try/i Dof (\x. \u. Dof1)]
   }
 }
 ;
