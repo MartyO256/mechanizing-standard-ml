@@ -2752,3 +2752,21 @@ intros
   }
 }
 ;
+
+schema termbind-reg = some [T : con, Dwf : cn-of T t]
+                      block (x : term, u : {F' : sttp} tm-of F' x T);
+
+proof tm-of-reg :
+  (g : termbind-reg)
+  [g |- tm-of F E T] -> [g |- cn-of T t] =
+/ total 1 /
+intros
+{ g : termbind-reg, F : (g |- sttp), E : (g |- term), T : (g |- con)
+| x : [g |- tm-of F E T]
+; %{ FIXME: Bug
+    Type reconstruction fails after `split x`, `session serialize`
+    because of `u : {F' : sttp} tm-of F' x T` in `termbind-reg`
+  }%
+  ?
+}
+;
