@@ -1212,13 +1212,16 @@ intros
 }
 ;
 
-LF inversion-tm/out/existsL : sttp -> term -> con -> type =
-| inversion-tm/out/existsL/i : { L : label } tm-of F E (labeled L T) ->
-                                 inversion-tm/out/existsL F E T
+LF inversion-tm/out/e : sttp -> term -> con -> type =
+| inversion-tm/out/i :
+  { L : label }
+  tm-of F E (labeled L T) ->
+    inversion-tm/out/e F E T
 ;
 
-proof inversion-tm/out : [ |- tm-of F (tm/out E) T] ->
-                           [ |- inversion-tm/out/existsL F E T] =
+proof inversion-tm/out :
+  [ |- tm-of F (tm/out E) T] ->
+    [ |- inversion-tm/out/e F E T] =
 / total 1 /
 intros
 { F : ( |- sttp), E : ( |- term), T : ( |- con)
@@ -1233,7 +1236,7 @@ intros
     Dequiv : ( |- cn-equiv C T t)
   | x : [ |- tm-of F (tm/out E) T]
   ; split inversion-tm/out [ |- Dof] as
-    case inversion-tm/out/existsL/i:
+    case inversion-tm/out/i:
     { F : ( |- sttp),
       E : ( |- term),
       T : ( |- con),
@@ -1245,7 +1248,7 @@ intros
     | x : [ |- tm-of F (tm/out E) T]
     ; by [ |- cn-equiv/labeled Dequiv] as Dequiv1 unboxed;
       by [ |- tm-of/equiv Dof1 Dequiv1] as Dof2 unboxed;
-      solve [ |- inversion-tm/out/existsL/i X Dof2]
+      solve [ |- inversion-tm/out/i X Dof2]
     }
   }
   case tm-of/out:
@@ -1255,7 +1258,7 @@ intros
     X : ( |- label),
     Dof : ( |- tm-of F E (labeled X T))
   | x : [ |- tm-of F (tm/out E) T]
-  ; solve [ |- inversion-tm/out/existsL/i X Dof]
+  ; solve [ |- inversion-tm/out/i X Dof]
   }
 }
 ;
