@@ -862,47 +862,18 @@ intros
 }
 ;
 
-proof inversion-tm/tag/cn-equiv : [ |- tm-of F (tm/tag E1 E2) T] ->
-                                    [ |- cn-equiv tagged T t] =
-/ total 1 /
-intros
-{ F : ( |- sttp), E : ( |- term), E1 : ( |- term), T : ( |- con)
-| x : [ |- tm-of F (tm/tag E E1) T]
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    E : ( |- term),
-    E1 : ( |- term),
-    T : ( |- con),
-    C : ( |- con),
-    Dof : ( |- tm-of F (tm/tag E E1) C),
-    Dequiv : ( |- cn-equiv C T t)
-  | x : [ |- tm-of F (tm/tag E E1) T]
-  ; by inversion-tm/tag/cn-equiv [ |- Dof] as Dequiv1 unboxed;
-    solve [ |- cn-equiv/trans Dequiv1 Dequiv]
-  }
-  case tm-of/tag:
-  { F : ( |- sttp),
-    E : ( |- term),
-    E1 : ( |- term),
-    C : ( |- con),
-    Dof : ( |- tm-of F E (tag C)),
-    Dof1 : ( |- tm-of F E1 C)
-  | x : [ |- tm-of F (tm/tag E E1) tagged]
-  ; solve [ |- cn-equiv/refl cn-of/tagged]
-  }
-}
+LF inversion-tm/tag/e : sttp -> term -> term -> con -> type =
+| inversion-tm/tag/i :
+  { T' : con }
+  cn-equiv tagged T t ->
+  tm-of F E1 (tag T') ->
+  tm-of F E2 T' ->
+    inversion-tm/tag/e F E1 E2 T
 ;
 
-LF inversion-tm/tag/tm-of1/existsT' : sttp -> term -> type =
-| inversion-tm/tag/tm-of1/existsT'/i :
-  { T' : con } tm-of F E1 (tag T') ->
-    inversion-tm/tag/tm-of1/existsT' F E1
-;
-
-proof inversion-tm/tag/tm-of1 :
+proof inversion-tm/tag :
   [ |- tm-of F (tm/tag E1 E2) T] ->
-    [ |- inversion-tm/tag/tm-of1/existsT' F E1] =
+    [ |- inversion-tm/tag/e F E1 E2 T] =
 / total 1 /
 intros
 { F : ( |- sttp), E : ( |- term), E1 : ( |- term), T : ( |- con)
@@ -917,7 +888,23 @@ intros
     Dof : ( |- tm-of F (tm/tag E E1) C),
     Dequiv : ( |- cn-equiv C T t)
   | x : [ |- tm-of F (tm/tag E E1) T]
-  ; solve inversion-tm/tag/tm-of1 [ |- Dof]
+  ; split inversion-tm/tag [ |- Dof] as
+    case inversion-tm/tag/i:
+    { F : ( |- sttp),
+      E : ( |- term),
+      E1 : ( |- term),
+      T : ( |- con),
+      C : ( |- con),
+      Dof : ( |- tm-of F (tm/tag E E1) C),
+      Dequiv : ( |- cn-equiv C T t),
+      C2 : ( |- con),
+      Dequiv1 : ( |- cn-equiv tagged C t),
+      Dof1 : ( |- tm-of F E (tag C2)),
+      Dof2 : ( |- tm-of F E1 C2)
+    | x : [ |- tm-of F (tm/tag E E1) T]
+    ; solve
+        [ |- inversion-tm/tag/i C2 (cn-equiv/trans Dequiv1 Dequiv) Dof1 Dof2]
+    }
   }
   case tm-of/tag:
   { F : ( |- sttp),
@@ -927,45 +914,7 @@ intros
     Dof : ( |- tm-of F E (tag C)),
     Dof1 : ( |- tm-of F E1 C)
   | x : [ |- tm-of F (tm/tag E E1) tagged]
-  ; solve [ |- inversion-tm/tag/tm-of1/existsT'/i C Dof]
-  }
-}
-;
-
-LF inversion-tm/tag/tm-of2/existsT' : sttp -> term -> type =
-| inversion-tm/tag/tm-of2/existsT'/i :
-  { T' : con } tm-of F E2 T' ->
-    inversion-tm/tag/tm-of2/existsT' F E2
-;
-
-proof inversion-tm/tag/tm-of2 :
-  [ |- tm-of F (tm/tag E1 E2) T] ->
-    [ |- inversion-tm/tag/tm-of2/existsT' F E2] =
-/ total 1 /
-intros
-{ F : ( |- sttp), E : ( |- term), E1 : ( |- term), T : ( |- con)
-| x : [ |- tm-of F (tm/tag E E1) T]
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    E : ( |- term),
-    E1 : ( |- term),
-    T : ( |- con),
-    C : ( |- con),
-    Dof : ( |- tm-of F (tm/tag E E1) C),
-    Dequiv : ( |- cn-equiv C T t)
-  | x : [ |- tm-of F (tm/tag E E1) T]
-  ; solve inversion-tm/tag/tm-of2 [ |- Dof]
-  }
-  case tm-of/tag:
-  { F : ( |- sttp),
-    E : ( |- term),
-    E1 : ( |- term),
-    C : ( |- con),
-    Dof : ( |- tm-of F E (tag C)),
-    Dof1 : ( |- tm-of F E1 C)
-  | x : [ |- tm-of F (tm/tag E E1) tagged]
-  ; solve [ |- inversion-tm/tag/tm-of2/existsT'/i C Dof1]
+  ; solve [ |- inversion-tm/tag/i C (cn-equiv/refl cn-of/tagged) Dof Dof1]
   }
 }
 ;
