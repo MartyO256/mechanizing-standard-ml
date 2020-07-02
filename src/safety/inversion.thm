@@ -1091,37 +1091,18 @@ intros
 }
 ;
 
-LF inversion-tm/unroll/cn-equiv/existKC1C2 : con -> type =
-| inversion-tm/unroll/cn-equiv/existKC1C2/i :
+LF inversion-tm/unroll/e : sttp -> term -> con -> type =
+| inversion-tm/unroll/i :
   { K : kind } { C1 : con -> con -> con } { C2 : con }
   cn-equiv (C1 (lam K (\a. rec' K C1 a)) C2) T t ->
-    inversion-tm/unroll/cn-equiv/existKC1C2 T
-;
-
-
-proof inversion-tm/unroll/cn-equiv/existKC1C2/i :
-  { K : [ |- kind] } { C1 : [c1 : con, c2 : con |- con] } { C2 : [ |- con] }
-  [ |- cn-equiv
-    (C1[lam K[] (\a. rec' K[] (\c1. \c2. C1[c1, c2]) a), C2[]]) T t] ->
-    [ |- inversion-tm/unroll/cn-equiv/existKC1C2 T] =
-/ total /
-intros
-{ T : ( |- con),
-  K : ( |- kind),
-  C : (c1 : con, c2 : con |- con),
-  C1 : ( |- con)
-| equiv :
-    [ |- cn-equiv (C[lam K (\a. rec' K[] (\c1. \c2. C[c1, c2]) a), C1]) T t]
-; by equiv as Dequiv unboxed;
-  solve
-    [ |- inversion-tm/unroll/cn-equiv/existKC1C2/i K (\c1. \c2. C) C1 Dequiv]
-}
+  tm-of F E (rec' K C1 C2) ->
+    inversion-tm/unroll/e F E T
 ;
 
 % TODO: Depends on `tm-of-reg`
-proof inversion-tm/unroll/cn-equiv :
+proof inversion-tm/unroll :
   [ |- tm-of F (tm/unroll E) T] ->
-    [ |- inversion-tm/unroll/cn-equiv/existKC1C2 T] =
+    [ |- inversion-tm/unroll/e F E T] =
 / total 1 /
 intros
 { F : ( |- sttp), E : ( |- term), T : ( |- con)
@@ -1135,8 +1116,8 @@ intros
     Dof : ( |- tm-of F (tm/unroll E) C),
     Dequiv : ( |- cn-equiv C T t)
   | x : [ |- tm-of F (tm/unroll E) T]
-  ; split inversion-tm/unroll/cn-equiv [ |- Dof] as
-    case inversion-tm/unroll/cn-equiv/existKC1C2/i:
+  ; split inversion-tm/unroll [ |- Dof] as
+    case inversion-tm/unroll/i:
     { F : ( |- sttp),
       E : ( |- term),
       T : ( |- con),
@@ -1144,23 +1125,19 @@ intros
       Dof : ( |- tm-of F (tm/unroll E) C),
       Dequiv : ( |- cn-equiv C T t),
       K : ( |- kind),
-      C2 : (x608 : con, z608 : con |- con),
+      C2 : (y675 : con, x675 : con |- con),
       C3 : ( |- con),
       Dequiv1 :
         ( |-
            cn-equiv
              (C2[lam K (\a. rec' K[] (\x105. \z105. C2[x105, z105]) a), C3])
-             C t)
+             C t),
+      Dof1 : ( |- tm-of F E (rec' K (\x105. \z105. C2) C3))
     | x : [ |- tm-of F (tm/unroll E) T]
-    ; suffices by
-        inversion-tm/unroll/cn-equiv/existKC1C2/i [ |- K]
-          [c1 : con, c2 : con |- C2] [ |- C3] toshow
-      [ |-
-         cn-equiv
-           (C2[lam K (\a. rec' K[] (\y105. \x105. C2[y105, x105]) a), C3])
-           T t] {
-        solve [ |- cn-equiv/trans Dequiv1 Dequiv]
-      }
+    ; solve
+        [ |-
+           inversion-tm/unroll/i K
+           (\c1. \c2. C2) C3 (cn-equiv/trans Dequiv1 Dequiv) Dof1]
     }
   }
   case tm-of/unroll:
@@ -1177,71 +1154,6 @@ intros
            (tm/unroll E)
            (C[lam K (\a. rec' K[] (\x105. \z105. C[x105, z105]) a), C1])]
   ; ?
-  }
-}
-;
-
-LF inversion-tm/unroll/tm-of/existKC1C2 : sttp -> term -> type =
-| inversion-tm/unroll/tm-of/existKC1C2/i :
-  { K : kind } { C1 : con -> con -> con } { C2 : con }
-  tm-of F E (rec' K C1 C2) ->
-    inversion-tm/unroll/tm-of/existKC1C2 F E
-;
-
-proof inversion-tm/unroll/tm-of/existKC1C2/i :
-  { K : [ |- kind] } { C1 : [c1 : con, c2 : con |- con] } { C2 : [ |- con] }
-  [ |- tm-of F E (rec' K (\c1. \c2. C1) C2)] ->
-    [ |- inversion-tm/unroll/tm-of/existKC1C2 F E] =
-/ total /
-intros
-{ F : ( |- sttp),
-  E : ( |- term),
-  K : ( |- kind),
-  C : (c1 : con, c2 : con |- con),
-  C1 : ( |- con)
-| tof : [ |- tm-of F E (rec' K (\c1. \c2. C) C1)]
-; by tof as Dof unboxed;
-  solve [ |- inversion-tm/unroll/tm-of/existKC1C2/i K (\c1. \c2. C) C1 Dof]
-}
-;
-
-proof inversion-tm/unroll/tm-of :
-  [ |- tm-of F (tm/unroll E) T] ->
-    [ |- inversion-tm/unroll/tm-of/existKC1C2 F E] =
-/ total 1 /
-intros
-{ F : ( |- sttp), E : ( |- term), T : ( |- con)
-| x : [ |- tm-of F (tm/unroll E) T]
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    E : ( |- term),
-    T : ( |- con),
-    C : ( |- con),
-    Dof : ( |- tm-of F (tm/unroll E) C),
-    Dequiv : ( |- cn-equiv C T t)
-  | x : [ |- tm-of F (tm/unroll E) T]
-  ; solve inversion-tm/unroll/tm-of [ |- Dof]
-  }
-  case tm-of/unroll:
-  { F : ( |- sttp),
-    E : ( |- term),
-    C : (a46 : con, a45 : con |- con),
-    C1 : ( |- con),
-    K : ( |- kind),
-    Dof : ( |- tm-of F E (rec' K (\x105. \z105. C) C1))
-  | x :
-      [ |-
-         tm-of
-           F
-           (tm/unroll E)
-           (C[lam K (\a. rec' K[] (\x105. \z105. C[x105, z105]) a), C1])]
-  ; suffices by
-      inversion-tm/unroll/tm-of/existKC1C2/i [ |- K]
-        [c1 : con, c2 : con |- C] [ |- C1] toshow
-    [ |- tm-of F E (rec' K (\c1. \c2. C) C1)] {
-      solve [ |- Dof]
-    }
   }
 }
 ;
