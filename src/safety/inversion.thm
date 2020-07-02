@@ -1,37 +1,15 @@
 % Term Inversion
 
-proof inversion-tm/abort/tm-of : [ |- tm-of F (tm/abort E T) T'] ->
-                                   [ |- tm-of F E void] =
-/ total 1 /
-intros
-{ F : ( |- sttp), E : ( |- term), T : ( |- con), T' : ( |- con)
-| x : [ |- tm-of F (tm/abort E T) T']
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    E : ( |- term),
-    T : ( |- con),
-    T' : ( |- con),
-    C : ( |- con),
-    Dof : ( |- tm-of F (tm/abort E T) C),
-    Dequiv : ( |- cn-equiv C T' t)
-  | x : [ |- tm-of F (tm/abort E T) T']
-  ; solve inversion-tm/abort/tm-of [ |- Dof]
-  }
-  case tm-of/abort:
-  { F : ( |- sttp),
-    E : ( |- term),
-    T' : ( |- con),
-    Dof : ( |- cn-of T' t),
-    Dof1 : ( |- tm-of F E void)
-  | x : [ |- tm-of F (tm/abort E T') T']
-  ; solve [ |- Dof1]
-  }
-}
+LF inversion-tm/abort/e : sttp -> term -> con -> con -> type =
+| inversion-tm/abort/i :
+  tm-of F E void ->
+  cn-equiv T T' t ->
+    inversion-tm/abort/e F E T T'
 ;
 
-proof inversion-tm/abort/cn-equiv : [ |- tm-of F (tm/abort E T) T'] ->
-                                      [ |- cn-equiv T T' t] =
+proof inversion-tm/abort :
+  [ |- tm-of F (tm/abort E T) T'] ->
+    [ |- inversion-tm/abort/e F E T T'] =
 / total 1 /
 intros
 { F : ( |- sttp), E : ( |- term), T : ( |- con), T' : ( |- con)
@@ -46,8 +24,20 @@ intros
     Dof : ( |- tm-of F (tm/abort E T) C),
     Dequiv : ( |- cn-equiv C T' t)
   | x : [ |- tm-of F (tm/abort E T) T']
-  ; by inversion-tm/abort/cn-equiv [ |- Dof] as Dequiv1 unboxed;
-    solve [ |- cn-equiv/trans Dequiv1 Dequiv]
+  ; split inversion-tm/abort [ |- Dof] as
+    case inversion-tm/abort/i:
+    { F : ( |- sttp),
+      E : ( |- term),
+      T : ( |- con),
+      T' : ( |- con),
+      C : ( |- con),
+      Dof : ( |- tm-of F (tm/abort E T) C),
+      Dequiv : ( |- cn-equiv C T' t),
+      Dof1 : ( |- tm-of F E void),
+      Dequiv1 : ( |- cn-equiv T C t)
+    | x : [ |- tm-of F (tm/abort E T) T']
+    ; solve [ |- inversion-tm/abort/i Dof1 (cn-equiv/trans Dequiv1 Dequiv)]
+    }
   }
   case tm-of/abort:
   { F : ( |- sttp),
@@ -56,7 +46,7 @@ intros
     Dof : ( |- cn-of T' t),
     Dof1 : ( |- tm-of F E void)
   | x : [ |- tm-of F (tm/abort E T') T']
-  ; solve [ |- cn-equiv/refl Dof]
+  ; solve [ |- inversion-tm/abort/i Dof1 (cn-equiv/refl Dof)]
   }
 }
 ;
