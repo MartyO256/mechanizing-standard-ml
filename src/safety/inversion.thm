@@ -137,28 +137,28 @@ intros
 }
 ;
 
-LF inversion-tm/pi1/existsT2 : sttp -> term -> con -> type =
-| inversion-tm/pi1/existsT2/i :
+LF inversion-tm/pi1/e : sttp -> term -> con -> type =
+| inversion-tm/pi1/i :
   { T2 : con } tm-of F E (prod T1 T2) ->
-    inversion-tm/pi1/existsT2 F E T1
+    inversion-tm/pi1/e F E T1
 ;
 
-proof inversion-tm/pi1/existsT2/i :
+proof inversion-tm/pi1/i :
   { T2 : [ |- con] } [ |- tm-of F E (prod T1 T2)] ->
-    [ |- inversion-tm/pi1/existsT2 F E T1] =
+    [ |- inversion-tm/pi1/e F E T1] =
 / total /
 intros
 { F : ( |- sttp), E : ( |- term), T : ( |- con), T1 : ( |- con)
 | tof : [ |- tm-of F E (prod T T1)]
 ; by tof as Dof unboxed;
-  solve [ |- inversion-tm/pi1/existsT2/i T1 Dof]
+  solve [ |- inversion-tm/pi1/i T1 Dof]
 }
 ;
 
 % TODO: Depends on `tm-of-reg`, `inversion-prod/1`
 proof inversion-tm/pi1 :
   [ |- tm-of F (tm/pi1 E) T1] ->
-    [ |- inversion-tm/pi1/existsT2 F E T1] =
+    [ |- inversion-tm/pi1/e F E T1] =
 / total 1 /
 intros
 { F : ( |- sttp), E : ( |- term), T : ( |- con)
@@ -173,7 +173,7 @@ intros
     Dequiv : ( |- cn-equiv C T t)
   | x : [ |- tm-of F (tm/pi1 E) T]
   ; split inversion-tm/pi1 [ |- Dof] as
-    case inversion-tm/pi1/existsT2/i:
+    case inversion-tm/pi1/i:
     { F : ( |- sttp),
       E : ( |- term),
       T : ( |- con),
@@ -183,7 +183,7 @@ intros
       C2 : ( |- con),
       Dof1 : ( |- tm-of F E (prod C C2))
     | x : [ |- tm-of F (tm/pi1 E) T]
-    ; suffices by inversion-tm/pi1/existsT2/i [ |- C2] toshow
+    ; suffices by inversion-tm/pi1/i [ |- C2] toshow
       [ |- tm-of F E (prod T C2)] {
         ?
       }
@@ -196,7 +196,7 @@ intros
     C1 : ( |- con),
     Dof : ( |- tm-of F E (prod T C1))
   | x : [ |- tm-of F (tm/pi1 E) T]
-  ; suffices by inversion-tm/pi1/existsT2/i [ |- C1] toshow
+  ; suffices by inversion-tm/pi1/i [ |- C1] toshow
     [ |- tm-of F E (prod T C1)] {
       solve [ |- Dof]
     }
@@ -204,28 +204,30 @@ intros
 }
 ;
 
-LF inversion-tm/pi2/existsT1 : sttp -> term -> con -> type =
-| inversion-tm/pi2/existsT1/i :
-  { T1 : con } tm-of F E (prod T1 T2) ->
-    inversion-tm/pi2/existsT1 F E T2
+LF inversion-tm/pi2/e : sttp -> term -> con -> type =
+| inversion-tm/pi2/i :
+  { T1 : con }
+  tm-of F E (prod T1 T2) ->
+    inversion-tm/pi2/e F E T2
 ;
 
-proof inversion-tm/pi2/existsT1/i :
-  { T1 : [ |- con] } [ |- tm-of F E (prod T1 T2)] ->
-    [ |- inversion-tm/pi2/existsT1 F E T2] =
+proof inversion-tm/pi2/i :
+  { T1 : [ |- con] }
+  [ |- tm-of F E (prod T1 T2)] ->
+    [ |- inversion-tm/pi2/e F E T2] =
 / total /
 intros
 { F : ( |- sttp), E : ( |- term), T : ( |- con), T1 : ( |- con)
 | tof : [ |- tm-of F E (prod T1 T)]
 ; by tof as Dof unboxed;
-  solve [ |- inversion-tm/pi2/existsT1/i T1 Dof]
+  solve [ |- inversion-tm/pi2/i T1 Dof]
 }
 ;
 
 % TODO: Depends on `tm-of-reg`, `inversion-prod/2`
 proof inversion-tm/pi2 :
   [ |- tm-of F (tm/pi2 E) T2] ->
-    [ |- inversion-tm/pi2/existsT1 F E T2] =
+    [ |- inversion-tm/pi2/e F E T2] =
 / total 1 /
 intros
 { F : ( |- sttp), E : ( |- term), T : ( |- con)
@@ -240,7 +242,7 @@ intros
     Dequiv : ( |- cn-equiv C T t)
   | x : [ |- tm-of F (tm/pi2 E) T]
   ; split inversion-tm/pi2 [ |- Dof] as
-    case inversion-tm/pi2/existsT1/i:
+    case inversion-tm/pi2/i:
     { F : ( |- sttp),
       E : ( |- term),
       T : ( |- con),
@@ -250,7 +252,7 @@ intros
       C2 : ( |- con),
       Dof1 : ( |- tm-of F E (prod C2 C))
     | x : [ |- tm-of F (tm/pi2 E) T]
-    ; suffices by inversion-tm/pi2/existsT1/i [ |- C2] toshow
+    ; suffices by inversion-tm/pi2/i [ |- C2] toshow
       [ |- tm-of F E (prod C2 T)] {
         ?
       }
@@ -263,7 +265,7 @@ intros
     C : ( |- con),
     Dof : ( |- tm-of F E (prod C T))
   | x : [ |- tm-of F (tm/pi2 E) T]
-  ; suffices by inversion-tm/pi2/existsT1/i [ |- C] toshow
+  ; suffices by inversion-tm/pi2/i [ |- C] toshow
     [ |- tm-of F E (prod C T)] {
       solve [ |- Dof]
     }
