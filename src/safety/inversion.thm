@@ -1263,39 +1263,16 @@ intros
 }
 ;
 
-proof inversion-tm/raise/cn-equiv : [ |- tm-of F (tm/raise E T') T] ->
-                                      [ |- cn-equiv T' T t] =
-/ total 1 /
-intros
-{ F : ( |- sttp), E : ( |- term), T' : ( |- con), T : ( |- con)
-| x : [ |- tm-of F (tm/raise E T') T]
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    E : ( |- term),
-    T' : ( |- con),
-    T : ( |- con),
-    C : ( |- con),
-    Dof : ( |- tm-of F (tm/raise E T') C),
-    Dequiv : ( |- cn-equiv C T t)
-  | x : [ |- tm-of F (tm/raise E T') T]
-  ; by inversion-tm/raise/cn-equiv [ |- Dof] as Dequiv1 unboxed;
-    solve [ |- cn-equiv/trans Dequiv1 Dequiv]
-  }
-  case tm-of/raise:
-  { F : ( |- sttp),
-    E : ( |- term),
-    T : ( |- con),
-    Dof : ( |- tm-of F E tagged),
-    Dof1 : ( |- cn-of T t)
-  | x : [ |- tm-of F (tm/raise E T) T]
-  ; solve [ |- cn-equiv/refl Dof1]
-  }
-}
+LF inversion-tm/raise/e : sttp -> term -> con -> con -> type =
+| inversion-tm/raise/i :
+  cn-equiv T' T t ->
+  tm-of F E tagged ->
+    inversion-tm/raise/e F E T' T
 ;
 
-proof inversion-tm/raise/tm-of : [ |- tm-of F (tm/raise E T') T] ->
-                                   [ |- tm-of F E tagged] =
+proof inversion-tm/raise :
+  [ |- tm-of F (tm/raise E T') T] ->
+    [ |- inversion-tm/raise/e F E T' T] =
 / total 1 /
 intros
 { F : ( |- sttp), E : ( |- term), T' : ( |- con), T : ( |- con)
@@ -1310,7 +1287,20 @@ intros
     Dof : ( |- tm-of F (tm/raise E T') C),
     Dequiv : ( |- cn-equiv C T t)
   | x : [ |- tm-of F (tm/raise E T') T]
-  ; solve inversion-tm/raise/tm-of [ |- Dof]
+  ; split inversion-tm/raise [ |- Dof] as
+    case inversion-tm/raise/i:
+    { F : ( |- sttp),
+      E : ( |- term),
+      T' : ( |- con),
+      T : ( |- con),
+      C : ( |- con),
+      Dof : ( |- tm-of F (tm/raise E T') C),
+      Dequiv : ( |- cn-equiv C T t),
+      Dequiv1 : ( |- cn-equiv T' C t),
+      Dof1 : ( |- tm-of F E tagged)
+    | x : [ |- tm-of F (tm/raise E T') T]
+    ; solve [ |- inversion-tm/raise/i (cn-equiv/trans Dequiv1 Dequiv) Dof1]
+    }
   }
   case tm-of/raise:
   { F : ( |- sttp),
@@ -1319,7 +1309,7 @@ intros
     Dof : ( |- tm-of F E tagged),
     Dof1 : ( |- cn-of T t)
   | x : [ |- tm-of F (tm/raise E T) T]
-  ; solve [ |- Dof]
+  ; solve [ |- inversion-tm/raise/i (cn-equiv/refl Dof1) Dof]
   }
 }
 ;
