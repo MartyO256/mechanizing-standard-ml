@@ -1223,7 +1223,7 @@ intros
     solve [ |- store-bounds/cons Dlt]
   }
   case nextloc/nil:
-  { 
+  {
   | nextloc : [ |- nextloc store/nil (location/i zero)]
   ; solve [ |- store-bounds/nil ]
   }
@@ -1232,47 +1232,43 @@ intros
 
 % Preservation
 
-LF preservation-tm/tm-of/existsF' : term -> con -> type =
-| preservation-tm/tm-of/existsF'/i :
-  { F' : sttp } tm-of F' E' T ->
-    preservation-tm/tm-of/existsF' E' T
+LF preservation-tm/e : sttp -> term -> con -> store -> type =
+| preservation-tm/i :
+  { F' : sttp}
+  tm-of F' E' T ->
+  store-of F' ST' F' ->
+  extends F F' ->
+    preservation-tm/e F E' T ST'
 ;
 
-proof preservation-tm/tm-of :
+proof preservation-tm/i :
+  { F' : [ |- sttp] }
+  [ |- tm-of F' E' T] ->
+  [ |- store-of F' ST' F'] ->
+  [ |- extends F F'] ->
+    [ |- preservation-tm/e F E' T ST'] =
+/ total /
+intros
+{ E' : ( |- term),
+  T : ( |- con),
+  ST' : ( |- store),
+  F : ( |- sttp),
+  F' : ( |- sttp)
+| tof : [ |- tm-of F' E' T],
+  sof : [ |- store-of F' ST' F'],
+  extends : [ |- extends F F']
+; by tof as DofT unboxed;
+  by sof as DofS unboxed;
+  by extends as Dextends unboxed;
+  solve [ |- preservation-tm/i F' DofT DofS Dextends]
+}
+;
+
+proof preservation-tm :
   [ |- tm-of F E T] ->
   [ |- store-of F ST F] ->
   [ |- step ST E ST' E'] ->
-    [ |- preservation-tm/tm-of/existsF' E' T] =
-/ total 1 /
-?
-;
-
-LF preservation-tm/store-of/existsF' : store -> type =
-| preservation-tm/store-of/existsF'/i :
-  { F' : sttp } store-of F' ST' F' ->
-    preservation-tm/store-of/existsF' ST'
-;
-
-proof preservation-tm/store-of :
-  [ |- tm-of F E T] ->
-  [ |- store-of F ST F] ->
-  [ |- step ST E ST' E'] ->
-    [ |- preservation-tm/store-of/existsF' ST'] =
-/ total 1 /
-?
-;
-
-LF preservation-tm/extends/existsF' : sttp -> type =
-| preservation-tm/extends/existsF'/i :
-  { F' : sttp } extends F F' ->
-    preservation-tm/extends/existsF' F
-;
-
-proof preservation-tm/extends :
-  [ |- tm-of F E T] ->
-  [ |- store-of F ST F] ->
-  [ |- step ST E ST' E'] ->
-    [ |- preservation-tm/extends/existsF' F] =
-/ total 1 /
+    [ |- preservation-tm/e F E' T ST'] =
+/ total 3 /
 ?
 ;
