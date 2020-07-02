@@ -584,27 +584,18 @@ intros
 }
 ;
 
-LF inversion-tm/refloc/cn-equiv/existsT' : con -> type =
-| inversion-tm/refloc/cn-equiv/existsT'/i :
-  { T' : con } cn-equiv (ref T') T t ->
-    inversion-tm/refloc/cn-equiv/existsT' T
+LF inversion-tm/refloc/e : sttp -> location -> con -> type =
+| inversion-tm/refloc/i :
+  { T' : con }
+  cn-equiv (ref T') T t ->
+  st-lookup F L (et/ref T') ->
+  cn-of T' t ->
+    inversion-tm/refloc/e F L T
 ;
 
-proof inversion-tm/refloc/cn-equiv/existsT'/i :
-  { T' : [ |- con] } [ |- cn-equiv (ref T') T t] ->
-    [ |- inversion-tm/refloc/cn-equiv/existsT' T] =
-/ total /
-intros
-{ T : ( |- con), T' : ( |- con)
-| equiv : [ |- cn-equiv (ref T') T t]
-; by equiv as Dequiv unboxed;
-  solve [ |- inversion-tm/refloc/cn-equiv/existsT'/i T' Dequiv]
-}
-;
-
-proof inversion-tm/refloc/cn-equiv :
+proof inversion-tm/refloc :
   [ |- tm-of F (tm/refloc L) T] ->
-    [ |- inversion-tm/refloc/cn-equiv/existsT' T] =
+    [ |- inversion-tm/refloc/e F L T] =
 / total 1 /
 intros
 { F : ( |- sttp), L : ( |- location), T : ( |- con)
@@ -618,8 +609,8 @@ intros
     Dof : ( |- tm-of F (tm/refloc L) C),
     Dequiv : ( |- cn-equiv C T t)
   | x : [ |- tm-of F (tm/refloc L) T]
-  ; split inversion-tm/refloc/cn-equiv [ |- Dof] as
-    case inversion-tm/refloc/cn-equiv/existsT'/i:
+  ; split inversion-tm/refloc [ |- Dof] as
+    case inversion-tm/refloc/i:
     { F : ( |- sttp),
       L : ( |- location),
       T : ( |- con),
@@ -627,12 +618,14 @@ intros
       Dof : ( |- tm-of F (tm/refloc L) C),
       Dequiv : ( |- cn-equiv C T t),
       C2 : ( |- con),
-      Dequiv1 : ( |- cn-equiv (ref C2) C t)
+      Dequiv1 : ( |- cn-equiv (ref C2) C t),
+      Dlookup : ( |- st-lookup F L (et/ref C2)),
+      Dof1 : ( |- cn-of C2 t)
     | x : [ |- tm-of F (tm/refloc L) T]
-    ; suffices by inversion-tm/refloc/cn-equiv/existsT'/i [ |- C2] toshow
-      [ |- cn-equiv (ref C2) T t] {
-        solve [ |- cn-equiv/trans Dequiv1 Dequiv]
-      }
+    ; solve
+        [ |-
+           inversion-tm/refloc/i C2
+           (cn-equiv/trans Dequiv1 Dequiv) Dlookup Dof1]
     }
   }
   case tm-of/refloc:
@@ -642,81 +635,9 @@ intros
     Dlookup : ( |- st-lookup F L (et/ref C)),
     Dof : ( |- cn-of C t)
   | x : [ |- tm-of F (tm/refloc L) (ref C)]
-  ; suffices by inversion-tm/refloc/cn-equiv/existsT'/i [ |- C] toshow
-    [ |- cn-equiv (ref C) (ref C) t] {
-      solve [ |- cn-equiv/refl (cn-of/ref Dof)]
-    }
-  }
-}
-;
-
-LF inversion-tm/refloc/st-lookup/existsT' : sttp -> location -> type =
-| inversion-tm/refloc/st-lookup/existsT'/i :
-  { T' : con } st-lookup F L (et/ref T') ->
-    inversion-tm/refloc/st-lookup/existsT' F L
-;
-
-proof inversion-tm/refloc/st-lookup :
-  [ |- tm-of F (tm/refloc L) T] ->
-    [ |- inversion-tm/refloc/st-lookup/existsT' F L] =
-/ total 1 /
-intros
-{ F : ( |- sttp), L : ( |- location), T : ( |- con)
-| x : [ |- tm-of F (tm/refloc L) T]
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    L : ( |- location),
-    T : ( |- con),
-    C : ( |- con),
-    Dof : ( |- tm-of F (tm/refloc L) C),
-    Dequiv : ( |- cn-equiv C T t)
-  | x : [ |- tm-of F (tm/refloc L) T]
-  ; solve inversion-tm/refloc/st-lookup [ |- Dof]
-  }
-  case tm-of/refloc:
-  { F : ( |- sttp),
-    L : ( |- location),
-    C : ( |- con),
-    Dlookup : ( |- st-lookup F L (et/ref C)),
-    Dof : ( |- cn-of C t)
-  | x : [ |- tm-of F (tm/refloc L) (ref C)]
-  ; solve [ |- inversion-tm/refloc/st-lookup/existsT'/i C Dlookup]
-  }
-}
-;
-
-LF inversion-tm/refloc/cn-of/existsT' : type =
-| inversion-tm/refloc/cn-of/existsT'/i : { T' : con } cn-of T' t ->
-                                           inversion-tm/refloc/cn-of/existsT'
-;
-
-proof inversion-tm/refloc/cn-of :
-  [ |- tm-of F (tm/refloc L) T] ->
-    [ |- inversion-tm/refloc/cn-of/existsT'] =
-/ total 1 /
-intros
-{ F : ( |- sttp), L : ( |- location), T : ( |- con)
-| x : [ |- tm-of F (tm/refloc L) T]
-; split x as
-  case tm-of/equiv:
-  { F : ( |- sttp),
-    L : ( |- location),
-    T : ( |- con),
-    C : ( |- con),
-    Dof : ( |- tm-of F (tm/refloc L) C),
-    Dequiv : ( |- cn-equiv C T t)
-  | x : [ |- tm-of F (tm/refloc L) T]
-  ; solve inversion-tm/refloc/cn-of [ |- Dof]
-  }
-  case tm-of/refloc:
-  { F : ( |- sttp),
-    L : ( |- location),
-    C : ( |- con),
-    Dlookup : ( |- st-lookup F L (et/ref C)),
-    Dof : ( |- cn-of C t)
-  | x : [ |- tm-of F (tm/refloc L) (ref C)]
-  ; solve [ |- inversion-tm/refloc/cn-of/existsT'/i C Dof]
+  ; solve
+      [ |-
+         inversion-tm/refloc/i C (cn-equiv/refl (cn-of/ref Dof)) Dlookup Dof]
   }
 }
 ;
