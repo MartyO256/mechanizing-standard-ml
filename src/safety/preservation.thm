@@ -1369,7 +1369,25 @@ intros
   | tof : [ |- tm-of F (tm/try E' (\y130. E2)) T],
     sof : [ |- store-of F ST' F],
     x : [ |- step ST' (tm/try E' (\y130. E2)) ST' E']
-  ; ?
+  ; split inversion-tm/try [ |- Dof] as
+    case inversion-tm/try/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : (x21 : term |- term),
+      T : ( |- con),
+      ST' : ( |- store),
+      Dof : ( |- tm-of F (tm/try E1 (\y130. E2)) T),
+      Dstof : ( |- store-of F ST' F),
+      Dvalue : ( |- value E1),
+      Dof1 : ( |- tm-of F E1 T),
+      Dof2 :
+        (x : term, u : {F' : sttp}  tm-of F' x tagged |-
+           tm-of F[] (E2[x]) T[])
+    | tof : [ |- tm-of F (tm/try E1 (\y130. E2)) T],
+      sof : [ |- store-of F ST' F],
+      x : [ |- step ST' (tm/try E1 (\y130. E2)) ST' E1]
+    ; solve [ |- preservation-tm/i F Dof1 Dstof (extends/nil )]
+    }
   }
   case step/try:
   { F : ( |- sttp),
