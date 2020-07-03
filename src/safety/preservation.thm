@@ -1850,7 +1850,54 @@ intros
   | tof : [ |- tm-of F (tm/in2 E1 C) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/in2 E1 C) ST' (tm/in2 E2 C)]
-  ; ?
+  ; split inversion-tm/in2 [ |- Dof] as
+    case inversion-tm/in2/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      C : ( |- con),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E2 : ( |- term),
+      Dof : ( |- tm-of F (tm/in2 E1 C) T),
+      Dstof : ( |- store-of F ST F),
+      Dstep : ( |- step ST E1 ST' E2),
+      C3 : ( |- con),
+      Dequiv : ( |- cn-equiv (plus C C3) T t),
+      Dof1 : ( |- tm-of F E1 C3),
+      Dof2 : ( |- cn-of C t)
+    | tof : [ |- tm-of F (tm/in2 E1 C) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/in2 E1 C) ST' (tm/in2 E2 C)]
+    ; split preservation-tm [ |- Dof1] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        C : ( |- con),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E2 : ( |- term),
+        Dof : ( |- tm-of F (tm/in2 E1 C) T),
+        Dstof : ( |- store-of F ST F),
+        Dstep : ( |- step ST E1 ST' E2),
+        C3 : ( |- con),
+        Dequiv : ( |- cn-equiv (plus C C3) T t),
+        Dof1 : ( |- tm-of F E1 C3),
+        Dof2 : ( |- cn-of C t),
+        F2 : ( |- sttp),
+        Dof3 : ( |- tm-of F2 E2 C3),
+        Dof4 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/in2 E1 C) T],
+        sof : [ |- store-of F ST F],
+        x : [ |- step ST (tm/in2 E1 C) ST' (tm/in2 E2 C)]
+      ; solve
+          [ |-
+             preservation-tm/i F2
+             (tm-of/equiv (tm-of/in2 Dof3 Dof2) Dequiv) Dof4 Dextends]
+      }
+    }
   }
   case step/in1:
   { F : ( |- sttp),
