@@ -1740,7 +1740,28 @@ intros
   | tof : [ |- tm-of F (tm/deref E1) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/deref E1) ST' (tm/deref E2)]
-  ; ?
+  ; by inversion-tm/deref [ |- Dof] as Dof' unboxed;
+    split preservation-tm [ |- Dof'] [ |- Dstof] [ |- Dstep] as
+    case preservation-tm/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E2 : ( |- term),
+      Dof : ( |- tm-of F (tm/deref E1) T),
+      Dstof : ( |- store-of F ST F),
+      Dstep : ( |- step ST E1 ST' E2),
+      Dof' : ( |- tm-of F E1 (ref T)),
+      F2 : ( |- sttp),
+      Dof1 : ( |- tm-of F2 E2 (ref T)),
+      Dof2 : ( |- store-of F2 ST' F2),
+      Dextends : ( |- extends F F2)
+    | tof : [ |- tm-of F (tm/deref E1) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/deref E1) ST' (tm/deref E2)]
+    ; solve [ |- preservation-tm/i F2 (tm-of/deref Dof1) Dof2 Dextends]
+    }
   }
   case step/ref-beta:
   { F : ( |- sttp),
