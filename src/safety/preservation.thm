@@ -1533,7 +1533,46 @@ intros
            ST'
            (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
            (tm/tagloc Dloc1) (\y125. E2) E') ST' E']
-  ; ?
+  ; split inversion-tm/iftag [ |- Dof] as
+    case inversion-tm/iftag/i:
+    { F : ( |- sttp),
+      Dloc : ( |- location),
+      E1 : ( |- term),
+      Dloc1 : ( |- location),
+      E2 : (x19 : term |- term),
+      E' : ( |- term),
+      T : ( |- con),
+      ST' : ( |- store),
+      Dof :
+        ( |-
+           tm-of
+             F
+             (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+             (tm/tagloc Dloc1) (\y125. E2) E') T),
+      Dstof : ( |- store-of F ST' F),
+      Dvalue : ( |- value E1),
+      X : ( |- loc-neq Dloc Dloc1),
+      C1 : ( |- con),
+      Dof1 : ( |- tm-of F (tm/tag (tm/tagloc Dloc) E1) tagged),
+      Dof2 : ( |- tm-of F (tm/tagloc Dloc1) (tag C1)),
+      Dof3 :
+        (x : term, u : {F' : sttp}  tm-of F' x C1[] |- tm-of F[] (E2[x]) T[]),
+      Dof4 : ( |- tm-of F E' T)
+    | tof :
+        [ |-
+           tm-of
+             F
+             (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+             (tm/tagloc Dloc1) (\y125. E2) E') T],
+      sof : [ |- store-of F ST' F],
+      x :
+        [ |-
+           step
+             ST'
+             (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+             (tm/tagloc Dloc1) (\y125. E2) E') ST' E']
+    ; solve [ |- preservation-tm/i F Dof4 Dstof (extends/nil )]
+    }
   }
   case step/iftag-beta1:
   { F : ( |- sttp),
