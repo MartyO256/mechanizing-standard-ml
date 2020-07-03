@@ -1974,7 +1974,45 @@ intros
   | tof : [ |- tm-of F (tm/pi1 E1) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/pi1 E1) ST' (tm/pi1 E2)]
-  ; ?
+  ; split inversion-tm/pi1 [ |- Dof] as
+    case inversion-tm/pi1/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E2 : ( |- term),
+      Dof : ( |- tm-of F (tm/pi1 E1) T),
+      Dstof : ( |- store-of F ST F),
+      Dstep : ( |- step ST E1 ST' E2),
+      C1 : ( |- con),
+      Dof1 : ( |- tm-of F E1 (prod T C1))
+    | tof : [ |- tm-of F (tm/pi1 E1) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/pi1 E1) ST' (tm/pi1 E2)]
+    ; split preservation-tm [ |- Dof1] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E2 : ( |- term),
+        Dof : ( |- tm-of F (tm/pi1 E1) T),
+        Dstof : ( |- store-of F ST F),
+        Dstep : ( |- step ST E1 ST' E2),
+        C1 : ( |- con),
+        Dof1 : ( |- tm-of F E1 (prod T C1)),
+        F2 : ( |- sttp),
+        Dof2 : ( |- tm-of F2 E2 (prod T C1)),
+        Dof3 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/pi1 E1) T],
+        sof : [ |- store-of F ST F],
+        x : [ |- step ST (tm/pi1 E1) ST' (tm/pi1 E2)]
+      ; solve [ |- preservation-tm/i F2 (tm-of/pi1 Dof2) Dof3 Dextends]
+      }
+    }
   }
   case step/pair2:
   { F : ( |- sttp),
