@@ -1401,7 +1401,52 @@ intros
   | tof : [ |- tm-of F (tm/raise E1 C) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/raise E1 C) ST' (tm/raise E2 C)]
-  ; ?
+  ; split inversion-tm/raise [ |- Dof] as
+    case inversion-tm/raise/i:
+    { F : ( |- sttp),
+      E : ( |- term),
+      C : ( |- con),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E' : ( |- term),
+      Dof : ( |- tm-of F (tm/raise E C) T),
+      Dstof : ( |- store-of F ST F),
+      Dstep : ( |- step ST E ST' E'),
+      Dequiv : ( |- cn-equiv C T t),
+      Dof1 : ( |- tm-of F E tagged)
+    | tof : [ |- tm-of F (tm/raise E C) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/raise E C) ST' (tm/raise E' C)]
+    ; by cn-equiv-reg/cn-of1 [ |- Dequiv] as Dwf unboxed;
+      split preservation-tm [ |- Dof1] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E : ( |- term),
+        C : ( |- con),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E' : ( |- term),
+        Dof : ( |- tm-of F (tm/raise E C) T),
+        Dstof : ( |- store-of F ST F),
+        Dstep : ( |- step ST E ST' E'),
+        Dequiv : ( |- cn-equiv C T t),
+        Dof' : ( |- tm-of F E tagged),
+        Dwf : ( |- cn-of C t),
+        F2 : ( |- sttp),
+        Dof1 : ( |- tm-of F2 E' tagged),
+        Dof2 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/raise E C) T],
+        sof : [ |- store-of F ST F],
+        x : [ |- step ST (tm/raise E C) ST' (tm/raise E' C)]
+      ; solve
+          [ |-
+             preservation-tm/i F2
+             (tm-of/equiv (tm-of/raise Dof1 Dwf) Dequiv) Dof2 Dextends]
+      }
+    }
   }
   case step/out-beta:
   { F : ( |- sttp),
