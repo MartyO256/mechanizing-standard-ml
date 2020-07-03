@@ -35,6 +35,52 @@ LF skel : type =
 ;
 --name skel Dskel.
 
+LF cexpand : catom -> ctp -> cterm -> type =
+| cexpand/t : cexpand R ct (cat R)
+
+| cexpand/pi :
+  ({ x : catom } cexpand x A (M x)) ->
+  ({ x : catom } cexpand (capp R (M x)) (B x) (N x)) ->
+    cexpand R (cpi A B) (clam A N)
+
+| cexpand/sigma :
+  cexpand (cpi1 R) A M ->
+  cexpand (cpi2 R) (B (cpi1 R)) N ->
+    cexpand R (csigma A B) (cpair M N)
+
+| cexpand/sing : cexpand R (csing R') (cat R')
+
+| cexpand/one : cexpand R cone cstar
+;
+
+LF cskof : skel -> ctp -> (catom -> ctp) -> type =
+| cskof/t : cskof kt cone (\l. ct)
+
+| cskof/pi :
+  cskof As C (\y. A y) ->
+  cskof Bs D (\z. B z) ->
+  ({ y : catom } { x : catom } cexpand x (A y) (X y x)) ->
+    cskof
+      (kpi As Bs)
+      (csigma C (\y. cpi (A y) (\l. D)))
+      (\w. cpi (A (cpi1 w)) (\x. B (capp (cpi2 w) (X (cpi1 w) x))))
+
+| cskof/sigma :
+  cskof As C (\y. A y) ->
+  cskof Bs D (\z. B z) ->
+  ({ y : catom } { x : catom } cexpand x (A y) (X y x)) ->
+    cskof
+      (ksigma As Bs)
+      (csigma C (\y. cpi (A y) (\l. D)))
+      (\w. csigma (A (cpi1 w)) (\x. B (capp (cpi2 w) (X (cpi1 w) x))))
+
+| cskof/sing : cskof ksing ct (\x. csing x)
+
+| cskof/one : cskof kone cone (\l. cone)
+;
+
+% Constants
+
 LF constant : type =
 | const/arrow : constant
 | const/prod : constant
@@ -47,3 +93,37 @@ LF constant : type =
 | const/labeled : label -> constant
 ;
 --name constant K.
+
+LF ckof : constant -> ctp -> type =
+| ckof/arrow : ckof const/arrow (cpi ct (\l1. (cpi ct (\l2. ct))))
+
+| ckof/prod : ckof const/prod (cpi ct (\l1. (cpi ct (\l2. ct))))
+
+| ckof/unit : ckof const/unit ct
+
+| ckof/void : ckof const/void ct
+
+| ckof/ref : ckof const/ref (cpi ct (\l. ct))
+
+| ckof/plus : ckof const/plus (cpi ct (\l1. (cpi ct (\l2. ct))))
+
+| ckof/tag : ckof const/tag (cpi ct (\l. ct))
+
+| ckof/tagged : ckof const/tagged ct
+
+| ckof/rec :
+  cskof SK A B ->
+    ckof
+      (const/rec SK)
+      (cpi
+        (csigma A
+          (\x. csigma
+            (cpi (cpi (B x) (\l. ct)) (\l1. (cpi (B x) (\l2. ct))))
+            (\l. (B x))
+          )
+        )
+        (\l. ct)
+      )
+
+| ckof/labeled : ckof (const/labeled L) (cpi ct (\l. ct))
+;

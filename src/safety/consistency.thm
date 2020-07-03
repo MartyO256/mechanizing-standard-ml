@@ -226,6 +226,35 @@ intros
 }
 ;
 
+% Map Effectiveness
+
+schema can-map-bind =
+  some [m : eterm]
+  block (a : con, at : map a m);
+
+schema map-bind-for-can-map =
+  some [b : etp, k : kind]
+  block (
+    x : eterm, d : evof x b,
+    a : con, e : cn-of a k,
+    at : map a x
+  );
+
+schema invert-bind-for-can-map =
+  some [
+    K : kind, K' : kind,
+    B : etp,
+    DmapK : tmap K B, DmapB : tunmap B K',
+    DwfK : kd-wf K,
+    DwfB : ewf B,
+    DequivK : kd-equiv K K'
+  ]
+  block (
+    a : con, da : cn-of a K,
+    x : eterm, dx : evof x B,
+    at : map a x, xt : unmap x a
+  );
+
 % Injectivity Lemmas
 
 proof injective-prod/a :

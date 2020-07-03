@@ -19,4 +19,268 @@ and eterm : type =
 --name etp A.
 --name eterm M.
 
+% Rules
+
+% TODO: Assumption
+evof : eterm -> etp -> type.
+
+% Type Formation
+
+LF ewf : etp -> type =
+| ewf/t : ewf et
+
+| ewf/pi :
+  ewf A ->
+  ({ x : eterm } evof x A -> ewf (B x)) ->
+    ewf (epi A B)
+
+| ewf/sigma :
+  ewf A ->
+  ({ x : eterm } evof x A -> ewf (B x)) ->
+    ewf (esigma A B)
+
+| ewf/sing : eof M et -> ewf (esing M)
+
+| ewf/one : ewf eone
+
+% Typing
+
+and eof : eterm -> etp -> type =
+| eof/var : evof X A -> ewf A -> eof X A
+
+| eof/const : ekof K A -> ewf A -> eof (econst K) A
+
+| eof/lam :
+  ewf A ->
+  ({ x : eterm } evof x A -> eof (M x) (B x)) ->
+    eof (elam A M) (epi A B)
+
+| eof/app :
+  eof M (epi A B) ->
+  eof N A ->
+    eof (eapp M N) (B N)
+
+| eof/pair :
+  eof M A ->
+  eof N (B M) ->
+  ({ x : eterm } evof x A -> ewf (B x)) ->
+    eof (epair M N) (esigma A B)
+
+| eof/pi1 :
+  eof M (esigma A B) ->
+    eof (epi1 M) A
+
+| eof/pi2 :
+  eof M (esigma A B) ->
+    eof (epi2 M) (B (epi1 M))
+
+| eof/sing :
+  eof M et ->
+    eof M (esing M)
+
+| eof/star : eof estar eone
+
+| eof/extpi :
+  eof M (epi A B') ->
+  ({ x : eterm } evof x A -> eof (eapp M x) (B x)) ->
+    eof M (epi A B)
+
+| eof/extsigma :
+  eof (epi1 M) A ->
+  eof (epi2 M) (B (epi1 M)) ->
+  ({ x : eterm } evof x A -> ewf (B x)) ->
+    eof M (esigma A B)
+
+| eof/subsume :
+  eof M A ->
+  subtp A A' ->
+    eof M A'
+
+% Term Equivalence
+
+and equiv : eterm -> eterm -> etp -> type =
+| equiv/reflex : eof M A -> equiv M M A
+
+| equiv/symm : equiv N M A -> equiv M N A
+
+| equiv/trans : equiv M N A -> equiv N P A -> equiv M P A
+
+| equiv/lam :
+  tequiv A A' ->
+  ({ x : eterm } evof x A -> equiv (M x) (M' x) (B x)) ->
+    equiv (elam A M) (elam A' M') (epi A B)
+
+| equiv/app :
+  equiv M M' (epi A B) ->
+  equiv N N' A ->
+    equiv (eapp M N) (eapp M' N') (B N)
+
+| equiv/pair :
+  equiv M M' A ->
+  equiv N N' (B M) ->
+  ({ x : eterm } evof x A -> ewf (B x)) ->
+    equiv (epair M N) (epair M' N') (esigma A B)
+
+| equiv/pi1 : equiv M M' (esigma A B) -> equiv (epi1 M) (epi1 M') A
+
+| equiv/pi2 : equiv M M' (esigma A B) -> equiv (epi2 M) (epi2 M') (B (epi1 M))
+
+| equiv/sing : equiv M N et -> equiv M N (esing M)
+
+| equiv/singelim : eof M (esing N) -> equiv M N et
+
+| equiv/extpi :
+  eof M (epi A B') ->
+  eof N (epi A B'') ->
+  ({ x : eterm } evof x A -> equiv (eapp M x) (eapp N x) (B x)) ->
+    equiv M N (epi A B)
+
+| equiv/extpiw :
+  equiv M N (epi A B') ->
+  ({ x : eterm } evof x A -> equiv (eapp M x) (eapp N x) (B x)) ->
+    equiv M N (epi A B)
+
+| equiv/extsigma :
+  equiv (epi1 M) (epi1 N) A ->
+  equiv (epi2 M) (epi2 N) (B (epi1 M)) ->
+  ({ x : eterm } evof x A -> ewf (B x)) ->
+    equiv M N (esigma A B)
+
+| equiv/one : eof M eone -> eof N eone -> equiv M N eone
+
+| equiv/subsume : equiv M N A -> subtp A B -> equiv M N B
+
+| equiv/beta :
+  ({ x : eterm } evof x A -> eof (M x) (B x)) ->
+  eof N A ->
+    equiv (eapp (elam A M) N) (M N) (B N)
+
+| equiv/beta1 : eof M A -> eof N B -> equiv (epi1 (epair M N)) M A
+
+| equiv/beta2 : eof M A -> eof N B -> equiv (epi2 (epair M N)) N B
+
+and tequiv : etp -> etp -> type =
+| tequiv/pi :
+  tequiv A A' ->
+  ({ x : eterm } evof x A -> tequiv (B x) (B' x)) ->
+    tequiv (epi A B) (epi A' B')
+
+| tequiv/sigma :
+  tequiv A A' ->
+  ({ x : eterm } evof x A -> tequiv (B x) (B' x)) ->
+    tequiv (esigma A B) (esigma A' B')
+
+| tequiv/sing : equiv M M' et -> tequiv (esing M) (esing M')
+
+| tequiv/reflex : ewf A -> tequiv A A
+
+| tequiv/symm : tequiv B A -> tequiv A B
+
+| tequiv/trans : tequiv A B -> tequiv B C -> tequiv A C
+
+% Subtyping
+
+and subtp : etp -> etp -> type =
+| subtp/reflex : tequiv A B -> subtp A B
+
+| subtp/trans : subtp A B -> subtp B C -> subtp A C
+
+| subtp/sing_t : eof M et -> subtp (esing M) et
+
+| subtp/pi :
+  subtp A' A ->
+  ({ x : eterm } evof x A' -> subtp (B x) (B' x)) ->
+  ({ x : eterm } evof x A -> ewf (B x)) ->
+    subtp (epi A B) (epi A' B')
+
+| subtp/sigma :
+  subtp A A' ->
+  ({ x : eterm } evof x A -> subtp (B x) (B' x)) ->
+  ({ x : eterm } evof x A' -> ewf (B' x)) ->
+    subtp (esigma A B) (esigma A' B')
+
+% Constants
+
+and etp-skel : etp -> skel -> type =
+| etp-skel/t : etp-skel et kt
+
+| etp-skel/pi :
+  etp-skel A As ->
+  ({ x : eterm } etp-skel (B x) Bs) ->
+    etp-skel (epi A B) (kpi As Bs)
+
+| etp-skel/sigma :
+  etp-skel A As ->
+  ({ x : eterm } etp-skel (B x) Bs) ->
+    etp-skel (esigma A B) (ksigma As Bs)
+
+| etp-skel/sing : etp-skel (esing _) ksing
+
+| etp-skel/one : etp-skel eone kone
+
+and etopen : ctp -> etp -> type =
+| etopen/t : etopen ct et
+
+| etopen/pi :
+  etopen Ac A ->
+  etp-skel A As ->
+  ({ xc : catom } { x : eterm } etopenr xc As x -> etopen (Bc xc) (B x)) ->
+    etopen (cpi Ac Bc) (epi A B)
+
+| etopen/sigma :
+  etopen Ac A ->
+  etp-skel A As ->
+  ({ xc : catom } { x : eterm } etopenr xc As x -> etopen (Bc xc) (B x)) ->
+    etopen (csigma Ac Bc) (esigma A B)
+
+| etopen/sing : etopenr Rc kt R -> etopen (csing Rc) (esing R)
+
+| etopen/one : etopen cone eone
+
+and etopenr : catom -> skel -> eterm -> type =
+| etopenr/app :
+  etopenr Rc (kpi As Bs) R ->
+  etopenm Mc As M ->
+    etopenr (capp Rc Mc) Bs (eapp R M)
+
+| etopenr/pi1 : etopenr Rc (ksigma As Bs) R -> etopenr (cpi1 Rc) As (epi1 R)
+
+| etopenr/pi2 : etopenr Rc (ksigma As Bs) R -> etopenr (cpi2 Rc) Bs (epi2 R)
+
+and etopenm : cterm -> skel -> eterm -> type =
+| etopenm/at : etopenr Rc kt R -> etopenm (cat Rc) kt R
+
+| etopenm/sing : etopenr Rc kt R -> etopenm (cat Rc) ksing R
+
+| etopenm/lam :
+  etopen Ac A ->
+  etp-skel A As ->
+  ({ xc : catom } { x : eterm } etopenr xc As x -> etopenm (Mc xc) Bs (M x)) ->
+    etopenm (clam Ac Mc) (kpi As Bs) (elam A M)
+
+| etopenm/pair :
+  etopenm Mc As M ->
+  etopenm Nc Bs N ->
+    etopenm (cpair Mc Nc) (ksigma As Bs) (epair M N)
+
+| etopenm/star : etopenm cstar kone estar
+
+and ekof : constant -> etp -> type =
+| ekof/i : ckof K Ac -> etopen Ac A -> ekof K A
+;
+
+% Schemas
+
 schema evar = block (ex : eterm);
+
+schema ebind =
+  some [ea : etp]
+  block (ex : eterm, ed : evof ex ea);
+
+schema eofblock =
+  some [ex : eterm, ea : etp]
+  block (ed : evof ex ea);
+
+schema etopenblock =
+  some [a : skel, x : eterm]
+  block (xc : catom, d : etopenr sc a x);
