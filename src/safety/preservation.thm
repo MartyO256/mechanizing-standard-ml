@@ -1500,7 +1500,91 @@ intros
            ST
            (tm/roll E1 K (\z126. \y127. C) C1)
            ST' (tm/roll E2 K (\z126. \y127. C) C1)]
-  ; ?
+  ; split inversion-tm/roll [ |- Dof] as
+    case inversion-tm/roll/i:
+    { F : ( |- sttp),
+      E : ( |- term),
+      K : ( |- kind),
+      C1 : (a76 : con, a75 : con |- con),
+      C2 : ( |- con),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E' : ( |- term),
+      Dof : ( |- tm-of F (tm/roll E K (\z126. \y127. C1) C2) T),
+      Dstof : ( |- store-of F ST F),
+      Dstep : ( |- step ST E ST' E'),
+      Dequiv : ( |- cn-equiv (rec' K (\x105. \z105. C1) C2) T t),
+      Dof1 :
+        ( |-
+           tm-of
+             F
+             E
+             (C1[lam K (\a. rec' K[] (\x105. \z105. C1[x105, z105]) a), C2])),
+      Dwf : ( |- kd-wf K),
+      Dof2 :
+        (a : con, y672 : cn-of a (pi K[] (\l. t)), b : con,
+         x672 : cn-of b K[] |- cn-of (C1[a, b]) t),
+      Dof3 : ( |- cn-of C2 K)
+    | tof : [ |- tm-of F (tm/roll E K (\z126. \y127. C1) C2) T],
+      sof : [ |- store-of F ST F],
+      x :
+        [ |-
+           step
+             ST
+             (tm/roll E K (\z126. \y127. C1) C2)
+             ST' (tm/roll E' K (\z126. \y127. C1) C2)]
+    ; split preservation-tm [ |- Dof1] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E : ( |- term),
+        K : ( |- kind),
+        C1 : (a76 : con, a75 : con |- con),
+        C2 : ( |- con),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E' : ( |- term),
+        Dof : ( |- tm-of F (tm/roll E K (\z126. \y127. C1) C2) T),
+        Dstof : ( |- store-of F ST F),
+        Dstep : ( |- step ST E ST' E'),
+        Dequiv : ( |- cn-equiv (rec' K (\x105. \z105. C1) C2) T t),
+        Dof' :
+          ( |-
+             tm-of
+               F
+               E
+               (C1[lam K (\a. rec' K[] (\x105. \z105. C1[x105, z105]) a), C2])),
+        DwfK : ( |- kd-wf K),
+        DofC1 :
+          (a : con, y672 : cn-of a (pi K[] (\l. t)), b : con,
+           x672 : cn-of b K[] |- cn-of (C1[a, b]) t),
+        DofC2 : ( |- cn-of C2 K),
+        F2 : ( |- sttp),
+        Dof1 :
+          ( |-
+             tm-of
+               F2
+               E'
+               (C1[lam K (\a. rec' K[] (\x105. \z105. C1[x105, z105]) a), C2])),
+        Dof2 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/roll E K (\z126. \y127. C1) C2) T],
+        sof : [ |- store-of F ST F],
+        x :
+          [ |-
+             step
+               ST
+               (tm/roll E K (\z126. \y127. C1) C2)
+               ST' (tm/roll E' K (\z126. \y127. C1) C2)]
+      ; solve
+          [ |-
+             preservation-tm/i F2
+             (tm-of/equiv (tm-of/roll Dof1
+                          DwfK (\a. \da. \b. \db. DofC1) DofC2)
+             Dequiv) Dof2 Dextends]
+      }
+    }
   }
   case step/iftag-beta2:
   { F : ( |- sttp),
