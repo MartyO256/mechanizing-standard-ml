@@ -86,9 +86,10 @@ LF constant : type =
 | const/prod : constant
 | const/unit : constant
 | const/void : constant
+| const/ref : constant
 | const/plus : constant
 | const/tag : constant
-| cosnt/tagged : constant
+| const/tagged : constant
 | const/rec : skel -> constant
 | const/labeled : label -> constant
 ;

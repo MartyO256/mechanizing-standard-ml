@@ -255,6 +255,516 @@ schema invert-bind-for-can-map =
     at : map a x, xt : unmap x a
   );
 
+schema evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map =
+  block (ex : eterm) +
+  some [m : eterm]
+  block (a : con, at : map a m) +
+  some [b : etp, k : kind]
+  block (
+    x : eterm, d : evof x b,
+    a : con, e : cn-of a k,
+    at : map a x
+  ) +
+  some [
+    K : kind, K' : kind,
+    B : etp,
+    DmapK : tmap K B, DmapB : tunmap B K',
+    DwfK : kd-wf K,
+    DwfB : ewf B,
+    DequivK : kd-equiv K K'
+  ]
+  block (
+    a : con, da : cn-of a K,
+    x : eterm, dx : evof x B,
+    at : map a x, xt : unmap x a
+  );
+
+LF can-map/e : con -> type =
+| can-map/i :
+  { M : eterm }
+  map C M ->
+    can-map/e C
+;
+
+LF can-tmap/e : kind -> type =
+| can-tmap/i :
+  { A : etp }
+  tmap K A ->
+    can-tmap/e K
+;
+
+proof can-map :
+  (g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map)
+  { C : [g |- con] }
+  [g |- can-map/e C] =
+/ total 1 /
+intros
+{ g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  C : (g |- con)
+|
+; split [_ |- C] as
+  case labeled:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    X : (g |- label),
+    C1 : (g |- con)
+  |
+  ; split can-map [g |- C1] as
+    case can-map/i:
+    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      X : (g |- label),
+      C1 : (g |- con),
+      M : (g |- eterm),
+      Dmap : (g |- map C1 M)
+    |
+    ; solve [g |- can-map/i _ (map/labeled Dmap)]
+    }
+  }
+  case rec':
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    K : (g |- kind),
+    C1 : (g, y180 : con, x180 : con |- con),
+    C2 : (g |- con)
+  |
+  ; split can-tmap [g |- K] as
+    case can-tmap/i:
+    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      K : (g |- kind),
+      C1 : (g, y180 : con, x180 : con |- con),
+      C2 : (g |- con),
+      A : (g |- etp),
+      Dtmap : (g |- tmap K A)
+    |
+    ; %{ FIXME: Totality checking for complete induction error.
+         invert can-map [_, b1 : block (x : eterm, d1 : evof x (A[..]), a : con, e1 : cn-of a (K[..]), at1 : map a x), b2 : block (y : eterm, d2 : evof y (A[..]), b : con, e1 : cn-of b (K[..]), at2 : map b y) |- C1[.., b1.a, b2.b]]
+      }%
+      ?
+    }
+  }
+  case tagged:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map
+  |
+  ; solve [g |- can-map/i _ map/tagged]
+  }
+  case tag:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    C1 : (g |- con)
+  |
+  ; split can-map [g |- C1] as
+    case can-map/i:
+    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      C1 : (g |- con),
+      M : (g |- eterm),
+      Dmap : (g |- map C1 M)
+    |
+    ; solve [g |- can-map/i _ (map/tag Dmap)]
+    }
+  }
+  case ref:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    C1 : (g |- con)
+  |
+  ; split can-map [g |- C1] as
+    case can-map/i:
+    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      C1 : (g |- con),
+      M : (g |- eterm),
+      Dmap : (g |- map C1 M)
+    |
+    ; solve [g |- can-map/i _ (map/ref Dmap)]
+    }
+  }
+  case plus:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    C1 : (g |- con),
+    C2 : (g |- con)
+  |
+  ; split can-map [g |- C1] as
+    case can-map/i:
+    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      C1 : (g |- con),
+      C2 : (g |- con),
+      M : (g |- eterm),
+      Dmap : (g |- map C1 M)
+    |
+    ; split can-map [g |- C2] as
+      case can-map/i:
+      { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+        C1 : (g |- con),
+        C2 : (g |- con),
+        M : (g |- eterm),
+        Dmap : (g |- map C1 M),
+        M1 : (g |- eterm),
+        Dmap1 : (g |- map C2 M1)
+      |
+      ; solve [g |- can-map/i _ (map/plus Dmap Dmap1)]
+      }
+    }
+  }
+  case arrow:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    C1 : (g |- con),
+    C2 : (g |- con)
+  |
+  ; split can-map [g |- C1] as
+    case can-map/i:
+    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      C1 : (g |- con),
+      C2 : (g |- con),
+      M : (g |- eterm),
+      Dmap : (g |- map C1 M)
+    |
+    ; split can-map [g |- C2] as
+      case can-map/i:
+      { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+        C1 : (g |- con),
+        C2 : (g |- con),
+        M : (g |- eterm),
+        Dmap : (g |- map C1 M),
+        M1 : (g |- eterm),
+        Dmap1 : (g |- map C2 M1)
+      |
+      ; solve [g |- can-map/i _ (map/arrow Dmap Dmap1)]
+      }
+    }
+  }
+  case prod:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    C1 : (g |- con),
+    C2 : (g |- con)
+  |
+  ; split can-map [g |- C1] as
+    case can-map/i:
+    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      C1 : (g |- con),
+      C2 : (g |- con),
+      M : (g |- eterm),
+      Dmap : (g |- map C1 M)
+    |
+    ; split can-map [g |- C2] as
+      case can-map/i:
+      { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+        C1 : (g |- con),
+        C2 : (g |- con),
+        M : (g |- eterm),
+        Dmap : (g |- map C1 M),
+        M1 : (g |- eterm),
+        Dmap1 : (g |- map C2 M1)
+      |
+      ; solve
+          [g |-
+             can-map/i (eapp (eapp (econst const/prod) M) M1)
+             (map/prod Dmap Dmap1)]
+      }
+    }
+  }
+  case void:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map
+  |
+  ; solve [g |- can-map/i _ map/void]
+  }
+  case unit:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map
+  |
+  ; solve [g |- can-map/i _ map/unit]
+  }
+  case star:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map
+  |
+  ; solve [g |- can-map/i _ map/star]
+  }
+  case app:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    C1 : (g |- con),
+    C2 : (g |- con)
+  |
+  ; split can-map [g |- C1] as
+    case can-map/i:
+    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      C1 : (g |- con),
+      C2 : (g |- con),
+      M : (g |- eterm),
+      Dmap : (g |- map C1 M)
+    |
+    ; split can-map [g |- C2] as
+      case can-map/i:
+      { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+        C1 : (g |- con),
+        C2 : (g |- con),
+        M : (g |- eterm),
+        Dmap : (g |- map C1 M),
+        M1 : (g |- eterm),
+        Dmap1 : (g |- map C2 M1)
+      |
+      ; solve [g |- can-map/i (eapp M M1) (map/app Dmap Dmap1)]
+      }
+    }
+  }
+  case lam:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    K : (g |- kind),
+    C1 : (g, x175 : con |- con)
+  |
+  ; split can-tmap [g |- K] as
+    case can-tmap/i:
+    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      K : (g |- kind),
+      C1 : (g, x175 : con |- con),
+      A : (g |- etp),
+      Dtmap : (g |- tmap K A)
+    |
+    ; split
+can-map
+  [g,
+   b :
+     block (
+       x : eterm,
+       d : evof x (A[..]),
+       a : con,
+       e : cn-of a (K[..]),
+       at : map a x) |- C1[.., b.3]] as
+      case can-map/i:
+      { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+        K : (g |- kind),
+        C2 : (g, a : con |- con),
+        A : (g |- etp),
+        Dtmap : (g |- tmap K A),
+        M : (g, x : eterm |- eterm),
+        Dmap :
+          (g, x : eterm, a : con, e : cn-of a (K[..]), z808 : map a x |-
+             map (C2[.., a]) (M[.., x]))
+      |
+      ; %{ FIXME: Solution contains uninstantiated metavariables.
+           Type matches subgoal.
+           solve [_|- can-map/i (elam A (\l. M)) (map/lam (\a. \x. \xt. Dmap[.., x, a, _, xt]) Dtmap)]
+        }%
+        ?
+      }
+    }
+  }
+  case pi2:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    C1 : (g |- con)
+  |
+  ; split can-map [g |- C1] as
+    case can-map/i:
+    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      C1 : (g |- con),
+      M : (g |- eterm),
+      Dmap : (g |- map C1 M)
+    |
+    ; solve [g |- can-map/i (epi2 M) (map/pi2 Dmap)]
+    }
+  }
+  case pi1:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    C1 : (g |- con)
+  |
+  ; split can-map [g |- C1] as
+    case can-map/i:
+    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      C1 : (g |- con),
+      M : (g |- eterm),
+      Dmap : (g |- map C1 M)
+    |
+    ; solve [g |- can-map/i (epi1 M) (map/pi1 Dmap)]
+    }
+  }
+  case pair:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    C1 : (g |- con),
+    C2 : (g |- con)
+  |
+  ; split can-map [g |- C1] as
+    case can-map/i:
+    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      C1 : (g |- con),
+      C2 : (g |- con),
+      M : (g |- eterm),
+      Dmap : (g |- map C1 M)
+    |
+    ; split can-map [g |- C2] as
+      case can-map/i:
+      { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+        C1 : (g |- con),
+        C2 : (g |- con),
+        M : (g |- eterm),
+        Dmap : (g |- map C1 M),
+        M1 : (g |- eterm),
+        Dmap1 : (g |- map C2 M1)
+      |
+      ; solve [g |- can-map/i (epair M M1) (map/pair Dmap Dmap1)]
+      }
+    }
+  }
+  %{ FIXME: File "src/core/reconstruct.ml", line 2248, characters 11-16: Pattern matching failed
+  case #.1:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    K433 : (g |- kind),
+    A20 : (g |- etp),
+    #unmap :
+      #(g |-
+          block (
+            a : con,
+            da : cn-of a (K433[..]),
+            x : eterm,
+            dx : evof x (A20[..]),
+            at : map a x,
+            xt : unmap x a)),
+    K434 : (g |- kind),
+    Dtmap4 : (g |- tmap K433 A20),
+    Dtunmap : (g |- tunmap A20 K434),
+    Dwf61 : (g |- kd-wf K433),
+    Y : (g |- ewf A20),
+    Dequiv37 : (g |- kd-equiv K433 K434)
+  |
+  ; solve [_ |- can-map/i #unmap.3 #unmap.5]
+  }
+  case #.3:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    A21 : (g |- etp),
+    K435 : (g |- kind),
+    #map :
+      #(g |-
+          block (
+            x : eterm,
+            d : evof x (A21[..]),
+            a : con,
+            e : cn-of a (K435[..]),
+            at : map a x))
+  |
+  ; solve [_ |- can-map/i #map.1 #map.5]
+  }
+  case #.1:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    M9 : (g |- eterm),
+    #map : #(g |- block (a : con, at : map a (M9[..])))
+  |
+  ; solve [_ |- can-map/i _ #map.2]
+  }
+  }%
+}
+
+and proof can-tmap :
+  (g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map)
+  { K : [g |- kind] }
+  [g |- can-tmap/e K] =
+/ total 1 /
+intros
+{ g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  K : (g |- kind)
+|
+; split [_ |- K] as
+  case one:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map
+  |
+  ; solve [g |- can-tmap/i _ tmap/one]
+  }
+  case sigma:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    K1 : (g |- kind),
+    K2 : (g, y173 : con |- kind)
+  |
+  ; split can-tmap [g |- K1] as
+    case can-tmap/i:
+    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      K1 : (g |- kind),
+      K2 : (g, y173 : con |- kind),
+      A : (g |- etp),
+      Dtmap : (g |- tmap K1 A)
+    |
+    ; split
+can-tmap
+  [g,
+   b :
+     block (
+       x : eterm,
+       d : evof x (A[..]),
+       a : con,
+       e : cn-of a (K1[..]),
+       at : map a x) |- K2[.., b.3]] as
+      case can-tmap/i:
+      { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+        K1 : (g |- kind),
+        K3 : (g, a : con |- kind),
+        A : (g |- etp),
+        Dtmap : (g |- tmap K1 A),
+        A1 : (g, x : eterm |- etp),
+        Dtmap1 :
+          (g, x : eterm, a : con, e : cn-of a (K1[..]), y3 : map a x |-
+             tmap (K3[.., a]) (A1[.., x]))
+      |
+      ; %{ FIXME: Solution contains uninstantiated metavariables.
+           Type matches subgoal.
+           solve [_|- can-tmap/i (esigma A (\l. A1)) (tmap/sigma (\a. \x. \xt. Dtmap1[.., x, a, _, xt]) Dtmap)]
+        }%
+        ?
+      }
+    }
+  }
+  case pi:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    K1 : (g |- kind),
+    K2 : (g, y172 : con |- kind)
+  |
+  ; split can-tmap [g |- K1] as
+    case can-tmap/i:
+    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      K1 : (g |- kind),
+      K2 : (g, y172 : con |- kind),
+      A : (g |- etp),
+      Dtmap : (g |- tmap K1 A)
+    |
+    ; split
+can-tmap
+  [g,
+   b :
+     block (
+       x : eterm,
+       d : evof x (A[..]),
+       a : con,
+       e : cn-of a (K1[..]),
+       at : map a x) |- K2[.., b.3]] as
+      case can-tmap/i:
+      { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+        K1 : (g |- kind),
+        K3 : (g, a : con |- kind),
+        A : (g |- etp),
+        Dtmap : (g |- tmap K1 A),
+        A1 : (g, x : eterm |- etp),
+        Dtmap1 :
+          (g, x : eterm, a : con, e : cn-of a (K1[..]), y6 : map a x |-
+             tmap (K3[.., a]) (A1[.., x]))
+      |
+      ; %{ FIXME: Solution contains uninstantiated metavariables.
+          Type matches subgoal.
+          solve [_|- can-tmap/i (epi A (\l. A1)) (tmap/pi (\a. \x. \xt. Dtmap1[.., x, a, _, xt]) Dtmap)]
+        }%
+        ?
+      }
+    }
+  }
+  case sing:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    C : (g |- con)
+  |
+  ; split can-map [g |- C] as
+    case can-map/i:
+    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      C : (g |- con),
+      M : (g |- eterm),
+      Dmap : (g |- map C M)
+    |
+    ; solve [g |- can-tmap/i _ (tmap/sing Dmap)]
+    }
+  }
+  case t:
+  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map
+  |
+  ; solve [g |- can-tmap/i _ tmap/t]
+  }
+}
+;
+
 % Injectivity Lemmas
 
 proof injective-prod/a :
