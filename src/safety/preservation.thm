@@ -1270,5 +1270,804 @@ proof preservation-tm :
   [ |- step ST E ST' E'] ->
     [ |- preservation-tm/e F E' T ST'] =
 / total 3 /
-?
+intros
+{ F : ( |- sttp),
+  E : ( |- term),
+  T : ( |- con),
+  ST : ( |- store),
+  ST' : ( |- store),
+  E' : ( |- term)
+| tof : [ |- tm-of F E T],
+  sof : [ |- store-of F ST F],
+  x : [ |- step ST E ST' E']
+; by tof as Dof unboxed;
+  by sof as Dstof unboxed;
+  split x as
+  case step/snd-beta:
+  { F : ( |- sttp),
+    E' : ( |- term),
+    C : ( |- con),
+    T : ( |- con),
+    ST' : ( |- store),
+    Dof : ( |- tm-of F (tm/snd (md/datom E' C)) T),
+    Dstof : ( |- store-of F ST' F),
+    Dvalue : ( |- value E')
+  | tof : [ |- tm-of F (tm/snd (md/datom E' C)) T],
+    sof : [ |- store-of F ST' F],
+    x : [ |- step ST' (tm/snd (md/datom E' C)) ST' E']
+  ; ?
+  }
+  case step/snd:
+  { F : ( |- sttp),
+    M : ( |- module'),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    M1 : ( |- module'),
+    Dof : ( |- tm-of F (tm/snd M) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step-md ST M ST' M1)
+  | tof : [ |- tm-of F (tm/snd M) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/snd M) ST' (tm/snd M1)]
+  ; ?
+  }
+  case step/lett2:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E2 : (x24 : term |- term),
+    T : ( |- con),
+    ST' : ( |- store),
+    Dof : ( |- tm-of F (tm/lett E1 (\y131. E2)) T),
+    Dstof : ( |- store-of F ST' F),
+    Dvalue : ( |- value E1)
+  | tof : [ |- tm-of F (tm/lett E1 (\y131. E2)) T],
+    sof : [ |- store-of F ST' F],
+    x : [ |- step ST' (tm/lett E1 (\y131. E2)) ST' (E2[E1])]
+  ; ?
+  }
+  case step/lett1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E3 : (x23 : term |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/lett E1 (\y131. E3)) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/lett E1 (\y131. E3)) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/lett E1 (\y131. E3)) ST' (tm/lett E2 (\y131. E3))]
+  ; ?
+  }
+  case step/try-handle:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E3 : (x22 : term |- term),
+    T : ( |- con),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/try E1 (\y130. E3)) T),
+    Dstof : ( |- store-of F ST' F),
+    Draises : ( |- raises E1 E2)
+  | tof : [ |- tm-of F (tm/try E1 (\y130. E3)) T],
+    sof : [ |- store-of F ST' F],
+    x : [ |- step ST' (tm/try E1 (\y130. E3)) ST' (E3[E2])]
+  ; ?
+  }
+  case step/try-done:
+  { F : ( |- sttp),
+    E' : ( |- term),
+    E2 : (x21 : term |- term),
+    T : ( |- con),
+    ST' : ( |- store),
+    Dof : ( |- tm-of F (tm/try E' (\y130. E2)) T),
+    Dstof : ( |- store-of F ST' F),
+    Dvalue : ( |- value E')
+  | tof : [ |- tm-of F (tm/try E' (\y130. E2)) T],
+    sof : [ |- store-of F ST' F],
+    x : [ |- step ST' (tm/try E' (\y130. E2)) ST' E']
+  ; ?
+  }
+  case step/try:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E3 : (x20 : term |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/try E1 (\y130. E3)) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/try E1 (\y130. E3)) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/try E1 (\y130. E3)) ST' (tm/try E2 (\y130. E3))]
+  ; ?
+  }
+  case step/raise:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    C : ( |- con),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/raise E1 C) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/raise E1 C) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/raise E1 C) ST' (tm/raise E2 C)]
+  ; ?
+  }
+  case step/out-beta:
+  { F : ( |- sttp),
+    X : ( |- label),
+    E' : ( |- term),
+    T : ( |- con),
+    ST' : ( |- store),
+    Dof : ( |- tm-of F (tm/out (tm/in X E')) T),
+    Dstof : ( |- store-of F ST' F),
+    Dvalue : ( |- value E')
+  | tof : [ |- tm-of F (tm/out (tm/in X E')) T],
+    sof : [ |- store-of F ST' F],
+    x : [ |- step ST' (tm/out (tm/in X E')) ST' E']
+  ; ?
+  }
+  case step/out:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/out E1) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/out E1) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/out E1) ST' (tm/out E2)]
+  ; ?
+  }
+  case step/in:
+  { F : ( |- sttp),
+    X : ( |- label),
+    E1 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/in X E1) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/in X E1) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/in X E1) ST' (tm/in X E2)]
+  ; ?
+  }
+  case step/unroll-beta:
+  { F : ( |- sttp),
+    E' : ( |- term),
+    K : ( |- kind),
+    C : (a78 : con, a77 : con |- con),
+    C1 : ( |- con),
+    T : ( |- con),
+    ST' : ( |- store),
+    Dof : ( |- tm-of F (tm/unroll (tm/roll E' K (\z126. \y127. C) C1)) T),
+    Dstof : ( |- store-of F ST' F),
+    Dvalue : ( |- value E')
+  | tof : [ |- tm-of F (tm/unroll (tm/roll E' K (\z126. \y127. C) C1)) T],
+    sof : [ |- store-of F ST' F],
+    x : [ |- step ST' (tm/unroll (tm/roll E' K (\z126. \y127. C) C1)) ST' E']
+  ; ?
+  }
+  case step/unroll:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/unroll E1) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/unroll E1) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/unroll E1) ST' (tm/unroll E2)]
+  ; ?
+  }
+  case step/roll:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    K : ( |- kind),
+    C : (a76 : con, a75 : con |- con),
+    C1 : ( |- con),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/roll E1 K (\z126. \y127. C) C1) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/roll E1 K (\z126. \y127. C) C1) T],
+    sof : [ |- store-of F ST F],
+    x :
+      [ |-
+         step
+           ST
+           (tm/roll E1 K (\z126. \y127. C) C1)
+           ST' (tm/roll E2 K (\z126. \y127. C) C1)]
+  ; ?
+  }
+  case step/iftag-beta2:
+  { F : ( |- sttp),
+    Dloc : ( |- location),
+    E1 : ( |- term),
+    Dloc1 : ( |- location),
+    E2 : (x19 : term |- term),
+    E' : ( |- term),
+    T : ( |- con),
+    ST' : ( |- store),
+    Dof :
+      ( |-
+         tm-of
+           F
+           (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+           (tm/tagloc Dloc1) (\y125. E2) E') T),
+    Dstof : ( |- store-of F ST' F),
+    Dvalue : ( |- value E1),
+    X : ( |- loc-neq Dloc Dloc1)
+  | tof :
+      [ |-
+         tm-of
+           F
+           (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+           (tm/tagloc Dloc1) (\y125. E2) E') T],
+    sof : [ |- store-of F ST' F],
+    x :
+      [ |-
+         step
+           ST'
+           (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+           (tm/tagloc Dloc1) (\y125. E2) E') ST' E']
+  ; ?
+  }
+  case step/iftag-beta1:
+  { F : ( |- sttp),
+    Dloc : ( |- location),
+    E1 : ( |- term),
+    E2 : (x18 : term |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    ST' : ( |- store),
+    Dof :
+      ( |-
+         tm-of
+           F
+           (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+           (tm/tagloc Dloc) (\y125. E2) E3) T),
+    Dstof : ( |- store-of F ST' F),
+    Dvalue : ( |- value E1)
+  | tof :
+      [ |-
+         tm-of
+           F
+           (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+           (tm/tagloc Dloc) (\y125. E2) E3) T],
+    sof : [ |- store-of F ST' F],
+    x :
+      [ |-
+         step
+           ST'
+           (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+           (tm/tagloc Dloc) (\y125. E2) E3) ST' (E2[E1])]
+  ; ?
+  }
+  case step/iftag2:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E2 : ( |- term),
+    E4 : (x17 : term |- term),
+    E5 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E3 : ( |- term),
+    Dof : ( |- tm-of F (tm/iftag E1 E2 (\y125. E4) E5) T),
+    Dstof : ( |- store-of F ST F),
+    Dvalue : ( |- value E1),
+    Dstep : ( |- step ST E2 ST' E3)
+  | tof : [ |- tm-of F (tm/iftag E1 E2 (\y125. E4) E5) T],
+    sof : [ |- store-of F ST F],
+    x :
+      [ |-
+         step
+           ST
+           (tm/iftag E1 E2 (\y125. E4) E5)
+           ST' (tm/iftag E1 E3 (\y125. E4) E5)]
+  ; ?
+  }
+  case step/iftag1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E3 : ( |- term),
+    E4 : (x16 : term |- term),
+    E5 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/iftag E1 E3 (\y125. E4) E5) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/iftag E1 E3 (\y125. E4) E5) T],
+    sof : [ |- store-of F ST F],
+    x :
+      [ |-
+         step
+           ST
+           (tm/iftag E1 E3 (\y125. E4) E5)
+           ST' (tm/iftag E2 E3 (\y125. E4) E5)]
+  ; ?
+  }
+  case step/tag2:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E2 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E3 : ( |- term),
+    Dof : ( |- tm-of F (tm/tag E1 E2) T),
+    Dstof : ( |- store-of F ST F),
+    Dvalue : ( |- value E1),
+    Dstep : ( |- step ST E2 ST' E3)
+  | tof : [ |- tm-of F (tm/tag E1 E2) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/tag E1 E2) ST' (tm/tag E1 E3)]
+  ; ?
+  }
+  case step/tag1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/tag E1 E3) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/tag E1 E3) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/tag E1 E3) ST' (tm/tag E2 E3)]
+  ; ?
+  }
+  case step/newtag-beta:
+  { F : ( |- sttp),
+    C : ( |- con),
+    T : ( |- con),
+    ST : ( |- store),
+    Dloc : ( |- location),
+    Dof : ( |- tm-of F (tm/newtag C) T),
+    Dstof : ( |- store-of F ST F),
+    Dnextloc : ( |- nextloc ST Dloc)
+  | tof : [ |- tm-of F (tm/newtag C) T],
+    sof : [ |- store-of F ST F],
+    x :
+      [ |-
+         step
+           ST
+           (tm/newtag C) (store/cons ST Dloc (entry/tag C)) (tm/tagloc Dloc)]
+  ; ?
+  }
+  case step/assign-beta:
+  { F : ( |- sttp),
+    Dloc : ( |- location),
+    E1 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    Dof : ( |- tm-of F (tm/assign (tm/refloc Dloc) E1) T),
+    Dstof : ( |- store-of F ST F),
+    Dvalue : ( |- value E1),
+    Dupdate : ( |- store-update ST Dloc (entry/ref E1) ST')
+  | tof : [ |- tm-of F (tm/assign (tm/refloc Dloc) E1) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/assign (tm/refloc Dloc) E1) ST' tm/unit]
+  ; ?
+  }
+  case step/assign2:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E2 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E3 : ( |- term),
+    Dof : ( |- tm-of F (tm/assign E1 E2) T),
+    Dstof : ( |- store-of F ST F),
+    Dvalue : ( |- value E1),
+    Dstep : ( |- step ST E2 ST' E3)
+  | tof : [ |- tm-of F (tm/assign E1 E2) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/assign E1 E2) ST' (tm/assign E1 E3)]
+  ; ?
+  }
+  case step/assign1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/assign E1 E3) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/assign E1 E3) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/assign E1 E3) ST' (tm/assign E2 E3)]
+  ; ?
+  }
+  case step/deref-beta:
+  { F : ( |- sttp),
+    Dloc : ( |- location),
+    T : ( |- con),
+    ST' : ( |- store),
+    E' : ( |- term),
+    Dof : ( |- tm-of F (tm/deref (tm/refloc Dloc)) T),
+    Dstof : ( |- store-of F ST' F),
+    Dlookup : ( |- store-lookup ST' Dloc (entry/ref E'))
+  | tof : [ |- tm-of F (tm/deref (tm/refloc Dloc)) T],
+    sof : [ |- store-of F ST' F],
+    x : [ |- step ST' (tm/deref (tm/refloc Dloc)) ST' E']
+  ; ?
+  }
+  case step/deref:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/deref E1) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/deref E1) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/deref E1) ST' (tm/deref E2)]
+  ; ?
+  }
+  case step/ref-beta:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    Dloc : ( |- location),
+    Dof : ( |- tm-of F (tm/ref E1) T),
+    Dstof : ( |- store-of F ST F),
+    Dvalue : ( |- value E1),
+    Dnextloc : ( |- nextloc ST Dloc)
+  | tof : [ |- tm-of F (tm/ref E1) T],
+    sof : [ |- store-of F ST F],
+    x :
+      [ |-
+         step
+           ST
+           (tm/ref E1) (store/cons ST Dloc (entry/ref E1)) (tm/refloc Dloc)]
+  ; ?
+  }
+  case step/ref:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/ref E1) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/ref E1) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/ref E1) ST' (tm/ref E2)]
+  ; ?
+  }
+  case step/case-beta2:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    C : ( |- con),
+    E2 : (x14 : term |- term),
+    E3 : (x15 : term |- term),
+    T : ( |- con),
+    ST' : ( |- store),
+    Dof : ( |- tm-of F (tm/case (tm/in2 E1 C) (\x120. E2) (\y120. E3)) T),
+    Dstof : ( |- store-of F ST' F),
+    Dvalue : ( |- value E1)
+  | tof : [ |- tm-of F (tm/case (tm/in2 E1 C) (\x120. E2) (\y120. E3)) T],
+    sof : [ |- store-of F ST' F],
+    x :
+      [ |-
+         step
+           ST' (tm/case (tm/in2 E1 C) (\x120. E2) (\y120. E3)) ST' (E3[E1])]
+  ; ?
+  }
+  case step/case-beta1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    C : ( |- con),
+    E2 : (x12 : term |- term),
+    E3 : (x13 : term |- term),
+    T : ( |- con),
+    ST' : ( |- store),
+    Dof : ( |- tm-of F (tm/case (tm/in1 E1 C) (\x120. E2) (\y120. E3)) T),
+    Dstof : ( |- store-of F ST' F),
+    Dvalue : ( |- value E1)
+  | tof : [ |- tm-of F (tm/case (tm/in1 E1 C) (\x120. E2) (\y120. E3)) T],
+    sof : [ |- store-of F ST' F],
+    x :
+      [ |-
+         step
+           ST' (tm/case (tm/in1 E1 C) (\x120. E2) (\y120. E3)) ST' (E2[E1])]
+  ; ?
+  }
+  case step/case:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E3 : (x10 : term |- term),
+    E4 : (x11 : term |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/case E1 (\x120. E3) (\y120. E4)) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/case E1 (\x120. E3) (\y120. E4)) T],
+    sof : [ |- store-of F ST F],
+    x :
+      [ |-
+         step
+           ST
+           (tm/case E1 (\x120. E3) (\y120. E4))
+           ST' (tm/case E2 (\x120. E3) (\y120. E4))]
+  ; ?
+  }
+  case step/in2:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    C : ( |- con),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/in2 E1 C) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/in2 E1 C) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/in2 E1 C) ST' (tm/in2 E2 C)]
+  ; ?
+  }
+  case step/in1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    C : ( |- con),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/in1 E1 C) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/in1 E1 C) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/in1 E1 C) ST' (tm/in1 E2 C)]
+  ; ?
+  }
+  case step/app-beta:
+  { F : ( |- sttp),
+    C : ( |- con),
+    E2 : (x9 : term |- term),
+    E1 : ( |- term),
+    T : ( |- con),
+    ST' : ( |- store),
+    Dof : ( |- tm-of F (tm/app (tm/lam C (\x. E2)) E1) T),
+    Dstof : ( |- store-of F ST' F),
+    Dvalue : ( |- value E1)
+  | tof : [ |- tm-of F (tm/app (tm/lam C (\x. E2)) E1) T],
+    sof : [ |- store-of F ST' F],
+    x : [ |- step ST' (tm/app (tm/lam C (\x. E2)) E1) ST' (E2[E1])]
+  ; ?
+  }
+  case step/app2:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E2 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E3 : ( |- term),
+    Dof : ( |- tm-of F (tm/app E1 E2) T),
+    Dstof : ( |- store-of F ST F),
+    Dvalue : ( |- value E1),
+    Dstep : ( |- step ST E2 ST' E3)
+  | tof : [ |- tm-of F (tm/app E1 E2) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/app E1 E2) ST' (tm/app E1 E3)]
+  ; ?
+  }
+  case step/app1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/app E1 E3) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/app E1 E3) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/app E1 E3) ST' (tm/app E2 E3)]
+  ; ?
+  }
+  case step/pi2-beta:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E' : ( |- term),
+    T : ( |- con),
+    ST' : ( |- store),
+    Dof : ( |- tm-of F (tm/pi2 (tm/pair E1 E')) T),
+    Dstof : ( |- store-of F ST' F),
+    Dvalue : ( |- value E1),
+    Dvalue1 : ( |- value E')
+  | tof : [ |- tm-of F (tm/pi2 (tm/pair E1 E')) T],
+    sof : [ |- store-of F ST' F],
+    x : [ |- step ST' (tm/pi2 (tm/pair E1 E')) ST' E']
+  ; ?
+  }
+  case step/pi2:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/pi2 E1) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/pi2 E1) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/pi2 E1) ST' (tm/pi2 E2)]
+  ; ?
+  }
+  case step/pi1-beta:
+  { F : ( |- sttp),
+    E' : ( |- term),
+    E2 : ( |- term),
+    T : ( |- con),
+    ST' : ( |- store),
+    Dof : ( |- tm-of F (tm/pi1 (tm/pair E' E2)) T),
+    Dstof : ( |- store-of F ST' F),
+    Dvalue : ( |- value E'),
+    Dvalue1 : ( |- value E2)
+  | tof : [ |- tm-of F (tm/pi1 (tm/pair E' E2)) T],
+    sof : [ |- store-of F ST' F],
+    x : [ |- step ST' (tm/pi1 (tm/pair E' E2)) ST' E']
+  ; ?
+  }
+  case step/pi1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/pi1 E1) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/pi1 E1) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/pi1 E1) ST' (tm/pi1 E2)]
+  ; ?
+  }
+  case step/pair2:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E2 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E3 : ( |- term),
+    Dof : ( |- tm-of F (tm/pair E1 E2) T),
+    Dstof : ( |- store-of F ST F),
+    Dvalue : ( |- value E1),
+    Dstep : ( |- step ST E2 ST' E3)
+  | tof : [ |- tm-of F (tm/pair E1 E2) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/pair E1 E2) ST' (tm/pair E1 E3)]
+  ; ?
+  }
+  case step/pair1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/pair E1 E3) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/pair E1 E3) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/pair E1 E3) ST' (tm/pair E2 E3)]
+  ; ?
+  }
+  case step/abort:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    C : ( |- con),
+    T : ( |- con),
+    ST : ( |- store),
+    ST' : ( |- store),
+    E2 : ( |- term),
+    Dof : ( |- tm-of F (tm/abort E1 C) T),
+    Dstof : ( |- store-of F ST F),
+    Dstep : ( |- step ST E1 ST' E2)
+  | tof : [ |- tm-of F (tm/abort E1 C) T],
+    sof : [ |- store-of F ST F],
+    x : [ |- step ST (tm/abort E1 C) ST' (tm/abort E2 C)]
+  ; split inversion-tm/abort [ |- Dof] as
+    case inversion-tm/abort/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      C : ( |- con),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E2 : ( |- term),
+      Dof : ( |- tm-of F (tm/abort E1 C) T),
+      Dstof : ( |- store-of F ST F),
+      Dstep : ( |- step ST E1 ST' E2),
+      Dof1 : ( |- tm-of F E1 void),
+      Dequiv : ( |- cn-equiv C T t)
+    | tof : [ |- tm-of F (tm/abort E1 C) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/abort E1 C) ST' (tm/abort E2 C)]
+    ; split preservation-tm [ |- Dof1] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        C : ( |- con),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E2 : ( |- term),
+        Dof : ( |- tm-of F (tm/abort E1 C) T),
+        Dstof : ( |- store-of F ST F),
+        Dstep : ( |- step ST E1 ST' E2),
+        Dof1 : ( |- tm-of F E1 void),
+        Dequiv : ( |- cn-equiv C T t),
+        F2 : ( |- sttp),
+        Dof2 : ( |- tm-of F2 E2 void),
+        Dof3 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/abort E1 C) T],
+        sof : [ |- store-of F ST F],
+        x : [ |- step ST (tm/abort E1 C) ST' (tm/abort E2 C)]
+      ; by cn-equiv-reg/cn-of1 [ |- Dequiv] as DofT unboxed;
+        solve
+          [ |-
+             preservation-tm/i F2
+             (tm-of/equiv (tm-of/abort DofT Dof2) Dequiv) Dof3 Dextends]
+      }
+    }
+  }
+}
 ;
