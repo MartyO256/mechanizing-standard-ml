@@ -1477,7 +1477,62 @@ intros
   | tof : [ |- tm-of F (tm/unroll E1) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/unroll E1) ST' (tm/unroll E2)]
-  ; ?
+  ; split inversion-tm/unroll [ |- Dof] as
+    case inversion-tm/unroll/i:
+    { F : ( |- sttp),
+      E : ( |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E' : ( |- term),
+      Dof : ( |- tm-of F (tm/unroll E) T),
+      Dstof : ( |- store-of F ST F),
+      Dstep : ( |- step ST E ST' E'),
+      K : ( |- kind),
+      C1 : (y675 : con, x675 : con |- con),
+      C2 : ( |- con),
+      Dequiv :
+        ( |-
+           cn-equiv
+             (C1[lam K (\a. rec' K[] (\x105. \z105. C1[x105, z105]) a), C2])
+             T t),
+      Dof1 : ( |- tm-of F E (rec' K (\x105. \z105. C1) C2))
+    | tof : [ |- tm-of F (tm/unroll E) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/unroll E) ST' (tm/unroll E')]
+    ; split preservation-tm [ |- Dof1] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E : ( |- term),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E' : ( |- term),
+        Dof : ( |- tm-of F (tm/unroll E) T),
+        Dstof : ( |- store-of F ST F),
+        Dstep : ( |- step ST E ST' E'),
+        K : ( |- kind),
+        C1 : (y675 : con, x675 : con |- con),
+        C2 : ( |- con),
+        Dequiv :
+          ( |-
+             cn-equiv
+               (C1[lam K (\a. rec' K[] (\x105. \z105. C1[x105, z105]) a), C2])
+               T t),
+        Dof' : ( |- tm-of F E (rec' K (\x105. \z105. C1) C2)),
+        F2 : ( |- sttp),
+        Dof1 : ( |- tm-of F2 E' (rec' K (\x105. \z105. C1) C2)),
+        Dof2 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/unroll E) T],
+        sof : [ |- store-of F ST F],
+        x : [ |- step ST (tm/unroll E) ST' (tm/unroll E')]
+      ; solve
+          [ |-
+             preservation-tm/i F2
+             (tm-of/equiv (tm-of/unroll Dof1) Dequiv) Dof2 Dextends]
+      }
+    }
   }
   case step/roll:
   { F : ( |- sttp),
