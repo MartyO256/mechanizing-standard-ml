@@ -15,6 +15,63 @@ LF flay : etp -> skel -> eterm -> type =
 ;
 --name flay Dflay flay.
 
+proof flay-resp :
+  (g : evar)
+  [g |- etp-eq A A'] ->
+  [ |- skel-eq K K'] ->
+  [g |- eterm-eq M M'] ->
+  [g |- flay A K[] M] ->
+    [g |- flay A' K'[] M'] =
+/ total /
+intros
+{ g : evar,
+  A : (g |- etp),
+  A' : (g |- etp),
+  K : ( |- skel),
+  K' : ( |- skel),
+  M : (g |- eterm),
+  M' : (g |- eterm)
+| eq : [g |- etp-eq A A'],
+  eq1 : [ |- skel-eq K K'],
+  eq2 : [g |- eterm-eq M M'],
+  flay : [g |- flay A K[] M]
+; split eq as
+  case etp-eq/i:
+  { g : evar,
+    A' : (g |- etp),
+    K : ( |- skel),
+    K' : ( |- skel),
+    M : (g |- eterm),
+    M' : (g |- eterm)
+  | eq : [g |- etp-eq A' A'],
+    eq1 : [ |- skel-eq K K'],
+    eq2 : [g |- eterm-eq M M'],
+    flay : [g |- flay A' K[] M]
+  ; split eq1 as
+    case skel-eq/i:
+    { g : evar,
+      A' : (g |- etp),
+      K' : ( |- skel),
+      M : (g |- eterm),
+      M' : (g |- eterm)
+    | eq : [g |- etp-eq A' A'],
+      eq1 : [ |- skel-eq K' K'],
+      eq2 : [g |- eterm-eq M M'],
+      flay : [g |- flay A' K'[] M]
+    ; split eq2 as
+      case eterm-eq/i:
+      { g : evar, A' : (g |- etp), K' : ( |- skel), M' : (g |- eterm)
+      | eq : [g |- etp-eq A' A'],
+        eq1 : [ |- skel-eq K' K'],
+        eq2 : [g |- eterm-eq M' M'],
+        flay : [g |- flay A' K'[] M']
+      ; solve flay
+      }
+    }
+  }
+}
+;
+
 LF can-flay/e : etp -> type =
 | can-flay/i:
   { K : skel } { M : eterm } flay A K M ->
@@ -29,17 +86,17 @@ intros
 ; split [_ |- A] as
   case eone:
   { g : evar
-  | 
+  |
   ; solve [g |- can-flay/i _ _ flay/one]
   }
   case esing:
   { g : evar, M : (g |- eterm)
-  | 
+  |
   ; solve [g |- can-flay/i _ _ (flay/sing )]
   }
   case esigma:
   { g : evar, A1 : (g |- etp), A2 : (g, z78 : eterm |- etp)
-  | 
+  |
   ; split can-flay [g |- A1] as
     case can-flay/i:
     { g : evar,
@@ -48,7 +105,7 @@ intros
       Dskel : ( |- skel),
       M : (g |- eterm),
       Dflay : (g |- flay A1 Dskel[] M)
-    | 
+    |
     ; split can-flay [g, x : eterm |- A2] as
       case can-flay/i:
       { g : evar,
@@ -60,14 +117,14 @@ intros
         Dskel1 : ( |- skel),
         M1 : (g, x : eterm |- eterm),
         Dflay1 : (g, x : eterm |- flay A2 Dskel1[] M1)
-      | 
+      |
       ; solve [g |- can-flay/i _ _ (flay/sigma Dflay (\x. Dflay1))]
       }
     }
   }
   case epi:
   { g : evar, A1 : (g |- etp), A2 : (g, z77 : eterm |- etp)
-  | 
+  |
   ; split can-flay [g |- A1] as
     case can-flay/i:
     { g : evar,
@@ -76,7 +133,7 @@ intros
       Dskel : ( |- skel),
       M : (g |- eterm),
       Dflay : (g |- flay A1 Dskel[] M)
-    | 
+    |
     ; split can-flay [g, x : eterm |- A2] as
       case can-flay/i:
       { g : evar,
@@ -88,14 +145,14 @@ intros
         Dskel1 : ( |- skel),
         M1 : (g, x : eterm |- eterm),
         Dflay1 : (g, x : eterm |- flay A2 Dskel1[] M1)
-      | 
+      |
       ; solve [g |- can-flay/i _ _ (flay/pi Dflay (\x. Dflay1))]
       }
     }
   }
   case et:
   { g : evar
-  | 
+  |
   ; solve [g |- can-flay/i _ _ flay/t]
   }
 }

@@ -15,6 +15,11 @@ LF etp-eq : etp -> etp -> type =
 ;
 --name etp-eq Deq eq.
 
+LF skel-eq : skel -> skel -> type =
+| skel-eq/i : skel-eq K K
+;
+--name skel-eq Deq eq.
+
 LF term-eq : term -> term -> type =
 | term-eq/i : term-eq M M
 ;
