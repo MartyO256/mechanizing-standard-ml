@@ -210,6 +210,63 @@ intros
 }
 ;
 
+proof eterm-resp-eterm :
+  (g : evar+topenblock)
+  { M : [x : eterm |- eterm] }
+  [g |- eterm-eq N N'] ->
+    [g |- eterm-eq (M[N]) (M[N'])] =
+/ total /
+intros
+{ g : evar+topenblock,
+  N : (g |- eterm),
+  N' : (g |- eterm),
+  M : (x : eterm |- eterm)
+| eq : [g |- eterm-eq N N']
+; split eq as
+  case eterm-eq/i:
+  { g : evar+topenblock, N' : (g |- eterm), M : (x : eterm |- eterm)
+  | eq : [g |- eterm-eq N' N']
+  ; solve [_ |- eterm-eq/i ]
+  }
+}
+;
+
+proof eterm-resp-eterm2 :
+  (g : evar+topenblock)
+  { M : [x : eterm, y : eterm |- eterm] }
+  [g |- eterm-eq N N'] ->
+  [g |- eterm-eq O O'] ->
+  [g |- eterm-eq (M[N, O]) (M[N', O'])] =
+/ total /
+intros
+{ g : evar+topenblock,
+  N : (g |- eterm),
+  N' : (g |- eterm),
+  O : (g |- eterm),
+  O' : (g |- eterm),
+  M : (x : eterm, y : eterm |- eterm)
+| eq : [g |- eterm-eq N N'], eq1 : [g |- eterm-eq O O']
+; split eq as
+  case eterm-eq/i:
+  { g : evar+topenblock,
+    N' : (g |- eterm),
+    O : (g |- eterm),
+    O' : (g |- eterm),
+    M : (x : eterm, y : eterm |- eterm)
+  | eq : [g |- eterm-eq N' N'], eq1 : [g |- eterm-eq O O']
+  ; split eq1 as
+    case eterm-eq/i:
+    { g : evar+topenblock,
+      N' : (g |- eterm),
+      O' : (g |- eterm),
+      M : (x : eterm, y : eterm |- eterm)
+    | eq : [g |- eterm-eq N' N'], eq1 : [g |- eterm-eq O' O']
+    ; solve [_ |- eterm-eq/i ]
+    }
+  }
+}
+;
+
 proof skel-resp-skel2 :
   { K : [k1 : skel, k2 : skel |- skel] }
   [ |- skel-eq K1 K1'] ->
