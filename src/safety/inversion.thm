@@ -117,18 +117,6 @@ LF inversion-tm/pi1/e : sttp -> term -> con -> type =
     inversion-tm/pi1/e F E T1
 ;
 
-proof inversion-tm/pi1/i :
-  { T2 : [ |- con] } [ |- tm-of F E (prod T1 T2)] ->
-    [ |- inversion-tm/pi1/e F E T1] =
-/ total /
-intros
-{ F : ( |- sttp), E : ( |- term), T : ( |- con), T1 : ( |- con)
-| tof : [ |- tm-of F E (prod T T1)]
-; by tof as Dof unboxed;
-  solve [ |- inversion-tm/pi1/i T1 Dof]
-}
-;
-
 % TODO: Depends on `tm-of-reg`, `inversion-prod/1`
 proof inversion-tm/pi1 :
   [ |- tm-of F (tm/pi1 E) T1] ->
@@ -157,10 +145,7 @@ intros
       C2 : ( |- con),
       Dof1 : ( |- tm-of F E (prod C C2))
     | x : [ |- tm-of F (tm/pi1 E) T]
-    ; suffices by inversion-tm/pi1/i [ |- C2] toshow
-      [ |- tm-of F E (prod T C2)] {
-        ?
-      }
+    ; ?
     }
   }
   case tm-of/pi1:
@@ -170,10 +155,7 @@ intros
     C1 : ( |- con),
     Dof : ( |- tm-of F E (prod T C1))
   | x : [ |- tm-of F (tm/pi1 E) T]
-  ; suffices by inversion-tm/pi1/i [ |- C1] toshow
-    [ |- tm-of F E (prod T C1)] {
-      solve [ |- Dof]
-    }
+  ; solve [ |- inversion-tm/pi1/i _ Dof]
   }
 }
 ;
@@ -183,19 +165,6 @@ LF inversion-tm/pi2/e : sttp -> term -> con -> type =
   { T1 : con }
   tm-of F E (prod T1 T2) ->
     inversion-tm/pi2/e F E T2
-;
-
-proof inversion-tm/pi2/i :
-  { T1 : [ |- con] }
-  [ |- tm-of F E (prod T1 T2)] ->
-    [ |- inversion-tm/pi2/e F E T2] =
-/ total /
-intros
-{ F : ( |- sttp), E : ( |- term), T : ( |- con), T1 : ( |- con)
-| tof : [ |- tm-of F E (prod T1 T)]
-; by tof as Dof unboxed;
-  solve [ |- inversion-tm/pi2/i T1 Dof]
-}
 ;
 
 % TODO: Depends on `tm-of-reg`, `inversion-prod/2`
@@ -226,10 +195,7 @@ intros
       C2 : ( |- con),
       Dof1 : ( |- tm-of F E (prod C2 C))
     | x : [ |- tm-of F (tm/pi2 E) T]
-    ; suffices by inversion-tm/pi2/i [ |- C2] toshow
-      [ |- tm-of F E (prod C2 T)] {
-        ?
-      }
+    ; ?
     }
   }
   case tm-of/pi2:
@@ -239,10 +205,7 @@ intros
     C : ( |- con),
     Dof : ( |- tm-of F E (prod C T))
   | x : [ |- tm-of F (tm/pi2 E) T]
-  ; suffices by inversion-tm/pi2/i [ |- C] toshow
-    [ |- tm-of F E (prod C T)] {
-      solve [ |- Dof]
-    }
+  ; solve [ |- inversion-tm/pi2/i _ Dof]
   }
 }
 ;

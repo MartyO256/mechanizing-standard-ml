@@ -37,24 +37,27 @@ intros
 }
 ;
 
-LF single/existKs : kind -> type =
-| single/existKs/i : { Ks : con -> kind } single K Ks -> single/existKs K
+LF can-single/e : kind -> type =
+| can-single/i :
+  { Ks : con -> kind }
+  single K Ks ->
+    can-single/e K
 ;
 
-proof single/existKs/i :
+proof can-single/i :
   (g : conblock) { Ks : [g, a : con |- kind] } [g |- single K (\x. Ks)] ->
-    [g |- single/existKs K] =
+    [g |- can-single/e K] =
 / total /
 intros
 { g : conblock, K : (g |- kind), Ks : (g, a : con |- kind)
 | single : [g |- single K (\x. Ks)]
 ; by single as Dsingle unboxed;
-  solve [_ |- single/existKs/i (\a. Ks) Dsingle]
+  solve [_ |- can-single/i (\a. Ks) Dsingle]
 }
 ;
 
 proof can-single :
-  (g : conblock) { K : [g |- kind] } [g |- single/existKs K] =
+  (g : conblock) { K : [g |- kind] } [g |- can-single/e K] =
 / total 1 /
 intros
 { g : conblock, K : (g |- kind)
@@ -63,7 +66,7 @@ intros
   case one:
   { g : conblock
   |
-  ; suffices by single/existKs/i [_, a : con |- one] toshow
+  ; suffices by can-single/i [_, a : con |- one] toshow
     [g |- single one (\x. one)] {
       solve [_ |- single/one]
     }
@@ -72,7 +75,7 @@ intros
   { g : conblock, K1 : (g |- kind), K2 : (g, x100 : con |- kind)
   |
   ; split can-single [g |- K1] as
-    case single/existKs/i:
+    case can-single/i:
     { g : conblock,
       K1 : (g |- kind),
       K2 : (g, x100 : con |- kind),
@@ -80,7 +83,7 @@ intros
       Dsingle : (g |- single K1 (\y318. K4))
     |
     ; split can-single [g, x100 : con |- K2] as
-      case single/existKs/i:
+      case can-single/i:
       { g : conblock,
         K1 : (g |- kind),
         K2 : (g, x100 : con |- kind),
@@ -90,7 +93,7 @@ intros
         Dsingle1 : (g, x100 : con |- single K2 (\y318. K6))
       |
       ; suffices by
-          single/existKs/i
+          can-single/i
             [g, a : con |- sigma (K4[.., pi1 a]) (\l. K6[.., pi1 a, pi2 a])] toshow
         [g |-
            single
@@ -105,7 +108,7 @@ intros
   { g : conblock, K1 : (g |- kind), K2 : (g, x99 : con |- kind)
   |
   ; split can-single [g, x99 : con |- K2] as
-    case single/existKs/i:
+    case can-single/i:
     { g : conblock,
       K1 : (g |- kind),
       K2 : (g, x99 : con |- kind),
@@ -113,7 +116,7 @@ intros
       Dsingle : (g, x99 : con |- single K2 (\y318. K4))
     |
     ; suffices by
-        single/existKs/i
+        can-single/i
           [g, a : con |- pi (K1[..]) (\a1. K4[.., a1, app a a1])] toshow
       [g |-
          single (pi K1 (\a. K2)) (\b. pi (K1[..]) (\a. K4[.., a, app b a]))] {
@@ -124,7 +127,7 @@ intros
   case sing:
   { g : conblock, C : (g |- con)
   |
-  ; suffices by single/existKs/i [_, a : con |- sing a] toshow
+  ; suffices by can-single/i [_, a : con |- sing a] toshow
     [g |- single (sing C) (\b. sing b)] {
       solve [_ |- single/sing ]
     }
@@ -132,7 +135,7 @@ intros
   case t:
   { g : conblock
   |
-  ; suffices by single/existKs/i [_, a : con |- sing a] toshow
+  ; suffices by can-single/i [_, a : con |- sing a] toshow
     [g |- single t (\b. sing b)] {
       solve [_ |- single/t]
     }

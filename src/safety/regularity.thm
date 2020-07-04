@@ -1770,25 +1770,16 @@ as DwfB unboxed;
 }
 ;
 
-LF inhabitation/existsC : kind -> type =
-| inhabitation/existsC/i : { C : con } cn-of C K -> inhabitation/existsC K
-;
-
-proof inhabitation/existsC/i :
-  (g : conbind) { C : [g |- con] } [g |- cn-of C K] ->
-    [g |- inhabitation/existsC K] =
-/ total /
-intros
-{ g : conbind, K : (g |- kind), C : (g |- con)
-| cof : [g |- cn-of C K]
-; by cof as Dof unboxed;
-  solve [_ |- inhabitation/existsC/i C Dof]
-}
+LF inhabitation/e : kind -> type =
+| inhabitation/i :
+  { C : con }
+  cn-of C K ->
+    inhabitation/e K
 ;
 
 proof inhabitation :
   (g : conbind) [g |- kd-wf K] ->
-    [g |- inhabitation/existsC K] =
+    [g |- inhabitation/e K] =
 / total 1 /
 intros
 { g : conbind, K : (g |- kind)
@@ -1797,10 +1788,7 @@ intros
   case kd-wf/one:
   { g : conbind
   | x : [g |- kd-wf one]
-  ; suffices by inhabitation/existsC/i [_ |- star] toshow
-    [g |- cn-of star one] {
-      solve [_ |- cn-of/star]
-    }
+  ; solve [g |- inhabitation/i _ cn-of/star]
   }
   case kd-wf/sigma:
   { g : conbind,
@@ -1810,7 +1798,7 @@ intros
     Dwf1 : (g, a : con, z160 : cn-of a (K1[..]) |- kd-wf (K2[.., a]))
   | x : [g |- kd-wf (sigma K1 (\x100. K2))]
   ; split inhabitation [g |- Dwf] as
-    case inhabitation/existsC/i:
+    case inhabitation/i:
     { g : conbind,
       K1 : (g |- kind),
       K2 : (g, a4 : con |- kind),
@@ -1822,7 +1810,7 @@ intros
     ; split
       inhabitation
         [g, b : block (a : con, d : cn-of a (K1[..])) |- Dwf1[.., b.1, b.2]] as
-      case inhabitation/existsC/i:
+      case inhabitation/i:
       { g : conbind,
         K1 : (g |- kind),
         K3 : (g, a : con |- kind),
@@ -1835,10 +1823,8 @@ intros
           (g, a : con, y665 : cn-of a (K1[..]) |-
              cn-of (C1[.., a]) (K3[.., a]))
       | x : [g |- kd-wf (sigma K1 (\x100. K3))]
-      ; suffices by inhabitation/existsC/i [g |- pair C (C1[.., C])] toshow
-        [g |- cn-of (pair C (C1[.., C])) (sigma K1 (\y. K3))] {
-          solve [g |- cn-of/pair Dof (Dof1[.., C, Dof]) (\x. \y. Dwf1)]
-        }
+      ; solve
+  [g |- inhabitation/i _ (cn-of/pair Dof (Dof1[.., C, Dof]) (\x. \y. Dwf1))]
       }
     }
   }
@@ -1852,7 +1838,7 @@ intros
   ; split
     inhabitation
       [_, b : block (a : con, d : cn-of a (K1[..])) |- Dwf1[.., b.1, b.2]] as
-    case inhabitation/existsC/i:
+    case inhabitation/i:
     { g : conbind,
       K1 : (g |- kind),
       K3 : (g, a : con |- kind),
@@ -1862,27 +1848,18 @@ intros
       Dof :
         (g, a : con, y668 : cn-of a (K1[..]) |- cn-of (C[.., a]) (K3[.., a]))
     | x : [g |- kd-wf (pi K1 (\x99. K3))]
-    ; suffices by inhabitation/existsC/i [_ |- lam K1 (\x. C)] toshow
-      [g |- cn-of (lam K1 (\x. C)) (pi K1 (\y. K3))] {
-        solve [_ |- cn-of/lam Dwf (\x. \y. Dof)]
-      }
+    ; solve [g |- inhabitation/i _ (cn-of/lam Dwf (\x. \y. Dof))]
     }
   }
   case kd-wf/sing:
   { g : conbind, C : (g |- con), Dof : (g |- cn-of C t)
   | x : [g |- kd-wf (sing C)]
-  ; suffices by inhabitation/existsC/i [g |- C] toshow
-    [g |- cn-of C (sing C)] {
-      solve [g |- cn-of/sing Dof]
-    }
+  ; solve [g |- inhabitation/i _ (cn-of/sing Dof)]
   }
   case kd-wf/t:
   { g : conbind
   | x : [g |- kd-wf t]
-  ; suffices by inhabitation/existsC/i [g |- unit] toshow
-    [g |- cn-of unit t] {
-      solve [g |- cn-of/unit]
-    }
+  ; solve [g |- inhabitation/i _ cn-of/unit]
   }
 }
 ;
