@@ -1,3 +1,49 @@
+LF eexpand : eterm -> etp -> eterm -> type =
+| eexpand/t : eexpand R et R
+
+| eexpand/pi :
+  ({ x : eterm } eexpand x A (M x)) ->
+  ({ x : eterm } eexpand (eapp R (M x)) (B x) (N x)) ->
+    eexpand R (epi A B) (elam A N)
+
+| eexpand/sigma :
+  eexpand (epi1 R) A M ->
+  eexpand (epi2 R) (B (epi1 R)) N ->
+    eexpand R (esigma A B) (epair M N)
+
+| eexpand/sing : eexpand R (esing R') R'
+
+| eexpand/one : eexpand R eone estar
+;
+--name eexpand Dexpand expand.
+
+LF skof : skel -> etp -> (eterm -> etp) -> type =
+| skof/t : skof kt eone (\l. et)
+
+| skof/pi :
+  skof As C (\y. A y) ->
+  skof Bs D (\z. B z) ->
+  ({ y : eterm } { x : eterm } eexpand x (A y) (X y x)) ->
+    skof
+      (kpi As Bs)
+      (esigma C (\y. epi (A y) (\l. D)))
+      (\w. epi (A (epi1 w)) (\x. B (eapp (epi2 w) (X (epi1 w) x))))
+
+| skof/sigma :
+  skof As C (\y. A y) ->
+  skof Bs D (\z. B z) ->
+  ({ y : eterm } { x : eterm } eexpand x (A y) (X y x)) ->
+    skof
+      (ksigma As Bs)
+      (esigma C (\y. epi (A y) (\l. D)))
+      (\w. esigma (A (epi1 w)) (\x. B (eapp (epi2 w) (X (epi1 w) x))))
+
+| skof/sing : skof ksing et (\x. esing x)
+
+| skof/one : skof kone eone (\l. eone)
+;
+--name skof Dskof skof.
+
 LF flay : etp -> skel -> eterm -> type =
 | flay/t : flay et kt estar
 
@@ -14,6 +60,65 @@ LF flay : etp -> skel -> eterm -> type =
 | flay/one : flay eone kone estar
 ;
 --name flay Dflay flay.
+
+% Equality
+
+proof eexpand-resp :
+  (g : evar)
+  [g |- eterm-eq R R'] ->
+  [g |- etp-eq A A'] ->
+  [g |- eterm-eq M M'] ->
+  [g |- eexpand R A M] ->
+    [g |- eexpand R' A' M'] =
+/ total /
+intros
+{ g : evar,
+  R : (g |- eterm),
+  R' : (g |- eterm),
+  A : (g |- etp),
+  A' : (g |- etp),
+  M : (g |- eterm),
+  M' : (g |- eterm)
+| eq : [g |- eterm-eq R R'],
+  eq1 : [g |- etp-eq A A'],
+  eq2 : [g |- eterm-eq M M'],
+  expand : [g |- eexpand R A M]
+; split eq as
+  case eterm-eq/i:
+  { g : evar,
+    R' : (g |- eterm),
+    A : (g |- etp),
+    A' : (g |- etp),
+    M : (g |- eterm),
+    M' : (g |- eterm)
+  | eq : [g |- eterm-eq R' R'],
+    eq1 : [g |- etp-eq A A'],
+    eq2 : [g |- eterm-eq M M'],
+    expand : [g |- eexpand R' A M]
+  ; split eq1 as
+    case etp-eq/i:
+    { g : evar,
+      R' : (g |- eterm),
+      A' : (g |- etp),
+      M : (g |- eterm),
+      M' : (g |- eterm)
+    | eq : [g |- eterm-eq R' R'],
+      eq1 : [g |- etp-eq A' A'],
+      eq2 : [g |- eterm-eq M M'],
+      expand : [g |- eexpand R' A' M]
+    ; split eq2 as
+      case eterm-eq/i:
+      { g : evar, R' : (g |- eterm), A' : (g |- etp), M' : (g |- eterm)
+      | eq : [g |- eterm-eq R' R'],
+        eq1 : [g |- etp-eq A' A'],
+        eq2 : [g |- eterm-eq M' M'],
+        expand : [g |- eexpand R' A' M']
+      ; solve expand
+      }
+    }
+  }
+}
+;
 
 proof flay-resp :
   (g : evar)
@@ -66,6 +171,63 @@ intros
         eq2 : [g |- eterm-eq M' M'],
         flay : [g |- flay A' K'[] M']
       ; solve flay
+      }
+    }
+  }
+}
+;
+
+proof skof-resp :
+  (g : evar)
+  [ |- skel-eq K K'] ->
+  [g |- etp-eq C C'] ->
+  [g, x : eterm |- etp-eq (A[x]) (A'[x])] ->
+  [g |- skof K[] C (\x. A[x])] ->
+  [g |- skof K'[] C' (\x. A'[x])] =
+/ total /
+intros
+{ g : evar,
+  K : ( |- skel),
+  K' : ( |- skel),
+  C : (g |- etp),
+  C' : (g |- etp),
+  A : (x : eterm |- etp),
+  A' : (x : eterm |- etp)
+| eq : [ |- skel-eq K K'],
+  eq1 : [g |- etp-eq C C'],
+  eq2 : [g, x : eterm |- etp-eq (A[x]) (A'[x])],
+  skof : [g |- skof K[] C (\x. A[x])]
+; split eq as
+  case skel-eq/i:
+  { g : evar,
+    K' : ( |- skel),
+    C : (g |- etp),
+    C' : (g |- etp),
+    A : (x : eterm |- etp),
+    A' : (x : eterm |- etp)
+  | eq : [ |- skel-eq K' K'],
+    eq1 : [g |- etp-eq C C'],
+    eq2 : [g, x : eterm |- etp-eq (A[x]) (A'[x])],
+    skof : [g |- skof K'[] C (\x. A[x])]
+  ; split eq1 as
+    case etp-eq/i:
+    { g : evar,
+      K' : ( |- skel),
+      C' : (g |- etp),
+      A : (x : eterm |- etp),
+      A' : (x : eterm |- etp)
+    | eq : [ |- skel-eq K' K'],
+      eq1 : [g |- etp-eq C' C'],
+      eq2 : [g, x : eterm |- etp-eq (A[x]) (A'[x])],
+      skof : [g |- skof K'[] C' (\x. A[x])]
+    ; split eq2 as
+      case etp-eq/i:
+      { g : evar, K' : ( |- skel), C' : (g |- etp), A' : (x : eterm |- etp)
+      | eq : [ |- skel-eq K' K'],
+        eq1 : [g |- etp-eq C' C'],
+        eq2 : [g, x : eterm |- etp-eq (A'[x]) (A'[x])],
+        skof : [g |- skof K'[] C' (\x. A'[x])]
+      ; solve skof
       }
     }
   }
