@@ -157,6 +157,89 @@ intros
 }
 ;
 
+schema evar+topenblock =
+  block (ex : eterm) +
+  some [a : tp, r : atom]
+  block (xc : catom, d : topenr xc a r);
+
+proof elam-resp :
+  (g : evar+topenblock)
+  [g |- etp-eq A[] A'[]] ->
+  [g, x : eterm |- eterm-eq (M[x]) (M'[x])] ->
+    [g |- eterm-eq (elam A[] (\x. M[x])) (elam A'[] (\x. M'[x]))] =
+/ total /
+intros
+{ g : evar+topenblock,
+  A : ( |- etp),
+  A' : ( |- etp),
+  M : (x : eterm |- eterm),
+  M' : (x : eterm |- eterm)
+| eq : [g |- etp-eq A[] A'[]],
+  eq1 : [g, x : eterm |- eterm-eq (M[x]) (M'[x])]
+; ?
+}
+;
+
+proof epair-resp :
+  (g : evar+topenblock)
+  [g |- eterm-eq M M'] ->
+  [g |- eterm-eq N N'] ->
+  [g |- eterm-eq (epair M N) (epair M' N')] =
+/ total /
+intros
+{ g : evar+topenblock,
+  M : (g |- eterm),
+  M' : (g |- eterm),
+  N : (g |- eterm),
+  N' : (g |- eterm)
+| eq : [g |- eterm-eq M M'], eq1 : [g |- eterm-eq N N']
+; split eq as
+  case eterm-eq/i:
+  { g : evar+topenblock,
+    M' : (g |- eterm),
+    N : (g |- eterm),
+    N' : (g |- eterm)
+  | eq : [g |- eterm-eq M' M'], eq1 : [g |- eterm-eq N N']
+  ; split eq1 as
+    case eterm-eq/i:
+    { g : evar+topenblock, M' : (g |- eterm), N' : (g |- eterm)
+    | eq : [g |- eterm-eq M' M'], eq1 : [g |- eterm-eq N' N']
+    ; solve [_ |- eterm-eq/i ]
+    }
+  }
+}
+;
+
+proof skel-resp-skel2 :
+  { K : [k1 : skel, k2 : skel |- skel] }
+  [ |- skel-eq K1 K1'] ->
+  [ |- skel-eq K2 K2'] ->
+    [ |- skel-eq K[K1, K2] K[K1', K2']] =
+/ total /
+intros
+{ K : ( |- skel),
+  K1' : ( |- skel),
+  K1 : ( |- skel),
+  K2' : ( |- skel),
+  K2 : (k1 : skel, k2 : skel |- skel)
+| eq : [ |- skel-eq K K1'], eq1 : [ |- skel-eq K1 K2']
+; split eq as
+  case skel-eq/i:
+  { K1' : ( |- skel),
+    K1 : ( |- skel),
+    K2' : ( |- skel),
+    K2 : (k1 : skel, k2 : skel |- skel)
+  | eq : [ |- skel-eq K1' K1'], eq1 : [ |- skel-eq K1 K2']
+  ; split eq1 as
+    case skel-eq/i:
+    { K1' : ( |- skel), K2' : ( |- skel), K2 : (k1 : skel, k2 : skel |- skel)
+    | eq : [ |- skel-eq K1' K1'], eq1 : [ |- skel-eq K2' K2']
+    ; solve [ |- skel-eq/i ]
+    }
+  }
+}
+;
+
 proof term-resp-term : { M : [ x : term |- term] } [ |- term-eq N N'] ->
                          [ |- term-eq (M[N]) (M[N'])] =
 / total /
