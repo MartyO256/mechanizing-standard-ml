@@ -228,43 +228,20 @@ intros
 
 % Map Effectiveness
 
-schema can-map-bind =
-  some [m : eterm]
-  block (a : con, at : map a m);
-
-schema map-bind-for-can-map =
-  some [b : etp, k : kind]
-  block (
-    x : eterm, d : evof x b,
-    a : con, e : cn-of a k,
-    at : map a x
-  );
-
-schema invert-bind-for-can-map =
-  some [
-    K : kind, K' : kind,
-    B : etp,
-    DmapK : tmap K B, DmapB : tunmap B K',
-    DwfK : kd-wf K,
-    DwfB : ewf B,
-    DequivK : kd-equiv K K'
-  ]
-  block (
-    a : con, da : cn-of a K,
-    x : eterm, dx : evof x B,
-    at : map a x, xt : unmap x a
-  );
-
-schema evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map =
+schema can-map-ctx =
+  % evar
   block (ex : eterm) +
+  % can-map-bind
   some [m : eterm]
   block (a : con, at : map a m) +
+  % map-bind-for-can-map
   some [b : etp, k : kind]
   block (
     x : eterm, d : evof x b,
     a : con, e : cn-of a k,
     at : map a x
   ) +
+  % invert-bind-for-can-map
   some [
     K : kind, K' : kind,
     B : etp,
@@ -294,23 +271,23 @@ LF can-tmap/e : kind -> type =
 ;
 
 proof can-map :
-  (g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map)
+  (g : can-map-ctx)
   { C : [g |- con] }
   [g |- can-map/e C] =
 / total 1 /
 intros
-{ g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+{ g : can-map-ctx,
   C : (g |- con)
 |
 ; split [_ |- C] as
   case labeled:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     X : (g |- label),
     C1 : (g |- con)
   |
   ; split can-map [g |- C1] as
     case can-map/i:
-    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    { g : can-map-ctx,
       X : (g |- label),
       C1 : (g |- con),
       M : (g |- eterm),
@@ -320,14 +297,14 @@ intros
     }
   }
   case rec':
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     K : (g |- kind),
     C1 : (g, y180 : con, x180 : con |- con),
     C2 : (g |- con)
   |
   ; split can-tmap [g |- K] as
     case can-tmap/i:
-    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    { g : can-map-ctx,
       K : (g |- kind),
       C1 : (g, y180 : con, x180 : con |- con),
       C2 : (g |- con),
@@ -341,17 +318,17 @@ intros
     }
   }
   case tagged:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map
+  { g : can-map-ctx
   |
   ; solve [g |- can-map/i _ map/tagged]
   }
   case tag:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     C1 : (g |- con)
   |
   ; split can-map [g |- C1] as
     case can-map/i:
-    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    { g : can-map-ctx,
       C1 : (g |- con),
       M : (g |- eterm),
       Dmap : (g |- map C1 M)
@@ -360,12 +337,12 @@ intros
     }
   }
   case ref:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     C1 : (g |- con)
   |
   ; split can-map [g |- C1] as
     case can-map/i:
-    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    { g : can-map-ctx,
       C1 : (g |- con),
       M : (g |- eterm),
       Dmap : (g |- map C1 M)
@@ -374,13 +351,13 @@ intros
     }
   }
   case plus:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     C1 : (g |- con),
     C2 : (g |- con)
   |
   ; split can-map [g |- C1] as
     case can-map/i:
-    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    { g : can-map-ctx,
       C1 : (g |- con),
       C2 : (g |- con),
       M : (g |- eterm),
@@ -388,7 +365,7 @@ intros
     |
     ; split can-map [g |- C2] as
       case can-map/i:
-      { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      { g : can-map-ctx,
         C1 : (g |- con),
         C2 : (g |- con),
         M : (g |- eterm),
@@ -401,13 +378,13 @@ intros
     }
   }
   case arrow:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     C1 : (g |- con),
     C2 : (g |- con)
   |
   ; split can-map [g |- C1] as
     case can-map/i:
-    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    { g : can-map-ctx,
       C1 : (g |- con),
       C2 : (g |- con),
       M : (g |- eterm),
@@ -415,7 +392,7 @@ intros
     |
     ; split can-map [g |- C2] as
       case can-map/i:
-      { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      { g : can-map-ctx,
         C1 : (g |- con),
         C2 : (g |- con),
         M : (g |- eterm),
@@ -428,13 +405,13 @@ intros
     }
   }
   case prod:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     C1 : (g |- con),
     C2 : (g |- con)
   |
   ; split can-map [g |- C1] as
     case can-map/i:
-    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    { g : can-map-ctx,
       C1 : (g |- con),
       C2 : (g |- con),
       M : (g |- eterm),
@@ -442,7 +419,7 @@ intros
     |
     ; split can-map [g |- C2] as
       case can-map/i:
-      { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      { g : can-map-ctx,
         C1 : (g |- con),
         C2 : (g |- con),
         M : (g |- eterm),
@@ -458,28 +435,28 @@ intros
     }
   }
   case void:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map
+  { g : can-map-ctx
   |
   ; solve [g |- can-map/i _ map/void]
   }
   case unit:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map
+  { g : can-map-ctx
   |
   ; solve [g |- can-map/i _ map/unit]
   }
   case star:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map
+  { g : can-map-ctx
   |
   ; solve [g |- can-map/i _ map/star]
   }
   case app:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     C1 : (g |- con),
     C2 : (g |- con)
   |
   ; split can-map [g |- C1] as
     case can-map/i:
-    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    { g : can-map-ctx,
       C1 : (g |- con),
       C2 : (g |- con),
       M : (g |- eterm),
@@ -487,7 +464,7 @@ intros
     |
     ; split can-map [g |- C2] as
       case can-map/i:
-      { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      { g : can-map-ctx,
         C1 : (g |- con),
         C2 : (g |- con),
         M : (g |- eterm),
@@ -500,13 +477,13 @@ intros
     }
   }
   case lam:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     K : (g |- kind),
     C1 : (g, x175 : con |- con)
   |
   ; split can-tmap [g |- K] as
     case can-tmap/i:
-    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    { g : can-map-ctx,
       K : (g |- kind),
       C1 : (g, x175 : con |- con),
       A : (g |- etp),
@@ -523,7 +500,7 @@ can-map
        e : cn-of a (K[..]),
        at : map a x) |- C1[.., b.3]] as
       case can-map/i:
-      { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      { g : can-map-ctx,
         K : (g |- kind),
         C2 : (g, a : con |- con),
         A : (g |- etp),
@@ -535,19 +512,19 @@ can-map
       |
       ; %{ FIXME: Solution contains uninstantiated metavariables.
            Type matches subgoal.
-           solve [_|- can-map/i (elam A (\l. M)) (map/lam (\a. \x. \xt. Dmap[.., x, a, _, xt]) Dtmap)]
+           solve [_|- can-map/i _ (map/lam (\a. \x. \xt. Dmap[.., x, a, _, xt]) Dtmap)]
         }%
         ?
       }
     }
   }
   case pi2:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     C1 : (g |- con)
   |
   ; split can-map [g |- C1] as
     case can-map/i:
-    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    { g : can-map-ctx,
       C1 : (g |- con),
       M : (g |- eterm),
       Dmap : (g |- map C1 M)
@@ -556,12 +533,12 @@ can-map
     }
   }
   case pi1:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     C1 : (g |- con)
   |
   ; split can-map [g |- C1] as
     case can-map/i:
-    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    { g : can-map-ctx,
       C1 : (g |- con),
       M : (g |- eterm),
       Dmap : (g |- map C1 M)
@@ -570,13 +547,13 @@ can-map
     }
   }
   case pair:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     C1 : (g |- con),
     C2 : (g |- con)
   |
   ; split can-map [g |- C1] as
     case can-map/i:
-    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    { g : can-map-ctx,
       C1 : (g |- con),
       C2 : (g |- con),
       M : (g |- eterm),
@@ -584,7 +561,7 @@ can-map
     |
     ; split can-map [g |- C2] as
       case can-map/i:
-      { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      { g : can-map-ctx,
         C1 : (g |- con),
         C2 : (g |- con),
         M : (g |- eterm),
@@ -598,7 +575,7 @@ can-map
   }
   %{ FIXME: File "src/core/reconstruct.ml", line 2248, characters 11-16: Pattern matching failed
   case #.1:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     K433 : (g |- kind),
     A20 : (g |- etp),
     #unmap :
@@ -620,7 +597,7 @@ can-map
   ; solve [_ |- can-map/i #unmap.3 #unmap.5]
   }
   case #.3:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     A21 : (g |- etp),
     K435 : (g |- kind),
     #map :
@@ -635,7 +612,7 @@ can-map
   ; solve [_ |- can-map/i #map.1 #map.5]
   }
   case #.1:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     M9 : (g |- eterm),
     #map : #(g |- block (a : con, at : map a (M9[..])))
   |
@@ -645,28 +622,28 @@ can-map
 }
 
 and proof can-tmap :
-  (g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map)
+  (g : can-map-ctx)
   { K : [g |- kind] }
   [g |- can-tmap/e K] =
 / total 1 /
 intros
-{ g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+{ g : can-map-ctx,
   K : (g |- kind)
 |
 ; split [_ |- K] as
   case one:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map
+  { g : can-map-ctx
   |
   ; solve [g |- can-tmap/i _ tmap/one]
   }
   case sigma:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     K1 : (g |- kind),
     K2 : (g, y173 : con |- kind)
   |
   ; split can-tmap [g |- K1] as
     case can-tmap/i:
-    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    { g : can-map-ctx,
       K1 : (g |- kind),
       K2 : (g, y173 : con |- kind),
       A : (g |- etp),
@@ -683,7 +660,7 @@ can-tmap
        e : cn-of a (K1[..]),
        at : map a x) |- K2[.., b.3]] as
       case can-tmap/i:
-      { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      { g : can-map-ctx,
         K1 : (g |- kind),
         K3 : (g, a : con |- kind),
         A : (g |- etp),
@@ -695,20 +672,20 @@ can-tmap
       |
       ; %{ FIXME: Solution contains uninstantiated metavariables.
            Type matches subgoal.
-           solve [_|- can-tmap/i (esigma A (\l. A1)) (tmap/sigma (\a. \x. \xt. Dtmap1[.., x, a, _, xt]) Dtmap)]
+           solve [_|- can-tmap/i _ (tmap/sigma (\a. \x. \xt. Dtmap1[.., x, a, _, xt]) Dtmap)]
         }%
         ?
       }
     }
   }
   case pi:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     K1 : (g |- kind),
     K2 : (g, y172 : con |- kind)
   |
   ; split can-tmap [g |- K1] as
     case can-tmap/i:
-    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    { g : can-map-ctx,
       K1 : (g |- kind),
       K2 : (g, y172 : con |- kind),
       A : (g |- etp),
@@ -725,7 +702,7 @@ can-tmap
        e : cn-of a (K1[..]),
        at : map a x) |- K2[.., b.3]] as
       case can-tmap/i:
-      { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+      { g : can-map-ctx,
         K1 : (g |- kind),
         K3 : (g, a : con |- kind),
         A : (g |- etp),
@@ -737,19 +714,19 @@ can-tmap
       |
       ; %{ FIXME: Solution contains uninstantiated metavariables.
           Type matches subgoal.
-          solve [_|- can-tmap/i (epi A (\l. A1)) (tmap/pi (\a. \x. \xt. Dtmap1[.., x, a, _, xt]) Dtmap)]
+          solve [_|- can-tmap/i _ (tmap/pi (\a. \x. \xt. Dtmap1[.., x, a, _, xt]) Dtmap)]
         }%
         ?
       }
     }
   }
   case sing:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+  { g : can-map-ctx,
     C : (g |- con)
   |
   ; split can-map [g |- C] as
     case can-map/i:
-    { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map,
+    { g : can-map-ctx,
       C : (g |- con),
       M : (g |- eterm),
       Dmap : (g |- map C M)
@@ -758,7 +735,7 @@ can-tmap
     }
   }
   case t:
-  { g : evar+can-map-bind+map-bind-for-can-map+invert-bind-for-can-map
+  { g : can-map-ctx
   |
   ; solve [g |- can-tmap/i _ tmap/t]
   }
