@@ -21,8 +21,8 @@ and eterm : type =
 
 % Rules
 
-% TODO: Assumption
-evof : eterm -> etp -> type.
+% TODO: Investigate why this LF declaration is empty
+LF evof : eterm -> etp -> type =;
 
 % Type Formation
 

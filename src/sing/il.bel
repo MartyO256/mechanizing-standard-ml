@@ -22,3 +22,231 @@ and term : type =
 --name tp A.
 --name atom R.
 --name term M.
+
+% Substitution
+
+LF aasub : (atom -> atom) -> term -> atom -> type =
+| aasub/closed : aasub (\l. R) _ R
+
+| aasub/app :
+ aasub R N R' ->
+ sub M N M' ->
+ aasub (\x. app (R x) (M x)) N (app R' M')
+
+| aasub/pi1 :
+ aasub R M R' ->
+ aasub (\x. pi1 (R x)) M (pi1 R')
+
+| aasub/pi2 :
+ aasub R M R' ->
+ aasub (\x. pi2 (R x)) M (pi2 R')
+
+and aosub : (atom -> atom) -> term -> term -> type =
+| aosub/var : aosub (\x. x) M M
+
+| aosub/app :
+ aosub R N (lam M1) ->
+ sub M N M' ->
+ sub M1 M' M1' ->
+ aosub (\x. app (R x) (M x)) N M1'
+
+| aosub/pi1 :
+ aosub R M (pair M1 M2) ->
+ aosub (\x. pi1 (R x)) M M1
+
+| aosub/pi2 :
+ aosub R M (pair M1 M2) ->
+ aosub (\x. pi2 (R x)) M M2
+
+and sub : (atom -> term) -> term -> term -> type =
+| sub/aa : aasub R M R' -> sub (\x. at (R x)) M (at R')
+
+| sub/ao : aosub R M M' -> sub (\x. at (R x)) M M'
+
+| sub/lam :
+ ({ y : atom } sub (\x. M x y) N (M' y)) ->
+ sub (\x. lam (\y. M x y)) N (lam (\y. M' y))
+
+| sub/pair :
+ sub M1 N M1' ->
+ sub M2 N M2' ->
+ sub (\x. pair (M1 x) (M2 x)) N (pair M1' M2')
+
+| sub/star : sub (\x. star) _ star
+
+and tsub : (atom -> tp) -> term -> tp -> type =
+| tsub/t : tsub (\l. t) _ t
+
+| tsub/pi :
+ tsub A M A' ->
+ ({ y : atom } tsub (\x. B x y) M (B' y)) ->
+ tsub (\x. pi (A x) (\y. B x y)) M (pi A' (\y. B' y))
+
+| tsub/sigma :
+ tsub A M A' ->
+ ({ y : atom } tsub (\x. B x y) M (B' y)) ->
+ tsub (\x. sigma (A x) (\y. B x y)) M (sigma A' (\y. B' y))
+
+| tsub/singa :
+ aasub R M R' ->
+ tsub (\x. sing (R x)) M (sing R')
+
+| tsub/singo :
+ aosub R M (at R') ->
+ tsub (\x. sing (R x)) M (sing R')
+
+| tsub/one : tsub (\x. one) _ one
+;
+
+% Typing Rules
+
+% TODO: Investigate why this LF declaration is empty
+LF vof : atom -> tp -> type =;
+
+LF kof : constant -> tp -> type =
+| kof/i :
+  ckof C Ac ->
+  topen Ac A ->
+    kof C A
+
+% Bi-directional Typing Rules
+% Neutral terms typing : Synthesize a type for a given neutral term (atom)
+and aof : atom -> tp -> type =
+| aof/const :
+  kof C A ->
+  wf A ->
+    aof (const C) A
+
+| aof/var :
+  vof X A ->
+  wf A ->
+    aof X A
+
+| aof/app :
+  aof R (pi A B) ->
+  of' M A ->
+  tsub B M B' ->
+  wf B' ->
+    aof (app R M) B'
+
+| aof/pi1 :
+  aof R (sigma A B) ->
+    aof (pi1 R) A
+
+| aof/pi2 :
+  aof R (sigma A B) ->
+    aof (pi2 R) (B (pi1 R))
+
+% Normal terms typing : Checking a normal term against a type
+and of' : term -> tp -> type =
+| of'/at :
+  aof R t ->
+    of' (at R) t
+
+| of'/lam :
+  wf A ->
+  ({ x : atom } vof x A -> of' (M x) (B x)) ->
+    of' (lam M) (pi A B)
+
+| of'/pair :
+  of' M A ->
+  tsub B M B' ->
+  of' N B' ->
+  ({ x : atom } vof x A -> wf (B x)) ->
+    of' (pair M N) (sigma A B)
+
+| of'/sing :
+  aof R t ->
+    of' (at R) (sing R)
+
+| of'/star : of' star one
+
+and wf : tp -> type =
+| wf/t : wf t
+
+| wf/pi :
+  wf A ->
+  ({ x : atom } vof x A -> wf (B x)) ->
+    wf (pi A B)
+
+| wf/sigma :
+  wf A ->
+  ({ x : atom } vof x A -> wf (B x)) ->
+    wf (sigma A B)
+
+| wf/sing :
+  aof R t ->
+    wf (sing R)
+
+| wf/one : wf one
+
+% Constants
+
+and topen : ctp -> tp -> type =
+| topen/t : topen ct t
+
+| topen/pi :
+  topen Ac A ->
+  ({ xc : catom } { x : atom } topenr xc A x -> topen (Bc xc) (B x)) ->
+    topen (cpi Ac Bc) (pi A B)
+
+| topen/sigma :
+  topen Ac A ->
+  ({ xc : catom } { x : atom } topenr xc A x -> topen (Bc xc) (B x)) ->
+    topen (csigma Ac Bc) (sigma A B)
+
+| topen/sing :
+  topenr Rc t R ->
+    topen (csing Rc) (sing R)
+
+| topen/one : topen cone one
+
+and topenr : catom -> tp -> atom -> type =
+| topenr/app :
+  topenr Rc (pi A B) R ->
+  topenm Mc A M ->
+  tsub B M Bx ->
+    topenr (capp Rc Mc) Bx (app R M)
+
+| topenr/pi1 :
+  topenr Rc (sigma A B) R ->
+    topenr (cpi1 Rc) A (pi1 R)
+
+| topenr/pi2 :
+  topenr Rc (sigma A B) R ->
+    topenr (cpi2 Rc) (B (pi1 R)) (pi2 R)
+
+and topenm : cterm -> tp -> term -> type =
+| topenm/at :
+  topenr Rc t R ->
+    topenm (cat Rc) t (at R)
+
+| topenm/sing :
+  topenr Rc t R ->
+    topenm (cat Rc) (sing R) (at R)
+
+| topenm/lam :
+  topen Ac A ->
+  ({ xc : catom } { x : atom } topenr xc A x -> topenm (Mc xc) (B x) (M x)) ->
+    topenm (clam Ac Mc) (pi A B) (lam M)
+
+| topenm/pair :
+  topenm Mc A M ->
+  tsub B M Bx ->
+  topenm Nc Bx N ->
+    topenm (cpair Mc Nc) (sigma A B) (pair M N)
+
+| topenm/star : topenm cstar one star
+;
+
+% Schemas
+
+schema var = block (x : atom);
+
+schema bind = some [a : tp] block (x : atom, d : vof x a);
+
+schema ofblock = some [x : atom, a : tp] block (d : vof x a);
+
+schema topenblock =
+  some [a : tp, r : atom]
+  block (xc : catom, d : topenr xc a r);
