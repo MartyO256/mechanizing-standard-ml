@@ -1789,6 +1789,154 @@ intros
 }
 ;
 
+% Map Preservers Typing
+
+schema map-bind+invert-bind-for-map-of =
+  some [B : etp, K : kind, Dmap : tmap K B, Dwf : ewf B]
+  block (
+    x : eterm, dx : evof x B,
+    a : con, da : cn-of a K,
+    at : map a x
+  ) +
+  some [
+    K : kind, K' : kind,
+    B : etp,
+    DmapK : tmap K B,
+    DmapB : tunmap B K',
+    DwfK : kd-wf K,
+    DwfB : ewf B,
+    DequivK : kd-equiv K K'
+  ]
+  block (
+    a : con, da : cn-of a K,
+    x : eterm, dx : evof x B,
+    at : map a x, xt : unmap x a
+  );
+
+LF map-of/e : con -> kind -> eterm -> type =
+| map-of/i :
+  { A : etp }
+  tmap K A ->
+  eof M A ->
+    map-of/e C K M
+;
+
+LF map-wf/e : kind -> type =
+| map-wf/i :
+  { A : etp }
+  tmap K A ->
+  ewf A ->
+    map-wf/e K
+;
+
+LF map-equiv'/e : eterm -> eterm -> kind -> type =
+| map-equiv'/i :
+  { A : etp }
+  tmap K A ->
+  equiv M N A ->
+    map-equiv'/e M N K
+;
+
+proof map-of :
+  (g : map-bind+invert-bind-for-map-of)
+  [g |- cn-of C K] ->
+  [g |- map C M] ->
+    [g |- map-of/e C K M] =
+/ total 1 /
+?
+
+and proof map-of' :
+  (g : map-bind+invert-bind-for-map-of)
+  [g |- cn-of C K] ->
+  [g |- map C M] ->
+  [g |- tmap K A] ->
+    [g |- eof M A] =
+/ total /
+?
+
+and proof map-wf :
+  (g : map-bind+invert-bind-for-map-of)
+  [g |- kd-wf K] ->
+    [g |- map-wf/e K] =
+/ total 1 /
+?
+
+and proof map-wf' :
+  (g : map-bind+invert-bind-for-map-of)
+  [g |- kd-wf K] ->
+  [g |- tmap K A] ->
+    [g |- ewf A] =
+/ total /
+?
+
+and proof map-subtp :
+  (g : map-bind+invert-bind-for-map-of)
+  [g |- kd-sub K L] ->
+  [g |- tmap K A] ->
+  [g |- tmap L B] ->
+    [g |- subtp A B] =
+/ total 1 /
+?
+
+and proof map-tequiv :
+  (g : map-bind+invert-bind-for-map-of)
+  [g |- kd-equiv K L] ->
+  [g |- tmap K A] ->
+  [g |- tmap L B] ->
+    [g |- tequiv A B] =
+/ total 1 /
+?
+
+and proof map-equiv' :
+  (g : map-bind+invert-bind-for-map-of)
+  [g |- map C M] ->
+  [g |- map D N] ->
+  [g |- cn-equiv C D K] ->
+    [g |- map-equiv'/e M N K] =
+/ total 1 /
+?
+
+and proof map-equiv'' :
+  (g : map-bind+invert-bind-for-map-of)
+  [g |- map C M] ->
+  [g |- map D N] ->
+  [g |- cn-equiv C D K] ->
+  [g |- tmap K A] ->
+    [g |- equiv M N A] =
+/ total 1 /
+?
+;
+
+schema map-bind =
+  some [B : etp, K : kind, Dmap : tmap K B, Dwf : ewf B]
+  block (
+    x : eterm, dx : evof x B,
+    a : con, da : cn-of a K,
+    at : map a x
+  );
+
+LF map-equiv/e : con -> con -> kind -> type =
+| map-equiv/i :
+  { M : eterm } { N : eterm } { A : etp }
+  map C M ->
+  map D N ->
+  tmap K A ->
+  equiv M N A ->
+    map-equiv/e C D K
+;
+
+% FIXME: C, D, K are not in scope, `invert can-map [_ |- C]`, `invert can-map [_ |- D]`.
+% Note: `invert can-map [_ |- _]` yields `File "src/core/lfcheck.ml", line 957, characters 5-10: Pattern matching failed`.
+% Note: `invert can-map [_, b : block (x : eterm, dx : evof x B, a : con, da : cn-of a k, at : map a x) |- b.a]` yields `File "src/core/lfcheck.ml", line 957, characters 5-10: Pattern matching failed`.
+% Note: `split equiv`, (case cn-equiv/beta2) `split equiv` yields `Stack overflow`.
+proof map-equiv :
+  (g : map-bind)
+  [g |- cn-equiv C D K] ->
+    [g |- map-equiv/e C D K] =
+/ total /
+?
+;
+
 % Injectivity Lemmas
 
 LF injective-prod/e : con -> con -> con -> con -> type =
