@@ -1791,24 +1791,93 @@ intros
 
 % Injectivity Lemmas
 
-proof injective-prod/a :
-  [ |- cn-equiv (prod T1a T1b) (prod T2a T2b) t] ->
-    [ |- cn-equiv T1a T2a t] =
-/ total /
-intros
-{ T1a : ( |- con), T1b : ( |- con), T2a : ( |- con), T2b : ( |- con)
-| equiv : [ |- cn-equiv (prod T1a T1b) (prod T2a T2b) t]
-; ?
-}
+LF injective-prod/e : con -> con -> con -> con -> type =
+| injective-prod/i :
+  cn-equiv T1a T2a t ->
+  cn-equiv T1b T2b t ->
+    injective-prod/e T1a T1b T2a T2b
 ;
 
-proof injective-prod/b :
+proof injective-prod :
   [ |- cn-equiv (prod T1a T1b) (prod T2a T2b) t] ->
-    [ |- cn-equiv T1b T2b t] =
+    [ |- injective-prod/e T1a T1b T2a T2b] =
 / total /
-intros
-{ T1a : ( |- con), T1b : ( |- con), T2a : ( |- con), T2b : ( |- con)
-| equiv : [ |- cn-equiv (prod T1a T1b) (prod T2a T2b) t]
-; ?
-}
+?
+;
+
+LF injective-arrow/e : con -> con -> con -> con -> type =
+| injective-arrow/i :
+  cn-equiv T1a T2a t ->
+  cn-equiv T1b T2b t ->
+    injective-arrow/e T1a T1b T2a T2b
+;
+
+proof injective-arrow :
+  [ |- cn-equiv (arrow T1a T1b) (arrow T2a T2b) t] ->
+    [ |- injective-arrow/e T1a T1b T2a T2b] =
+/ total /
+?
+;
+
+LF injective-plus/e : con -> con -> con -> con -> type =
+| injective-plus/i :
+  cn-equiv T1a T2a t ->
+  cn-equiv T1b T2b t ->
+    injective-plus/e  T1a T1b T2a T2b
+;
+
+proof injective-plus :
+  [ |- cn-equiv (plus T1a T1b) (plus T2a T2b) t] ->
+    [ |- injective-plus/e T1a T1b T2a T2b] =
+/ total /
+?
+;
+
+proof injective-ref :
+  [ |- cn-equiv (ref T1) (ref T2) t] ->
+    [ |- cn-equiv T1 T2 t] =
+/ total /
+?
+;
+
+proof injective-tag :
+  [ |- cn-equiv (tag T1) (tag T2) t] ->
+    [ |- cn-equiv T1 T2 t] =
+/ total /
+?
+;
+
+LF injective-rec/e :
+  kind -> (con -> con -> con) -> con ->
+  kind -> (con -> con -> con) -> con -> type =
+| injective-rec/i :
+  kd-equiv K1 K2 ->
+  ({ a : con } cn-of a (pi K1 (\l. t)) ->
+   { b : con } cn-of b K1 ->
+   cn-equiv (C1a a b) (C2a a b) t) ->
+  cn-equiv C1b C2b K1 ->
+    injective-rec/e K1 C1a C1b K2 C2a C2b
+;
+
+proof injective-rec :
+  [ |- cn-equiv
+        (rec' K1 (\c1. \c2. C1a) C1b)
+        (rec' K2 (\c1. \c2. C2a) C2b) t] ->
+    [ |- injective-rec/e K1 (\c1. \c2. C1a) C1b K2 (\c1. \c2. C2a) C2b] =
+/ total /
+?
+;
+
+LF injective-labeled/e : label -> con -> label -> con -> type =
+| injective-labeled/i :
+  label-eq L1 L2 ->
+  cn-equiv T1 T2 t ->
+    injective-labeled/e L1 T1 L2 T2
+;
+
+proof injective-labeled :
+  [ |- cn-equiv (labeled L1 T1) (labeled L2 T2) t] ->
+    [ |- injective-labeled/e L1 T1 L2 T2] =
+/ total /
+?
 ;
