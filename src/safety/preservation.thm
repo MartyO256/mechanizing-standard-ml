@@ -7,31 +7,973 @@ LF extends : sttp -> sttp -> type =
 --name extends Dextends extends.
 
 proof monotonicity-lookup :
-  [ |- st-lookup F L ET] ->
-  [ |- extends F F'] ->
-    [ |- st-lookup F' L ET] =
+  (g : conblock)
+  [g |- st-lookup F L[] ET] ->
+  [g |- extends F F'] ->
+    [g |- st-lookup F' L[] ET] =
 / total 2 /
 intros
-{ F : ( |- sttp), L : ( |- location), ET : ( |- entp), F' : ( |- sttp)
-| lookup : [ |- st-lookup F L ET], x : [ |- extends F F']
+{ g : conblock,
+  F : (g |- sttp),
+  L : ( |- location),
+  ET : (g |- entp),
+  F' : (g |- sttp)
+| lookup : [g |- st-lookup F L[] ET], x : [g |- extends F F']
 ; split x as
   case extends/cons:
-  { F : ( |- sttp),
+  { g : conblock,
+    F : (g |- sttp),
     L : ( |- location),
-    ET : ( |- entp),
-    F2 : ( |- sttp),
-    X : ( |- location),
-    ET1 : ( |- entp),
-    Dextends : ( |- extends F F2)
-  | lookup : [ |- st-lookup F L ET], x : [ |- extends F (st/cons F2 X ET1)]
-  ; by monotonicity-lookup lookup [ |- Dextends] as Q unboxed;
-    solve [ |- st-lookup/miss Q]
+    ET : (g |- entp),
+    F2 : (g |- sttp),
+    Dloc : ( |- location),
+    ET1 : (g |- entp),
+    Dextends : (g |- extends F F2)
+  | lookup : [g |- st-lookup F L[] ET],
+    x : [g |- extends F (st/cons F2 Dloc[] ET1)]
+  ; by monotonicity-lookup lookup [_ |- Dextends] as Dlookup' unboxed;
+    solve [_ |- st-lookup/miss Dlookup']
   }
   case extends/nil:
-  { F' : ( |- sttp), L : ( |- location), ET : ( |- entp)
-  | lookup : [ |- st-lookup F' L ET], x : [ |- extends F' F']
+  { g : conblock, F' : (g |- sttp), L : ( |- location), ET : (g |- entp)
+  | lookup : [g |- st-lookup F' L[] ET], x : [g |- extends F' F']
   ; solve lookup
   }
+}
+;
+
+schema monotonicity-ctx =
+  % termbind
+  some [T : con]
+  block (
+    x : term, u : { F' : sttp } tm-of F' x T
+  ) +
+  % modbind
+  some [K : kind, S : sg]
+  block (
+    a : con, da : cn-of a K,
+    m : module', dm : { P' : purity } { F' : sttp } md-of P' F' m S,
+    dfst : md-fst m a
+  );
+
+proof monotonicity-tm :
+  (g : monotonicity-ctx)
+  [g |- tm-of F E T] ->
+  [g |- extends F F'] ->
+    [g |- tm-of F' E T] =
+/ total 1 /
+intros
+{ g : monotonicity-ctx,
+  F : (g |- sttp),
+  E : (g |- term),
+  T : (g |- con),
+  F' : (g |- sttp)
+| x : [g |- tm-of F E T], extends : [g |- extends F F']
+; split x as
+  case tm-of/equiv:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E : (g |- term),
+    T : (g |- con),
+    F' : (g |- sttp),
+    C : (g |- con),
+    Dof : (g |- tm-of F E C),
+    Dequiv : (g |- cn-equiv C T t)
+  | x : [g |- tm-of F E T], extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
+    solve [g |- tm-of/equiv Dof' Dequiv]
+  }
+  case tm-of/snd:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    M : (g |- module'),
+    T : (g |- con),
+    F' : (g |- sttp),
+    P : ( |- purity),
+    Dof : (g |- md-of P[] F M (sg/datom T))
+  | x : [g |- tm-of F (tm/snd M) T], extends : [g |- extends F F']
+  ; by monotonicity-md [g |- Dof] extends as Dof' unboxed;
+    solve [g |- tm-of/snd Dof']
+  }
+  case tm-of/lett:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    E2 : (g, x6 : term |- term),
+    T : (g |- con),
+    F' : (g |- sttp),
+    C : (g |- con),
+    Dof : (g |- tm-of F E1 C),
+    Dof1 :
+      (g, x : term, u : {F' : sttp}  tm-of F' x (C[..]) |-
+         tm-of (F[..]) (E2[.., x]) (T[..]))
+  | x : [g |- tm-of F (tm/lett E1 (\x. E2)) T], extends : [g |- extends F F']
+  ; by extends as Dextends unboxed;
+    by monotonicity-tm [g |- Dof] [g |- Dextends] as Dof1' unboxed;
+    by monotonicity-tm
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x (C[..])) |-
+            Dof1[.., b.1, b.2]]
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x (C[..])) |-
+            Dextends[..]]
+    as Dof2' unboxed;
+    solve [g |- tm-of/lett Dof1' (\x. \u. Dof2'[.., <x; u>])]
+  }
+  case tm-of/try:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    E2 : (g, x5 : term |- term),
+    T : (g |- con),
+    F' : (g |- sttp),
+    Dof : (g |- tm-of F E1 T),
+    Dof1 :
+      (g, x : term, u : {F' : sttp}  tm-of F' x tagged |-
+         tm-of (F[..]) (E2[.., x]) (T[..]))
+  | x : [g |- tm-of F (tm/try E1 (\x. E2)) T], extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof1' unboxed;
+    by extends as Dextends unboxed;
+    by monotonicity-tm
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x tagged) |-
+            Dof1[.., b.1, b.2]]
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x tagged) |-
+            Dextends[..]]
+    as Dof2' unboxed;
+    solve [g |- tm-of/try Dof1' (\x. \u. Dof2'[.., <x; u>])]
+  }
+  case tm-of/raise:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    T : (g |- con),
+    F' : (g |- sttp),
+    Dof : (g |- tm-of F E1 tagged),
+    Dof1 : (g |- cn-of T t)
+  | x : [g |- tm-of F (tm/raise E1 T) T], extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
+    solve [g |- tm-of/raise Dof' Dof1]
+  }
+  case tm-of/out:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    T : (g |- con),
+    F' : (g |- sttp),
+    X : (g |- label),
+    Dof : (g |- tm-of F E1 (labeled X T))
+  | x : [g |- tm-of F (tm/out E1) T], extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
+    solve [g |- tm-of/out Dof']
+  }
+  case tm-of/in:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    X : (g |- label),
+    E1 : (g |- term),
+    C : (g |- con),
+    F' : (g |- sttp),
+    Dof : (g |- tm-of F E1 C)
+  | x : [g |- tm-of F (tm/in X E1) (labeled X C)],
+    extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
+    solve [g |- tm-of/in Dof']
+  }
+  case tm-of/unroll:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    C : (g, a46 : con, a45 : con |- con),
+    C1 : (g |- con),
+    K : (g |- kind),
+    F' : (g |- sttp),
+    Dof : (g |- tm-of F E1 (rec' K (\x255. \z255. C) C1))
+  | x :
+      [g |-
+         tm-of
+           F
+           (tm/unroll E1)
+           (C[.., lam K
+              (\a. rec' (K[..]) (\x255. \z255. C[.., x255, z255]) a), C1])],
+    extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
+    solve [g |- tm-of/unroll Dof']
+  }
+  case tm-of/roll:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    K : (g |- kind),
+    C : (g, a44 : con, a43 : con |- con),
+    C1 : (g |- con),
+    F' : (g |- sttp),
+    Dof :
+      (g |-
+         tm-of
+           F
+           E1
+           (C[.., lam K
+              (\a. rec' (K[..]) (\x255. \z255. C[.., x255, z255]) a), C1])),
+    Dwf : (g |- kd-wf K),
+    Dof1 :
+      (g, a : con, x367 : cn-of a (pi (K[..]) (\l. t)), b : con,
+       z367 : cn-of b (K[..]) |- cn-of (C[.., a, b]) t),
+    Dof2 : (g |- cn-of C1 K)
+  | x :
+      [g |-
+         tm-of
+           F
+           (tm/roll E1 K (\z276. \y277. C) C1) (rec' K (\x255. \z255. C) C1)],
+    extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
+    solve [g |- tm-of/roll Dof' Dwf (\a. \da. \b. \db. Dof1) Dof2]
+  }
+  case tm-of/iftag:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    E2 : (g |- term),
+    E3 : (g, x4 : term |- term),
+    E4 : (g |- term),
+    T : (g |- con),
+    F' : (g |- sttp),
+    C : (g |- con),
+    Dof : (g |- tm-of F E1 tagged),
+    Dof1 : (g |- tm-of F E2 (tag C)),
+    Dof2 :
+      (g, x : term, u : {F' : sttp}  tm-of F' x (C[..]) |-
+         tm-of (F[..]) (E3[.., x]) (T[..])),
+    Dof3 : (g |- tm-of F E4 T)
+  | x : [g |- tm-of F (tm/iftag E1 E2 (\y275. E3) E4) T],
+    extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof1' unboxed;
+    by monotonicity-tm [g |- Dof1] extends as Dof2' unboxed;
+    by extends as Dextends unboxed;
+    by monotonicity-tm
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x (C[..])) |-
+            Dof2[.., b.1, b.2]]
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x (C[..])) |-
+            Dextends[..]]
+    as Dof3' unboxed;
+    by monotonicity-tm [g |- Dof3] extends as Dof4' unboxed;
+    solve [g |- tm-of/iftag Dof1' Dof2' (\x. \u. Dof3'[.., <x; u>]) Dof4']
+  }
+  case tm-of/tag:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    E2 : (g |- term),
+    F' : (g |- sttp),
+    C : (g |- con),
+    Dof : (g |- tm-of F E1 (tag C)),
+    Dof1 : (g |- tm-of F E2 C)
+  | x : [g |- tm-of F (tm/tag E1 E2) tagged], extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof1' unboxed;
+    by monotonicity-tm [g |- Dof1] extends as Dof2' unboxed;
+    solve [g |- tm-of/tag Dof1' Dof2']
+  }
+  case tm-of/newtag:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    C : (g |- con),
+    F' : (g |- sttp),
+    Dof : (g |- cn-of C t)
+  | x : [g |- tm-of F (tm/newtag C) (tag C)], extends : [g |- extends F F']
+  ; solve [g |- tm-of/newtag Dof]
+  }
+  case tm-of/tagloc:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    Dloc : ( |- location),
+    C : (g |- con),
+    F' : (g |- sttp),
+    Dlookup : (g |- st-lookup F Dloc[] (et/tag C)),
+    Dof : (g |- cn-of C t)
+  | x : [g |- tm-of F (tm/tagloc Dloc[]) (tag C)],
+    extends : [g |- extends F F']
+  ; by monotonicity-lookup [g |- Dlookup] extends as Dlookup' unboxed;
+    solve [g |- tm-of/tagloc Dlookup' Dof]
+  }
+  case tm-of/assign:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    E2 : (g |- term),
+    F' : (g |- sttp),
+    C : (g |- con),
+    Dof : (g |- tm-of F E1 (ref C)),
+    Dof1 : (g |- tm-of F E2 C)
+  | x : [g |- tm-of F (tm/assign E1 E2) unit], extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof1' unboxed;
+    by monotonicity-tm [g |- Dof1] extends as Dof2' unboxed;
+    solve [g |- tm-of/assign Dof1' Dof2']
+  }
+  case tm-of/deref:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    T : (g |- con),
+    F' : (g |- sttp),
+    Dof : (g |- tm-of F E1 (ref T))
+  | x : [g |- tm-of F (tm/deref E1) T], extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
+    solve [g |- tm-of/deref Dof']
+  }
+  case tm-of/ref:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    C : (g |- con),
+    F' : (g |- sttp),
+    Dof : (g |- tm-of F E1 C)
+  | x : [g |- tm-of F (tm/ref E1) (ref C)], extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
+    solve [g |- tm-of/ref Dof']
+  }
+  case tm-of/refloc:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    Dloc : ( |- location),
+    C : (g |- con),
+    F' : (g |- sttp),
+    Dlookup : (g |- st-lookup F Dloc[] (et/ref C)),
+    Dof : (g |- cn-of C t)
+  | x : [g |- tm-of F (tm/refloc Dloc[]) (ref C)],
+    extends : [g |- extends F F']
+  ; by monotonicity-lookup [g |- Dlookup] extends as Dlookup' unboxed;
+    solve [g |- tm-of/refloc Dlookup' Dof]
+  }
+  case tm-of/case:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    E2 : (g, x2 : term |- term),
+    E3 : (g, x3 : term |- term),
+    T : (g |- con),
+    F' : (g |- sttp),
+    C : (g |- con),
+    C1 : (g |- con),
+    Dof : (g |- tm-of F E1 (plus C C1)),
+    Dof1 :
+      (g, x : term, u : {F' : sttp}  tm-of F' x (C[..]) |-
+         tm-of (F[..]) (E2[.., x]) (T[..])),
+    Dof2 :
+      (g, x : term, u : {F' : sttp}  tm-of F' x (C1[..]) |-
+         tm-of (F[..]) (E3[.., x]) (T[..]))
+  | x : [g |- tm-of F (tm/case E1 (\x270. E2) (\y270. E3)) T],
+    extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
+    by extends as Dextends unboxed;
+    by monotonicity-tm
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x (C[..])) |-
+            Dof1[.., b.1, b.2]]
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x (C[..])) |-
+            Dextends[..]]
+    as Dof1' unboxed;
+    by monotonicity-tm
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x (C1[..])) |-
+            Dof2[.., b.1, b.2]]
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x (C1[..])) |-
+            Dextends[..]]
+    as Dof2' unboxed;
+    solve
+      [g |-
+         tm-of/case Dof'
+         (\x. \u. Dof1'[.., <x; u>]) (\x. \u. Dof2'[.., <x; u>])]
+  }
+  case tm-of/in2:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    C1 : (g |- con),
+    C : (g |- con),
+    F' : (g |- sttp),
+    Dof : (g |- tm-of F E1 C),
+    Dof1 : (g |- cn-of C1 t)
+  | x : [g |- tm-of F (tm/in2 E1 C1) (plus C1 C)],
+    extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
+    solve [g |- tm-of/in2 Dof' Dof1]
+  }
+  case tm-of/in1:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    C1 : (g |- con),
+    C : (g |- con),
+    F' : (g |- sttp),
+    Dof : (g |- tm-of F E1 C),
+    Dof1 : (g |- cn-of C1 t)
+  | x : [g |- tm-of F (tm/in1 E1 C1) (plus C C1)],
+    extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
+    solve [g |- tm-of/in1 Dof' Dof1]
+  }
+  case tm-of/app:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    E2 : (g |- term),
+    T : (g |- con),
+    F' : (g |- sttp),
+    C : (g |- con),
+    Dof : (g |- tm-of F E1 (arrow C T)),
+    Dof1 : (g |- tm-of F E2 C)
+  | x : [g |- tm-of F (tm/app E1 E2) T], extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof1' unboxed;
+    by monotonicity-tm [g |- Dof1] extends as Dof2' unboxed;
+    solve [g |- tm-of/app Dof1' Dof2']
+  }
+  case tm-of/lam:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    C : (g |- con),
+    E1 : (g, x1 : term |- term),
+    C1 : (g |- con),
+    F' : (g |- sttp),
+    Dof : (g |- cn-of C t),
+    Dof1 :
+      (g, x : term, u : {F' : sttp}  tm-of F' x (C[..]) |-
+         tm-of (F[..]) (E1[.., x]) (C1[..]))
+  | x : [g |- tm-of F (tm/lam C (\x. E1)) (arrow C C1)],
+    extends : [g |- extends F F']
+  ; by extends as Dextends unboxed;
+    by monotonicity-tm
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x (C[..])) |-
+            Dof1[.., b.1, b.2]]
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x (C[..])) |-
+            Dextends[..]]
+    as Dof' unboxed;
+    solve [g |- tm-of/lam Dof (\x. \u. Dof'[.., <x; u>])]
+  }
+  case tm-of/pi2:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    T : (g |- con),
+    F' : (g |- sttp),
+    C : (g |- con),
+    Dof : (g |- tm-of F E1 (prod C T))
+  | x : [g |- tm-of F (tm/pi2 E1) T], extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
+    solve [g |- tm-of/pi2 Dof']
+  }
+  case tm-of/pi1:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    T : (g |- con),
+    F' : (g |- sttp),
+    C1 : (g |- con),
+    Dof : (g |- tm-of F E1 (prod T C1))
+  | x : [g |- tm-of F (tm/pi1 E1) T], extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
+    solve [g |- tm-of/pi1 Dof']
+  }
+  case tm-of/pair:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    E2 : (g |- term),
+    C : (g |- con),
+    C1 : (g |- con),
+    F' : (g |- sttp),
+    Dof : (g |- tm-of F E1 C),
+    Dof1 : (g |- tm-of F E2 C1)
+  | x : [g |- tm-of F (tm/pair E1 E2) (prod C C1)],
+    extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof1' unboxed;
+    by monotonicity-tm [g |- Dof1] extends as Dof2' unboxed;
+    solve [g |- tm-of/pair Dof1' Dof2']
+  }
+  case tm-of/abort:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E1 : (g |- term),
+    T : (g |- con),
+    F' : (g |- sttp),
+    Dof : (g |- cn-of T t),
+    Dof1 : (g |- tm-of F E1 void)
+  | x : [g |- tm-of F (tm/abort E1 T) T], extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof1] extends as Dof' unboxed;
+    solve [g |- tm-of/abort Dof Dof']
+  }
+  case tm-of/unit:
+  { g : monotonicity-ctx, F : (g |- sttp), F' : (g |- sttp)
+  | x : [g |- tm-of F tm/unit unit], extends : [g |- extends F F']
+  ; solve [g |- tm-of/unit ]
+  }
+  %{ FIXME: Ill-typed expression.
+  case #.2:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    T : (g |- con),
+    #tof : #(g |- block (x : term, u : {F' : sttp}  tm-of F' x (T[..]))),
+    F' : (g |- sttp)
+  | x : [g |- tm-of F #tof.1 T], extends : [g |- extends F F']
+  ; ?
+  }
+  }%
+}
+
+and proof monotonicity-md :
+  (g : monotonicity-ctx)
+  [g |- md-of P[] F M S] ->
+  [g |- extends F F'] ->
+    [g |- md-of P[] F' M S] =
+/ total 1 /
+intros
+{ g : monotonicity-ctx,
+  P : ( |- purity),
+  F : (g |- sttp),
+  M : (g |- module'),
+  S : (g |- sg),
+  F' : (g |- sttp)
+| x : [g |- md-of P[] F M S], extends : [g |- extends F F']
+; split x as
+  case md-of/subsume:
+  { g : monotonicity-ctx,
+    P : ( |- purity),
+    F : (g |- sttp),
+    M : (g |- module'),
+    S : (g |- sg),
+    F' : (g |- sttp),
+    S1 : (g |- sg),
+    Dof : (g |- md-of P[] F M S1),
+    Dsub : (g |- sg-sub S1 S)
+  | x : [g |- md-of P[] F M S], extends : [g |- extends F F']
+  ; by monotonicity-md [g |- Dof] extends as Dof' unboxed;
+    solve [g |- md-of/subsume Dof' Dsub]
+  }
+  case md-of/forget:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    M : (g |- module'),
+    S : (g |- sg),
+    F' : (g |- sttp),
+    Dof : (g |- md-of pure F M S)
+  | x : [g |- md-of impure F M S], extends : [g |- extends F F']
+  ; by monotonicity-md [g |- Dof] extends as Dof' unboxed;
+    solve [g |- md-of/forget Dof']
+  }
+  case md-of/extnamed:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    M : (g |- module'),
+    L : ( |- name),
+    S2 : (g |- sg),
+    F' : (g |- sttp),
+    S1 : (g |- sg),
+    Dof : (g |- md-of pure F M (sg/named L[] S1)),
+    Dof1 : (g |- md-of pure F (md/out M) S2)
+  | x : [g |- md-of pure F M (sg/named L[] S2)],
+    extends : [g |- extends F F']
+  ; by monotonicity-md [g |- Dof] extends as Dof1' unboxed;
+    by monotonicity-md [g |- Dof1] extends as Dof2' unboxed;
+    solve [g |- md-of/extnamed Dof1' Dof2']
+  }
+  case md-of/extsigma:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    M : (g |- module'),
+    S1 : (g |- sg),
+    S2 : (g |- sg),
+    F' : (g |- sttp),
+    Dof : (g |- md-of pure F (md/pi1 M) S1),
+    Dof1 : (g |- md-of pure F (md/pi2 M) S2)
+  | x : [g |- md-of pure F M (sg/sigma S1 (\x. S2[..]))],
+    extends : [g |- extends F F']
+  ; by monotonicity-md [g |- Dof] extends as Dof1' unboxed;
+    by monotonicity-md [g |- Dof1] extends as Dof2' unboxed;
+    solve [g |- md-of/extsigma Dof1' Dof2']
+  }
+  case md-of/self:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    M : (g |- module'),
+    K1 : (g |- kind),
+    F' : (g |- sttp),
+    K : (g |- kind),
+    C : (g |- con),
+    Dof : (g |- md-of pure F M (sg/satom K)),
+    Dfst : (g |- md-fst M C),
+    Dof1 : (g |- cn-of C K1)
+  | x : [g |- md-of pure F M (sg/satom K1)], extends : [g |- extends F F']
+  ; by monotonicity-md [g |- Dof] extends as Dof' unboxed;
+    solve [g |- md-of/self Dof' Dfst Dof1]
+  }
+  case md-of/seal:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    S : (g |- sg),
+    F' : (g |- sttp),
+    P1 : ( |- purity),
+    Dof : (g |- md-of P1[] F M1 S)
+  | x : [g |- md-of impure F (md/seal M1 S) S], extends : [g |- extends F F']
+  ; by monotonicity-md [g |- Dof] extends as Dof' unboxed;
+    solve [g |- md-of/seal Dof']
+  }
+  case md-of/lete:
+  { g : monotonicity-ctx,
+    P : ( |- purity),
+    F : (g |- sttp),
+    E : (g |- term),
+    C : (g |- con),
+    M1 : (g, x7 : term |- module'),
+    S : (g |- sg),
+    F' : (g |- sttp),
+    Dof : (g |- tm-of F E C),
+    Dof1 :
+      (g, x : term, u : {F' : sttp}  tm-of F' x (C[..]) |-
+         md-of P[] (F[..]) (M1[.., x]) (S[..]))
+  | x : [g |- md-of P[] F (md/lete E C (\x. M1)) S],
+    extends : [g |- extends F F']
+  ; by extends as Dextends unboxed;
+    by monotonicity-tm [g |- Dof] [g |- Dextends] as Dof1' unboxed;
+    by monotonicity-md
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x (C[..])) |-
+            Dof1[.., b.1, b.2]]
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x (C[..])) |-
+            Dextends[..]]
+    as Dof2' unboxed;
+    solve [g |- md-of/lete Dof1' (\x. \u. Dof2'[.., <x; u>])]
+  }
+  case md-of/letp:
+  { g : monotonicity-ctx,
+    P : ( |- purity),
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    M2 : (g, a68 : con, m4 : module' |- module'),
+    S2 : (g, a69 : con |- sg),
+    C : (g |- con),
+    F' : (g |- sttp),
+    S1 : (g |- sg),
+    K : (g |- kind),
+    Dof : (g |- md-of pure F M1 S1),
+    Dfst : (g |- sg-fst S1 K),
+    Dfst1 : (g |- md-fst M1 C),
+    Dof1 :
+      (g, a : con, z400 : cn-of a (K[..]), m : module',
+       u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+       y401 : md-fst m a |- md-of P[] (F[..]) (M2[.., a, m]) (S2[.., a]))
+  | x : [g |- md-of P[] F (md/letp M1 (\y291. \x291. M2)) (S2[.., C])],
+    extends : [g |- extends F F']
+  ; by monotonicity-md [g |- Dof] extends as Dof1' unboxed;
+    by extends as Dextends unboxed;
+    by monotonicity-md
+         [g,
+          b :
+            block (
+              a : con,
+              da : cn-of a (K[..]),
+              m : module',
+              u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+              dfst : md-fst m a) |- Dof1[.., b.1, b.2, b.3, b.4, b.5]]
+         [g,
+          b :
+            block (
+              a : con,
+              da : cn-of a (K[..]),
+              m : module',
+              u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+              dfst : md-fst m a) |- Dextends[..]]
+    as Dof2' unboxed;
+    solve
+      [g |-
+         md-of/letp Dof1'
+         Dfst
+         Dfst1
+         (\a.
+            \da.
+              \m. \u. \dfst. Dof2'[.., <a; da; m; (\P'. \F'. u P' F'); dfst>])]
+  }
+  case md-of/let:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    M2 : (g, a67 : con, m3 : module' |- module'),
+    S : (g |- sg),
+    F' : (g |- sttp),
+    P1 : ( |- purity),
+    S1 : (g |- sg),
+    K : (g |- kind),
+    P2 : ( |- purity),
+    Dof : (g |- md-of P1[] F M1 S1),
+    Dfst : (g |- sg-fst S1 K),
+    Dof1 :
+      (g, a : con, z398 : cn-of a (K[..]), m : module',
+       u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+       y399 : md-fst m a |- md-of P2[] (F[..]) (M2[.., a, m]) (S[..]))
+  | x : [g |- md-of impure F (md/let M1 (\z289. \y290. M2) S) S],
+    extends : [g |- extends F F']
+  ; by monotonicity-md [g |- Dof] extends as Dof1' unboxed;
+    by extends as Dextends unboxed;
+    by monotonicity-md
+         [g,
+          b :
+            block (
+              a : con,
+              da : cn-of a (K[..]),
+              m : module',
+              u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+              dfst : md-fst m a) |- Dof1[.., b.1, b.2, b.3, b.4, b.5]]
+         [g,
+          b :
+            block (
+              a : con,
+              da : cn-of a (K[..]),
+              m : module',
+              u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+              dfst : md-fst m a) |- Dextends[..]]
+    as Dof2' unboxed;
+    solve
+      [g |-
+         md-of/let Dof1'
+         Dfst
+         (\a.
+            \da.
+              \m. \u. \dfst. Dof2'[.., <a; da; m; (\P'. \F'. u P' F'); dfst>])]
+  }
+  case md-of/out:
+  { g : monotonicity-ctx,
+    P : ( |- purity),
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    S : (g |- sg),
+    F' : (g |- sttp),
+    L : ( |- name),
+    Dof : (g |- md-of P[] F M1 (sg/named L[] S))
+  | x : [g |- md-of P[] F (md/out M1) S], extends : [g |- extends F F']
+  ; by monotonicity-md [g |- Dof] extends as Dof' unboxed;
+    solve [g |- md-of/out Dof']
+  }
+  case md-of/in:
+  { g : monotonicity-ctx,
+    P : ( |- purity),
+    F : (g |- sttp),
+    L : ( |- name),
+    M1 : (g |- module'),
+    S1 : (g |- sg),
+    F' : (g |- sttp),
+    Dof : (g |- md-of P[] F M1 S1)
+  | x : [g |- md-of P[] F (md/in L[] M1) (sg/named L[] S1)],
+    extends : [g |- extends F F']
+  ; by monotonicity-md [g |- Dof] extends as Dof' unboxed;
+    solve [g |- md-of/in Dof']
+  }
+  case md-of/app:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    M2 : (g |- module'),
+    S2 : (g, a66 : con |- sg),
+    C : (g |- con),
+    F' : (g |- sttp),
+    P1 : ( |- purity),
+    S1 : (g |- sg),
+    Dof : (g |- md-of P1[] F M1 (sg/pi S1 (\y262. S2))),
+    Dof1 : (g |- md-of pure F M2 S1),
+    Dfst : (g |- md-fst M2 C)
+  | x : [g |- md-of impure F (md/app M1 M2) (S2[.., C])],
+    extends : [g |- extends F F']
+  ; by monotonicity-md [g |- Dof] extends as Dof1' unboxed;
+    by monotonicity-md [g |- Dof1] extends as Dof2' unboxed;
+    solve [g |- md-of/app Dof1' Dof2' Dfst]
+  }
+  case md-of/lam:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    S1 : (g |- sg),
+    M1 : (g, a64 : con, m2 : module' |- module'),
+    S2 : (g, a65 : con |- sg),
+    F' : (g |- sttp),
+    K : (g |- kind),
+    P1 : ( |- purity),
+    Dwf : (g |- sg-wf S1),
+    Dfst : (g |- sg-fst S1 K),
+    Dof :
+      (g, a : con, x395 : cn-of a (K[..]), m : module',
+       u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+       z395 : md-fst m a |- md-of P1[] (F[..]) (M1[.., a, m]) (S2[.., a]))
+  | x :
+      [g |-
+         md-of pure F (md/lam S1 (\x286. \z286. M1)) (sg/pi S1 (\y262. S2))],
+    extends : [g |- extends F F']
+  ; by extends as Dextends unboxed;
+    by monotonicity-md
+         [g,
+          b :
+            block (
+              a : con,
+              da : cn-of a (K[..]),
+              m : module',
+              u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+              dfst : md-fst m a) |- Dof[.., b.1, b.2, b.3, b.4, b.5]]
+         [g,
+          b :
+            block (
+              a : con,
+              da : cn-of a (K[..]),
+              m : module',
+              u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+              dfst : md-fst m a) |- Dextends[..]]
+    as Dof' unboxed;
+    solve
+      [g |-
+         md-of/lam Dwf
+         Dfst
+         (\a.
+            \da.
+              \m. \u. \dfst. Dof'[.., <a; da; m; (\P'. \F'. u P' F'); dfst>])]
+  }
+  case md-of/pi2:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    S2 : (g, a63 : con |- sg),
+    C : (g |- con),
+    F' : (g |- sttp),
+    S1 : (g |- sg),
+    Dof : (g |- md-of pure F M1 (sg/sigma S1 (\y263. S2))),
+    Dfst : (g |- md-fst M1 C)
+  | x : [g |- md-of pure F (md/pi2 M1) (S2[.., pi1 C])],
+    extends : [g |- extends F F']
+  ; by monotonicity-md [g |- Dof] extends as Dof' unboxed;
+    solve [g |- md-of/pi2 Dof' Dfst]
+  }
+  case md-of/pi1:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    S : (g |- sg),
+    F' : (g |- sttp),
+    S2 : (g, a62 : con |- sg),
+    Dof : (g |- md-of pure F M1 (sg/sigma S (\y263. S2)))
+  | x : [g |- md-of pure F (md/pi1 M1) S], extends : [g |- extends F F']
+  ; by monotonicity-md [g |- Dof] extends as Dof' unboxed;
+    solve [g |- md-of/pi1 Dof']
+  }
+  case md-of/dpair:
+  { g : monotonicity-ctx,
+    P : ( |- purity),
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    M2 : (g, a60 : con, m1 : module' |- module'),
+    S1 : (g |- sg),
+    S2 : (g, a61 : con |- sg),
+    F' : (g |- sttp),
+    K : (g |- kind),
+    Dof : (g |- md-of P[] F M1 S1),
+    Dfst : (g |- sg-fst S1 K),
+    Dof1 :
+      (g, a : con, z392 : cn-of a (K[..]), m : module',
+       u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+       y393 : md-fst m a |- md-of P[] (F[..]) (M2[.., a, m]) (S2[.., a]))
+  | x :
+      [g |- md-of P[] F (md/dpair M1 (\a. \m. M2)) (sg/sigma S1 (\y263. S2))],
+    extends : [g |- extends F F']
+  ; by monotonicity-md [g |- Dof] extends as Dof1' unboxed;
+    by extends as Dextends unboxed;
+    by monotonicity-md
+         [g,
+          b :
+            block (
+              a : con,
+              da : cn-of a (K[..]),
+              m : module',
+              u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+              dfst : md-fst m a) |- Dof1[.., b.1, b.2, b.3, b.4, b.5]]
+         [g,
+          b :
+            block (
+              a : con,
+              da : cn-of a (K[..]),
+              m : module',
+              u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+              dfst : md-fst m a) |- Dextends[..]]
+    as Dof2' unboxed;
+    solve
+      [g |-
+         md-of/dpair Dof1'
+         Dfst
+         (\a.
+            \da.
+              \m. \u. \dfst. Dof2'[.., <a; da; m; (\P'. \F'. u P' F'); dfst>])]
+  }
+  case md-of/pair:
+  { g : monotonicity-ctx,
+    P : ( |- purity),
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    M2 : (g |- module'),
+    S1 : (g |- sg),
+    S2 : (g |- sg),
+    F' : (g |- sttp),
+    Dof : (g |- md-of P[] F M1 S1),
+    Dof1 : (g |- md-of P[] F M2 S2)
+  | x : [g |- md-of P[] F (md/pair M1 M2) (sg/sigma S1 (\x. S2[..]))],
+    extends : [g |- extends F F']
+  ; by monotonicity-md [g |- Dof] extends as Dof1' unboxed;
+    by monotonicity-md [g |- Dof1] extends as Dof2' unboxed;
+    solve [g |- md-of/pair Dof1' Dof2']
+  }
+  case md-of/datom:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    E : (g |- term),
+    C : (g |- con),
+    F' : (g |- sttp),
+    Dof : (g |- tm-of F E C)
+  | x : [g |- md-of pure F (md/datom E C) (sg/datom C)],
+    extends : [g |- extends F F']
+  ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
+    solve [g |- md-of/datom Dof']
+  }
+  case md-of/sgatom:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    S1 : (g |- sg),
+    F' : (g |- sttp),
+    Dwf : (g |- sg-wf S1)
+  | x : [g |- md-of pure F (md/sgatom S1) (sg/sgatom S1)],
+    extends : [g |- extends F F']
+  ; solve [g |- md-of/sgatom Dwf]
+  }
+  case md-of/satom:
+  { g : monotonicity-ctx,
+    F : (g |- sttp),
+    C : (g |- con),
+    K : (g |- kind),
+    F' : (g |- sttp),
+    Dof : (g |- cn-of C K)
+  | x : [g |- md-of pure F (md/satom C) (sg/satom K)],
+    extends : [g |- extends F F']
+  ; solve [g |- md-of/satom Dof]
+  }
+  case md-of/unit:
+  { g : monotonicity-ctx, F : (g |- sttp), F' : (g |- sttp)
+  | x : [g |- md-of pure F md/unit sg/one], extends : [g |- extends F F']
+  ; solve [g |- md-of/unit ]
+  }
+  %{ FIXME: Uncaught exception
+  case #.4:
+  { g : monotonicity-ctx,
+    P : ( |- purity),
+    F : (g |- sttp),
+    K474 : (g |- kind),
+    S : (g |- sg),
+    #fst :
+      #(g |-
+          block (
+            a : con,
+            da : cn-of a (K474[..]),
+            m : module',
+            dm : {P' : purity}  {F' : sttp}  md-of P' F' m (S[..]),
+            dfst : md-fst m a)),
+    F' : (g |- sttp)
+  | x : [g |- md-of P[] F #fst.3 S], extends : [g |- extends F F']
+  ; ?
+  }
+  }%
 }
 ;
 
