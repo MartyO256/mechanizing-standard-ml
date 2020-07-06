@@ -977,6 +977,70 @@ intros
 }
 ;
 
+proof monotonicity-entry :
+  [ |- entry-of F EN ET] ->
+  [ |- extends F F'] ->
+    [ |- entry-of F' EN ET] =
+/ total /
+intros
+{ F : ( |- sttp), EN : ( |- entry), ET : ( |- entp), F' : ( |- sttp)
+| eof : [ |- entry-of F EN ET], extends : [ |- extends F F']
+; split eof as
+  case entry-of/tag:
+  { F : ( |- sttp), C : ( |- con), F' : ( |- sttp), Dof : ( |- cn-of C t)
+  | eof : [ |- entry-of F (entry/tag C) (et/tag C)],
+    extends : [ |- extends F F']
+  ; solve [ |- entry-of/tag Dof]
+  }
+  case entry-of/ref:
+  { F : ( |- sttp),
+    E : ( |- term),
+    C : ( |- con),
+    F' : ( |- sttp),
+    Dvalue : ( |- value E),
+    Dof : ( |- tm-of F E C)
+  | eof : [ |- entry-of F (entry/ref E) (et/ref C)],
+    extends : [ |- extends F F']
+  ; by monotonicity-tm [ |- Dof] extends as Dof' unboxed;
+    solve [ |- entry-of/ref Dvalue Dof']
+  }
+}
+;
+
+proof monotonicity-store :
+  [ |- store-of F1 ST F2] ->
+  [ |- extends F1 F1'] ->
+    [ |- store-of F1' ST F2] =
+/ total 1 /
+intros
+{ F : ( |- sttp), ST : ( |- store), F1 : ( |- sttp), F1' : ( |- sttp)
+| x : [ |- store-of F ST F1], extends : [ |- extends F F1']
+; split x as
+  case store-of/cons:
+  { F : ( |- sttp),
+    ST1 : ( |- store),
+    Dloc : ( |- location),
+    EN : ( |- entry),
+    F3 : ( |- sttp),
+    ET : ( |- entp),
+    F1' : ( |- sttp),
+    Dbounds : ( |- store-bounds ST1 Dloc),
+    Dof : ( |- entry-of F EN ET),
+    Dof1 : ( |- store-of F ST1 F3)
+  | x : [ |- store-of F (store/cons ST1 Dloc EN) (st/cons F3 Dloc ET)],
+    extends : [ |- extends F F1']
+  ; by monotonicity-store [ |- Dof1] extends as Dstof' unboxed;
+    by monotonicity-entry [ |- Dof] extends as Dof' unboxed;
+    solve [ |- store-of/cons Dbounds Dof' Dstof']
+  }
+  case store-of/nil:
+  { F : ( |- sttp), F1' : ( |- sttp)
+  | x : [ |- store-of F store/nil st/nil], extends : [ |- extends F F1']
+  ; solve [ |- store-of/nil ]
+  }
+}
+;
+
 % Locations
 
 proof loc-lt-antisymm : [ |- loc-lt L L] -> [ |- false] =
@@ -2282,7 +2346,62 @@ intros
   | tof : [ |- tm-of F (tm/lett E1 (\y131. E3)) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/lett E1 (\y131. E3)) ST' (tm/lett E2 (\y131. E3))]
-  ; ?
+  ; split inversion-tm/lett [ |- Dof] as
+    case inversion-tm/lett/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E3 : (x23 : term |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E2 : ( |- term),
+      Dof : ( |- tm-of F (tm/lett E1 (\y131. E3)) T),
+      Dstof : ( |- store-of F ST F),
+      Dstep : ( |- step ST E1 ST' E2),
+      C1 : ( |- con),
+      Dof1 : ( |- tm-of F E1 C1),
+      Dof2 :
+        (x : term, u : {F' : sttp}  tm-of F' x C1[] |- tm-of F[] (E3[x]) T[])
+    | tof : [ |- tm-of F (tm/lett E1 (\y281. E3)) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/lett E1 (\y281. E3)) ST' (tm/lett E2 (\y281. E3))]
+    ; split preservation-tm [ |- Dof1] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        E3 : (x23 : term |- term),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E2 : ( |- term),
+        Dof : ( |- tm-of F (tm/lett E1 (\y131. E3)) T),
+        Dstof : ( |- store-of F ST F),
+        Dstep : ( |- step ST E1 ST' E2),
+        C1 : ( |- con),
+        Dof1 : ( |- tm-of F E1 C1),
+        Dof2 :
+          (x : term, u : {F' : sttp}  tm-of F' x C1[] |-
+             tm-of F[] (E3[x]) T[]),
+        F2 : ( |- sttp),
+        Dof3 : ( |- tm-of F2 E2 C1),
+        Dof4 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/lett E1 (\y281. E3)) T],
+        sof : [ |- store-of F ST F],
+        x :
+          [ |- step ST (tm/lett E1 (\y281. E3)) ST' (tm/lett E2 (\y281. E3))]
+      ; by monotonicity-tm
+             [b : block (x : term, u : {F' : sttp}  tm-of F' x C1[]) |-
+                Dof2[b.1, b.2]]
+             [b : block (x : term, u : {F' : sttp}  tm-of F' x C1[]) |-
+                Dextends[]]
+        as Dof2' unboxed;
+        solve
+          [ |-
+             preservation-tm/i F2
+             (tm-of/lett Dof3 (\x. \u. Dof2'[<x; u>])) Dof4 Dextends]
+      }
+    }
   }
   case step/try-handle:
   { F : ( |- sttp),
@@ -2345,7 +2464,60 @@ intros
   | tof : [ |- tm-of F (tm/try E1 (\y130. E3)) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/try E1 (\y130. E3)) ST' (tm/try E2 (\y130. E3))]
-  ; ?
+  ; split inversion-tm/try [ |- Dof] as
+    case inversion-tm/try/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E3 : (x20 : term |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E2 : ( |- term),
+      Dof : ( |- tm-of F (tm/try E1 (\y130. E3)) T),
+      Dstof : ( |- store-of F ST F),
+      Dstep : ( |- step ST E1 ST' E2),
+      Dof1 : ( |- tm-of F E1 T),
+      Dof2 :
+        (x : term, u : {F' : sttp}  tm-of F' x tagged |-
+           tm-of F[] (E3[x]) T[])
+    | tof : [ |- tm-of F (tm/try E1 (\y280. E3)) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/try E1 (\y280. E3)) ST' (tm/try E2 (\y280. E3))]
+    ; split preservation-tm [ |- Dof1] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        E3 : (x20 : term |- term),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E2 : ( |- term),
+        Dof : ( |- tm-of F (tm/try E1 (\y130. E3)) T),
+        Dstof : ( |- store-of F ST F),
+        Dstep : ( |- step ST E1 ST' E2),
+        Dof1 : ( |- tm-of F E1 T),
+        Dof2 :
+          (x : term, u : {F' : sttp}  tm-of F' x tagged |-
+             tm-of F[] (E3[x]) T[]),
+        F2 : ( |- sttp),
+        Dof3 : ( |- tm-of F2 E2 T),
+        Dof4 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/try E1 (\y280. E3)) T],
+        sof : [ |- store-of F ST F],
+        x : [ |- step ST (tm/try E1 (\y280. E3)) ST' (tm/try E2 (\y280. E3))]
+      ; by monotonicity-tm
+             [b : block (x : term, u : {F' : sttp}  tm-of F' x tagged) |-
+                Dof2[b.1, b.2]]
+             [b : block (x : term, u : {F' : sttp}  tm-of F' x tagged) |-
+                Dextends[]]
+        as Dof2' unboxed;
+        solve
+          [ |-
+             preservation-tm/i F2
+             (tm-of/try Dof3 (\x. \u. Dof2'[<x; u>])) Dof4 Dextends]
+      }
+    }
   }
   case step/raise:
   { F : ( |- sttp),
@@ -2854,7 +3026,84 @@ intros
            ST
            (tm/iftag E1 E2 (\y125. E4) E5)
            ST' (tm/iftag E1 E3 (\y125. E4) E5)]
-  ; ?
+  ; split inversion-tm/iftag [ |- Dof] as
+    case inversion-tm/iftag/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : ( |- term),
+      E3 : (x17 : term |- term),
+      E4 : ( |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E2' : ( |- term),
+      Dof : ( |- tm-of F (tm/iftag E1 E2 (\y125. E3) E4) T),
+      Dstof : ( |- store-of F ST F),
+      Dvalue : ( |- value E1),
+      Dstep : ( |- step ST E2 ST' E2'),
+      C1 : ( |- con),
+      Dof1 : ( |- tm-of F E1 tagged),
+      Dof2 : ( |- tm-of F E2 (tag C1)),
+      Dof3 :
+        (x : term, u : {F' : sttp}  tm-of F' x C1[] |- tm-of F[] (E3[x]) T[]),
+      Dof4 : ( |- tm-of F E4 T)
+    | tof : [ |- tm-of F (tm/iftag E1 E2 (\y275. E3) E4) T],
+      sof : [ |- store-of F ST F],
+      x :
+        [ |-
+           step
+             ST
+             (tm/iftag E1 E2 (\y275. E3) E4)
+             ST' (tm/iftag E1 E2' (\y275. E3) E4)]
+    ; split preservation-tm [ |- Dof2] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        E2 : ( |- term),
+        E3 : (x17 : term |- term),
+        E4 : ( |- term),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E2' : ( |- term),
+        Dof : ( |- tm-of F (tm/iftag E1 E2 (\y125. E3) E4) T),
+        Dstof : ( |- store-of F ST F),
+        Dvalue : ( |- value E1),
+        Dstep : ( |- step ST E2 ST' E2'),
+        T' : ( |- con),
+        Dof1 : ( |- tm-of F E1 tagged),
+        Dof2 : ( |- tm-of F E2 (tag T')),
+        Dof3 :
+          (x : term, u : {F' : sttp}  tm-of F' x T'[] |-
+             tm-of F[] (E3[x]) T[]),
+        Dof4 : ( |- tm-of F E4 T),
+        F2 : ( |- sttp),
+        Dof5 : ( |- tm-of F2 E2' (tag T')),
+        Dof6 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/iftag E1 E2 (\y275. E3) E4) T],
+        sof : [ |- store-of F ST F],
+        x :
+          [ |-
+             step
+               ST
+               (tm/iftag E1 E2 (\y275. E3) E4)
+               ST' (tm/iftag E1 E2' (\y275. E3) E4)]
+      ; by monotonicity-tm [ |- Dof1] [ |- Dextends] as Dof1' unboxed;
+        by monotonicity-tm
+             [b : block (x : term, u : {F' : sttp}  tm-of F' x T'[]) |-
+                Dof3[b.1, b.2]]
+             [b : block (x : term, u : {F' : sttp}  tm-of F' x T'[]) |-
+                Dextends[]]
+        as Dof3' unboxed;
+        by monotonicity-tm [ |- Dof4] [ |- Dextends] as Dof4' unboxed;
+        solve
+          [ |-
+             preservation-tm/i F2
+             (tm-of/iftag Dof1' Dof5 (\x. \u. Dof3'[<x; u>]) Dof4')
+             Dof6 Dextends]
+      }
+    }
   }
   case step/iftag1:
   { F : ( |- sttp),
@@ -2877,7 +3126,82 @@ intros
            ST
            (tm/iftag E1 E3 (\y125. E4) E5)
            ST' (tm/iftag E2 E3 (\y125. E4) E5)]
-  ; ?
+  ; split inversion-tm/iftag [ |- Dof] as
+    case inversion-tm/iftag/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : ( |- term),
+      E3 : (x16 : term |- term),
+      E4 : ( |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E1' : ( |- term),
+      Dof : ( |- tm-of F (tm/iftag E1 E2 (\y125. E3) E4) T),
+      Dstof : ( |- store-of F ST F),
+      Dstep : ( |- step ST E1 ST' E1'),
+      C1 : ( |- con),
+      Dof1 : ( |- tm-of F E1 tagged),
+      Dof2 : ( |- tm-of F E2 (tag C1)),
+      Dof3 :
+        (x : term, u : {F' : sttp}  tm-of F' x C1[] |- tm-of F[] (E3[x]) T[]),
+      Dof4 : ( |- tm-of F E4 T)
+    | tof : [ |- tm-of F (tm/iftag E1 E2 (\y275. E3) E4) T],
+      sof : [ |- store-of F ST F],
+      x :
+        [ |-
+           step
+             ST
+             (tm/iftag E1 E2 (\y275. E3) E4)
+             ST' (tm/iftag E1' E2 (\y275. E3) E4)]
+    ; split preservation-tm [ |- Dof1] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        E2 : ( |- term),
+        E3 : (x16 : term |- term),
+        E4 : ( |- term),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E1' : ( |- term),
+        Dof : ( |- tm-of F (tm/iftag E1 E2 (\y125. E3) E4) T),
+        Dstof : ( |- store-of F ST F),
+        Dstep : ( |- step ST E1 ST' E1'),
+        T' : ( |- con),
+        Dof1 : ( |- tm-of F E1 tagged),
+        Dof2 : ( |- tm-of F E2 (tag T')),
+        Dof3 :
+          (x : term, u : {F' : sttp}  tm-of F' x T'[] |-
+             tm-of F[] (E3[x]) T[]),
+        Dof4 : ( |- tm-of F E4 T),
+        F2 : ( |- sttp),
+        Dof5 : ( |- tm-of F2 E1' tagged),
+        Dof6 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/iftag E1 E2 (\y275. E3) E4) T],
+        sof : [ |- store-of F ST F],
+        x :
+          [ |-
+             step
+               ST
+               (tm/iftag E1 E2 (\y275. E3) E4)
+               ST' (tm/iftag E1' E2 (\y275. E3) E4)]
+      ; by monotonicity-tm [ |- Dof2] [ |- Dextends] as Dof2' unboxed;
+        by monotonicity-tm
+             [b : block (x : term, u : {F' : sttp}  tm-of F' x T'[]) |-
+                Dof3[b.1, b.2]]
+             [b : block (x : term, u : {F' : sttp}  tm-of F' x T'[]) |-
+                Dextends[]]
+        as Dof3' unboxed;
+        by monotonicity-tm [ |- Dof4] [ |- Dextends] as Dof4' unboxed;
+        solve
+          [ |-
+             preservation-tm/i F2
+             (tm-of/iftag Dof5 Dof2' (\x. \u. Dof3'[<x; u>]) Dof4')
+             Dof6 Dextends]
+      }
+    }
   }
   case step/tag2:
   { F : ( |- sttp),
@@ -2894,7 +3218,57 @@ intros
   | tof : [ |- tm-of F (tm/tag E1 E2) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/tag E1 E2) ST' (tm/tag E1 E3)]
-  ; ?
+  ; split inversion-tm/tag [ |- Dof] as
+    case inversion-tm/tag/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : ( |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E2' : ( |- term),
+      Dof : ( |- tm-of F (tm/tag E1 E2) T),
+      Dstof : ( |- store-of F ST F),
+      Dvalue : ( |- value E1),
+      Dstep : ( |- step ST E2 ST' E2'),
+      C1 : ( |- con),
+      Dequiv : ( |- cn-equiv tagged T t),
+      Dof1 : ( |- tm-of F E1 (tag C1)),
+      Dof2 : ( |- tm-of F E2 C1)
+    | tof : [ |- tm-of F (tm/tag E1 E2) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/tag E1 E2) ST' (tm/tag E1 E2')]
+    ; split preservation-tm [ |- Dof2] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        E2 : ( |- term),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E2' : ( |- term),
+        Dof : ( |- tm-of F (tm/tag E1 E2) T),
+        Dstof : ( |- store-of F ST F),
+        Dvalue : ( |- value E1),
+        Dstep : ( |- step ST E2 ST' E2'),
+        T' : ( |- con),
+        Dequiv : ( |- cn-equiv tagged T t),
+        Dof1 : ( |- tm-of F E1 (tag T')),
+        Dof2 : ( |- tm-of F E2 T'),
+        F2 : ( |- sttp),
+        Dof3 : ( |- tm-of F2 E2' T'),
+        Dof4 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/tag E1 E2) T],
+        sof : [ |- store-of F ST F],
+        x : [ |- step ST (tm/tag E1 E2) ST' (tm/tag E1 E2')]
+      ; by monotonicity-tm [ |- Dof1] [ |- Dextends] as Dof1' unboxed;
+        solve
+          [ |-
+             preservation-tm/i F2
+             (tm-of/equiv (tm-of/tag Dof1' Dof3) Dequiv) Dof4 Dextends]
+      }
+    }
   }
   case step/tag1:
   { F : ( |- sttp),
@@ -2910,7 +3284,55 @@ intros
   | tof : [ |- tm-of F (tm/tag E1 E3) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/tag E1 E3) ST' (tm/tag E2 E3)]
-  ; ?
+  ; split inversion-tm/tag [ |- Dof] as
+    case inversion-tm/tag/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : ( |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E1' : ( |- term),
+      Dof : ( |- tm-of F (tm/tag E1 E2) T),
+      Dstof : ( |- store-of F ST F),
+      Dstep : ( |- step ST E1 ST' E1'),
+      C1 : ( |- con),
+      Dequiv : ( |- cn-equiv tagged T t),
+      Dof1 : ( |- tm-of F E1 (tag C1)),
+      Dof2 : ( |- tm-of F E2 C1)
+    | tof : [ |- tm-of F (tm/tag E1 E2) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/tag E1 E2) ST' (tm/tag E1' E2)]
+    ; split preservation-tm [ |- Dof1] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        E2 : ( |- term),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E1' : ( |- term),
+        Dof : ( |- tm-of F (tm/tag E1 E2) T),
+        Dstof : ( |- store-of F ST F),
+        Dstep : ( |- step ST E1 ST' E1'),
+        T' : ( |- con),
+        Dequiv : ( |- cn-equiv tagged T t),
+        Dof1 : ( |- tm-of F E1 (tag T')),
+        Dof2 : ( |- tm-of F E2 T'),
+        F2 : ( |- sttp),
+        Dof3 : ( |- tm-of F2 E1' (tag T')),
+        Dof4 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/tag E1 E2) T],
+        sof : [ |- store-of F ST F],
+        x : [ |- step ST (tm/tag E1 E2) ST' (tm/tag E1' E2)]
+      ; by monotonicity-tm [ |- Dof2] [ |- Dextends] as Dof2' unboxed;
+        solve
+          [ |-
+             preservation-tm/i F2
+             (tm-of/equiv (tm-of/tag Dof3 Dof2') Dequiv) Dof4 Dextends]
+      }
+    }
   }
   case step/newtag-beta:
   { F : ( |- sttp),
@@ -2961,7 +3383,57 @@ intros
   | tof : [ |- tm-of F (tm/assign E1 E2) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/assign E1 E2) ST' (tm/assign E1 E3)]
-  ; ?
+  ; split inversion-tm/assign [ |- Dof] as
+    case inversion-tm/assign/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : ( |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E2' : ( |- term),
+      Dof : ( |- tm-of F (tm/assign E1 E2) T),
+      Dstof : ( |- store-of F ST F),
+      Dvalue : ( |- value E1),
+      Dstep : ( |- step ST E2 ST' E2'),
+      C1 : ( |- con),
+      Dequiv : ( |- cn-equiv unit T t),
+      Dof1 : ( |- tm-of F E1 (ref C1)),
+      Dof2 : ( |- tm-of F E2 C1)
+    | tof : [ |- tm-of F (tm/assign E1 E2) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/assign E1 E2) ST' (tm/assign E1 E2')]
+    ; split preservation-tm [ |- Dof2] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        E2 : ( |- term),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E2' : ( |- term),
+        Dof : ( |- tm-of F (tm/assign E1 E2) T),
+        Dstof : ( |- store-of F ST F),
+        Dvalue : ( |- value E1),
+        Dstep : ( |- step ST E2 ST' E2'),
+        T' : ( |- con),
+        Dequiv : ( |- cn-equiv unit T t),
+        Dof1 : ( |- tm-of F E1 (ref T')),
+        Dof2 : ( |- tm-of F E2 T'),
+        F2 : ( |- sttp),
+        Dof3 : ( |- tm-of F2 E2' T'),
+        Dof4 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/assign E1 E2) T],
+        sof : [ |- store-of F ST F],
+        x : [ |- step ST (tm/assign E1 E2) ST' (tm/assign E1 E2')]
+      ; by monotonicity-tm [ |- Dof1] [ |- Dextends] as Dof1' unboxed;
+        solve
+          [ |-
+             preservation-tm/i F2
+             (tm-of/equiv (tm-of/assign Dof1' Dof3) Dequiv) Dof4 Dextends]
+      }
+    }
   }
   case step/assign1:
   { F : ( |- sttp),
@@ -2977,7 +3449,55 @@ intros
   | tof : [ |- tm-of F (tm/assign E1 E3) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/assign E1 E3) ST' (tm/assign E2 E3)]
-  ; ?
+  ; split inversion-tm/assign [ |- Dof] as
+    case inversion-tm/assign/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : ( |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E1' : ( |- term),
+      Dof : ( |- tm-of F (tm/assign E1 E2) T),
+      Dstof : ( |- store-of F ST F),
+      Dstep : ( |- step ST E1 ST' E1'),
+      C1 : ( |- con),
+      Dequiv : ( |- cn-equiv unit T t),
+      Dof1 : ( |- tm-of F E1 (ref C1)),
+      Dof2 : ( |- tm-of F E2 C1)
+    | tof : [ |- tm-of F (tm/assign E1 E2) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/assign E1 E2) ST' (tm/assign E1' E2)]
+    ; split preservation-tm [ |- Dof1] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        E2 : ( |- term),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E1' : ( |- term),
+        Dof : ( |- tm-of F (tm/assign E1 E2) T),
+        Dstof : ( |- store-of F ST F),
+        Dstep : ( |- step ST E1 ST' E1'),
+        T' : ( |- con),
+        Dequiv : ( |- cn-equiv unit T t),
+        Dof1 : ( |- tm-of F E1 (ref T')),
+        Dof2 : ( |- tm-of F E2 T'),
+        F2 : ( |- sttp),
+        Dof3 : ( |- tm-of F2 E1' (ref T')),
+        Dof4 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/assign E1 E2) T],
+        sof : [ |- store-of F ST F],
+        x : [ |- step ST (tm/assign E1 E2) ST' (tm/assign E1' E2)]
+      ; by monotonicity-tm [ |- Dof2] [ |- Dextends] as Dof2' unboxed;
+        solve
+          [ |-
+             preservation-tm/i F2
+             (tm-of/equiv (tm-of/assign Dof3 Dof2') Dequiv) Dof4 Dextends]
+      }
+    }
   }
   case step/deref-beta:
   { F : ( |- sttp),
@@ -3164,7 +3684,87 @@ intros
            ST
            (tm/case E1 (\x120. E3) (\y120. E4))
            ST' (tm/case E2 (\x120. E3) (\y120. E4))]
-  ; ?
+  ; split inversion-tm/case [ |- Dof] as
+    case inversion-tm/case/i:
+    { F : ( |- sttp),
+      E : ( |- term),
+      E1 : (x10 : term |- term),
+      E2 : (x11 : term |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E' : ( |- term),
+      Dof : ( |- tm-of F (tm/case E (\x120. E1) (\y120. E2)) T),
+      Dstof : ( |- store-of F ST F),
+      Dstep : ( |- step ST E ST' E'),
+      C1 : ( |- con),
+      C2 : ( |- con),
+      Dof1 : ( |- tm-of F E (plus C1 C2)),
+      Dof2 :
+        (x : term, u : {F' : sttp}  tm-of F' x C1[] |- tm-of F[] (E1[x]) T[]),
+      Dof3 :
+        (x : term, u : {F' : sttp}  tm-of F' x C2[] |- tm-of F[] (E2[x]) T[])
+    | tof : [ |- tm-of F (tm/case E (\x270. E1) (\y270. E2)) T],
+      sof : [ |- store-of F ST F],
+      x :
+        [ |-
+           step
+             ST
+             (tm/case E (\x270. E1) (\y270. E2))
+             ST' (tm/case E' (\x270. E1) (\y270. E2))]
+    ; split preservation-tm [ |- Dof1] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E : ( |- term),
+        E1 : (x10 : term |- term),
+        E2 : (x11 : term |- term),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E' : ( |- term),
+        Dof : ( |- tm-of F (tm/case E (\x120. E1) (\y120. E2)) T),
+        Dstof : ( |- store-of F ST F),
+        Dstep : ( |- step ST E ST' E'),
+        C1 : ( |- con),
+        C2 : ( |- con),
+        Dof' : ( |- tm-of F E (plus C1 C2)),
+        Dof1 :
+          (x : term, u : {F' : sttp}  tm-of F' x C1[] |-
+             tm-of F[] (E1[x]) T[]),
+        Dof2 :
+          (x : term, u : {F' : sttp}  tm-of F' x C2[] |-
+             tm-of F[] (E2[x]) T[]),
+        F2 : ( |- sttp),
+        Dof3 : ( |- tm-of F2 E' (plus C1 C2)),
+        Dof4 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/case E (\x270. E1) (\y270. E2)) T],
+        sof : [ |- store-of F ST F],
+        x :
+          [ |-
+             step
+               ST
+               (tm/case E (\x270. E1) (\y270. E2))
+               ST' (tm/case E' (\x270. E1) (\y270. E2))]
+      ; by monotonicity-tm
+             [b : block (x : term, u : {F' : sttp}  tm-of F' x C1[]) |-
+                Dof1[b.1, b.2]]
+             [b : block (x : term, u : {F' : sttp}  tm-of F' x C1[]) |-
+                Dextends[]]
+        as Dof1' unboxed;
+        by monotonicity-tm
+             [b : block (x : term, u : {F' : sttp}  tm-of F' x C2[]) |-
+                Dof2[b.1, b.2]]
+             [b : block (x : term, u : {F' : sttp}  tm-of F' x C2[]) |-
+                Dextends[]]
+        as Dof2' unboxed;
+        solve
+  [ |-
+     preservation-tm/i F2
+     (tm-of/case Dof3 (\x. \u. Dof1'[<x; u>]) (\x. \u. Dof2'[<x; u>]))
+     Dof4 Dextends]
+      }
+    }
   }
   case step/in2:
   { F : ( |- sttp),
@@ -3322,7 +3922,52 @@ intros
   | tof : [ |- tm-of F (tm/app E1 E2) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/app E1 E2) ST' (tm/app E1 E3)]
-  ; ?
+  ; split inversion-tm/app [ |- Dof] as
+    case inversion-tm/app/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : ( |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E2' : ( |- term),
+      Dof : ( |- tm-of F (tm/app E1 E2) T),
+      Dstof : ( |- store-of F ST F),
+      Dvalue : ( |- value E1),
+      Dstep : ( |- step ST E2 ST' E2'),
+      C1 : ( |- con),
+      Dof1 : ( |- tm-of F E1 (arrow C1 T)),
+      Dof2 : ( |- tm-of F E2 C1)
+    | tof : [ |- tm-of F (tm/app E1 E2) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/app E1 E2) ST' (tm/app E1 E2')]
+    ; split preservation-tm [ |- Dof2] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        E2 : ( |- term),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E2' : ( |- term),
+        Dof : ( |- tm-of F (tm/app E1 E2) T),
+        Dstof : ( |- store-of F ST F),
+        Dvalue : ( |- value E1),
+        Dstep : ( |- step ST E2 ST' E2'),
+        T' : ( |- con),
+        Dof1 : ( |- tm-of F E1 (arrow T' T)),
+        Dof2 : ( |- tm-of F E2 T'),
+        F2 : ( |- sttp),
+        Dof3 : ( |- tm-of F2 E2' T'),
+        Dof4 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/app E1 E2) T],
+        sof : [ |- store-of F ST F],
+        x : [ |- step ST (tm/app E1 E2) ST' (tm/app E1 E2')]
+      ; by monotonicity-tm [ |- Dof1] [ |- Dextends] as Dof1' unboxed;
+        solve [ |- preservation-tm/i F2 (tm-of/app Dof1' Dof3) Dof4 Dextends]
+      }
+    }
   }
   case step/app1:
   { F : ( |- sttp),
@@ -3338,7 +3983,50 @@ intros
   | tof : [ |- tm-of F (tm/app E1 E3) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/app E1 E3) ST' (tm/app E2 E3)]
-  ; ?
+  ; split inversion-tm/app [ |- Dof] as
+    case inversion-tm/app/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : ( |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E1' : ( |- term),
+      Dof : ( |- tm-of F (tm/app E1 E2) T),
+      Dstof : ( |- store-of F ST F),
+      Dstep : ( |- step ST E1 ST' E1'),
+      C1 : ( |- con),
+      Dof1 : ( |- tm-of F E1 (arrow C1 T)),
+      Dof2 : ( |- tm-of F E2 C1)
+    | tof : [ |- tm-of F (tm/app E1 E2) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/app E1 E2) ST' (tm/app E1' E2)]
+    ; split preservation-tm [ |- Dof1] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        E2 : ( |- term),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E1' : ( |- term),
+        Dof : ( |- tm-of F (tm/app E1 E2) T),
+        Dstof : ( |- store-of F ST F),
+        Dstep : ( |- step ST E1 ST' E1'),
+        T' : ( |- con),
+        Dof1 : ( |- tm-of F E1 (arrow T' T)),
+        Dof2 : ( |- tm-of F E2 T'),
+        F2 : ( |- sttp),
+        Dof3 : ( |- tm-of F2 E1' (arrow T' T)),
+        Dof4 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/app E1 E2) T],
+        sof : [ |- store-of F ST F],
+        x : [ |- step ST (tm/app E1 E2) ST' (tm/app E1' E2)]
+      ; by monotonicity-tm [ |- Dof2] [ |- Dextends] as Dof2' unboxed;
+        solve [ |- preservation-tm/i F2 (tm-of/app Dof3 Dof2') Dof4 Dextends]
+      }
+    }
   }
   case step/pi2-beta:
   { F : ( |- sttp),
@@ -3491,7 +4179,59 @@ intros
   | tof : [ |- tm-of F (tm/pair E1 E2) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/pair E1 E2) ST' (tm/pair E1 E3)]
-  ; ?
+  ; split inversion-tm/pair [ |- Dof] as
+    case inversion-tm/pair/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : ( |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E2' : ( |- term),
+      Dof : ( |- tm-of F (tm/pair E1 E2) T),
+      Dstof : ( |- store-of F ST F),
+      Dvalue : ( |- value E1),
+      Dstep : ( |- step ST E2 ST' E2'),
+      C1 : ( |- con),
+      C2 : ( |- con),
+      Dequiv : ( |- cn-equiv (prod C1 C2) T t),
+      Dof1 : ( |- tm-of F E1 C1),
+      Dof2 : ( |- tm-of F E2 C2)
+    | tof : [ |- tm-of F (tm/pair E1 E2) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/pair E1 E2) ST' (tm/pair E1 E2')]
+    ; split preservation-tm [ |- Dof2] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        E2 : ( |- term),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E2' : ( |- term),
+        Dof : ( |- tm-of F (tm/pair E1 E2) T),
+        Dstof : ( |- store-of F ST F),
+        Dvalue : ( |- value E1),
+        Dstep : ( |- step ST E2 ST' E2'),
+        C1 : ( |- con),
+        C2 : ( |- con),
+        Dequiv : ( |- cn-equiv (prod C1 C2) T t),
+        Dof1 : ( |- tm-of F E1 C1),
+        Dof2 : ( |- tm-of F E2 C2),
+        F2 : ( |- sttp),
+        Dof3 : ( |- tm-of F2 E2' C2),
+        Dof4 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/pair E1 E2) T],
+        sof : [ |- store-of F ST F],
+        x : [ |- step ST (tm/pair E1 E2) ST' (tm/pair E1 E2')]
+      ; by monotonicity-tm [ |- Dof1] [ |- Dextends] as Dof1' unboxed;
+        solve
+          [ |-
+             preservation-tm/i F2
+             (tm-of/equiv (tm-of/pair Dof1' Dof3) Dequiv) Dof4 Dextends]
+      }
+    }
   }
   case step/pair1:
   { F : ( |- sttp),
@@ -3507,7 +4247,57 @@ intros
   | tof : [ |- tm-of F (tm/pair E1 E3) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/pair E1 E3) ST' (tm/pair E2 E3)]
-  ; ?
+  ; split inversion-tm/pair [ |- Dof] as
+    case inversion-tm/pair/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : ( |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      E1' : ( |- term),
+      Dof : ( |- tm-of F (tm/pair E1 E2) T),
+      Dstof : ( |- store-of F ST F),
+      Dstep : ( |- step ST E1 ST' E1'),
+      C1 : ( |- con),
+      C2 : ( |- con),
+      Dequiv : ( |- cn-equiv (prod C1 C2) T t),
+      Dof1 : ( |- tm-of F E1 C1),
+      Dof2 : ( |- tm-of F E2 C2)
+    | tof : [ |- tm-of F (tm/pair E1 E2) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/pair E1 E2) ST' (tm/pair E1' E2)]
+    ; split preservation-tm [ |- Dof1] [ |- Dstof] [ |- Dstep] as
+      case preservation-tm/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        E2 : ( |- term),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        E1' : ( |- term),
+        Dof : ( |- tm-of F (tm/pair E1 E2) T),
+        Dstof : ( |- store-of F ST F),
+        Dstep : ( |- step ST E1 ST' E1'),
+        T1 : ( |- con),
+        T2 : ( |- con),
+        Dequiv : ( |- cn-equiv (prod T1 T2) T t),
+        Dof1 : ( |- tm-of F E1 T1),
+        Dof2 : ( |- tm-of F E2 T2),
+        F2 : ( |- sttp),
+        Dof3 : ( |- tm-of F2 E1' T1),
+        Dof4 : ( |- store-of F2 ST' F2),
+        Dextends : ( |- extends F F2)
+      | tof : [ |- tm-of F (tm/pair E1 E2) T],
+        sof : [ |- store-of F ST F],
+        x : [ |- step ST (tm/pair E1 E2) ST' (tm/pair E1' E2)]
+      ; by monotonicity-tm [ |- Dof2] [ |- Dextends] as Dof2' unboxed;
+        solve
+          [ |-
+             preservation-tm/i F2
+             (tm-of/equiv (tm-of/pair Dof3 Dof2') Dequiv) Dof4 Dextends]
+      }
+    }
   }
   case step/abort:
   { F : ( |- sttp),
