@@ -235,7 +235,175 @@ and proof subtp-reg :
   [g |- subtp A B] ->
     [g |- subtp-reg/e A B] =
 / total 1 /
-?
+intros
+{ g : eregularity-ctx, A : (g |- etp), B : (g |- etp)
+| x : [g |- subtp A B]
+; split x as
+  case subtp/sigma:
+  { g : eregularity-ctx,
+    A1 : (g |- etp),
+    A3 : (g, z197 : eterm |- etp),
+    A2 : (g |- etp),
+    A4 : (g, y198 : eterm |- etp),
+    Dsub : (g |- subtp A1 A2),
+    Dsub1 :
+      (g, x : eterm, x197 : evof x (A1[..]) |- subtp (A3[.., x]) (A4[.., x])),
+    Dwf : (g, x : eterm, y197 : evof x (A2[..]) |- ewf (A4[.., x]))
+  | x : [g |- subtp (esigma A1 (\y143. A3)) (esigma A2 (\y143. A4))]
+  ; split subtp-reg [_ |- Dsub] as
+    case subtp-reg/i:
+    { g : eregularity-ctx,
+      A1 : (g |- etp),
+      A3 : (g, z197 : eterm |- etp),
+      A2 : (g |- etp),
+      A4 : (g, y198 : eterm |- etp),
+      Dsub : (g |- subtp A1 A2),
+      Dsub1 :
+        (g, x : eterm, x197 : evof x (A1[..]) |-
+           subtp (A3[.., x]) (A4[.., x])),
+      Dwf : (g, x : eterm, y197 : evof x (A2[..]) |- ewf (A4[.., x])),
+      Dwf1 : (g |- ewf A1),
+      Dwf2 : (g |- ewf A2)
+    | x : [g |- subtp (esigma A1 (\y143. A3)) (esigma A2 (\y143. A4))]
+    ; split
+      subtp-reg
+        [_, b : block (x : eterm, dx : evof x (A1[..])) |-
+           Dsub1[.., b.1, b.2]] as
+      case subtp-reg/i:
+      { g : eregularity-ctx,
+        A1 : (g |- etp),
+        A5 : (g, x : eterm |- etp),
+        A2 : (g |- etp),
+        A6 : (g, x : eterm |- etp),
+        Dsub : (g |- subtp A1 A2),
+        Dsub1 :
+          (g, x : eterm, x197 : evof x (A1[..]) |-
+             subtp (A5[.., x]) (A6[.., x])),
+        Dwf : (g, x : eterm, y197 : evof x (A2[..]) |- ewf (A6[.., x])),
+        Dwf1 : (g |- ewf A1),
+        Dwf2 : (g |- ewf A2),
+        Dwf3 : (g, x : eterm, x5 : evof x (A1[..]) |- ewf (A5[.., x])),
+        Dwf4 : (g, x : eterm, z5 : evof x (A1[..]) |- ewf (A6[.., x]))
+      | x : [g |- subtp (esigma A1 (\y143. A5)) (esigma A2 (\y143. A6))]
+      ; solve
+          [_ |-
+             subtp-reg/i (ewf/sigma Dwf1 (\x. \dx. Dwf3))
+             (ewf/sigma Dwf2 (\x. \dx. Dwf))]
+      }
+    }
+  }
+  case subtp/pi:
+  { g : eregularity-ctx,
+    A2 : (g |- etp),
+    A3 : (g, x195 : eterm |- etp),
+    A1 : (g |- etp),
+    A4 : (g, z195 : eterm |- etp),
+    Dsub : (g |- subtp A1 A2),
+    Dsub1 :
+      (g, x : eterm, y195 : evof x (A1[..]) |- subtp (A3[.., x]) (A4[.., x])),
+    Dwf : (g, x : eterm, z194 : evof x (A2[..]) |- ewf (A3[.., x]))
+  | x : [g |- subtp (epi A2 (\y142. A3)) (epi A1 (\y142. A4))]
+  ; split subtp-reg [g |- Dsub] as
+    case subtp-reg/i:
+    { g : eregularity-ctx,
+      A2 : (g |- etp),
+      A3 : (g, x195 : eterm |- etp),
+      A1 : (g |- etp),
+      A4 : (g, z195 : eterm |- etp),
+      Dsub : (g |- subtp A1 A2),
+      Dsub1 :
+        (g, x : eterm, y195 : evof x (A1[..]) |-
+           subtp (A3[.., x]) (A4[.., x])),
+      Dwf : (g, x : eterm, z194 : evof x (A2[..]) |- ewf (A3[.., x])),
+      Dwf1 : (g |- ewf A1),
+      Dwf2 : (g |- ewf A2)
+    | x : [g |- subtp (epi A2 (\y142. A3)) (epi A1 (\y142. A4))]
+    ; split
+      subtp-reg
+        [g, b : block (x : eterm, dx : evof x _) |- Dsub1[.., b.1, b.2]] as
+      case subtp-reg/i:
+      { g : eregularity-ctx,
+        A2 : (g |- etp),
+        A5 : (g, x : eterm |- etp),
+        A1 : (g |- etp),
+        A6 : (g, x : eterm |- etp),
+        Dsub : (g |- subtp A1 A2),
+        Dsub1 :
+          (g, x : eterm, y195 : evof x (A1[..]) |-
+             subtp (A5[.., x]) (A6[.., x])),
+        Dwf : (g, x : eterm, z194 : evof x (A2[..]) |- ewf (A5[.., x])),
+        Dwf1 : (g |- ewf A1),
+        Dwf2 : (g |- ewf A2),
+        Dwf3 : (g, x : eterm, x1099 : evof x (A1[..]) |- ewf (A5[.., x])),
+        Dwf4 : (g, x : eterm, z1099 : evof x (A1[..]) |- ewf (A6[.., x]))
+      | x : [g |- subtp (epi A2 (\y142. A5)) (epi A1 (\y142. A6))]
+      ; solve
+          [g |-
+             subtp-reg/i (ewf/pi Dwf2 (\x. \dx. Dwf))
+             (ewf/pi Dwf1 (\x. \dx. Dwf4))]
+      }
+    }
+  }
+  case subtp/sing_t:
+  { g : eregularity-ctx, M : (g |- eterm), Dof : (g |- eof M et)
+  | x : [g |- subtp (esing M) et]
+  ; solve [g |- subtp-reg/i (ewf/sing Dof) ewf/t]
+  }
+  case subtp/trans:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    B : (g |- etp),
+    A2 : (g |- etp),
+    Dsub : (g |- subtp A A2),
+    Dsub1 : (g |- subtp A2 B)
+  | x : [g |- subtp A B]
+  ; split subtp-reg [g |- Dsub] as
+    case subtp-reg/i:
+    { g : eregularity-ctx,
+      A : (g |- etp),
+      B : (g |- etp),
+      A2 : (g |- etp),
+      Dsub : (g |- subtp A A2),
+      Dsub1 : (g |- subtp A2 B),
+      Dwf : (g |- ewf A),
+      Dwf1 : (g |- ewf A2)
+    | x : [g |- subtp A B]
+    ; split subtp-reg [g |- Dsub1] as
+      case subtp-reg/i:
+      { g : eregularity-ctx,
+        A : (g |- etp),
+        B : (g |- etp),
+        A2 : (g |- etp),
+        Dsub : (g |- subtp A A2),
+        Dsub1 : (g |- subtp A2 B),
+        Dwf : (g |- ewf A),
+        Dwf1 : (g |- ewf A2),
+        Dwf2 : (g |- ewf A2),
+        Dwf3 : (g |- ewf B)
+      | x : [g |- subtp A B]
+      ; solve [g |- subtp-reg/i Dwf Dwf3]
+      }
+    }
+  }
+  case subtp/reflex:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    B : (g |- etp),
+    Dtequiv : (g |- tequiv A B)
+  | x : [g |- subtp A B]
+  ; split tequiv-reg [g |- Dtequiv] as
+    case tequiv-reg/i:
+    { g : eregularity-ctx,
+      A : (g |- etp),
+      B : (g |- etp),
+      Dtequiv : (g |- tequiv A B),
+      Dwf : (g |- ewf A),
+      Dwf1 : (g |- ewf B)
+    | x : [g |- subtp A B]
+    ; solve [g |- subtp-reg/i Dwf Dwf1]
+    }
+  }
+}
 
 and proof tequiv-reg :
   (g : eregularity-ctx)
