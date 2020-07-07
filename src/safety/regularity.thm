@@ -2326,15 +2326,20 @@ intros
 }
 ;
 
-% FIXME: `solve inversion-prod/1 [_|-Q]` Recursive call not structurally smaller.
-proof inversion-prod/1 :
-  (g : conbind) [g |- cn-of (prod T1 T2) t] ->
-    [g |- cn-of T1 t] =
-/ total 1 /
+LF inversion-prod/e : con -> con -> type =
+| inversion-prod/i :
+  cn-of T1 t -> cn-of T2 t -> inversion-prod/e T1 T2
+;
+
+proof inversion-prod :
+  (g : conbind)
+  [g |- cn-of (prod T1 T2) t] ->
+    [g |- inversion-prod/e T1 T2] =
+/ trust / % FIXME: See issue #4
 intros
 { g : conbind, T : (g |- con), T1 : (g |- con)
-| x : [g |- cn-of (prod T T1) t]
-; split x as
+| cof : [g |- cn-of (prod T T1) t]
+; split cof as
   case cn-of/subsume:
   { g : conbind,
     T : (g |- con),
@@ -2342,10 +2347,10 @@ intros
     K : (g |- kind),
     Dof : (g |- cn-of (prod T T1) K),
     Dsub : (g |- kd-sub K t)
-  | x : [g |- cn-of (prod T T1) t]
+  | cof : [g |- cn-of (prod T T1) t]
   ; by type-inversion [_ |- Dof] [_ |- similar/prod ] [_ |- Dsub]
-    as Q unboxed;
-    ?
+    as Dof' unboxed;
+    solve inversion-prod [_ |- Dof']
   }
   case cn-of/prod:
   { g : conbind,
@@ -2353,54 +2358,26 @@ intros
     T1 : (g |- con),
     Dof : (g |- cn-of T t),
     Dof1 : (g |- cn-of T1 t)
-  | x : [g |- cn-of (prod T T1) t]
-  ; solve [_ |- Dof]
+  | cof : [g |- cn-of (prod T T1) t]
+  ; solve [_ |- inversion-prod/i Dof Dof1]
   }
 }
 ;
 
-% FIXME: `solve inversion-prod/2 [_|-Q]` Recursive call not structurally smaller.
-proof inversion-prod/2 :
-  (g : conbind) [g |- cn-of (prod T1 T2) t] ->
-    [g |- cn-of T2 t] =
-/ total 1 /
-intros
-{ g : conbind, T : (g |- con), T1 : (g |- con)
-| x : [g |- cn-of (prod T T1) t]
-; split x as
-  case cn-of/subsume:
-  { g : conbind,
-    T : (g |- con),
-    T1 : (g |- con),
-    K : (g |- kind),
-    Dof : (g |- cn-of (prod T T1) K),
-    Dsub : (g |- kd-sub K t)
-  | x : [g |- cn-of (prod T T1) t]
-  ; by type-inversion [_ |- Dof] [_ |- similar/prod ] [_ |- Dsub]
-    as Q unboxed;
-    ?
-  }
-  case cn-of/prod:
-  { g : conbind,
-    T : (g |- con),
-    T1 : (g |- con),
-    Dof : (g |- cn-of T t),
-    Dof1 : (g |- cn-of T1 t)
-  | x : [g |- cn-of (prod T T1) t]
-  ; solve [_ |- Dof1]
-  }
-}
+LF inversion-arrow/e : con -> con -> type =
+| inversion-arrow/i :
+  cn-of T1 t -> cn-of T2 t -> inversion-arrow/e T1 T2
 ;
 
-% FIXME: `solve inversion-arrow/1 [_|-Q]` Recursive call not structurally smaller.
-proof inversion-arrow/1 :
-  (g : conbind) [g |- cn-of (arrow T1 T2) t] ->
-    [g |- cn-of T1 t] =
-/ total 1 /
+proof inversion-arrow :
+  (g : conbind)
+  [g |- cn-of (arrow T1 T2) t] ->
+    [g |- inversion-arrow/e T1 T2] =
+/ trust / % FIXME: See issue #4
 intros
 { g : conbind, T : (g |- con), T1 : (g |- con)
-| x : [g |- cn-of (arrow T T1) t]
-; split x as
+| cof : [g |- cn-of (arrow T T1) t]
+; split cof as
   case cn-of/subsume:
   { g : conbind,
     T : (g |- con),
@@ -2408,10 +2385,10 @@ intros
     K : (g |- kind),
     Dof : (g |- cn-of (arrow T T1) K),
     Dsub : (g |- kd-sub K t)
-  | x : [g |- cn-of (arrow T T1) t]
+  | cof : [g |- cn-of (arrow T T1) t]
   ; by type-inversion [_ |- Dof] [_ |- similar/arrow ] [_ |- Dsub]
-    as Q unboxed;
-    ?
+    as Dof' unboxed;
+    solve inversion-arrow [_ |- Dof']
   }
   case cn-of/arrow:
   { g : conbind,
@@ -2419,54 +2396,26 @@ intros
     T1 : (g |- con),
     Dof : (g |- cn-of T t),
     Dof1 : (g |- cn-of T1 t)
-  | x : [g |- cn-of (arrow T T1) t]
-  ; solve [_ |- Dof]
+  | cof : [g |- cn-of (arrow T T1) t]
+  ; solve [_ |- inversion-arrow/i Dof Dof1]
   }
 }
 ;
 
-% FIXME: `solve inversion-arrow/2 [_|-Q]` Recursive call not structurally smaller.
-proof inversion-arrow/2 :
-  (g : conbind) [g |- cn-of (arrow T1 T2) t] ->
-    [g |- cn-of T2 t] =
-/ total 1 /
-intros
-{ g : conbind, T : (g |- con), T1 : (g |- con)
-| x : [g |- cn-of (arrow T T1) t]
-; split x as
-  case cn-of/subsume:
-  { g : conbind,
-    T : (g |- con),
-    T1 : (g |- con),
-    K : (g |- kind),
-    Dof : (g |- cn-of (arrow T T1) K),
-    Dsub : (g |- kd-sub K t)
-  | x : [g |- cn-of (arrow T T1) t]
-  ; by type-inversion [_ |- Dof] [_ |- similar/arrow ] [_ |- Dsub]
-    as Q unboxed;
-    ?
-  }
-  case cn-of/arrow:
-  { g : conbind,
-    T : (g |- con),
-    T1 : (g |- con),
-    Dof : (g |- cn-of T t),
-    Dof1 : (g |- cn-of T1 t)
-  | x : [g |- cn-of (arrow T T1) t]
-  ; solve [_ |- Dof1]
-  }
-}
+LF inversion-plus/e : con -> con -> type =
+| inversion-plus/i :
+  cn-of T1 t -> cn-of T2 t -> inversion-plus/e T1 T2
 ;
 
-% FIXME: `solve inversion-plus/1 [_|-Q]` Recursive call not structurally smaller.
-proof inversion-plus/1 :
-  (g : conbind) [g |- cn-of (plus T1 T2) t] ->
-    [g |- cn-of T1 t] =
-/ total 1 /
+proof inversion-plus :
+  (g : conbind)
+  [g |- cn-of (plus T1 T2) t] ->
+    [g |- inversion-plus/e T1 T2] =
+/ trust / % FIXME: See issue #4
 intros
 { g : conbind, T : (g |- con), T1 : (g |- con)
-| x : [g |- cn-of (plus T T1) t]
-; split x as
+| cof : [g |- cn-of (plus T T1) t]
+; split cof as
   case cn-of/subsume:
   { g : conbind,
     T : (g |- con),
@@ -2474,10 +2423,10 @@ intros
     K : (g |- kind),
     Dof : (g |- cn-of (plus T T1) K),
     Dsub : (g |- kd-sub K t)
-  | x : [g |- cn-of (plus T T1) t]
+  | cof : [g |- cn-of (plus T T1) t]
   ; by type-inversion [_ |- Dof] [_ |- similar/plus ] [_ |- Dsub]
-    as Q unboxed;
-    ?
+    as Dof' unboxed;
+    solve inversion-plus [_ |- Dof']
   }
   case cn-of/plus:
   { g : conbind,
@@ -2485,50 +2434,17 @@ intros
     T1 : (g |- con),
     Dof : (g |- cn-of T t),
     Dof1 : (g |- cn-of T1 t)
-  | x : [g |- cn-of (plus T T1) t]
-  ; solve [_ |- Dof]
+  | cof : [g |- cn-of (plus T T1) t]
+  ; solve [_ |- inversion-plus/i Dof Dof1]
   }
 }
 ;
 
-% FIXME: `solve inversion-plus/2 [_|-Q]` Recursive call not structurally smaller.
-proof inversion-plus/2 :
-  (g : conbind) [g |- cn-of (plus T1 T2) t] ->
-    [g |- cn-of T2 t] =
-/ total 1 /
-intros
-{ g : conbind, T : (g |- con), T1 : (g |- con)
-| x : [g |- cn-of (plus T T1) t]
-; split x as
-  case cn-of/subsume:
-  { g : conbind,
-    T : (g |- con),
-    T1 : (g |- con),
-    K : (g |- kind),
-    Dof : (g |- cn-of (plus T T1) K),
-    Dsub : (g |- kd-sub K t)
-  | x : [g |- cn-of (plus T T1) t]
-  ; by type-inversion [_ |- Dof] [_ |- similar/plus ] [_ |- Dsub]
-    as Q unboxed;
-    ?
-  }
-  case cn-of/plus:
-  { g : conbind,
-    T : (g |- con),
-    T1 : (g |- con),
-    Dof : (g |- cn-of T t),
-    Dof1 : (g |- cn-of T1 t)
-  | x : [g |- cn-of (plus T T1) t]
-  ; solve [_ |- Dof1]
-  }
-}
-;
-
-% FIXME: `solve inversion-ref [_|-Q]` Recursive call not structurally smaller.
 proof inversion-ref :
-  (g : conbind) [g |- cn-of (ref T) t] ->
+  (g : conbind)
+  [g |- cn-of (ref T) t] ->
     [g |- cn-of T t] =
-/ total 1 /
+/ trust / % FIXME: See issue #4
 intros
 { g : conbind, T : (g |- con)
 | x : [g |- cn-of (ref T) t]
@@ -2540,8 +2456,9 @@ intros
     Dof : (g |- cn-of (ref T) K),
     Dsub : (g |- kd-sub K t)
   | x : [g |- cn-of (ref T) t]
-  ; by type-inversion [_ |- Dof] [_ |- similar/ref ] [_ |- Dsub] as Q unboxed;
-    ?
+  ; by type-inversion [g |- Dof] [g |- similar/ref ] [g |- Dsub]
+    as Dof' unboxed;
+    solve inversion-ref [g |- Dof']
   }
   case cn-of/ref:
   { g : conbind, T : (g |- con), Dof : (g |- cn-of T t)
@@ -2551,11 +2468,11 @@ intros
 }
 ;
 
-% FIXME: `solve inversion-tag [_|-Q]` Recursive call not structurally smaller.
 proof inversion-tag :
-  (g : conbind) [g |- cn-of (tag T) t] ->
+  (g : conbind)
+  [g |- cn-of (tag T) t] ->
     [g |- cn-of T t] =
-/ total 1 /
+/ trust / % FIXME: See issue #4
 intros
 { g : conbind, T : (g |- con)
 | x : [g |- cn-of (tag T) t]
@@ -2567,8 +2484,9 @@ intros
     Dof : (g |- cn-of (tag T) K),
     Dsub : (g |- kd-sub K t)
   | x : [g |- cn-of (tag T) t]
-  ; by type-inversion [_ |- Dof] [_ |- similar/tag ] [_ |- Dsub] as Q unboxed;
-    ?
+  ; by type-inversion [g |- Dof] [g |- similar/tag ] [g |- Dsub]
+    as Dof' unboxed;
+    solve inversion-tag [g |- Dof']
   }
   case cn-of/tag:
   { g : conbind, T : (g |- con), Dof : (g |- cn-of T t)
@@ -2578,134 +2496,62 @@ intros
 }
 ;
 
-% FIXME: `solve inversion-rec/kd-wf [_|-Q]` Recursive call not structurally smaller.
-proof inversion-rec/kd-wf :
-  (g : conbind) [g |- cn-of (rec' K (\x. \y. C1[x, y]) C2) t] ->
-    [g |- kd-wf K] =
-/ total 1 /
+LF inversion-rec/e : kind -> (con -> con -> con) -> con -> type =
+| inversion-rec/i :
+  kd-wf K ->
+  ({ a : con } cn-of a (pi K (\l. t)) ->
+   { b : con } cn-of b K ->
+   cn-of (C1 a b) t) ->
+  cn-of C2 K ->
+    inversion-rec/e K C1 C2
+;
+
+proof inversion-rec :
+  (g : conbind)
+  [g |- cn-of (rec' K (\x. \y. C1) C2) t] ->
+    [g |- inversion-rec/e K (\x. \y. C1) C2] =
+/ trust / % FIXME: See issue #4
 intros
 { g : conbind,
   K : (g |- kind),
-  C : (x107 : con, z107 : con |- con),
+  C : (g, y347 : con, x347 : con |- con),
   C1 : (g |- con)
-| x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
-; split x as
+| cof : [g |- cn-of (rec' K (\x. \y. C) C1) t]
+; split cof as
   case cn-of/subsume:
   { g : conbind,
     K : (g |- kind),
-    C : (x107 : con, z107 : con |- con),
+    C : (g, y347 : con, x347 : con |- con),
     C1 : (g |- con),
     K1 : (g |- kind),
-    Dof : (g |- cn-of (rec' K (\x. \y. C[x, y]) C1) K1),
+    Dof : (g |- cn-of (rec' K (\x. \y. C) C1) K1),
     Dsub : (g |- kd-sub K1 t)
-  | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
-  ; by type-inversion [_ |- Dof] [_ |- similar/rec ] [_ |- Dsub] as Q unboxed;
-    ?
+  | cof : [g |- cn-of (rec' K (\x. \y. C) C1) t]
+  ; by type-inversion [_ |- Dof] [_ |- similar/rec ] [_ |- Dsub]
+    as Dof' unboxed;
+    solve inversion-rec [_ |- Dof']
   }
   case cn-of/rec:
   { g : conbind,
     K : (g |- kind),
-    C : (x107 : con, z107 : con |- con),
+    C : (g, y347 : con, x347 : con |- con),
     C1 : (g |- con),
     Dwf : (g |- kd-wf K),
     Dof :
-      (g, a : con, z176 : cn-of a (pi (K[..]) (\l. t)), b : con,
-       y177 : cn-of b (K[..]) |- cn-of (C[a, b]) t),
+      (g, a : con, x416 : cn-of a (pi (K[..]) (\l. t)), b : con,
+       z416 : cn-of b (K[..]) |- cn-of (C[.., a, b]) t),
     Dof1 : (g |- cn-of C1 K)
-  | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
-  ; solve [_ |- Dwf]
+  | cof : [g |- cn-of (rec' K (\x. \y. C) C1) t]
+  ; solve [_ |- inversion-rec/i Dwf (\a. \da. \b. \db. Dof) Dof1]
   }
 }
 ;
 
-% FIXME: `solve inversion-rec/1 [_|-Q]` Recursive call not structurally smaller.
-proof inversion-rec/1 :
-  (g : conbind) [g |- cn-of (rec' K (\x. \y. C1[x, y]) C2) t] ->
-    [g, a : con, da : cn-of a (pi (K[..]) (\l. t)),
-        b : con, db : cn-of b (K[..]) |- cn-of (C1[a, b]) t] =
-/ total 1 /
-intros
-{ g : conbind,
-  K : (g |- kind),
-  C : (x107 : con, z107 : con |- con),
-  C1 : (g |- con)
-| x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
-; split x as
-  case cn-of/subsume:
-  { g : conbind,
-    K : (g |- kind),
-    C : (x107 : con, z107 : con |- con),
-    C1 : (g |- con),
-    K1 : (g |- kind),
-    Dof : (g |- cn-of (rec' K (\x. \y. C[x, y]) C1) K1),
-    Dsub : (g |- kd-sub K1 t)
-  | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
-  ; by type-inversion [_ |- Dof] [_ |- similar/rec ] [_ |- Dsub] as Q unboxed;
-    ?
-  }
-  case cn-of/rec:
-  { g : conbind,
-    K : (g |- kind),
-    C : (x107 : con, z107 : con |- con),
-    C1 : (g |- con),
-    Dwf : (g |- kd-wf K),
-    Dof :
-      (g, a : con, z176 : cn-of a (pi (K[..]) (\l. t)), b : con,
-       y177 : cn-of b (K[..]) |- cn-of (C[a, b]) t),
-    Dof1 : (g |- cn-of C1 K)
-  | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
-  ; solve
-      [_, a : con, z176 : cn-of a (pi (K[..]) (\l. t)), b : con,
-       y177 : cn-of b (K[..]) |- Dof]
-  }
-}
-;
-
-% FIXME: `solve inversion-rec/2 [_|-Q]` Recursive call not structurally smaller.
-proof inversion-rec/2 :
-  (g : conbind) [g |- cn-of (rec' K (\x. \y. C1[x, y]) C2) t] ->
-    [g |- cn-of C2 K] =
-/ total 1 /
-intros
-{ g : conbind,
-  K : (g |- kind),
-  C : (x107 : con, z107 : con |- con),
-  C1 : (g |- con)
-| x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
-; split x as
-  case cn-of/subsume:
-  { g : conbind,
-    K : (g |- kind),
-    C : (x107 : con, z107 : con |- con),
-    C1 : (g |- con),
-    K1 : (g |- kind),
-    Dof : (g |- cn-of (rec' K (\x. \y. C[x, y]) C1) K1),
-    Dsub : (g |- kd-sub K1 t)
-  | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
-  ; by type-inversion [_ |- Dof] [_ |- similar/rec ] [_ |- Dsub] as Q unboxed;
-    ?
-  }
-  case cn-of/rec:
-  { g : conbind,
-    K : (g |- kind),
-    C : (x107 : con, z107 : con |- con),
-    C1 : (g |- con),
-    Dwf : (g |- kd-wf K),
-    Dof :
-      (g, a : con, z176 : cn-of a (pi (K[..]) (\l. t)), b : con,
-       y177 : cn-of b (K[..]) |- cn-of (C[a, b]) t),
-    Dof1 : (g |- cn-of C1 K)
-  | x : [g |- cn-of (rec' K (\x. \y. C[x, y]) C1) t]
-  ; solve [_ |- Dof1]
-  }
-}
-;
-
-% FIXME: `solve inversion-labeled [_|-Q]` Recursive call not structurally smaller.
 proof inversion-labeled :
-  (g : conbind) [g |- cn-of (labeled I T) t] ->
+  (g : conbind)
+  [g |- cn-of (labeled I T) t] ->
     [g |- cn-of T t] =
-/ total 1 /
+/ trust / % FIXME: See issue #4
 intros
 { g : conbind, I : (g |- label), T : (g |- con)
 | x : [g |- cn-of (labeled I T) t]
@@ -2719,8 +2565,8 @@ intros
     Dsub : (g |- kd-sub K t)
   | x : [g |- cn-of (labeled I T) t]
   ; by type-inversion [_ |- Dof] [_ |- similar/labeled ] [_ |- Dsub]
-    as Q unboxed;
-    ?
+    as Dof' unboxed;
+    solve inversion-labeled [g |- Dof']
   }
   case cn-of/labeled:
   { g : conbind, I : (g |- label), T : (g |- con), Dof : (g |- cn-of T t)
