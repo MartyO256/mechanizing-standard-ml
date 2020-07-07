@@ -1,0 +1,76 @@
+LF tconvert : tp -> etp -> type =
+tconvert/t : tconvert t et
+
+| tconvert/pi :
+  tconvert A EA ->
+  ({ x : atom } vof x A ->
+   { ex : eterm } vtrans ex x ->
+   tconvert (B x) (EB ex)) ->
+    tconvert (pi A B) (epi EA EB)
+
+| tconvert/sigma :
+  tconvert A EA ->
+  ({ x : atom } vof x A ->
+   { ex : eterm } vtrans ex x ->
+   tconvert (B x) (EB ex)) ->
+    tconvert (sigma A B) (esigma EA EB)
+
+| tconvert/sing :
+  aconvert R t EM ->
+    tconvert (sing R) (esing EM)
+
+| tconvert/one : tconvert one eone
+
+and convert : term -> tp -> eterm -> type =
+| convert/at :
+  aconvert R t EM ->
+    convert (at R) t EM
+
+| convert/lam :
+  tconvert A EA ->
+  ({ x : atom } vof x A ->
+   { ex : eterm } vtrans ex x ->
+   convert (M x) (B x) (EM ex)) ->
+    convert (lam M) (pi A B) (elam EA EM)
+
+| convert/pair :
+  convert M A EM ->
+  tsub B M Bx ->
+  convert N Bx EN ->
+  ({ x : atom } vof x A -> wf (B x)) ->
+    convert (pair M N) (sigma A B) (epair EM EN)
+
+| convert/sing :
+  aconvert R t EM ->
+    convert (at R) (sing R) EM
+
+| convert/star : convert star one estar
+
+and aconvert : atom -> tp -> eterm -> type =
+| aconvert/const :
+  kof C A ->
+  wf A ->
+  tconvert A _ ->
+    aconvert (const C) A (econst C)
+
+| aconvert/var :
+  vof X A ->
+  wf A ->
+  tconvert A _ ->
+  vtrans EX X ->
+    aconvert X A EX
+
+| aconvert/app :
+  aconvert R (pi A B) EM ->
+  convert N A EN ->
+  tsub B N Bx ->
+    aconvert (app R N) Bx (eapp EM EN)
+
+| aconvert/pi1 :
+  aconvert R (sigma A B) EM ->
+    aconvert (pi1 R) A (epi1 EM)
+
+| aconvert/pi2 :
+  aconvert R (sigma A B) EM ->
+    aconvert (pi2 R) (B (pi1 R)) (epi2 EM)
+;

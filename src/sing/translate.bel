@@ -1,0 +1,71 @@
+% TODO: Investigate why this LF declaration is empty
+LF vtrans : eterm -> atom -> type =;
+
+LF ttrans : etp -> tp -> type =
+| ttrans/t : ttrans et t
+
+| ttrans/pi :
+  ttrans EA A ->
+  ({ x : atom } vof x A ->
+   { ex : eterm } vtrans ex x ->
+   ttrans (EB ex) (B x)) ->
+    ttrans (epi EA EB) (pi A B)
+
+| ttrans/sigma :
+  ttrans EA A ->
+  ({ x : atom } vof x A ->
+   { ex : eterm } vtrans ex x ->
+   ttrans (EB ex) (B x)) ->
+    ttrans (esigma EA EB) (sigma A B)
+
+| ttrans/sing :
+  trans EM (sing R) ->
+    ttrans (esing EM) (sing R)
+
+| ttrans/one : ttrans eone one
+
+and trans : eterm -> tp -> type =
+| trans/const :
+  kof C A ->
+  wf A ->
+  expand (const C) A M ->
+  self M A A' ->
+    trans (econst C) A'
+
+| trans/var :
+  vtrans EM X ->
+  vof X A ->
+  wf A ->
+  expand X A M ->
+  self M A A' ->
+    trans EM A'
+
+| trans/app :
+  trans EM (pi A B) ->
+  trans EN C ->
+  subtype C A (\l. N) ->
+  tsub (\x. B x) N Bx ->
+    trans (eapp EM EN) Bx
+
+| trans/pi1 :
+  trans EM (sigma A (\l. B)) ->
+    trans (epi1 EM) A
+
+| trans/pi2 :
+  trans EM (sigma A (\l. B)) ->
+    trans (epi2 EM) B
+
+| trans/lam :
+  ttrans EA A ->
+  ({ x : atom } vof x A ->
+   { ex : eterm } vtrans ex x ->
+   trans (EM ex) (B x)) ->
+    trans (elam EA EM) (pi A B)
+
+| trans/pair :
+  trans EM A ->
+  trans EN B ->
+    trans (epair EM EN) (sigma A (\l. B))
+
+| trans/star : trans estar one
+;

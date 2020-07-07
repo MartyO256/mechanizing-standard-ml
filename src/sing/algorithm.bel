@@ -1,0 +1,4 @@
+% Variable Identification
+
+% TODO: Investigate why this LF declaration is empty
+LF variable : eterm -> type =;

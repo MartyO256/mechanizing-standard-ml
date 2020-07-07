@@ -1,0 +1,8 @@
+proof unary-equiv-inversion :
+  (g : scbind)
+  [g |- ekof C (epi A (\l. et))] ->
+  [g |- equiv (eapp (econst C) M1) (eapp (econst C) M2) et] ->
+    [g |- equiv M1 M2 A] =
+/ total /
+?
+;

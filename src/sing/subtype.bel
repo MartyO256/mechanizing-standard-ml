@@ -1,0 +1,46 @@
+% Subtyping and Coercions
+
+LF subtype : tp -> tp -> (atom -> term) -> type =
+| subtype/t: subtype t t (\x. at x)
+
+| subtype/pi:
+  subtype B1 A1 (\x. M1 x) ->
+  ({ x : atom } tsub A2 (M1 x) (A2' x)) ->
+  ({ x : atom } subtype (A2' x) (B2 x) (\y. M2 x y)) ->
+    subtype (pi A1 A2) (pi B1 B2) (\f. lam (\x. M2 x (app f (M1 x))))
+
+| subtype/sigma:
+  subtype A1 B1 (\x. M1 x) ->
+  ({ x : atom } tsub B2 (M1 x) (B2' x)) ->
+  ({ x : atom } subtype (A2 x) (B2' x) (\y. M2 x y)) ->
+    subtype
+      (sigma A1 A2)
+      (sigma B1 B2)
+      (\p. pair (M1 (pi1 p)) (M2 (pi1 p) (pi2 p)))
+
+| subtype/sing_t: subtype (sing R) t (\x. at R)
+
+| subtype/sing: subtype (sing R) (sing R) (\x. at R)
+
+| subtype/one: subtype one one (\x. star)
+;
+
+% Selfification
+
+LF self : term -> tp -> tp -> type =
+| self/t : self (at R) t (sing R)
+
+| self/pi :
+  ({ x : atom } self (M x) (B x) (B' x)) ->
+    self (lam (\x. M x)) (pi A (\x. B x)) (pi A (\x. B' x))
+
+| self/sigma :
+  self M A A' ->
+  tsub B M B' ->
+  self N B' B'' ->
+    self (pair M N) (sigma A (\x. B x)) (sigma A' (\l. B''))
+
+| self/sing : self (at R) (sing R) (sing R)
+
+| self/one : self star one one
+;

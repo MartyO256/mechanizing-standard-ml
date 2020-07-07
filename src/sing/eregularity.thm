@@ -1,0 +1,58 @@
+schema eregularity-ctx =
+  % nbind
+  some [a : tp, ea : etp]
+  block (
+      x : atom, d : vof x a,
+      ex : eterm, xt : vtrans ex x,
+      ed : evof ex ea
+  ) +
+  % ebind
+  some [ea : etp]
+  block (ex : eterm, ed : evof ex ea) +
+  % etopenblock
+  some [a : skel, x : eterm]
+  block (xc : catom, d : etopenr sc a x);
+
+LF subtp-reg/e : etp -> etp -> type =
+| subtp-reg/i :
+  ewf A -> ewf B -> subtp-reg/e A B
+;
+
+LF tequiv-reg/e : etp -> etp -> type =
+| tequiv-reg/i :
+  ewf A -> ewf B -> tequiv-reg/e A B
+;
+
+LF equiv-reg/e : eterm -> eterm -> etp -> type =
+| equiv-reg/i :
+  eof M A -> eof N A -> ewf A -> equiv-reg/e M N A
+;
+
+proof eof-reg :
+  (g : eregularity-ctx)
+  [g |- eof M A] ->
+    [g |- ewf A] =
+/ total 1 /
+?
+
+and proof subtp-reg :
+  (g : eregularity-ctx)
+  [g |- subtp A B] ->
+    [g |- subtp-reg/e A B] =
+/ total 1 /
+?
+
+and proof tequiv-reg :
+  (g : eregularity-ctx)
+  [g |- tequiv A B] ->
+    [g |- tequiv-reg/e A B] =
+/ total 1 /
+?
+
+and proof equiv-reg :
+  (g : eregularity-ctx)
+  [g |- equiv M N A] ->
+    [g |- equiv-reg/e M N A] =
+/ total 1 /
+?
+;
