@@ -269,6 +269,17 @@ and ekof : constant -> etp -> type =
 | ekof/i : ckof K Ac -> etopen Ac A -> ekof K A
 ;
 
+--name ewf Dwf wf.
+--name eof Dof eof.
+--name equiv Dequiv equiv.
+--name tequiv Dtequiv tequiv.
+--name subtp Dsub sub.
+--name etp-skel Dskel skel.
+--name etopen Detopen etopen.
+--name etopenr Detopen etopenr.
+--name etopenm Detopen etopenm.
+--name ekof Dekof ekof.
+
 % Schemas
 
 schema evar = block (ex : eterm);
