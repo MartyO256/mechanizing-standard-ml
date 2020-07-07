@@ -33,7 +33,202 @@ proof eof-reg :
   [g |- eof M A] ->
     [g |- ewf A] =
 / total 1 /
-?
+intros
+{ g : eregularity-ctx, M : (g |- eterm), A : (g |- etp)
+| x : [g |- eof M A]
+; split x as
+  case eof/subsume:
+  { g : eregularity-ctx,
+    M : (g |- eterm),
+    A : (g |- etp),
+    A1 : (g |- etp),
+    Dof : (g |- eof M A1),
+    Dsub : (g |- subtp A1 A)
+  | x : [g |- eof M A]
+  ; split subtp-reg [_ |- Dsub] as
+    case subtp-reg/i:
+    { g : eregularity-ctx,
+      M : (g |- eterm),
+      A : (g |- etp),
+      A1 : (g |- etp),
+      Dof : (g |- eof M A1),
+      Dsub : (g |- subtp A1 A),
+      Dwf : (g |- ewf A1),
+      Dwf1 : (g |- ewf A)
+    | x : [g |- eof M A]
+    ; solve [_ |- Dwf1]
+    }
+  }
+  case eof/extsigma:
+  { g : eregularity-ctx,
+    M : (g |- eterm),
+    A1 : (g |- etp),
+    A2 : (g, x168 : eterm |- etp),
+    Dof : (g |- eof (epi1 M) A1),
+    Dof1 : (g |- eof (epi2 M) (A2[.., epi1 M])),
+    Dwf : (g, x : eterm, y168 : evof x (A1[..]) |- ewf (A2[.., x]))
+  | x : [g |- eof M (esigma A1 (\y143. A2))]
+  ; by eof-reg [_ |- Dof] as DwfA unboxed;
+    solve [_ |- ewf/sigma DwfA (\x. \d. Dwf)]
+  }
+  case eof/extpi:
+  { g : eregularity-ctx,
+    M : (g |- eterm),
+    A1 : (g |- etp),
+    A3 : (g, z166 : eterm |- etp),
+    A2 : (g, x166 : eterm |- etp),
+    Dof : (g |- eof M (epi A1 (\y142. A2))),
+    Dof1 :
+      (g, x : eterm, y166 : evof x (A1[..]) |-
+         eof (eapp (M[..]) x) (A3[.., x]))
+  | x : [g |- eof M (epi A1 (\y142. A3))]
+  ; split eof-reg [g |- Dof] as
+    case ewf/pi:
+    { g : eregularity-ctx,
+      M : (g |- eterm),
+      A1 : (g |- etp),
+      A3 : (g, z166 : eterm |- etp),
+      A2 : (g, x166 : eterm |- etp),
+      Dof : (g |- eof M (epi A1 (\y142. A2))),
+      Dof1 :
+        (g, x : eterm, y166 : evof x (A1[..]) |-
+           eof (eapp (M[..]) x) (A3[.., x])),
+      Dwf : (g |- ewf A1),
+      Dwf1 : (g, x : eterm, z155 : evof x (A1[..]) |- ewf (A2[.., x]))
+    | x : [g |- eof M (epi A1 (\y142. A3))]
+    ; by eof-reg
+           [g, b : block (x : eterm, ed : evof x (A1[..])) |-
+              Dof1[.., b.1, b.2]]
+      as DwfB unboxed;
+      solve [g |- ewf/pi Dwf (\x. \ed. DwfB[.., <x; ed>])]
+    }
+  }
+  case eof/star:
+  { g : eregularity-ctx
+  | x : [g |- eof estar eone]
+  ; solve [g |- ewf/one]
+  }
+  case eof/sing:
+  { g : eregularity-ctx, M : (g |- eterm), Dof : (g |- eof M et)
+  | x : [g |- eof M (esing M)]
+  ; solve [g |- ewf/sing Dof]
+  }
+  case eof/pi2:
+  { g : eregularity-ctx,
+    M1 : (g |- eterm),
+    A2 : (g, z164 : eterm |- etp),
+    A1 : (g |- etp),
+    Dof : (g |- eof M1 (esigma A1 (\y143. A2)))
+  | x : [g |- eof (epi2 M1) (A2[.., epi1 M1])]
+  ; split eof-reg [g |- Dof] as
+    case ewf/sigma:
+    { g : eregularity-ctx,
+      M1 : (g |- eterm),
+      A2 : (g, z164 : eterm |- etp),
+      A1 : (g |- etp),
+      Dof : (g |- eof M1 (esigma A1 (\y143. A2))),
+      Dwf : (g |- ewf A1),
+      Dwf1 : (g, x : eterm, y157 : evof x (A1[..]) |- ewf (A2[.., x]))
+    | x : [g |- eof (epi2 M1) (A2[.., epi1 M1])]
+    ; %{ FIXME: Solution contains uninstantiated metavariables.
+          solve [_|-Dwf1[.., epi1 M1, _]]
+      }%
+      ?
+    }
+  }
+  case eof/pi1:
+  { g : eregularity-ctx,
+    M1 : (g |- eterm),
+    A : (g |- etp),
+    A2 : (g, y164 : eterm |- etp),
+    Dof : (g |- eof M1 (esigma A (\y143. A2)))
+  | x : [g |- eof (epi1 M1) A]
+  ; split eof-reg [g |- Dof] as
+    case ewf/sigma:
+    { g : eregularity-ctx,
+      M1 : (g |- eterm),
+      A : (g |- etp),
+      A2 : (g, y164 : eterm |- etp),
+      Dof : (g |- eof M1 (esigma A (\y143. A2))),
+      Dwf : (g |- ewf A),
+      Dwf1 : (g, x : eterm, y157 : evof x (A[..]) |- ewf (A2[.., x]))
+    | x : [g |- eof (epi1 M1) A]
+    ; solve [g |- Dwf]
+    }
+  }
+  case eof/pair:
+  { g : eregularity-ctx,
+    M1 : (g |- eterm),
+    M2 : (g |- eterm),
+    A1 : (g |- etp),
+    A2 : (g, x163 : eterm |- etp),
+    Dof : (g |- eof M1 A1),
+    Dof1 : (g |- eof M2 (A2[.., M1])),
+    Dwf : (g, x : eterm, y163 : evof x (A1[..]) |- ewf (A2[.., x]))
+  | x : [g |- eof (epair M1 M2) (esigma A1 (\y143. A2))]
+  ; by eof-reg [g |- Dof] as DwfA unboxed;
+    solve [g |- ewf/sigma DwfA (\x. \dx. Dwf)]
+  }
+  case eof/app:
+  { g : eregularity-ctx,
+    M1 : (g |- eterm),
+    M2 : (g |- eterm),
+    A2 : (g, z161 : eterm |- etp),
+    A1 : (g |- etp),
+    Dof : (g |- eof M1 (epi A1 (\y142. A2))),
+    Dof1 : (g |- eof M2 A1)
+  | x : [g |- eof (eapp M1 M2) (A2[.., M2])]
+  ; split eof-reg [g |- Dof] as
+    case ewf/pi:
+    { g : eregularity-ctx,
+      M1 : (g |- eterm),
+      M2 : (g |- eterm),
+      A2 : (g, z161 : eterm |- etp),
+      A1 : (g |- etp),
+      Dof : (g |- eof M1 (epi A1 (\y142. A2))),
+      Dof1 : (g |- eof M2 A1),
+      Dwf : (g |- ewf A1),
+      Dwf1 : (g, x : eterm, z155 : evof x (A1[..]) |- ewf (A2[.., x]))
+    | x : [g |- eof (eapp M1 M2) (A2[.., M2])]
+    ; %{ FIXME: Solution contains uninstantiated metavariables.
+          solve [g |- Dwf1[.., M2, _]]
+      }%
+      ?
+    }
+  }
+  case eof/lam:
+  { g : eregularity-ctx,
+    A1 : (g |- etp),
+    M1 : (g, x160 : eterm |- eterm),
+    A2 : (g, z160 : eterm |- etp),
+    Dwf : (g |- ewf A1),
+    Dof :
+      (g, x : eterm, y160 : evof x (A1[..]) |- eof (M1[.., x]) (A2[.., x]))
+  | x : [g |- eof (elam A1 (\y146. M1)) (epi A1 (\y142. A2))]
+  ; by eof-reg
+     [g, b : block (x : eterm, ed : evof x (A1[..])) |- Dof[.., b.1, b.2]]
+as DwfB unboxed;
+    solve [g |- ewf/pi Dwf (\x. \ed. DwfB[.., <x; ed>])]
+  }
+  case eof/const:
+  { g : eregularity-ctx,
+    K : ( |- constant),
+    A : (g |- etp),
+    Dekof : (g |- ekof K[] A),
+    Dwf : (g |- ewf A)
+  | x : [g |- eof (econst K[]) A]
+  ; solve [_ |- Dwf]
+  }
+  case eof/var:
+  { g : eregularity-ctx,
+    M : (g |- eterm),
+    A : (g |- etp),
+    X : (g |- evof M A),
+    Dwf : (g |- ewf A)
+  | x : [g |- eof M A]
+  ; solve [_ |- Dwf]
+  }
+}
 
 and proof subtp-reg :
   (g : eregularity-ctx)
