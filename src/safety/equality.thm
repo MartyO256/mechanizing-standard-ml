@@ -920,27 +920,43 @@ intros
 }
 ;
 
-proof kd-equiv-resp : [ |- kind-eq K1 K1'] ->
-                        [ |- kind-eq K2 K2'] ->
-                          [ |- kd-equiv K1 K2] -> [ |- kd-equiv K1' K2'] =
+schema conblock+conbind =
+  % conblock
+  block (a : con) +
+  % conbind
+  some [K : kind] block (a : con, d : cn-of a K);
+
+proof kd-equiv-resp :
+  (g : conblock+conbind)
+  [g |- kind-eq K1 K1'] ->
+  [g |- kind-eq K2 K2'] ->
+  [g |- kd-equiv K1 K2] ->
+    [g |- kd-equiv K1' K2'] =
 / total /
 intros
-{ K : ( |- kind), K1' : ( |- kind), K1 : ( |- kind), K2' : ( |- kind)
-| eq : [ |- kind-eq K K1'],
-  eq1 : [ |- kind-eq K1 K2'],
-  equiv : [ |- kd-equiv K K1]
+{ g : conblock+conbind,
+  K : (g |- kind),
+  K1' : (g |- kind),
+  K1 : (g |- kind),
+  K2' : (g |- kind)
+| eq : [g |- kind-eq K K1'],
+  eq1 : [g |- kind-eq K1 K2'],
+  equiv : [g |- kd-equiv K K1]
 ; split eq as
   case kind-eq/i:
-  { K1' : ( |- kind), K1 : ( |- kind), K2' : ( |- kind)
-  | eq : [ |- kind-eq K1' K1'],
-    eq1 : [ |- kind-eq K1 K2'],
-    equiv : [ |- kd-equiv K1' K1]
+  { g : conblock+conbind,
+    K1' : (g |- kind),
+    K1 : (g |- kind),
+    K2' : (g |- kind)
+  | eq : [g |- kind-eq K1' K1'],
+    eq1 : [g |- kind-eq K1 K2'],
+    equiv : [g |- kd-equiv K1' K1]
   ; split eq1 as
     case kind-eq/i:
-    { K1' : ( |- kind), K2' : ( |- kind)
-    | eq : [ |- kind-eq K1' K1'],
-      eq1 : [ |- kind-eq K2' K2'],
-      equiv : [ |- kd-equiv K1' K2']
+    { g : conblock+conbind, K1' : (g |- kind), K2' : (g |- kind)
+    | eq : [g |- kind-eq K1' K1'],
+      eq1 : [g |- kind-eq K2' K2'],
+      equiv : [g |- kd-equiv K1' K2']
     ; solve equiv
     }
   }
