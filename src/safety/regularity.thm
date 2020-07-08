@@ -2374,3 +2374,85 @@ intros
   }
 }
 ;
+
+% Signature Fst Regularity
+
+LF can-sg-fst/e : sg -> type =
+| can-sg-fst/i : { K : kind } sg-fst S K -> can-sg-fst/e S
+;
+
+proof can-sg-fst :
+  (g : conblock)
+  { S : [g |- sg] }
+  [g |- can-sg-fst/e S] =
+/ total 1 /
+intros
+{ g : conblock, S : (g |- sg)
+| 
+; split [_ |- S] as
+  case sg/named:
+  { g : conblock, L : ( |- name), S1 : (g |- sg)
+  | 
+  ; split can-sg-fst [_ |- S1] as
+    case can-sg-fst/i:
+    { g : conblock,
+      L : ( |- name),
+      S1 : (g |- sg),
+      K : (g |- kind),
+      Dfst : (g |- sg-fst S1 K)
+    | 
+    ; solve [_ |- can-sg-fst/i K (sg-fst/named Dfst)]
+    }
+  }
+  case sg/sigma:
+  { g : conblock, S1 : (g |- sg), S2 : (g, z354 : con |- sg)
+  | 
+  ; split can-sg-fst [_ |- S1] as
+    case can-sg-fst/i:
+    { g : conblock,
+      S1 : (g |- sg),
+      S2 : (g, z354 : con |- sg),
+      K : (g |- kind),
+      Dfst : (g |- sg-fst S1 K)
+    | 
+    ; split can-sg-fst [_, a : con |- S2] as
+      case can-sg-fst/i:
+      { g : conblock,
+        S1 : (g |- sg),
+        S2 : (g, z354 : con |- sg),
+        K : (g |- kind),
+        Dfst : (g |- sg-fst S1 K),
+        K1 : (g, a : con |- kind),
+        Dfst1 : (g, a : con |- sg-fst S2 K1)
+      | 
+      ; solve [_ |- can-sg-fst/i _ (sg-fst/sigma Dfst (\a. Dfst1))]
+      }
+    }
+  }
+  case sg/pi:
+  { g : conblock, S1 : (g |- sg), S2 : (g, z353 : con |- sg)
+  | 
+  ; solve [_ |- can-sg-fst/i _ (sg-fst/pi )]
+  }
+  case sg/sgatom:
+  { g : conblock, S1 : (g |- sg)
+  | 
+  ; solve [_ |- can-sg-fst/i _ (sg-fst/sgatom )]
+  }
+  case sg/datom:
+  { g : conblock, C : (g |- con)
+  | 
+  ; solve [_ |- can-sg-fst/i _ (sg-fst/datom )]
+  }
+  case sg/satom:
+  { g : conblock, K : (g |- kind)
+  | 
+  ; solve [_ |- can-sg-fst/i _ (sg-fst/satom )]
+  }
+  case sg/one:
+  { g : conblock
+  | 
+  ; solve [_ |- can-sg-fst/i _ sg-fst/one]
+  }
+}
+;
