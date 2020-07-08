@@ -1078,7 +1078,33 @@ intros
            cn-equiv
              (rec' K1 (\y347. \x347. C2) C4)
              (rec' K2 (\y347. \x347. C3) C5) t]
-    ; ?
+    ; split cn-equiv-reg [g |- Dequiv2] as
+      case cn-equiv-reg/i:
+      { g : conbind-reg,
+        K1 : (g |- kind),
+        C2 : (g, a32 : con, a31 : con |- con),
+        C4 : (g |- con),
+        K2 : (g |- kind),
+        C3 : (g, a34 : con, a33 : con |- con),
+        C5 : (g |- con),
+        Dequiv : (g |- kd-equiv K1 K2),
+        Dequiv1 :
+          (g, a : con, x429 : cn-of a (pi (K1[..]) (\l. t)), b : con,
+           z429 : cn-of b (K1[..]) |-
+             cn-equiv (C2[.., a, b]) (C3[.., a, b]) t),
+        Dequiv2 : (g |- cn-equiv C4 C5 K1),
+        Dwf : (g |- kd-wf K1),
+        Dwf1 : (g |- kd-wf K2),
+        Dof : (g |- cn-of C4 K1),
+        Dof1 : (g |- cn-of C5 K1),
+        Dwf2 : (g |- kd-wf K1)
+      | x :
+          [g |-
+             cn-equiv
+               (rec' K1 (\z357. \y358. C2) C4)
+               (rec' K2 (\z357. \y358. C3) C5) t]
+      ; ? % FIXME: See https://github.com/Beluga-lang/Beluga/issues/228
+      }
     }
   }
   case cn-equiv/tag:
@@ -1392,7 +1418,14 @@ as Dof2' unboxed;
                (lam K1 (\x342. C4)) (lam K2 (\x342. C5)) (pi K1 (\y339. K4))]
       ; by [g |- cn-of/lam Dwf (\a. \da. Dof)] as Dof1' unboxed;
         by [g |- kd-wf/pi Dwf (\a. \da. Dwf2)] as Dwf' unboxed;
-        ?
+        by [g |- cn-of/lam Dwf1 (\a. \da. Dof1[.., a, _])] as Dof2'' unboxed;
+        by [g |-
+              kd-equiv/pi (kd-equiv/symm Dequiv)
+              (\a. \da. kd-equiv/refl (Dwf2[.., a, _]))]
+        as Dequiv' unboxed;
+        by cn-of/equiv/conbind-reg [g |- Dof2''] [g |- Dequiv']
+        as Dof2' unboxed;
+        solve [g |- cn-equiv-reg/i Dof1' Dof2' Dwf']
       }
     }
   }
