@@ -2388,11 +2388,11 @@ proof can-sg-fst :
 / total 1 /
 intros
 { g : conblock, S : (g |- sg)
-| 
+|
 ; split [_ |- S] as
   case sg/named:
   { g : conblock, L : ( |- name), S1 : (g |- sg)
-  | 
+  |
   ; split can-sg-fst [_ |- S1] as
     case can-sg-fst/i:
     { g : conblock,
@@ -2400,13 +2400,13 @@ intros
       S1 : (g |- sg),
       K : (g |- kind),
       Dfst : (g |- sg-fst S1 K)
-    | 
+    |
     ; solve [_ |- can-sg-fst/i K (sg-fst/named Dfst)]
     }
   }
   case sg/sigma:
   { g : conblock, S1 : (g |- sg), S2 : (g, z354 : con |- sg)
-  | 
+  |
   ; split can-sg-fst [_ |- S1] as
     case can-sg-fst/i:
     { g : conblock,
@@ -2414,7 +2414,7 @@ intros
       S2 : (g, z354 : con |- sg),
       K : (g |- kind),
       Dfst : (g |- sg-fst S1 K)
-    | 
+    |
     ; split can-sg-fst [_, a : con |- S2] as
       case can-sg-fst/i:
       { g : conblock,
@@ -2424,35 +2424,191 @@ intros
         Dfst : (g |- sg-fst S1 K),
         K1 : (g, a : con |- kind),
         Dfst1 : (g, a : con |- sg-fst S2 K1)
-      | 
+      |
       ; solve [_ |- can-sg-fst/i _ (sg-fst/sigma Dfst (\a. Dfst1))]
       }
     }
   }
   case sg/pi:
   { g : conblock, S1 : (g |- sg), S2 : (g, z353 : con |- sg)
-  | 
+  |
   ; solve [_ |- can-sg-fst/i _ (sg-fst/pi )]
   }
   case sg/sgatom:
   { g : conblock, S1 : (g |- sg)
-  | 
+  |
   ; solve [_ |- can-sg-fst/i _ (sg-fst/sgatom )]
   }
   case sg/datom:
   { g : conblock, C : (g |- con)
-  | 
+  |
   ; solve [_ |- can-sg-fst/i _ (sg-fst/datom )]
   }
   case sg/satom:
   { g : conblock, K : (g |- kind)
-  | 
+  |
   ; solve [_ |- can-sg-fst/i _ (sg-fst/satom )]
   }
   case sg/one:
   { g : conblock
-  | 
+  |
   ; solve [_ |- can-sg-fst/i _ sg-fst/one]
+  }
+}
+;
+
+proof sg-fst-fun :
+  (g : conblock)
+  [g |- sg-fst S K] ->
+  [g |- sg-fst S K'] ->
+    [g |- kind-eq K K'] =
+/ total 1 /
+intros
+{ g : conblock, S : (g |- sg), K : (g |- kind), K' : (g |- kind)
+| x : [g |- sg-fst S K], fst : [g |- sg-fst S K']
+; split x as
+  case sg-fst/named:
+  { g : conblock,
+    L : ( |- name),
+    S1 : (g |- sg),
+    K : (g |- kind),
+    K' : (g |- kind),
+    Dfst : (g |- sg-fst S1 K)
+  | x : [g |- sg-fst (sg/named L[] S1) K],
+    fst : [g |- sg-fst (sg/named L[] S1) K']
+  ; split fst as
+    case sg-fst/named:
+    { g : conblock,
+      L : ( |- name),
+      S1 : (g |- sg),
+      K : (g |- kind),
+      K' : (g |- kind),
+      Dfst : (g |- sg-fst S1 K),
+      Dfst1 : (g |- sg-fst S1 K')
+    | x : [g |- sg-fst (sg/named L[] S1) K],
+      fst : [g |- sg-fst (sg/named L[] S1) K']
+    ; by sg-fst-fun [_ |- Dfst] [_ |- Dfst1] as Deq unboxed;
+      solve [_ |- Deq]
+    }
+  }
+  case sg-fst/sigma:
+  { g : conblock,
+    S1 : (g |- sg),
+    S2 : (g, a58 : con |- sg),
+    K1 : (g |- kind),
+    K2 : (g, a59 : con |- kind),
+    K' : (g |- kind),
+    Dfst : (g |- sg-fst S1 K1),
+    Dfst1 : (g, a : con |- sg-fst S2 K2)
+  | x : [g |- sg-fst (sg/sigma S1 (\z354. S2)) (sigma K1 (\y340. K2))],
+    fst : [g |- sg-fst (sg/sigma S1 (\z354. S2)) K']
+  ; split fst as
+    case sg-fst/sigma:
+    { g : conblock,
+      S1 : (g |- sg),
+      S2 : (g, a58 : con |- sg),
+      K1 : (g |- kind),
+      K2 : (g, a59 : con |- kind),
+      K3 : (g |- kind),
+      K4 : (g, a59 : con |- kind),
+      Dfst : (g |- sg-fst S1 K1),
+      Dfst1 : (g, a : con |- sg-fst S2 K2),
+      Dfst2 : (g |- sg-fst S1 K3),
+      Dfst3 : (g, a : con |- sg-fst S2 K4)
+    | x : [g |- sg-fst (sg/sigma S1 (\z354. S2)) (sigma K1 (\y340. K2))],
+      fst : [g |- sg-fst (sg/sigma S1 (\z354. S2)) (sigma K3 (\y340. K4))]
+    ; by sg-fst-fun [_ |- Dfst] [_ |- Dfst2] as Deq1 unboxed;
+      by sg-fst-fun [_, a : con |- Dfst1] [_, a : con |- Dfst3]
+      as Deq2 unboxed;
+      split [_ |- Deq1] as
+      case kind-eq/i:
+      { g : conblock,
+        S1 : (g |- sg),
+        S2 : (g, a58 : con |- sg),
+        K3 : (g |- kind),
+        K2 : (g, a59 : con |- kind),
+        K4 : (g, a59 : con |- kind),
+        Dfst : (g |- sg-fst S1 K3),
+        Dfst1 : (g, a : con |- sg-fst S2 K2),
+        Dfst2 : (g |- sg-fst S1 K3),
+        Dfst3 : (g, a : con |- sg-fst S2 K4),
+        Deq2 : (g, a : con |- kind-eq K2 K4)
+      | x : [g |- sg-fst (sg/sigma S1 (\z354. S2)) (sigma K3 (\y340. K2))],
+        fst : [g |- sg-fst (sg/sigma S1 (\z354. S2)) (sigma K3 (\y340. K4))]
+      ; split [_, a : con |- Deq2] as
+        case kind-eq/i:
+        { g : conblock,
+          S1 : (g |- sg),
+          S2 : (g, a58 : con |- sg),
+          K3 : (g |- kind),
+          K4 : (g, a59 : con |- kind),
+          Dfst : (g |- sg-fst S1 K3),
+          Dfst1 : (g, a : con |- sg-fst S2 K4),
+          Dfst2 : (g |- sg-fst S1 K3),
+          Dfst3 : (g, a : con |- sg-fst S2 K4)
+        | x : [g |- sg-fst (sg/sigma S1 (\z354. S2)) (sigma K3 (\y340. K4))],
+          fst :
+            [g |- sg-fst (sg/sigma S1 (\z354. S2)) (sigma K3 (\y340. K4))]
+        ; solve [_ |- kind-eq/i ]
+        }
+      }
+    }
+  }
+  case sg-fst/pi:
+  { g : conblock, S1 : (g |- sg), S2 : (g, a57 : con |- sg), K' : (g |- kind)
+  | x : [g |- sg-fst (sg/pi S1 (\z353. S2)) one],
+    fst : [g |- sg-fst (sg/pi S1 (\z353. S2)) K']
+  ; split fst as
+    case sg-fst/pi:
+    { g : conblock, S1 : (g |- sg), S2 : (g, a57 : con |- sg)
+    | x : [g |- sg-fst (sg/pi S1 (\z353. S2)) one],
+      fst : [g |- sg-fst (sg/pi S1 (\z353. S2)) one]
+    ; solve [_ |- kind-eq/i ]
+    }
+  }
+  case sg-fst/sgatom:
+  { g : conblock, S1 : (g |- sg), K' : (g |- kind)
+  | x : [g |- sg-fst (sg/sgatom S1) one],
+    fst : [g |- sg-fst (sg/sgatom S1) K']
+  ; split fst as
+    case sg-fst/sgatom:
+    { g : conblock, S1 : (g |- sg)
+    | x : [g |- sg-fst (sg/sgatom S1) one],
+      fst : [g |- sg-fst (sg/sgatom S1) one]
+    ; solve [_ |- kind-eq/i ]
+    }
+  }
+  case sg-fst/datom:
+  { g : conblock, C : (g |- con), K' : (g |- kind)
+  | x : [g |- sg-fst (sg/datom C) one], fst : [g |- sg-fst (sg/datom C) K']
+  ; split fst as
+    case sg-fst/datom:
+    { g : conblock, C : (g |- con)
+    | x : [g |- sg-fst (sg/datom C) one],
+      fst : [g |- sg-fst (sg/datom C) one]
+    ; solve [_ |- kind-eq/i ]
+    }
+  }
+  case sg-fst/satom:
+  { g : conblock, K : (g |- kind), K' : (g |- kind)
+  | x : [g |- sg-fst (sg/satom K) K], fst : [g |- sg-fst (sg/satom K) K']
+  ; split fst as
+    case sg-fst/satom:
+    { g : conblock, K' : (g |- kind)
+    | x : [g |- sg-fst (sg/satom K') K'],
+      fst : [g |- sg-fst (sg/satom K') K']
+    ; solve [_ |- kind-eq/i ]
+    }
+  }
+  case sg-fst/one:
+  { g : conblock, K' : (g |- kind)
+  | x : [g |- sg-fst sg/one one], fst : [g |- sg-fst sg/one K']
+  ; split fst as
+    case sg-fst/one:
+    { g : conblock
+    | x : [g |- sg-fst sg/one one], fst : [g |- sg-fst sg/one one]
+    ; solve [_ |- kind-eq/i ]
+    }
   }
 }
 ;
