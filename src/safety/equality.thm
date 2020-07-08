@@ -964,28 +964,33 @@ intros
 ;
 
 proof kd-sub-resp :
-  [ |- kind-eq K1 K1'] ->
-  [ |- kind-eq K2 K2'] ->
-  [ |- kd-sub K1 K2] ->
-    [ |- kd-sub K1' K2'] =
+  (g : conbind)
+  [g |- kind-eq K1 K1'] ->
+  [g |- kind-eq K2 K2'] ->
+  [g |- kd-sub K1 K2] ->
+    [g |- kd-sub K1' K2'] =
 / total /
 intros
-{ K : ( |- kind), K1' : ( |- kind), K1 : ( |- kind), K2' : ( |- kind)
-| eq : [ |- kind-eq K K1'],
-  eq1 : [ |- kind-eq K1 K2'],
-  sub : [ |- kd-sub K K1]
+{ g : conbind,
+  K : (g |- kind),
+  K1' : (g |- kind),
+  K1 : (g |- kind),
+  K2' : (g |- kind)
+| eq : [g |- kind-eq K K1'],
+  eq1 : [g |- kind-eq K1 K2'],
+  sub : [g |- kd-sub K K1]
 ; split eq as
   case kind-eq/i:
-  { K1' : ( |- kind), K1 : ( |- kind), K2' : ( |- kind)
-  | eq : [ |- kind-eq K1' K1'],
-    eq1 : [ |- kind-eq K1 K2'],
-    sub : [ |- kd-sub K1' K1]
+  { g : conbind, K1' : (g |- kind), K1 : (g |- kind), K2' : (g |- kind)
+  | eq : [g |- kind-eq K1' K1'],
+    eq1 : [g |- kind-eq K1 K2'],
+    sub : [g |- kd-sub K1' K1]
   ; split eq1 as
     case kind-eq/i:
-    { K1' : ( |- kind), K2' : ( |- kind)
-    | eq : [ |- kind-eq K1' K1'],
-      eq1 : [ |- kind-eq K2' K2'],
-      sub : [ |- kd-sub K1' K2']
+    { g : conbind, K1' : (g |- kind), K2' : (g |- kind)
+    | eq : [g |- kind-eq K1' K1'],
+      eq1 : [g |- kind-eq K2' K2'],
+      sub : [g |- kd-sub K1' K2']
     ; solve sub
     }
   }
