@@ -54,7 +54,7 @@ and kd-sub : kind -> kind -> type =
     kd-sub (pi K1 K2) (pi K1' K2')
 
 | kd-sub/sigma :
-  kd-sub K1' K1 ->
+  kd-sub K1 K1' ->
     ({ a : con } cn-of a K1 -> kd-sub (K2 a) (K2' a)) ->
     ({ a : con } cn-of a K1' -> kd-wf (K2' a)) ->
     kd-sub (sigma K1 K2) (sigma K1' K2')
