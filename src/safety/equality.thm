@@ -282,17 +282,23 @@ intros
 }
 ;
 
-proof kind-resp-kind : { K : [ k : kind |- kind] } [ |- kind-eq K1 K1'] ->
-                         [ |- kind-eq (K[K1]) (K[K1'])] =
+proof kind-resp-kind :
+  (g : conblock)
+  { K : [g, k : kind |- kind] }
+  [g |- kind-eq K1 K1'] ->
+    [g |- kind-eq (K[.., K1]) (K[.., K1'])] =
 / total /
 intros
-{ K : ( |- kind), K1' : ( |- kind), K1 : (k : kind |- kind)
-| eq : [ |- kind-eq K K1']
+{ g : conblock,
+  K : (g |- kind),
+  K1' : (g |- kind),
+  K1 : (g, k : kind |- kind)
+| eq : [g |- kind-eq K K1']
 ; split eq as
   case kind-eq/i:
-  { K1' : ( |- kind), K1 : (k : kind |- kind)
-  | eq : [ |- kind-eq K1' K1']
-  ; solve [ |- kind-eq/i ]
+  { g : conblock, K1' : (g |- kind), K1 : (g, k : kind |- kind)
+  | eq : [g |- kind-eq K1' K1']
+  ; solve [_ |- kind-eq/i ]
   }
 }
 ;
@@ -970,15 +976,19 @@ intros
 }
 ;
 
-proof kd-wf-resp : [ |- kind-eq K K'] -> [ |- kd-wf K] -> [ |- kd-wf K'] =
+proof kd-wf-resp :
+  (g : conbind)
+  [g |- kind-eq K K'] ->
+  [g |- kd-wf K] ->
+    [g |- kd-wf K'] =
 / total /
 intros
-{ K : ( |- kind), K' : ( |- kind)
-| eq : [ |- kind-eq K K'], wf : [ |- kd-wf K]
+{ g : conbind, K : (g |- kind), K' : (g |- kind)
+| eq : [g |- kind-eq K K'], wf : [g |- kd-wf K]
 ; split eq as
   case kind-eq/i:
-  { K' : ( |- kind)
-  | eq : [ |- kind-eq K' K'], wf : [ |- kd-wf K']
+  { g : conbind, K' : (g |- kind)
+  | eq : [g |- kind-eq K' K'], wf : [g |- kd-wf K']
   ; solve wf
   }
 }

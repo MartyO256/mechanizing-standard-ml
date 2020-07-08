@@ -2612,3 +2612,142 @@ intros
   }
 }
 ;
+
+proof sg-fst-reg :
+  (g : conbind)
+  [g |- sg-wf S] ->
+  [g |- sg-fst S K] ->
+    [g |- kd-wf K] =
+/ total 1 /
+intros
+{ g : conbind, S : (g |- sg), K : (g |- kind)
+| x : [g |- sg-wf S], fst : [g |- sg-fst S K]
+; split x as
+  case sg-wf/named:
+  { g : conbind,
+    L : ( |- name),
+    S1 : (g |- sg),
+    K : (g |- kind),
+    Dwf : (g |- sg-wf S1)
+  | x : [g |- sg-wf (sg/named L[] S1)],
+    fst : [g |- sg-fst (sg/named L[] S1) K]
+  ; split fst as
+    case sg-fst/named:
+    { g : conbind,
+      L : ( |- name),
+      S1 : (g |- sg),
+      K : (g |- kind),
+      Dwf : (g |- sg-wf S1),
+      Dfst : (g |- sg-fst S1 K)
+    | x : [g |- sg-wf (sg/named L[] S1)],
+      fst : [g |- sg-fst (sg/named L[] S1) K]
+    ; solve sg-fst-reg [_ |- Dwf] [_ |- Dfst]
+    }
+  }
+  case sg-wf/sigma:
+  { g : conbind,
+    S1 : (g |- sg),
+    S2 : (g, a48 : con |- sg),
+    K : (g |- kind),
+    K1 : (g |- kind),
+    Dwf : (g |- sg-wf S1),
+    Dfst : (g |- sg-fst S1 K1),
+    Dwf1 : (g, a : con, y479 : cn-of a (K1[..]) |- sg-wf (S2[.., a]))
+  | x : [g |- sg-wf (sg/sigma S1 (\x365. S2))],
+    fst : [g |- sg-fst (sg/sigma S1 (\x365. S2)) K]
+  ; split fst as
+    case sg-fst/sigma:
+    { g : conbind,
+      S1 : (g |- sg),
+      S2 : (g, a48 : con |- sg),
+      K2 : (g |- kind),
+      K3 : (g, a59 : con |- kind),
+      K1 : (g |- kind),
+      Dwf : (g |- sg-wf S1),
+      Dfst : (g |- sg-fst S1 K1),
+      Dwf1 : (g, a : con, y479 : cn-of a (K1[..]) |- sg-wf (S2[.., a])),
+      Dfst1 : (g |- sg-fst S1 K2),
+      Dfst2 : (g, a : con |- sg-fst S2 K3)
+    | x : [g |- sg-wf (sg/sigma S1 (\x365. S2))],
+      fst : [g |- sg-fst (sg/sigma S1 (\x365. S2)) (sigma K2 (\z350. K3))]
+    ; by sg-fst-reg [g |- Dwf] [g |- Dfst] as DwfK1 unboxed;
+      by sg-fst-reg
+           [g, b : block (a : con, da : cn-of a (K1[..])) |-
+              Dwf1[.., b.1, b.2]]
+           [g, b : block (a : con, da : cn-of a (K1[..])) |- Dfst2[.., b.1]]
+      as DwfK2 unboxed;
+      by sg-fst-fun [g |- Dfst] [g |- Dfst1] as DeqK1 unboxed;
+      by kind-resp-kind [g, k : kind |- sigma k (\a. K3[.., a])] [g |- DeqK1]
+as Deq unboxed;
+      by [g |- kd-wf/sigma DwfK1 (\a. \da. DwfK2[.., <a; da>])] as Dwf' unboxed;
+      solve kd-wf-resp [g |- Deq] [g |- Dwf']
+    }
+  }
+  case sg-wf/pi:
+  { g : conbind,
+    S1 : (g |- sg),
+    S2 : (g, a47 : con |- sg),
+    K : (g |- kind),
+    K1 : (g |- kind),
+    Dwf : (g |- sg-wf S1),
+    Dfst : (g |- sg-fst S1 K1),
+    Dwf1 : (g, a : con, z477 : cn-of a (K1[..]) |- sg-wf (S2[.., a]))
+  | x : [g |- sg-wf (sg/pi S1 (\x364. S2))],
+    fst : [g |- sg-fst (sg/pi S1 (\x364. S2)) K]
+  ; split fst as
+    case sg-fst/pi:
+    { g : conbind,
+      S1 : (g |- sg),
+      S2 : (g, a47 : con |- sg),
+      K1 : (g |- kind),
+      Dwf : (g |- sg-wf S1),
+      Dfst : (g |- sg-fst S1 K1),
+      Dwf1 : (g, a : con, z477 : cn-of a (K1[..]) |- sg-wf (S2[.., a]))
+    | x : [g |- sg-wf (sg/pi S1 (\x364. S2))],
+      fst : [g |- sg-fst (sg/pi S1 (\x364. S2)) one]
+    ; solve [g |- kd-wf/one]
+    }
+  }
+  case sg-wf/sgatom:
+  { g : conbind, S1 : (g |- sg), K : (g |- kind), Dwf : (g |- sg-wf S1)
+  | x : [g |- sg-wf (sg/sgatom S1)], fst : [g |- sg-fst (sg/sgatom S1) K]
+  ; split fst as
+    case sg-fst/sgatom:
+    { g : conbind, S1 : (g |- sg), Dwf : (g |- sg-wf S1)
+    | x : [g |- sg-wf (sg/sgatom S1)], fst : [g |- sg-fst (sg/sgatom S1) one]
+    ; solve [g |- kd-wf/one]
+    }
+  }
+  case sg-wf/datom:
+  { g : conbind, C : (g |- con), K : (g |- kind), Dof : (g |- cn-of C t)
+  | x : [g |- sg-wf (sg/datom C)], fst : [g |- sg-fst (sg/datom C) K]
+  ; split fst as
+    case sg-fst/datom:
+    { g : conbind, C : (g |- con), Dof : (g |- cn-of C t)
+    | x : [g |- sg-wf (sg/datom C)], fst : [g |- sg-fst (sg/datom C) one]
+    ; solve [g |- kd-wf/one]
+    }
+  }
+  case sg-wf/satom:
+  { g : conbind, K1 : (g |- kind), K : (g |- kind), Dwf : (g |- kd-wf K1)
+  | x : [g |- sg-wf (sg/satom K1)], fst : [g |- sg-fst (sg/satom K1) K]
+  ; split fst as
+    case sg-fst/satom:
+    { g : conbind, K : (g |- kind), Dwf : (g |- kd-wf K)
+    | x : [g |- sg-wf (sg/satom K)], fst : [g |- sg-fst (sg/satom K) K]
+    ; solve [g |- Dwf]
+    }
+  }
+  case sg-wf/one:
+  { g : conbind, K : (g |- kind)
+  | x : [g |- sg-wf sg/one], fst : [g |- sg-fst sg/one K]
+  ; split fst as
+    case sg-fst/one:
+    { g : conbind
+    | x : [g |- sg-wf sg/one], fst : [g |- sg-fst sg/one one]
+    ; solve [g |- kd-wf/one]
+    }
+  }
+}
+;
+
