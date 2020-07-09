@@ -725,3 +725,7 @@ LF store-of : sttp -> store -> sttp -> type =
 schema conblock = block (a : con);
 
 schema conbind = some [K : kind] block (a : con, d : cn-of a K);
+
+schema termblock = block (x : term);
+
+schema modblock = block (a : con, m : module', dfst : md-fst m a);

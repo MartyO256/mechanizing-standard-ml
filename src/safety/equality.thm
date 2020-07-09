@@ -143,17 +143,19 @@ intros
 
 % Transitivity
 
-proof con-eq-trans : [ |- con-eq C1 C2] ->
-                       [ |- con-eq C2 C3] ->
-                       [ |- con-eq C1 C3] =
+proof con-eq-trans :
+  (g : conblock)
+  [g |- con-eq C1 C2] ->
+  [g |- con-eq C2 C3] ->
+    [g |- con-eq C1 C3] =
 / total /
 intros
-{ C : ( |- con), C1 : ( |- con), C2 : ( |- con)
-| eq : [ |- con-eq C C1], eq1 : [ |- con-eq C1 C2]
+{ g : conblock, C : (g |- con), C1 : (g |- con), C2 : (g |- con)
+| eq : [g |- con-eq C C1], eq1 : [g |- con-eq C1 C2]
 ; split eq as
   case con-eq/i:
-  { C1 : ( |- con), C2 : ( |- con)
-  | eq : [ |- con-eq C1 C1], eq1 : [ |- con-eq C1 C2]
+  { g : conblock, C1 : (g |- con), C2 : (g |- con)
+  | eq : [g |- con-eq C1 C1], eq1 : [g |- con-eq C1 C2]
   ; solve eq1
   }
 }
@@ -209,44 +211,55 @@ intros
 
 % Cons Lemmas
 
-proof con-resp-con : { C : [ c : con |- con] } [ |- con-eq C1 C1'] ->
-                       [ |- con-eq (C[C1]) (C[C1'])] =
+proof con-resp-con :
+  (g : conblock)
+  { C : [g, c : con |- con] }
+  [g |- con-eq C1 C1'] ->
+    [g |- con-eq (C[.., C1]) (C[.., C1'])] =
 / total /
 intros
-{ C : ( |- con), C1' : ( |- con), C1 : (c : con |- con)
-| eq : [ |- con-eq C C1']
+{ g : conblock, C : (g |- con), C1' : (g |- con), C1 : (g, c : con |- con)
+| eq : [g |- con-eq C C1']
 ; split eq as
   case con-eq/i:
-  { C1' : ( |- con), C1 : (c : con |- con)
-  | eq : [ |- con-eq C1' C1']
-  ; solve [ |- con-eq/i ]
+  { g : conblock, C1' : (g |- con), C1 : (g, c : con |- con)
+  | eq : [g |- con-eq C1' C1']
+  ; solve [_ |- con-eq/i ]
   }
 }
 ;
 
-proof con-resp-con2 : { C : [ c1 : con, c2: con |- con] } [ |- con-eq C1 C1'] ->
-                        [ |- con-eq C2 C2'] ->
-                          [ |- con-eq (C[C1, C2]) (C[C1', C2'])] =
+proof con-resp-con2 :
+  (g : conblock)
+  { C : [g, c1 : con, c2: con |- con] }
+  [g |- con-eq C1 C1'] ->
+  [g |- con-eq C2 C2'] ->
+    [g |- con-eq (C[.., C1, C2]) (C[.., C1', C2'])] =
 / total /
 intros
-{ C : ( |- con),
-  C1' : ( |- con),
-  C1 : ( |- con),
-  C2' : ( |- con),
-  C2 : (c1 : con, c2 : con |- con)
-| eq : [ |- con-eq C C1'], eq1 : [ |- con-eq C1 C2']
+{ g : conblock,
+  C : (g |- con),
+  C1' : (g |- con),
+  C1 : (g |- con),
+  C2' : (g |- con),
+  C2 : (g, c1 : con, c2 : con |- con)
+| eq : [g |- con-eq C C1'], eq1 : [g |- con-eq C1 C2']
 ; split eq as
   case con-eq/i:
-  { C1' : ( |- con),
-    C1 : ( |- con),
-    C2' : ( |- con),
-    C2 : (c1 : con, c2 : con |- con)
-  | eq : [ |- con-eq C1' C1'], eq1 : [ |- con-eq C1 C2']
+  { g : conblock,
+    C1' : (g |- con),
+    C1 : (g |- con),
+    C2' : (g |- con),
+    C2 : (g, c1 : con, c2 : con |- con)
+  | eq : [g |- con-eq C1' C1'], eq1 : [g |- con-eq C1 C2']
   ; split eq1 as
     case con-eq/i:
-    { C1' : ( |- con), C2' : ( |- con), C2 : (c1 : con, c2 : con |- con)
-    | eq : [ |- con-eq C1' C1'], eq1 : [ |- con-eq C2' C2']
-    ; solve [ |- con-eq/i ]
+    { g : conblock,
+      C1' : (g |- con),
+      C2' : (g |- con),
+      C2 : (g, c1 : con, c2 : con |- con)
+    | eq : [g |- con-eq C1' C1'], eq1 : [g |- con-eq C2' C2']
+    ; solve [_ |- con-eq/i ]
     }
   }
 }

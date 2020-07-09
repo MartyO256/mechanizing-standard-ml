@@ -4059,3 +4059,331 @@ intros
   }
 }
 ;
+
+% Term/Module Regularity
+
+schema md-fst-fun-ctx =
+  % conblock
+  block (a : con) +
+  % termblock
+  block (x : term) +
+  % modblock
+  block (a : con, m : module', dfst : md-fst m a);
+
+proof md-fst-fun :
+  (g : md-fst-fun-ctx)
+  [g |- md-fst M C] ->
+  [g |- md-fst M C'] ->
+    [g |- con-eq C C'] =
+/ total 1 /
+intros
+{ g : md-fst-fun-ctx, M : (g |- module'), C : (g |- con), C' : (g |- con)
+| x : [g |- md-fst M C], fst : [g |- md-fst M C']
+; split x as
+  case md-fst/lete:
+  { g : md-fst-fun-ctx,
+    E : (g |- term),
+    C2 : (g |- con),
+    M1 : (g, x8 : term |- module'),
+    C : (g |- con),
+    C' : (g |- con),
+    Dfst : (g, x : term |- md-fst M1 (C[..]))
+  | x : [g |- md-fst (md/lete E C2 (\x. M1)) C],
+    fst : [g |- md-fst (md/lete E C2 (\x. M1)) C']
+  ; split fst as
+    case md-fst/lete:
+    { g : md-fst-fun-ctx,
+      E : (g |- term),
+      C2 : (g |- con),
+      M1 : (g, x8 : term |- module'),
+      C : (g |- con),
+      C' : (g |- con),
+      Dfst : (g, x : term |- md-fst M1 (C[..])),
+      Dfst1 : (g, x : term |- md-fst M1 (C'[..]))
+    | x : [g |- md-fst (md/lete E C2 (\x. M1)) C],
+      fst : [g |- md-fst (md/lete E C2 (\x. M1)) C']
+    ; by md-fst-fun [_, x : term |- Dfst] [_, x : term |- Dfst1]
+      as Deq unboxed;
+      solve [_ |- Deq[.., E]]
+    }
+  }
+  case md-fst/letp:
+  { g : md-fst-fun-ctx,
+    M1 : (g |- module'),
+    M2 : (g, a73 : con, m7 : module' |- module'),
+    C2 : (g, a74 : con |- con),
+    C1 : (g |- con),
+    C' : (g |- con),
+    Dfst : (g |- md-fst M1 C1),
+    Dfst1 :
+      (g, a : con, m : module', z511 : md-fst m a |-
+         md-fst (M2[.., a, m]) (C2[.., a]))
+  | x : [g |- md-fst (md/letp M1 (\a. \m. M2)) (C2[.., C1])],
+    fst : [g |- md-fst (md/letp M1 (\a. \m. M2)) C']
+  ; split fst as
+    case md-fst/letp:
+    { g : md-fst-fun-ctx,
+      M1 : (g |- module'),
+      M2 : (g, a73 : con, m7 : module' |- module'),
+      C2 : (g, a74 : con |- con),
+      C1 : (g |- con),
+      C4 : (g, a74 : con |- con),
+      C3 : (g |- con),
+      Dfst : (g |- md-fst M1 C1),
+      Dfst1 :
+        (g, a : con, m : module', z511 : md-fst m a |-
+           md-fst (M2[.., a, m]) (C2[.., a])),
+      Dfst2 : (g |- md-fst M1 C3),
+      Dfst3 :
+        (g, a : con, m : module', z511 : md-fst m a |-
+           md-fst (M2[.., a, m]) (C4[.., a]))
+    | x : [g |- md-fst (md/letp M1 (\a. \m. M2)) (C2[.., C1])],
+      fst : [g |- md-fst (md/letp M1 (\a. \m. M2)) (C4[.., C3])]
+    ; by md-fst-fun [g |- Dfst] [g |- Dfst2] as Deq1 unboxed;
+      by md-fst-fun
+           [g, b : block (a : con, m : module', dfst : md-fst m a) |-
+              Dfst1[.., b.1, b.2, b.3]]
+           [g, b : block (a : con, m : module', dfst : md-fst m a) |-
+              Dfst3[.., b.1, b.2, b.3]]
+      as Deq2 unboxed;
+      by con-resp-con [g, c : con |- C2] [g |- Deq1] as Deq1' unboxed;
+      solve con-eq-trans [g |- Deq1'] [g |- Deq2[.., <C3; _; _>]]
+    }
+  }
+  case md-fst/out:
+  { g : md-fst-fun-ctx,
+    M1 : (g |- module'),
+    C : (g |- con),
+    C' : (g |- con),
+    Dfst : (g |- md-fst M1 C)
+  | x : [g |- md-fst (md/out M1) C], fst : [g |- md-fst (md/out M1) C']
+  ; split fst as
+    case md-fst/out:
+    { g : md-fst-fun-ctx,
+      M1 : (g |- module'),
+      C : (g |- con),
+      C' : (g |- con),
+      Dfst : (g |- md-fst M1 C),
+      Dfst1 : (g |- md-fst M1 C')
+    | x : [g |- md-fst (md/out M1) C], fst : [g |- md-fst (md/out M1) C']
+    ; solve md-fst-fun [g |- Dfst] [g |- Dfst1]
+    }
+  }
+  case md-fst/in:
+  { g : md-fst-fun-ctx,
+    L : ( |- name),
+    M1 : (g |- module'),
+    C : (g |- con),
+    C' : (g |- con),
+    Dfst : (g |- md-fst M1 C)
+  | x : [g |- md-fst (md/in L[] M1) C], fst : [g |- md-fst (md/in L[] M1) C']
+  ; split fst as
+    case md-fst/in:
+    { g : md-fst-fun-ctx,
+      L : ( |- name),
+      M1 : (g |- module'),
+      C : (g |- con),
+      C' : (g |- con),
+      Dfst : (g |- md-fst M1 C),
+      Dfst1 : (g |- md-fst M1 C')
+    | x : [g |- md-fst (md/in L[] M1) C],
+      fst : [g |- md-fst (md/in L[] M1) C']
+    ; solve md-fst-fun [g |- Dfst] [g |- Dfst1]
+    }
+  }
+  case md-fst/lam:
+  { g : md-fst-fun-ctx,
+    S : (g |- sg),
+    M1 : (g, a72 : con, m6 : module' |- module'),
+    C' : (g |- con)
+  | x : [g |- md-fst (md/lam S (\a. \m. M1)) star],
+    fst : [g |- md-fst (md/lam S (\a. \m. M1)) C']
+  ; split fst as
+    case md-fst/lam:
+    { g : md-fst-fun-ctx,
+      S : (g |- sg),
+      M1 : (g, a72 : con, m6 : module' |- module')
+    | x : [g |- md-fst (md/lam S (\a. \m. M1)) star],
+      fst : [g |- md-fst (md/lam S (\a. \m. M1)) star]
+    ; solve [g |- con-eq/i ]
+    }
+  }
+  case md-fst/pi2:
+  { g : md-fst-fun-ctx,
+    M1 : (g |- module'),
+    C1 : (g |- con),
+    C' : (g |- con),
+    Dfst : (g |- md-fst M1 C1)
+  | x : [g |- md-fst (md/pi2 M1) (pi2 C1)],
+    fst : [g |- md-fst (md/pi2 M1) C']
+  ; split fst as
+    case md-fst/pi2:
+    { g : md-fst-fun-ctx,
+      M1 : (g |- module'),
+      C1 : (g |- con),
+      C2 : (g |- con),
+      Dfst : (g |- md-fst M1 C1),
+      Dfst1 : (g |- md-fst M1 C2)
+    | x : [g |- md-fst (md/pi2 M1) (pi2 C1)],
+      fst : [g |- md-fst (md/pi2 M1) (pi2 C2)]
+    ; by md-fst-fun [g |- Dfst] [g |- Dfst1] as Deq unboxed;
+      solve con-resp-con [g, c : con |- pi2 c] [g |- Deq]
+    }
+  }
+  case md-fst/pi1:
+  { g : md-fst-fun-ctx,
+    M1 : (g |- module'),
+    C1 : (g |- con),
+    C' : (g |- con),
+    Dfst : (g |- md-fst M1 C1)
+  | x : [g |- md-fst (md/pi1 M1) (pi1 C1)],
+    fst : [g |- md-fst (md/pi1 M1) C']
+  ; split fst as
+    case md-fst/pi1:
+    { g : md-fst-fun-ctx,
+      M1 : (g |- module'),
+      C1 : (g |- con),
+      C2 : (g |- con),
+      Dfst : (g |- md-fst M1 C1),
+      Dfst1 : (g |- md-fst M1 C2)
+    | x : [g |- md-fst (md/pi1 M1) (pi1 C1)],
+      fst : [g |- md-fst (md/pi1 M1) (pi1 C2)]
+    ; by md-fst-fun [g |- Dfst] [g |- Dfst1] as Deq unboxed;
+      solve con-resp-con [g, c : con |- pi1 c] [g |- Deq]
+    }
+  }
+  case md-fst/dpair:
+  { g : md-fst-fun-ctx,
+    M1 : (g |- module'),
+    M2 : (g, a70 : con, m5 : module' |- module'),
+    C1 : (g |- con),
+    C2 : (g, a71 : con |- con),
+    C' : (g |- con),
+    Dfst : (g |- md-fst M1 C1),
+    Dfst1 :
+      (g, a : con, m : module', x509 : md-fst m a |-
+         md-fst (M2[.., a, m]) (C2[.., a]))
+  | x : [g |- md-fst (md/dpair M1 (\a. \m. M2)) (pair C1 (C2[.., C1]))],
+    fst : [g |- md-fst (md/dpair M1 (\a. \m. M2)) C']
+  ; split fst as
+    case md-fst/dpair:
+    { g : md-fst-fun-ctx,
+      M1 : (g |- module'),
+      M2 : (g, a70 : con, m5 : module' |- module'),
+      C1 : (g |- con),
+      C2 : (g, a71 : con |- con),
+      C3 : (g |- con),
+      C4 : (g, a71 : con |- con),
+      Dfst : (g |- md-fst M1 C1),
+      Dfst1 :
+        (g, a : con, m : module', x509 : md-fst m a |-
+           md-fst (M2[.., a, m]) (C2[.., a])),
+      Dfst2 : (g |- md-fst M1 C3),
+      Dfst3 :
+        (g, a : con, m : module', x509 : md-fst m a |-
+           md-fst (M2[.., a, m]) (C4[.., a]))
+    | x : [g |- md-fst (md/dpair M1 (\a. \m. M2)) (pair C1 (C2[.., C1]))],
+      fst : [g |- md-fst (md/dpair M1 (\a. \m. M2)) (pair C3 (C4[.., C3]))]
+    ; by md-fst-fun [g |- Dfst] [g |- Dfst2] as Deq1 unboxed;
+      by md-fst-fun
+           [g, b : block (a : con, m : module', dfst : md-fst m a) |-
+              Dfst1[.., b.1, b.2, b.3]]
+           [g, b : block (a : con, m : module', dfst : md-fst m a) |-
+              Dfst3[.., b.1, b.2, b.3]]
+      as Deq2 unboxed;
+      by con-resp-con [g, c : con |- C4] [g |- Deq1] as Deq2' unboxed;
+      by con-eq-trans [g |- Deq2[.., <C1; _; _>]] [g |- Deq2']
+      as Deq2'' unboxed;
+      solve
+  con-resp-con2 [g, c1 : con, c2 : con |- pair c1 c2] [g |- Deq1]
+    [g |- Deq2'']
+    }
+  }
+  case md-fst/pair:
+  { g : md-fst-fun-ctx,
+    M1 : (g |- module'),
+    M2 : (g |- module'),
+    C1 : (g |- con),
+    C2 : (g |- con),
+    C' : (g |- con),
+    Dfst : (g |- md-fst M1 C1),
+    Dfst1 : (g |- md-fst M2 C2)
+  | x : [g |- md-fst (md/pair M1 M2) (pair C1 C2)],
+    fst : [g |- md-fst (md/pair M1 M2) C']
+  ; split fst as
+    case md-fst/pair:
+    { g : md-fst-fun-ctx,
+      M1 : (g |- module'),
+      M2 : (g |- module'),
+      C1 : (g |- con),
+      C2 : (g |- con),
+      C3 : (g |- con),
+      C4 : (g |- con),
+      Dfst : (g |- md-fst M1 C1),
+      Dfst1 : (g |- md-fst M2 C2),
+      Dfst2 : (g |- md-fst M1 C3),
+      Dfst3 : (g |- md-fst M2 C4)
+    | x : [g |- md-fst (md/pair M1 M2) (pair C1 C2)],
+      fst : [g |- md-fst (md/pair M1 M2) (pair C3 C4)]
+    ; by md-fst-fun [g |- Dfst] [g |- Dfst2] as Deq1 unboxed;
+      by md-fst-fun [g |- Dfst1] [g |- Dfst3] as Deq2 unboxed;
+      solve
+  con-resp-con2 [g, c1 : con, c2 : con |- pair c1 c2] [g |- Deq1] [g |- Deq2]
+    }
+  }
+  case md-fst/sgatom:
+  { g : md-fst-fun-ctx, S : (g |- sg), C' : (g |- con)
+  | x : [g |- md-fst (md/sgatom S) star],
+    fst : [g |- md-fst (md/sgatom S) C']
+  ; split fst as
+    case md-fst/sgatom:
+    { g : md-fst-fun-ctx, S : (g |- sg)
+    | x : [g |- md-fst (md/sgatom S) star],
+      fst : [g |- md-fst (md/sgatom S) star]
+    ; solve [g |- con-eq/i ]
+    }
+  }
+  case md-fst/datom:
+  { g : md-fst-fun-ctx, E : (g |- term), C1 : (g |- con), C' : (g |- con)
+  | x : [g |- md-fst (md/datom E C1) star],
+    fst : [g |- md-fst (md/datom E C1) C']
+  ; split fst as
+    case md-fst/datom:
+    { g : md-fst-fun-ctx, E : (g |- term), C1 : (g |- con)
+    | x : [g |- md-fst (md/datom E C1) star],
+      fst : [g |- md-fst (md/datom E C1) star]
+    ; solve [g |- con-eq/i ]
+    }
+  }
+  case md-fst/satom:
+  { g : md-fst-fun-ctx, C : (g |- con), C' : (g |- con)
+  | x : [g |- md-fst (md/satom C) C], fst : [g |- md-fst (md/satom C) C']
+  ; split fst as
+    case md-fst/satom:
+    { g : md-fst-fun-ctx, C' : (g |- con)
+    | x : [g |- md-fst (md/satom C') C'],
+      fst : [g |- md-fst (md/satom C') C']
+    ; solve [g |- con-eq/i ]
+    }
+  }
+  case md-fst/unit:
+  { g : md-fst-fun-ctx, C' : (g |- con)
+  | x : [g |- md-fst md/unit star], fst : [g |- md-fst md/unit C']
+  ; split fst as
+    case md-fst/unit:
+    { g : md-fst-fun-ctx
+    | x : [g |- md-fst md/unit star], fst : [g |- md-fst md/unit star]
+    ; solve [g |- con-eq/i ]
+    }
+  }
+  %{ FIXME: File "src/core/reconstruct.ml", line 2248, characters 11-16: Pattern matching failed
+  case #.3:
+  { g : md-fst-fun-ctx,
+    #fst : #(g |- block (a : con, m : module', dfst : md-fst m a)),
+    C' : (g |- con)
+  | x : [g |- md-fst #fst.2 #fst.1], fst : [g |- md-fst #fst.2 C']
+  ; ?
+  }
+  }%
+}
+;
