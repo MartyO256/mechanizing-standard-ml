@@ -3,7 +3,7 @@
 LF cn-ofp : con -> kind -> type =
 | cn-ofp/pair :
   cn-ofp C1 K1 ->
-    cn-ofp C2 K2 ->
+  cn-ofp C2 K2 ->
     cn-ofp (pair C1 C2) (sigma K1 (\x. K2))
 
 | cn-ofp/pi1 :
@@ -16,13 +16,13 @@ LF cn-ofp : con -> kind -> type =
 
 | cn-ofp/lam :
   kd-wf K1 ->
-    single K1 K1s ->
-    ({ a : con } cn-of a K1 -> cn-ofp a (K1s a) -> cn-ofp (C a) (K2 a)) ->
+  single K1 K1s ->
+  ({ a : con } cn-of a K1 -> cn-ofp a (K1s a) -> cn-ofp (C a) (K2 a)) ->
     cn-ofp (lam K1 C) (pi K1 K2)
 
 | cn-ofp/app :
   cn-ofp C1 (pi K1 K2) ->
-    cn-of C2 K1 ->
+  cn-of C2 K1 ->
     cn-ofp (app C1 C2) (K2 C2)
 
 | cn-ofp/star : cn-ofp star one
@@ -33,17 +33,17 @@ LF cn-ofp : con -> kind -> type =
 
 | cn-ofp/prod :
   cn-of T1 t ->
-    cn-of T2 t ->
+  cn-of T2 t ->
     cn-ofp (prod T1 T2) (sing (prod T1 T2))
 
 | cn-ofp/arrow :
   cn-of T1 t ->
-    cn-of T2 t ->
+  cn-of T2 t ->
     cn-ofp (arrow T1 T2) (sing (arrow T1 T2))
 
 | cn-ofp/plus :
   cn-of T1 t ->
-    cn-of T2 t ->
+  cn-of T2 t ->
     cn-ofp (plus T1 T2) (sing (plus T1 T2))
 
 | cn-ofp/ref :
@@ -58,9 +58,10 @@ LF cn-ofp : con -> kind -> type =
 
 | cn-ofp/rec :
   kd-wf K ->
-    ({ a : con } cn-of a (pi K (\x. t)) ->
-    { b : con } cn-of b K -> cn-of (C1 a b) t) ->
-    cn-of C2 K ->
+  ({ a : con } cn-of a (pi K (\x. t)) ->
+   { b : con } cn-of b K ->
+   cn-of (C1 a b) t) ->
+  cn-of C2 K ->
     cn-ofp (rec' K C1 C2) (sing (rec' K C1 C2))
 
 | cn-ofp/labeled :
@@ -68,3 +69,41 @@ LF cn-ofp : con -> kind -> type =
     cn-ofp (labeled L T) (sing (labeled L T))
 ;
 --name cn-ofp Dofp.
+
+schema conbind-prin =
+  some [K : kind, K' : con -> kind]
+  block (a : con, d : cn-of a K, dp : cn-ofp a (K' a));
+
+% TODO: [ctxToSub_mclosed] non-atomic cPsi entry not supported
+proof cn-ofp-fun :
+  (g : conbind-prin)
+  [g |- cn-ofp C K] ->
+  [g |- cn-ofp C K'] ->
+    [g |- kind-eq K K'] =
+/ total 1 /
+?
+;
+
+schema cn-ofp-sound-ctx =
+  % conbind-reg
+  some [K : kind, wf : kd-wf K]
+  block (a : con, da : cn-of a K) +
+  % conbind-prin-sound
+  some [
+    K : kind, K' : con -> kind,
+    DwfK : kd-wf K,
+    Dof : { a : con } cn-of a K -> cn-of a (K' a)
+  ]
+  block (a : con, d : cn-of a K, dp : cn-ofp a (K' a)) +
+  % cn-ofp-block-sound
+  some [C : con, K : kind, Dof : cn-of C K]
+  block (d : cn-ofp C K);
+
+% TODO: [ctxToSub_mclosed] non-atomic cPsi entry not supported
+proof cn-ofp-sound :
+  (g : cn-ofp-sound-ctx)
+  [g |- cn-ofp C K] ->
+    [g |- cn-of C K] =
+/ total 1 /
+?
+;
