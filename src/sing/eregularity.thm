@@ -404,7 +404,185 @@ and proof tequiv-reg :
   [g |- tequiv A B] ->
     [g |- tequiv-reg/e A B] =
 / total 1 /
-?
+intros
+{ g : eregularity-ctx, A : (g |- etp), B : (g |- etp)
+| x : [g |- tequiv A B]
+; split x as
+  case tequiv/trans:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    B : (g |- etp),
+    A2 : (g |- etp),
+    Dtequiv : (g |- tequiv A A2),
+    Dtequiv1 : (g |- tequiv A2 B)
+  | x : [g |- tequiv A B]
+  ; split tequiv-reg [_ |- Dtequiv] as
+    case tequiv-reg/i:
+    { g : eregularity-ctx,
+      A : (g |- etp),
+      B : (g |- etp),
+      A2 : (g |- etp),
+      Dtequiv : (g |- tequiv A A2),
+      Dtequiv1 : (g |- tequiv A2 B),
+      Dwf : (g |- ewf A),
+      Dwf1 : (g |- ewf A2)
+    | x : [g |- tequiv A B]
+    ; split tequiv-reg [_ |- Dtequiv1] as
+      case tequiv-reg/i:
+      { g : eregularity-ctx,
+        A : (g |- etp),
+        B : (g |- etp),
+        A2 : (g |- etp),
+        Dtequiv : (g |- tequiv A A2),
+        Dtequiv1 : (g |- tequiv A2 B),
+        Dwf : (g |- ewf A),
+        Dwf1 : (g |- ewf A2),
+        Dwf2 : (g |- ewf A2),
+        Dwf3 : (g |- ewf B)
+      | x : [g |- tequiv A B]
+      ; solve [_ |- tequiv-reg/i Dwf Dwf3]
+      }
+    }
+  }
+  case tequiv/symm:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    B : (g |- etp),
+    Dtequiv : (g |- tequiv B A)
+  | x : [g |- tequiv A B]
+  ; split tequiv-reg [g |- Dtequiv] as
+    case tequiv-reg/i:
+    { g : eregularity-ctx,
+      A : (g |- etp),
+      B : (g |- etp),
+      Dtequiv : (g |- tequiv B A),
+      Dwf : (g |- ewf B),
+      Dwf1 : (g |- ewf A)
+    | x : [g |- tequiv A B]
+    ; solve [g |- tequiv-reg/i Dwf1 Dwf]
+    }
+  }
+  case tequiv/reflex:
+  { g : eregularity-ctx, B : (g |- etp), Dwf : (g |- ewf B)
+  | x : [g |- tequiv B B]
+  ; solve [g |- tequiv-reg/i Dwf Dwf]
+  }
+  case tequiv/sing:
+  { g : eregularity-ctx,
+    M : (g |- eterm),
+    M1 : (g |- eterm),
+    Dequiv : (g |- equiv M M1 et)
+  | x : [g |- tequiv (esing M) (esing M1)]
+  ; split equiv-reg [g |- Dequiv] as
+    case equiv-reg/i:
+    { g : eregularity-ctx,
+      M : (g |- eterm),
+      M1 : (g |- eterm),
+      Dequiv : (g |- equiv M M1 et),
+      Dof : (g |- eof M et),
+      Dof1 : (g |- eof M1 et),
+      Dwf : (g |- ewf et)
+    | x : [g |- tequiv (esing M) (esing M1)]
+    ; solve [g |- tequiv-reg/i (ewf/sing Dof) (ewf/sing Dof1)]
+    }
+  }
+  case tequiv/sigma:
+  { g : eregularity-ctx,
+    A1 : (g |- etp),
+    A3 : (g, y190 : eterm |- etp),
+    A2 : (g |- etp),
+    A4 : (g, x190 : eterm |- etp),
+    Dtequiv : (g |- tequiv A1 A2),
+    Dtequiv1 :
+      (g, x : eterm, z189 : evof x (A1[..]) |- tequiv (A3[.., x]) (A4[.., x]))
+  | x : [g |- tequiv (esigma A1 (\y143. A3)) (esigma A2 (\y143. A4))]
+  ; split tequiv-reg [g |- Dtequiv] as
+    case tequiv-reg/i:
+    { g : eregularity-ctx,
+      A1 : (g |- etp),
+      A3 : (g, y190 : eterm |- etp),
+      A2 : (g |- etp),
+      A4 : (g, x190 : eterm |- etp),
+      Dtequiv : (g |- tequiv A1 A2),
+      Dtequiv1 :
+        (g, x : eterm, z189 : evof x (A1[..]) |-
+           tequiv (A3[.., x]) (A4[.., x])),
+      Dwf : (g |- ewf A1),
+      Dwf1 : (g |- ewf A2)
+    | x : [g |- tequiv (esigma A1 (\y143. A3)) (esigma A2 (\y143. A4))]
+    ; split
+      tequiv-reg
+        [g, b : block (x : eterm, dx : evof x _) |- Dtequiv1[.., b.1, b.2]] as
+      case tequiv-reg/i:
+      { g : eregularity-ctx,
+        A1 : (g |- etp),
+        A5 : (g, x : eterm |- etp),
+        A2 : (g |- etp),
+        A6 : (g, x : eterm |- etp),
+        Dtequiv : (g |- tequiv A1 A2),
+        Dtequiv1 :
+          (g, x : eterm, z189 : evof x (A1[..]) |-
+             tequiv (A5[.., x]) (A6[.., x])),
+        Dwf : (g |- ewf A1),
+        Dwf1 : (g |- ewf A2),
+        Dwf2 : (g, x : eterm, z1107 : evof x (A1[..]) |- ewf (A5[.., x])),
+        Dwf3 : (g, x : eterm, y1108 : evof x (A1[..]) |- ewf (A6[.., x]))
+      | x : [g |- tequiv (esigma A1 (\y143. A5)) (esigma A2 (\y143. A6))]
+      ; by [g |- ewf/sigma Dwf (\x. \dx. Dwf2)] as Dwf1' unboxed;
+        by [g |- ewf/sigma Dwf1 (\x. \dx. Dwf3[.., x, _])] as Dwf2' unboxed;
+        solve [g |- tequiv-reg/i Dwf1' Dwf2']
+      }
+    }
+  }
+  case tequiv/pi:
+  { g : eregularity-ctx,
+    A1 : (g |- etp),
+    A3 : (g, x188 : eterm |- etp),
+    A2 : (g |- etp),
+    A4 : (g, z188 : eterm |- etp),
+    Dtequiv : (g |- tequiv A1 A2),
+    Dtequiv1 :
+      (g, x : eterm, y188 : evof x (A1[..]) |- tequiv (A3[.., x]) (A4[.., x]))
+  | x : [g |- tequiv (epi A1 (\y142. A3)) (epi A2 (\y142. A4))]
+  ; split tequiv-reg [g |- Dtequiv] as
+    case tequiv-reg/i:
+    { g : eregularity-ctx,
+      A1 : (g |- etp),
+      A3 : (g, x188 : eterm |- etp),
+      A2 : (g |- etp),
+      A4 : (g, z188 : eterm |- etp),
+      Dtequiv : (g |- tequiv A1 A2),
+      Dtequiv1 :
+        (g, x : eterm, y188 : evof x (A1[..]) |-
+           tequiv (A3[.., x]) (A4[.., x])),
+      Dwf : (g |- ewf A1),
+      Dwf1 : (g |- ewf A2)
+    | x : [g |- tequiv (epi A1 (\y142. A3)) (epi A2 (\y142. A4))]
+    ; split
+      tequiv-reg
+        [g, b : block (x : eterm, dx : evof x _) |- Dtequiv1[.., b.1, b.2]] as
+      case tequiv-reg/i:
+      { g : eregularity-ctx,
+        A1 : (g |- etp),
+        A5 : (g, x : eterm |- etp),
+        A2 : (g |- etp),
+        A6 : (g, x : eterm |- etp),
+        Dtequiv : (g |- tequiv A1 A2),
+        Dtequiv1 :
+          (g, x : eterm, y188 : evof x (A1[..]) |-
+             tequiv (A5[.., x]) (A6[.., x])),
+        Dwf : (g |- ewf A1),
+        Dwf1 : (g |- ewf A2),
+        Dwf2 : (g, x : eterm, z1103 : evof x (A1[..]) |- ewf (A5[.., x])),
+        Dwf3 : (g, x : eterm, y1104 : evof x (A1[..]) |- ewf (A6[.., x]))
+      | x : [g |- tequiv (epi A1 (\y142. A5)) (epi A2 (\y142. A6))]
+      ; by [g |- ewf/pi Dwf (\x. \dx. Dwf2)] as Dwf1' unboxed;
+        by [g |- ewf/pi Dwf1 (\x. \dx. Dwf3[.., x, _])] as Dwf2' unboxed;
+        solve [g |- tequiv-reg/i Dwf1' Dwf2']
+      }
+    }
+  }
+}
 
 and proof equiv-reg :
   (g : eregularity-ctx)
