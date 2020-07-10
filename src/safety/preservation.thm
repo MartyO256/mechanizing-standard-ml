@@ -158,8 +158,8 @@ intros
     E1 : (g |- term),
     T : (g |- con),
     F' : (g |- sttp),
-    X : (g |- label),
-    Dof : (g |- tm-of F E1 (labeled X T))
+    X : ( |- label),
+    Dof : (g |- tm-of F E1 (labeled X[] T))
   | x : [g |- tm-of F (tm/out E1) T], extends : [g |- extends F F']
   ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
     solve [g |- tm-of/out Dof']
@@ -167,12 +167,12 @@ intros
   case tm-of/in:
   { g : monotonicity-ctx,
     F : (g |- sttp),
-    X : (g |- label),
+    X : ( |- label),
     E1 : (g |- term),
     C : (g |- con),
     F' : (g |- sttp),
     Dof : (g |- tm-of F E1 C)
-  | x : [g |- tm-of F (tm/in X E1) (labeled X C)],
+  | x : [g |- tm-of F (tm/in X[] E1) (labeled X[] C)],
     extends : [g |- extends F F']
   ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
     solve [g |- tm-of/in Dof']

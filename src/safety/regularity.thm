@@ -484,10 +484,10 @@ intros
   }
   case cn-of/labeled:
   { g : conbind-reg,
-    X : (g |- label),
+    X : ( |- label),
     C1 : (g |- con),
     Dof : (g |- cn-of C1 t)
-  | x : [g |- cn-of (labeled X C1) t]
+  | x : [g |- cn-of (labeled X[] C1) t]
   ; solve [g |- kd-wf/t]
   }
   case cn-of/rec:
@@ -1020,22 +1020,22 @@ intros
   }
   case cn-equiv/labeled:
   { g : conbind-reg,
-    X : (g |- label),
+    X : ( |- label),
     C2 : (g |- con),
     C3 : (g |- con),
     Dequiv : (g |- cn-equiv C2 C3 t)
-  | x : [g |- cn-equiv (labeled X C2) (labeled X C3) t]
+  | x : [g |- cn-equiv (labeled X[] C2) (labeled X[] C3) t]
   ; split cn-equiv-reg [g |- Dequiv] as
     case cn-equiv-reg/i:
     { g : conbind-reg,
-      X : (g |- label),
+      X : ( |- label),
       C2 : (g |- con),
       C3 : (g |- con),
       Dequiv : (g |- cn-equiv C2 C3 t),
       Dof : (g |- cn-of C2 t),
       Dof1 : (g |- cn-of C3 t),
       Dwf : (g |- kd-wf t)
-    | x : [g |- cn-equiv (labeled X C2) (labeled X C3) t]
+    | x : [g |- cn-equiv (labeled X[] C2) (labeled X[] C3) t]
     ; solve
         [g |- cn-equiv-reg/i (cn-of/labeled Dof) (cn-of/labeled Dof1) kd-wf/t]
     }
@@ -2028,9 +2028,9 @@ intros
   ; solve [_ |- Dof]
   }
   case cn-of/labeled:
-  { g : conbind, X : (g |- label), C : (g |- con), Dof : (g |- cn-of C t)
-  | x : [g |- cn-of (labeled X C) t],
-    sim : [g |- similar (labeled X C) (labeled X C)],
+  { g : conbind, X : ( |- label), C : (g |- con), Dof : (g |- cn-of C t)
+  | x : [g |- cn-of (labeled X[] C) t],
+    sim : [g |- similar (labeled X[] C) (labeled X[] C)],
     sub : [g |- kd-sub t t]
   ; solve x
   }
@@ -2427,28 +2427,7 @@ proof inversion-labeled :
   [g |- cn-of (labeled I T) t] ->
     [g |- cn-of T t] =
 / trust / % FIXME: See issue #4
-intros
-{ g : conbind, I : (g |- label), T : (g |- con)
-| x : [g |- cn-of (labeled I T) t]
-; split x as
-  case cn-of/subsume:
-  { g : conbind,
-    I : (g |- label),
-    T : (g |- con),
-    K : (g |- kind),
-    Dof : (g |- cn-of (labeled I T) K),
-    Dsub : (g |- kd-sub K t)
-  | x : [g |- cn-of (labeled I T) t]
-  ; by type-inversion [_ |- Dof] [_ |- similar/labeled ] [_ |- Dsub]
-    as Dof' unboxed;
-    solve inversion-labeled [g |- Dof']
-  }
-  case cn-of/labeled:
-  { g : conbind, I : (g |- label), T : (g |- con), Dof : (g |- cn-of T t)
-  | x : [g |- cn-of (labeled I T) t]
-  ; solve [_ |- Dof]
-  }
-}
+?
 ;
 
 % Signature Fst Regularity
