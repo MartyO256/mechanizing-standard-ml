@@ -2654,7 +2654,7 @@ and proof map-of' :
   [g |- map C M] ->
   [g |- tmap K A] ->
     [g |- eof M A] =
-/ total /
+/ total 1 /
 ?
 
 and proof map-wf :
@@ -2669,7 +2669,7 @@ and proof map-wf' :
   [g |- kd-wf K] ->
   [g |- tmap K A] ->
     [g |- ewf A] =
-/ total /
+/ total 1 /
 ?
 
 and proof map-subtp :
