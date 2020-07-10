@@ -130,10 +130,7 @@ intros
       Dwf : (g |- ewf A1),
       Dwf1 : (g, x : eterm, y157 : evof x (A1[..]) |- ewf (A2[.., x]))
     | x : [g |- eof (epi2 M1) (A2[.., epi1 M1])]
-    ; %{ FIXME: Solution contains uninstantiated metavariables.
-          solve [_|-Dwf1[.., epi1 M1, _]]
-      }%
-      ?
+    ; solve [g |- Dwf1[.., epi1 M1, _]]
     }
   }
   case eof/pi1:
@@ -190,10 +187,7 @@ intros
       Dwf : (g |- ewf A1),
       Dwf1 : (g, x : eterm, z155 : evof x (A1[..]) |- ewf (A2[.., x]))
     | x : [g |- eof (eapp M1 M2) (A2[.., M2])]
-    ; %{ FIXME: Solution contains uninstantiated metavariables.
-          solve [g |- Dwf1[.., M2, _]]
-      }%
-      ?
+    ; solve [g |- Dwf1[.., M2, _]]
     }
   }
   case eof/lam:
