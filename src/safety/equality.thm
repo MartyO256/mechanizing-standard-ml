@@ -977,14 +977,14 @@ intros
 ;
 
 proof kd-sub-resp :
-  (g : conbind)
+  (g : conblock+conbind)
   [g |- kind-eq K1 K1'] ->
   [g |- kind-eq K2 K2'] ->
   [g |- kd-sub K1 K2] ->
     [g |- kd-sub K1' K2'] =
 / total /
 intros
-{ g : conbind,
+{ g : conblock+conbind,
   K : (g |- kind),
   K1' : (g |- kind),
   K1 : (g |- kind),
@@ -994,13 +994,13 @@ intros
   sub : [g |- kd-sub K K1]
 ; split eq as
   case kind-eq/i:
-  { g : conbind, K1' : (g |- kind), K1 : (g |- kind), K2' : (g |- kind)
+  { g : conblock+conbind, K1' : (g |- kind), K1 : (g |- kind), K2' : (g |- kind)
   | eq : [g |- kind-eq K1' K1'],
     eq1 : [g |- kind-eq K1 K2'],
     sub : [g |- kd-sub K1' K1]
   ; split eq1 as
     case kind-eq/i:
-    { g : conbind, K1' : (g |- kind), K2' : (g |- kind)
+    { g : conblock+conbind, K1' : (g |- kind), K2' : (g |- kind)
     | eq : [g |- kind-eq K1' K1'],
       eq1 : [g |- kind-eq K2' K2'],
       sub : [g |- kd-sub K1' K2']
