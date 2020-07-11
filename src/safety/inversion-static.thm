@@ -1084,3 +1084,70 @@ intros
   }
 }
 ;
+
+proof injective-sing :
+  (g : conbind)
+  [g |- kd-equiv (sing C) (sing C')] ->
+    [g |- cn-equiv C C' t] =
+/ trust / % FIXME: See issue #4
+intros
+{ g : conbind, C : (g |- con), C' : (g |- con)
+| equiv : [g |- kd-equiv (sing C) (sing C')]
+; split equiv as
+  case kd-equiv/sing:
+  { g : conbind,
+    C : (g |- con),
+    C' : (g |- con),
+    Dequiv : (g |- cn-equiv C C' t)
+  | equiv : [g |- kd-equiv (sing C) (sing C')]
+  ; solve [g |- Dequiv]
+  }
+  case kd-equiv/trans:
+  { g : conbind,
+    C : (g |- con),
+    C' : (g |- con),
+    K1 : (g |- kind),
+    Dequiv : (g |- kd-equiv (sing C) K1),
+    Dequiv1 : (g |- kd-equiv K1 (sing C'))
+  | equiv : [g |- kd-equiv (sing C) (sing C')]
+  ; split kd-equiv-sing-form [_ |- Dequiv] as
+    case kd-equiv-sing-form/i:
+    { g : conbind,
+      C : (g |- con),
+      C' : (g |- con),
+      K1 : (g |- kind),
+      Dequiv : (g |- kd-equiv (sing C) K1),
+      Dequiv1 : (g |- kd-equiv K1 (sing C')),
+      C1 : (g |- con),
+      Deq : (g |- kind-eq K1 (sing C1))
+    | equiv : [g |- kd-equiv (sing C) (sing C')]
+    ; by kd-equiv-resp [_ |- kind-eq/i ] [_ |- Deq] [_ |- Dequiv]
+      as D12' unboxed;
+      by kd-equiv-resp [_ |- Deq] [_ |- kind-eq/i ] [_ |- Dequiv1]
+      as D23' unboxed;
+      by injective-sing [_ |- D12'] as D12'' unboxed;
+      by injective-sing [_ |- D23'] as D23'' unboxed;
+      solve [_ |- cn-equiv/trans D12'' D23'']
+    }
+  }
+  case kd-equiv/symm:
+  { g : conbind,
+    C : (g |- con),
+    C' : (g |- con),
+    Dequiv : (g |- kd-equiv (sing C') (sing C))
+  | equiv : [g |- kd-equiv (sing C) (sing C')]
+  ; by injective-sing [_ |- Dequiv] as D' unboxed;
+    solve [_ |- cn-equiv/symm D']
+  }
+  case kd-equiv/refl:
+  { g : conbind, C' : (g |- con), Dwf : (g |- kd-wf (sing C'))
+  | equiv : [g |- kd-equiv (sing C') (sing C')]
+  ; split [_ |- Dwf] as
+    case kd-wf/sing:
+    { g : conbind, C' : (g |- con), Dof : (g |- cn-of C' t)
+    | equiv : [g |- kd-equiv (sing C') (sing C')]
+    ; solve [_ |- cn-equiv/refl Dof]
+    }
+  }
+}
+;
