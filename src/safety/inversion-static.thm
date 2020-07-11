@@ -244,3 +244,211 @@ intros
   }
 }
 ;
+
+LF kd-equiv-sigma-form/e : kind -> type =
+| kd-equiv-sigma-form/i :
+  { K1' : kind } { K2' : con -> kind }
+  kind-eq K (sigma K1' K2') -> kd-equiv-sigma-form/e K
+;
+
+proof kd-equiv-sigma-form :
+  (g : conbind)
+  [g |- kd-equiv (sigma K1 (\a. K2)) K] ->
+    [g |- kd-equiv-sigma-form/e K] =
+/ trust / % FIXME: See issue #4
+intros
+{ g : conbind,
+  K : (g |- kind),
+  K1 : (g, z328 : con |- kind),
+  K2 : (g |- kind)
+| equiv : [g |- kd-equiv (sigma K (\a. K1)) K2]
+; split equiv as
+  case kd-equiv/sigma:
+  { g : conbind,
+    K : (g |- kind),
+    K1 : (g, z328 : con |- kind),
+    K4 : (g |- kind),
+    K6 : (g, a8 : con |- kind),
+    Dequiv : (g |- kd-equiv K K4),
+    Dequiv1 :
+      (g, a : con, z392 : cn-of a (K[..]) |- kd-equiv (K1[.., a]) (K6[.., a]))
+  | equiv : [g |- kd-equiv (sigma K (\a. K1)) (sigma K4 (\z328. K6))]
+  ; solve [g |- kd-equiv-sigma-form/i _ (\a. _) (kind-eq/i )]
+  }
+  case kd-equiv/trans:
+  { g : conbind,
+    K : (g |- kind),
+    K1 : (g, z328 : con |- kind),
+    K2 : (g |- kind),
+    K4 : (g |- kind),
+    Dequiv : (g |- kd-equiv (sigma K (\a. K1)) K4),
+    Dequiv1 : (g |- kd-equiv K4 K2)
+  | equiv : [g |- kd-equiv (sigma K (\a. K1)) K2]
+  ; split kd-equiv-sigma-form [g |- Dequiv] as
+    case kd-equiv-sigma-form/i:
+    { g : conbind,
+      K : (g |- kind),
+      K1 : (g, z328 : con |- kind),
+      K2 : (g |- kind),
+      K4 : (g |- kind),
+      Dequiv : (g |- kd-equiv (sigma K (\a. K1)) K4),
+      Dequiv1 : (g |- kd-equiv K4 K2),
+      K6 : (g |- kind),
+      K7 : (g, z776 : con |- kind),
+      Deq : (g |- kind-eq K4 (sigma K6 (\z328. K7)))
+    | equiv : [g |- kd-equiv (sigma K (\a. K1)) K2]
+    ; by kd-equiv-resp [g |- Deq] [g |- kind-eq/i ] [g |- Dequiv1]
+      as Dequiv'' unboxed;
+      split kd-equiv-sigma-form [g |- Dequiv''] as
+      case kd-equiv-sigma-form/i:
+      { g : conbind,
+        K : (g |- kind),
+        K1 : (g, z328 : con |- kind),
+        K2 : (g |- kind),
+        K4 : (g |- kind),
+        Dequiv : (g |- kd-equiv (sigma K (\a. K1)) K4),
+        Dequiv1 : (g |- kd-equiv K4 K2),
+        K6 : (g |- kind),
+        K7 : (g, z776 : con |- kind),
+        Deq : (g |- kind-eq K4 (sigma K6 (\z328. K7))),
+        Dequiv'' : (g |- kd-equiv (sigma K6 (\z328. K7)) K2),
+        K9 : (g |- kind),
+        K10 : (g, z776 : con |- kind),
+        Deq1 : (g |- kind-eq K2 (sigma K9 (\z328. K10)))
+      | equiv : [g |- kd-equiv (sigma K (\a. K1)) K2]
+      ; solve [g |- kd-equiv-sigma-form/i _ (\a. _) Deq1]
+      }
+    }
+  }
+  case kd-equiv/symm:
+  { g : conbind,
+    K : (g |- kind),
+    K1 : (g, z328 : con |- kind),
+    K2 : (g |- kind),
+    Dequiv : (g |- kd-equiv K2 (sigma K (\a. K1)))
+  | equiv : [g |- kd-equiv (sigma K (\a. K1)) K2]
+  ; split kd-equiv-sigma-form' [g |- Dequiv] as
+    case kd-equiv-sigma-form/i:
+    { g : conbind,
+      K : (g |- kind),
+      K1 : (g, z328 : con |- kind),
+      K2 : (g |- kind),
+      Dequiv : (g |- kd-equiv K2 (sigma K (\a. K1))),
+      K4 : (g |- kind),
+      K5 : (g, z776 : con |- kind),
+      Deq : (g |- kind-eq K2 (sigma K4 (\z328. K5)))
+    | equiv : [g |- kd-equiv (sigma K (\a. K1)) K2]
+    ; solve [g |- kd-equiv-sigma-form/i _ (\a. _) Deq]
+    }
+  }
+  case kd-equiv/refl:
+  { g : conbind,
+    K : (g |- kind),
+    K1 : (g, z328 : con |- kind),
+    Dwf : (g |- kd-wf (sigma K (\a. K1)))
+  | equiv : [g |- kd-equiv (sigma K (\a. K1)) (sigma K (\a. K1))]
+  ; solve [g |- kd-equiv-sigma-form/i _ (\a. _) (kind-eq/i )]
+  }
+}
+
+and proof kd-equiv-sigma-form' :
+  (g : conbind)
+  [g |- kd-equiv K (sigma K1 (\a. K2))] ->
+    [g |- kd-equiv-sigma-form/e K] =
+/ trust / % FIXME: See issue #4
+intros
+{ g : conbind,
+  K : (g |- kind),
+  K1 : (g |- kind),
+  K2 : (g, z328 : con |- kind)
+| equiv : [g |- kd-equiv K (sigma K1 (\a. K2))]
+; split equiv as
+  case kd-equiv/sigma:
+  { g : conbind,
+    K3 : (g |- kind),
+    K5 : (g, a7 : con |- kind),
+    K1 : (g |- kind),
+    K2 : (g, z328 : con |- kind),
+    Dequiv : (g |- kd-equiv K3 K1),
+    Dequiv1 :
+      (g, a : con, z392 : cn-of a (K3[..]) |-
+         kd-equiv (K5[.., a]) (K2[.., a]))
+  | equiv : [g |- kd-equiv (sigma K3 (\z328. K5)) (sigma K1 (\a. K2))]
+  ; solve [g |- kd-equiv-sigma-form/i _ (\a. _) (kind-eq/i )]
+  }
+  case kd-equiv/trans:
+  { g : conbind,
+    K : (g |- kind),
+    K1 : (g |- kind),
+    K2 : (g, z328 : con |- kind),
+    K4 : (g |- kind),
+    Dequiv : (g |- kd-equiv K K4),
+    Dequiv1 : (g |- kd-equiv K4 (sigma K1 (\a. K2)))
+  | equiv : [g |- kd-equiv K (sigma K1 (\a. K2))]
+  ; split kd-equiv-sigma-form' [g |- Dequiv1] as
+    case kd-equiv-sigma-form/i:
+    { g : conbind,
+      K : (g |- kind),
+      K1 : (g |- kind),
+      K2 : (g, z328 : con |- kind),
+      K4 : (g |- kind),
+      Dequiv : (g |- kd-equiv K K4),
+      Dequiv1 : (g |- kd-equiv K4 (sigma K1 (\a. K2))),
+      K6 : (g |- kind),
+      K7 : (g, z776 : con |- kind),
+      Deq : (g |- kind-eq K4 (sigma K6 (\z328. K7)))
+    | equiv : [g |- kd-equiv K (sigma K1 (\a. K2))]
+    ; by kd-equiv-resp [g |- kind-eq/i ] [g |- Deq] [g |- Dequiv]
+      as Dequiv'' unboxed;
+      split kd-equiv-sigma-form' [g |- Dequiv''] as
+      case kd-equiv-sigma-form/i:
+      { g : conbind,
+        K : (g |- kind),
+        K1 : (g |- kind),
+        K2 : (g, z328 : con |- kind),
+        K4 : (g |- kind),
+        Dequiv : (g |- kd-equiv K K4),
+        Dequiv1 : (g |- kd-equiv K4 (sigma K1 (\a. K2))),
+        K6 : (g |- kind),
+        K7 : (g, z776 : con |- kind),
+        Deq : (g |- kind-eq K4 (sigma K6 (\z328. K7))),
+        Dequiv'' : (g |- kd-equiv K (sigma K6 (\z328. K7))),
+        K9 : (g |- kind),
+        K10 : (g, z776 : con |- kind),
+        Deq1 : (g |- kind-eq K (sigma K9 (\z328. K10)))
+      | equiv : [g |- kd-equiv K (sigma K1 (\a. K2))]
+      ; solve [g |- kd-equiv-sigma-form/i _ (\a. _) Deq1]
+      }
+    }
+  }
+  case kd-equiv/symm:
+  { g : conbind,
+    K : (g |- kind),
+    K1 : (g |- kind),
+    K2 : (g, z328 : con |- kind),
+    Dequiv : (g |- kd-equiv (sigma K1 (\a. K2)) K)
+  | equiv : [g |- kd-equiv K (sigma K1 (\a. K2))]
+  ; split kd-equiv-sigma-form [g |- Dequiv] as
+    case kd-equiv-sigma-form/i:
+    { g : conbind,
+      K : (g |- kind),
+      K1 : (g |- kind),
+      K2 : (g, z328 : con |- kind),
+      Dequiv : (g |- kd-equiv (sigma K1 (\a. K2)) K),
+      K4 : (g |- kind),
+      K5 : (g, z776 : con |- kind),
+      Deq : (g |- kind-eq K (sigma K4 (\z328. K5)))
+    | equiv : [g |- kd-equiv K (sigma K1 (\a. K2))]
+    ; solve [g |- kd-equiv-sigma-form/i _ (\a. _) Deq]
+    }
+  }
+  case kd-equiv/refl:
+  { g : conbind,
+    K1 : (g |- kind),
+    K2 : (g, z328 : con |- kind),
+    Dwf : (g |- kd-wf (sigma K1 (\a. K2)))
+  | equiv : [g |- kd-equiv (sigma K1 (\a. K2)) (sigma K1 (\a. K2))]
+  ; solve [g |- kd-equiv-sigma-form/i _ (\a. _) (kind-eq/i )]
+  }
+}
+;
