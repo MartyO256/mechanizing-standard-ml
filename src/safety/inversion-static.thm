@@ -1009,3 +1009,78 @@ intros
   }
 }
 ;
+
+LF kd-sub-sing-form'/e : kind -> type =
+| kd-sub-sing-form'/i :
+  { C' : con }
+  kind-eq K (sing C') -> kd-sub-sing-form'/e K
+;
+
+proof kd-sub-sing-form' :
+  (g : conbind)
+  [g |- kd-sub K (sing C)] ->
+    [g |- kd-sub-sing-form'/e K] =
+/ trust / % FIXME: See issue #4
+intros
+{ g : conbind, K : (g |- kind), C : (g |- con)
+| sub : [g |- kd-sub K (sing C)]
+; split sub as
+  case kd-sub/trans:
+  { g : conbind,
+    K : (g |- kind),
+    C : (g |- con),
+    K2 : (g |- kind),
+    Dsub : (g |- kd-sub K K2),
+    Dsub1 : (g |- kd-sub K2 (sing C))
+  | sub : [g |- kd-sub K (sing C)]
+  ; split kd-sub-sing-form' [_ |- Dsub1] as
+    case kd-sub-sing-form'/i:
+    { g : conbind,
+      K : (g |- kind),
+      C : (g |- con),
+      K2 : (g |- kind),
+      Dsub : (g |- kd-sub K K2),
+      Dsub1 : (g |- kd-sub K2 (sing C)),
+      C1 : (g |- con),
+      Deq : (g |- kind-eq K2 (sing C1))
+    | sub : [g |- kd-sub K (sing C)]
+    ; by kd-sub-resp [_ |- kind-eq/i ] [_ |- Deq] [_ |- Dsub]
+      as Dsub' unboxed;
+      split kd-sub-sing-form' [_ |- Dsub'] as
+      case kd-sub-sing-form'/i:
+      { g : conbind,
+        K : (g |- kind),
+        C : (g |- con),
+        K2 : (g |- kind),
+        Dsub : (g |- kd-sub K K2),
+        Dsub1 : (g |- kd-sub K2 (sing C)),
+        C1 : (g |- con),
+        Deq : (g |- kind-eq K2 (sing C1)),
+        Dsub' : (g |- kd-sub K (sing C1)),
+        C2 : (g |- con),
+        Deq1 : (g |- kind-eq K (sing C2))
+      | sub : [g |- kd-sub K (sing C)]
+      ; solve [_ |- kd-sub-sing-form'/i _ Deq1]
+      }
+    }
+  }
+  case kd-sub/refl:
+  { g : conbind,
+    K : (g |- kind),
+    C : (g |- con),
+    Dequiv : (g |- kd-equiv K (sing C))
+  | sub : [g |- kd-sub K (sing C)]
+  ; split kd-equiv-sing-form' [_ |- Dequiv] as
+    case kd-equiv-sing-form/i:
+    { g : conbind,
+      K : (g |- kind),
+      C : (g |- con),
+      Dequiv : (g |- kd-equiv K (sing C)),
+      C1 : (g |- con),
+      Deq : (g |- kind-eq K (sing C1))
+    | sub : [g |- kd-sub K (sing C)]
+    ; solve [_ |- kd-sub-sing-form'/i _ Deq]
+    }
+  }
+}
+;
