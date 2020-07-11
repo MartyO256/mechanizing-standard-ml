@@ -2012,3 +2012,416 @@ intros
   }
 }
 ;
+
+% Consistency for Signatures
+
+LF similar-sg : sg -> sg -> type =
+| similar-sg/one : similar-sg sg/one sg/one
+| similar-sg/satom : similar-sg (sg/satom _) (sg/satom _)
+| similar-sg/datom : similar-sg (sg/datom _) (sg/datom _)
+| similar-sg/sgatom : similar-sg (sg/sgatom _) (sg/sgatom _)
+| similar-sg/pi : similar-sg (sg/pi _ _) (sg/pi _ _)
+| similar-sg/sigma : similar-sg (sg/sigma _ _) (sg/sigma _ _)
+| similar-sg/named : similar-sg (sg/named _ _) (sg/named _ _)
+;
+
+proof similar-sg-symm :
+  (g : conblock)
+  [g |- similar-sg S1 S2] ->
+    [g |- similar-sg S2 S1] =
+/ total /
+intros
+{ g : conblock, S : (g |- sg), S1 : (g |- sg)
+| x : [g |- similar-sg S S1]
+; split x as
+  case similar-sg/named:
+  { g : conblock,
+    L : ( |- name),
+    S2 : (g |- sg),
+    L1 : ( |- name),
+    S3 : (g |- sg)
+  | x : [g |- similar-sg (sg/named L[] S2) (sg/named L1[] S3)]
+  ; solve [_ |- similar-sg/named ]
+  }
+  case similar-sg/sigma:
+  { g : conblock,
+    S2 : (g |- sg),
+    S3 : (g, a133 : con |- sg),
+    S4 : (g |- sg),
+    S5 : (g, a134 : con |- sg)
+  | x : [g |- similar-sg (sg/sigma S2 (\x343. S3)) (sg/sigma S4 (\x343. S5))]
+  ; solve [_ |- similar-sg/sigma ]
+  }
+  case similar-sg/pi:
+  { g : conblock,
+    S2 : (g |- sg),
+    S3 : (g, a131 : con |- sg),
+    S4 : (g |- sg),
+    S5 : (g, a132 : con |- sg)
+  | x : [g |- similar-sg (sg/pi S2 (\x342. S3)) (sg/pi S4 (\x342. S5))]
+  ; solve [_ |- similar-sg/pi ]
+  }
+  case similar-sg/sgatom:
+  { g : conblock, S2 : (g |- sg), S3 : (g |- sg)
+  | x : [g |- similar-sg (sg/sgatom S2) (sg/sgatom S3)]
+  ; solve [_ |- similar-sg/sgatom ]
+  }
+  case similar-sg/datom:
+  { g : conblock, C : (g |- con), C1 : (g |- con)
+  | x : [g |- similar-sg (sg/datom C) (sg/datom C1)]
+  ; solve [_ |- similar-sg/datom ]
+  }
+  case similar-sg/satom:
+  { g : conblock, K : (g |- kind), K1 : (g |- kind)
+  | x : [g |- similar-sg (sg/satom K) (sg/satom K1)]
+  ; solve [_ |- similar-sg/satom ]
+  }
+  case similar-sg/one:
+  { g : conblock
+  | x : [g |- similar-sg sg/one sg/one]
+  ; solve x
+  }
+}
+;
+
+proof similar-sg-trans :
+  (g : conblock)
+  [g |- similar-sg S1 S2] ->
+  [g |- similar-sg S2 S3] ->
+    [g |- similar-sg S1 S3] =
+/ total /
+intros
+{ g : conblock, S : (g |- sg), S1 : (g |- sg), S2 : (g |- sg)
+| x : [g |- similar-sg S S1], x1 : [g |- similar-sg S1 S2]
+; split x as
+  case similar-sg/named:
+  { g : conblock,
+    L : ( |- name),
+    S3 : (g |- sg),
+    L1 : ( |- name),
+    S4 : (g |- sg),
+    S2 : (g |- sg)
+  | x : [g |- similar-sg (sg/named L[] S3) (sg/named L1[] S4)],
+    x1 : [g |- similar-sg (sg/named L1[] S4) S2]
+  ; split x1 as
+    case similar-sg/named:
+    { g : conblock,
+      L : ( |- name),
+      S3 : (g |- sg),
+      L1 : ( |- name),
+      S4 : (g |- sg),
+      L3 : ( |- name),
+      S6 : (g |- sg)
+    | x : [g |- similar-sg (sg/named L[] S3) (sg/named L1[] S4)],
+      x1 : [g |- similar-sg (sg/named L1[] S4) (sg/named L3[] S6)]
+    ; solve [_ |- similar-sg/named ]
+    }
+  }
+  case similar-sg/sigma:
+  { g : conblock,
+    S3 : (g |- sg),
+    S4 : (g, a133 : con |- sg),
+    S5 : (g |- sg),
+    S6 : (g, a134 : con |- sg),
+    S2 : (g |- sg)
+  | x : [g |- similar-sg (sg/sigma S3 (\x343. S4)) (sg/sigma S5 (\x343. S6))],
+    x1 : [g |- similar-sg (sg/sigma S5 (\x343. S6)) S2]
+  ; split x1 as
+    case similar-sg/sigma:
+    { g : conblock,
+      S3 : (g |- sg),
+      S4 : (g, a133 : con |- sg),
+      S5 : (g |- sg),
+      S6 : (g, a134 : con |- sg),
+      S9 : (g |- sg),
+      S10 : (g, a134 : con |- sg)
+    | x :
+        [g |- similar-sg (sg/sigma S3 (\x343. S4)) (sg/sigma S5 (\x343. S6))],
+      x1 :
+        [g |- similar-sg (sg/sigma S5 (\x343. S6)) (sg/sigma S9 (\x343. S10))]
+    ; solve [_ |- similar-sg/sigma ]
+    }
+  }
+  case similar-sg/pi:
+  { g : conblock,
+    S3 : (g |- sg),
+    S4 : (g, a131 : con |- sg),
+    S5 : (g |- sg),
+    S6 : (g, a132 : con |- sg),
+    S2 : (g |- sg)
+  | x : [g |- similar-sg (sg/pi S3 (\x342. S4)) (sg/pi S5 (\x342. S6))],
+    x1 : [g |- similar-sg (sg/pi S5 (\x342. S6)) S2]
+  ; split x1 as
+    case similar-sg/pi:
+    { g : conblock,
+      S3 : (g |- sg),
+      S4 : (g, a131 : con |- sg),
+      S5 : (g |- sg),
+      S6 : (g, a132 : con |- sg),
+      S9 : (g |- sg),
+      S10 : (g, a132 : con |- sg)
+    | x : [g |- similar-sg (sg/pi S3 (\x342. S4)) (sg/pi S5 (\x342. S6))],
+      x1 : [g |- similar-sg (sg/pi S5 (\x342. S6)) (sg/pi S9 (\x342. S10))]
+    ; solve [_ |- similar-sg/pi ]
+    }
+  }
+  case similar-sg/sgatom:
+  { g : conblock, S3 : (g |- sg), S4 : (g |- sg), S2 : (g |- sg)
+  | x : [g |- similar-sg (sg/sgatom S3) (sg/sgatom S4)],
+    x1 : [g |- similar-sg (sg/sgatom S4) S2]
+  ; split x1 as
+    case similar-sg/sgatom:
+    { g : conblock, S3 : (g |- sg), S4 : (g |- sg), S6 : (g |- sg)
+    | x : [g |- similar-sg (sg/sgatom S3) (sg/sgatom S4)],
+      x1 : [g |- similar-sg (sg/sgatom S4) (sg/sgatom S6)]
+    ; solve [_ |- similar-sg/sgatom ]
+    }
+  }
+  case similar-sg/datom:
+  { g : conblock, C : (g |- con), C1 : (g |- con), S2 : (g |- sg)
+  | x : [g |- similar-sg (sg/datom C) (sg/datom C1)],
+    x1 : [g |- similar-sg (sg/datom C1) S2]
+  ; split x1 as
+    case similar-sg/datom:
+    { g : conblock, C : (g |- con), C1 : (g |- con), C3 : (g |- con)
+    | x : [g |- similar-sg (sg/datom C) (sg/datom C1)],
+      x1 : [g |- similar-sg (sg/datom C1) (sg/datom C3)]
+    ; solve [_ |- similar-sg/datom ]
+    }
+  }
+  case similar-sg/satom:
+  { g : conblock, K : (g |- kind), K1 : (g |- kind), S2 : (g |- sg)
+  | x : [g |- similar-sg (sg/satom K) (sg/satom K1)],
+    x1 : [g |- similar-sg (sg/satom K1) S2]
+  ; split x1 as
+    case similar-sg/satom:
+    { g : conblock, K : (g |- kind), K1 : (g |- kind), K3 : (g |- kind)
+    | x : [g |- similar-sg (sg/satom K) (sg/satom K1)],
+      x1 : [g |- similar-sg (sg/satom K1) (sg/satom K3)]
+    ; solve [_ |- similar-sg/satom ]
+    }
+  }
+  case similar-sg/one:
+  { g : conblock, S2 : (g |- sg)
+  | x : [g |- similar-sg sg/one sg/one], x1 : [g |- similar-sg sg/one S2]
+  ; solve x1
+  }
+}
+;
+
+proof sg-equiv-similar :
+  (g : conbind)
+  [g |- sg-equiv S1 S2] ->
+    [g |- similar-sg S1 S2] =
+/ total 1 /
+intros
+{ g : conbind, S : (g |- sg), S1 : (g |- sg)
+| x : [g |- sg-equiv S S1]
+; split x as
+  case sg-equiv/named:
+  { g : conbind,
+    L : ( |- name),
+    S2 : (g |- sg),
+    S3 : (g |- sg),
+    Dequiv : (g |- sg-equiv S2 S3)
+  | x : [g |- sg-equiv (sg/named L[] S2) (sg/named L[] S3)]
+  ; solve [_ |- similar-sg/named ]
+  }
+  case sg-equiv/sigma:
+  { g : conbind,
+    S2 : (g |- sg),
+    S4 : (g, a51 : con |- sg),
+    S3 : (g |- sg),
+    S5 : (g, a52 : con |- sg),
+    K : (g |- kind),
+    Dequiv : (g |- sg-equiv S2 S3),
+    Dfst : (g |- sg-fst S2 K),
+    Dequiv1 :
+      (g, a : con, x462 : cn-of a (K[..]) |- sg-equiv (S4[.., a]) (S5[.., a]))
+  | x : [g |- sg-equiv (sg/sigma S2 (\x343. S4)) (sg/sigma S3 (\x343. S5))]
+  ; solve [_ |- similar-sg/sigma ]
+  }
+  case sg-equiv/pi:
+  { g : conbind,
+    S2 : (g |- sg),
+    S4 : (g, a49 : con |- sg),
+    S3 : (g |- sg),
+    S5 : (g, a50 : con |- sg),
+    K : (g |- kind),
+    Dequiv : (g |- sg-equiv S2 S3),
+    Dfst : (g |- sg-fst S2 K),
+    Dequiv1 :
+      (g, a : con, y461 : cn-of a (K[..]) |- sg-equiv (S4[.., a]) (S5[.., a]))
+  | x : [g |- sg-equiv (sg/pi S2 (\x342. S4)) (sg/pi S3 (\x342. S5))]
+  ; solve [_ |- similar-sg/pi ]
+  }
+  case sg-equiv/sgatom:
+  { g : conbind,
+    S2 : (g |- sg),
+    S3 : (g |- sg),
+    Dequiv : (g |- sg-equiv S2 S3)
+  | x : [g |- sg-equiv (sg/sgatom S2) (sg/sgatom S3)]
+  ; solve [_ |- similar-sg/sgatom ]
+  }
+  case sg-equiv/datom:
+  { g : conbind,
+    C : (g |- con),
+    C1 : (g |- con),
+    Dequiv : (g |- cn-equiv C C1 t)
+  | x : [g |- sg-equiv (sg/datom C) (sg/datom C1)]
+  ; solve [_ |- similar-sg/datom ]
+  }
+  case sg-equiv/satom:
+  { g : conbind,
+    K : (g |- kind),
+    K1 : (g |- kind),
+    Dequiv : (g |- kd-equiv K K1)
+  | x : [g |- sg-equiv (sg/satom K) (sg/satom K1)]
+  ; solve [_ |- similar-sg/satom ]
+  }
+  case sg-equiv/trans:
+  { g : conbind,
+    S : (g |- sg),
+    S1 : (g |- sg),
+    S3 : (g |- sg),
+    Dequiv : (g |- sg-equiv S S3),
+    Dequiv1 : (g |- sg-equiv S3 S1)
+  | x : [g |- sg-equiv S S1]
+  ; by sg-equiv-similar [_ |- Dequiv] as D12' unboxed;
+    by sg-equiv-similar [_ |- Dequiv1] as D23' unboxed;
+    solve similar-sg-trans [_ |- D12'] [_ |- D23']
+  }
+  case sg-equiv/symm:
+  { g : conbind, S : (g |- sg), S1 : (g |- sg), Dequiv : (g |- sg-equiv S1 S)
+  | x : [g |- sg-equiv S S1]
+  ; by sg-equiv-similar [_ |- Dequiv] as D' unboxed;
+    solve similar-sg-symm [_ |- D']
+  }
+  case sg-equiv/refl:
+  { g : conbind, S1 : (g |- sg), Dwf : (g |- sg-wf S1)
+  | x : [g |- sg-equiv S1 S1]
+  ; split [_ |- S1] as
+    case sg/named:
+    { g : conbind,
+      L : ( |- name),
+      S2 : (g |- sg),
+      Dwf : (g |- sg-wf (sg/named L[] S2))
+    | x : [g |- sg-equiv (sg/named L[] S2) (sg/named L[] S2)]
+    ; solve [_ |- similar-sg/named ]
+    }
+    case sg/sigma:
+    { g : conbind,
+      S2 : (g |- sg),
+      S3 : (g, x343 : con |- sg),
+      Dwf : (g |- sg-wf (sg/sigma S2 (\x343. S3)))
+    | x : [g |- sg-equiv (sg/sigma S2 (\x343. S3)) (sg/sigma S2 (\x343. S3))]
+    ; solve [_ |- similar-sg/sigma ]
+    }
+    case sg/pi:
+    { g : conbind,
+      S2 : (g |- sg),
+      S3 : (g, x342 : con |- sg),
+      Dwf : (g |- sg-wf (sg/pi S2 (\x342. S3)))
+    | x : [g |- sg-equiv (sg/pi S2 (\x342. S3)) (sg/pi S2 (\x342. S3))]
+    ; solve [_ |- similar-sg/pi ]
+    }
+    case sg/sgatom:
+    { g : conbind, S2 : (g |- sg), Dwf : (g |- sg-wf (sg/sgatom S2))
+    | x : [g |- sg-equiv (sg/sgatom S2) (sg/sgatom S2)]
+    ; solve [_ |- similar-sg/sgatom ]
+    }
+    case sg/datom:
+    { g : conbind, C : (g |- con), Dwf : (g |- sg-wf (sg/datom C))
+    | x : [g |- sg-equiv (sg/datom C) (sg/datom C)]
+    ; solve [_ |- similar-sg/datom ]
+    }
+    case sg/satom:
+    { g : conbind, K : (g |- kind), Dwf : (g |- sg-wf (sg/satom K))
+    | x : [g |- sg-equiv (sg/satom K) (sg/satom K)]
+    ; solve [_ |- similar-sg/satom ]
+    }
+    case sg/one:
+    { g : conbind, Dwf : (g |- sg-wf sg/one)
+    | x : [g |- sg-equiv sg/one sg/one]
+    ; solve [_ |- similar-sg/one]
+    }
+  }
+}
+;
+
+proof sg-sub-similar :
+  (g : conbind)
+  [g |- sg-sub S1 S2] ->
+    [g |- similar-sg S1 S2] =
+/ total 1 /
+intros
+{ g : conbind, S : (g |- sg), S1 : (g |- sg)
+| x : [g |- sg-sub S S1]
+; split x as
+  case sg-sub/named:
+  { g : conbind,
+    L : ( |- name),
+    S2 : (g |- sg),
+    S3 : (g |- sg),
+    Dsub : (g |- sg-sub S2 S3)
+  | x : [g |- sg-sub (sg/named L[] S2) (sg/named L[] S3)]
+  ; solve [_ |- similar-sg/named ]
+  }
+  case sg-sub/sigma:
+  { g : conbind,
+    S2 : (g |- sg),
+    S4 : (g, a55 : con |- sg),
+    S3 : (g |- sg),
+    S5 : (g, a56 : con |- sg),
+    K : (g |- kind),
+    K1 : (g |- kind),
+    Dsub : (g |- sg-sub S2 S3),
+    Dfst : (g |- sg-fst S2 K),
+    Dsub1 :
+      (g, a : con, z468 : cn-of a (K[..]) |- sg-sub (S4[.., a]) (S5[.., a])),
+    Dfst1 : (g |- sg-fst S3 K1),
+    Dwf : (g, a : con, x468 : cn-of a (K1[..]) |- sg-wf (S5[.., a]))
+  | x : [g |- sg-sub (sg/sigma S2 (\x343. S4)) (sg/sigma S3 (\x343. S5))]
+  ; solve [_ |- similar-sg/sigma ]
+  }
+  case sg-sub/pi:
+  { g : conbind,
+    S3 : (g |- sg),
+    S4 : (g, a53 : con |- sg),
+    S2 : (g |- sg),
+    S5 : (g, a54 : con |- sg),
+    K : (g |- kind),
+    K1 : (g |- kind),
+    Dsub : (g |- sg-sub S2 S3),
+    Dfst : (g |- sg-fst S2 K),
+    Dsub1 :
+      (g, a : con, x466 : cn-of a (K[..]) |- sg-sub (S4[.., a]) (S5[.., a])),
+    Dfst1 : (g |- sg-fst S3 K1),
+    Dwf : (g, a : con, y466 : cn-of a (K1[..]) |- sg-wf (S4[.., a]))
+  | x : [g |- sg-sub (sg/pi S3 (\x342. S4)) (sg/pi S2 (\x342. S5))]
+  ; solve [_ |- similar-sg/pi ]
+  }
+  case sg-sub/satom:
+  { g : conbind, K : (g |- kind), K1 : (g |- kind), Dsub : (g |- kd-sub K K1)
+  | x : [g |- sg-sub (sg/satom K) (sg/satom K1)]
+  ; solve [_ |- similar-sg/satom ]
+  }
+  case sg-sub/trans:
+  { g : conbind,
+    S : (g |- sg),
+    S1 : (g |- sg),
+    S3 : (g |- sg),
+    Dsub : (g |- sg-sub S S3),
+    Dsub1 : (g |- sg-sub S3 S1)
+  | x : [g |- sg-sub S S1]
+  ; by sg-sub-similar [_ |- Dsub] as D12' unboxed;
+    by sg-sub-similar [_ |- Dsub1] as D23' unboxed;
+    solve similar-sg-trans [_ |- D12'] [_ |- D23']
+  }
+  case sg-sub/refl:
+  { g : conbind, S : (g |- sg), S1 : (g |- sg), Dequiv : (g |- sg-equiv S S1)
+  | x : [g |- sg-sub S S1]
+  ; solve sg-equiv-similar [_ |- Dequiv]
+  }
+}
+;
