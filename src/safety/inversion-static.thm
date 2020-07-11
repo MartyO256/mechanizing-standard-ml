@@ -1,0 +1,38 @@
+% Kind Inversion
+
+LF kd-wf-kprod-invert/e : kind -> kind -> type =
+| kd-wf-kprod-invert/i :
+  kd-wf K1 -> kd-wf K2 -> kd-wf-kprod-invert/e K1 K2
+;
+
+proof kd-wf-kprod-invert :
+  (g : conbind)
+  [g |- kd-wf (sigma K1 (\l. K2[..]))] ->
+    [g |- kd-wf-kprod-invert/e K1 K2] =
+/ total /
+intros
+{ g : conbind, K : (g |- kind), K1 : (g |- kind)
+| wf : [g |- kd-wf (sigma K (\l. K1[..]))]
+; split wf as
+  case kd-wf/sigma:
+  { g : conbind,
+    K : (g |- kind),
+    K1 : (g |- kind),
+    Dwf : (g |- kd-wf K),
+    Dwf1 : (g, a : con, y387 : cn-of a (K[..]) |- kd-wf (K1[..]))
+  | wf : [g |- kd-wf (sigma K (\l. K1[..]))]
+  ; split inhabitation [_ |- Dwf] as
+    case inhabitation/i:
+    { g : conbind,
+      K : (g |- kind),
+      K1 : (g |- kind),
+      Dwf : (g |- kd-wf K),
+      Dwf1 : (g, a : con, y387 : cn-of a (K[..]) |- kd-wf (K1[..])),
+      C : (g |- con),
+      Dof : (g |- cn-of C K)
+    | wf : [g |- kd-wf (sigma K (\l. K1[..]))]
+    ; solve [_ |- kd-wf-kprod-invert/i Dwf (Dwf1[.., C, Dof])]
+    }
+  }
+}
+;
