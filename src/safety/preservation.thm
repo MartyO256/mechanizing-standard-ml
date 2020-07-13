@@ -2247,27 +2247,13 @@ LF preservation-tm/e : sttp -> term -> con -> store -> type =
     preservation-tm/e F E' T ST'
 ;
 
-proof preservation-tm/i :
-  { F' : [ |- sttp] }
-  [ |- tm-of F' E' T] ->
-  [ |- store-of F' ST' F'] ->
-  [ |- extends F F'] ->
-    [ |- preservation-tm/e F E' T ST'] =
-/ total /
-intros
-{ E' : ( |- term),
-  T : ( |- con),
-  ST' : ( |- store),
-  F : ( |- sttp),
-  F' : ( |- sttp)
-| tof : [ |- tm-of F' E' T],
-  sof : [ |- store-of F' ST' F'],
-  extends : [ |- extends F F']
-; by tof as DofT unboxed;
-  by sof as DofS unboxed;
-  by extends as Dextends unboxed;
-  solve [ |- preservation-tm/i F' DofT DofS Dextends]
-}
+LF preservation-md/e : purity -> sttp -> module' -> sg -> store -> type =
+| preservation-md/i :
+  { F' : sttp }
+  md-of P F' M' S ->
+  store-of F' ST' F' ->
+  extends F F' ->
+    preservation-md/e P F M' S ST'
 ;
 
 proof preservation-tm :
@@ -2301,7 +2287,25 @@ intros
   | tof : [ |- tm-of F (tm/snd (md/datom E' C)) T],
     sof : [ |- store-of F ST' F],
     x : [ |- step ST' (tm/snd (md/datom E' C)) ST' E']
-  ; ?
+  ; by inversion-tm/snd [ |- Dof] as Dof' unboxed;
+    split inversion-md/datom [ |- Dof'] as
+    case inversion-md/datom/i:
+    { F : ( |- sttp),
+      E' : ( |- term),
+      C : ( |- con),
+      T : ( |- con),
+      ST' : ( |- store),
+      Dof : ( |- tm-of F (tm/snd (md/datom E' C)) T),
+      Dstof : ( |- store-of F ST' F),
+      Dvalue : ( |- value E'),
+      Dof' : ( |- md-of impure F (md/datom E' C) (sg/datom T)),
+      Dof1 : ( |- tm-of F E' C),
+      Dsub : ( |- sg-sub (sg/datom C) (sg/datom T))
+    | tof : [ |- tm-of F (tm/snd (md/datom E' C)) T],
+      sof : [ |- store-of F ST' F],
+      x : [ |- step ST' (tm/snd (md/datom E' C)) ST' E']
+    ; ?
+    }
   }
   case step/snd:
   { F : ( |- sttp),
@@ -2316,7 +2320,28 @@ intros
   | tof : [ |- tm-of F (tm/snd M) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/snd M) ST' (tm/snd M1)]
-  ; ?
+  ; by inversion-tm/snd [ |- Dof] as Dof' unboxed;
+    split preservation-md [ |- Dof'] [ |- Dstof] [ |- Dstep] as
+    case preservation-md/i:
+    { F : ( |- sttp),
+      M : ( |- module'),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      M1 : ( |- module'),
+      Dof : ( |- tm-of F (tm/snd M) T),
+      Dstof : ( |- store-of F ST F),
+      Dstep : ( |- step-md ST M ST' M1),
+      Dof' : ( |- md-of impure F M (sg/datom T)),
+      F2 : ( |- sttp),
+      Dof1 : ( |- md-of impure F2 M1 (sg/datom T)),
+      Dof2 : ( |- store-of F2 ST' F2),
+      Dextends : ( |- extends F F2)
+    | tof : [ |- tm-of F (tm/snd M) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/snd M) ST' (tm/snd M1)]
+    ; solve [ |- preservation-tm/i _ (tm-of/snd Dof1) Dof2 Dextends]
+    }
   }
   case step/lett2:
   { F : ( |- sttp),
@@ -2330,7 +2355,25 @@ intros
   | tof : [ |- tm-of F (tm/lett E1 (\y131. E2)) T],
     sof : [ |- store-of F ST' F],
     x : [ |- step ST' (tm/lett E1 (\y131. E2)) ST' (E2[E1])]
-  ; ?
+  ; split inversion-tm/lett [ |- Dof] as
+    case inversion-tm/lett/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : (x24 : term |- term),
+      T : ( |- con),
+      ST' : ( |- store),
+      Dof : ( |- tm-of F (tm/lett E1 (\y131. E2)) T),
+      Dstof : ( |- store-of F ST' F),
+      Dvalue : ( |- value E1),
+      C1 : ( |- con),
+      Dof1 : ( |- tm-of F E1 C1),
+      Dof2 :
+        (x : term, u : {F' : sttp}  tm-of F' x C1[] |- tm-of F[] (E2[x]) T[])
+    | tof : [ |- tm-of F (tm/lett E1 (\x361. E2)) T],
+      sof : [ |- store-of F ST' F],
+      x : [ |- step ST' (tm/lett E1 (\x361. E2)) ST' (E2[E1])]
+    ; ? % TODO: Requires higher-order substitution like Dof2[E1, {F} Dof1]
+    }
   }
   case step/lett1:
   { F : ( |- sttp),
@@ -2614,7 +2657,66 @@ intros
   | tof : [ |- tm-of F (tm/out (tm/in X E')) T],
     sof : [ |- store-of F ST' F],
     x : [ |- step ST' (tm/out (tm/in X E')) ST' E']
-  ; ?
+  ; split inversion-tm/out [ |- Dof] as
+    case inversion-tm/out/i:
+    { F : ( |- sttp),
+      X : ( |- label),
+      E' : ( |- term),
+      T : ( |- con),
+      ST' : ( |- store),
+      Dof : ( |- tm-of F (tm/out (tm/in X E')) T),
+      Dstof : ( |- store-of F ST' F),
+      Dvalue : ( |- value E'),
+      X1 : ( |- label),
+      Dof1 : ( |- tm-of F (tm/in X E') (labeled X1 T))
+    | tof : [ |- tm-of F (tm/out (tm/in X E')) T],
+      sof : [ |- store-of F ST' F],
+      x : [ |- step ST' (tm/out (tm/in X E')) ST' E']
+    ; split inversion-tm/in [ |- Dof1] as
+      case inversion-tm/in/i:
+      { F : ( |- sttp),
+        X : ( |- label),
+        E' : ( |- term),
+        T : ( |- con),
+        ST' : ( |- store),
+        Dof : ( |- tm-of F (tm/out (tm/in X E')) T),
+        Dstof : ( |- store-of F ST' F),
+        Dvalue : ( |- value E'),
+        X1 : ( |- label),
+        Dof1 : ( |- tm-of F (tm/in X E') (labeled X1 T)),
+        C1 : ( |- con),
+        Dequiv : ( |- cn-equiv (labeled X C1) (labeled X1 T) t),
+        Dof2 : ( |- tm-of F E' C1)
+      | tof : [ |- tm-of F (tm/out (tm/in X E')) T],
+        sof : [ |- store-of F ST' F],
+        x : [ |- step ST' (tm/out (tm/in X E')) ST' E']
+      ; split injective-labeled [ |- Dequiv] as
+        case injective-labeled/i:
+        { F : ( |- sttp),
+          X : ( |- label),
+          E' : ( |- term),
+          T : ( |- con),
+          ST' : ( |- store),
+          Dof : ( |- tm-of F (tm/out (tm/in X E')) T),
+          Dstof : ( |- store-of F ST' F),
+          Dvalue : ( |- value E'),
+          X1 : ( |- label),
+          Dof1 : ( |- tm-of F (tm/in X E') (labeled X1 T)),
+          C1 : ( |- con),
+          Dequiv : ( |- cn-equiv (labeled X C1) (labeled X1 T) t),
+          Dof2 : ( |- tm-of F E' C1),
+          X4 : ( |- label-eq X X1),
+          Dequiv1 : ( |- cn-equiv C1 T t)
+        | tof : [ |- tm-of F (tm/out (tm/in X E')) T],
+          sof : [ |- store-of F ST' F],
+          x : [ |- step ST' (tm/out (tm/in X E')) ST' E']
+        ; solve
+            [ |-
+               preservation-tm/i F
+               (tm-of/equiv Dof2 Dequiv1) Dstof (extends/nil )]
+        }
+      }
+    }
   }
   case step/out:
   { F : ( |- sttp),
@@ -2744,7 +2846,272 @@ intros
   | tof : [ |- tm-of F (tm/unroll (tm/roll E' K (\z126. \y127. C) C1)) T],
     sof : [ |- store-of F ST' F],
     x : [ |- step ST' (tm/unroll (tm/roll E' K (\z126. \y127. C) C1)) ST' E']
-  ; ?
+  ; split inversion-tm/unroll [ |- Dof] as
+    case inversion-tm/unroll/i:
+    { F : ( |- sttp),
+      E' : ( |- term),
+      K : ( |- kind),
+      C : (a78 : con, a77 : con |- con),
+      C1 : ( |- con),
+      T : ( |- con),
+      ST' : ( |- store),
+      Dof : ( |- tm-of F (tm/unroll (tm/roll E' K (\z126. \y127. C) C1)) T),
+      Dstof : ( |- store-of F ST' F),
+      Dvalue : ( |- value E'),
+      K1 : ( |- kind),
+      C3 : (x1047 : con, z1047 : con |- con),
+      C4 : ( |- con),
+      Dequiv :
+        ( |-
+           cn-equiv
+             (C3[lam K1 (\a. rec' K1[] (\z335. \y336. C3[z335, y336]) a), C4])
+             T t),
+      Dof1 :
+        ( |-
+           tm-of
+             F
+             (tm/roll E' K (\z126. \y127. C) C1)
+             (rec' K1 (\z335. \y336. C3) C4))
+    | tof : [ |- tm-of F (tm/unroll (tm/roll E' K (\y357. \x357. C) C1)) T],
+      sof : [ |- store-of F ST' F],
+      x :
+        [ |- step ST' (tm/unroll (tm/roll E' K (\y357. \x357. C) C1)) ST' E']
+    ; split inversion-tm/roll [ |- Dof1] as
+      case inversion-tm/roll/i:
+      { F : ( |- sttp),
+        E' : ( |- term),
+        K : ( |- kind),
+        C : (a78 : con, a77 : con |- con),
+        C1 : ( |- con),
+        T : ( |- con),
+        ST' : ( |- store),
+        Dof : ( |- tm-of F (tm/unroll (tm/roll E' K (\z126. \y127. C) C1)) T),
+        Dstof : ( |- store-of F ST' F),
+        Dvalue : ( |- value E'),
+        K1 : ( |- kind),
+        C3 : (x1047 : con, z1047 : con |- con),
+        C4 : ( |- con),
+        Dequiv :
+          ( |-
+             cn-equiv
+               (C3[lam K1 (\a. rec' K1[] (\z335. \y336. C3[z335, y336]) a),
+                   C4]) T t),
+        Dof1 :
+          ( |-
+             tm-of
+               F
+               (tm/roll E' K (\z126. \y127. C) C1)
+               (rec' K1 (\z335. \y336. C3) C4)),
+        Dequiv1 :
+          ( |-
+             cn-equiv
+               (rec' K (\z335. \y336. C) C1)
+               (rec' K1 (\z335. \y336. C3) C4) t),
+        Dof2 :
+          ( |-
+             tm-of
+               F
+               E'
+               (C[lam K (\a. rec' K[] (\z335. \y336. C[z335, y336]) a), C1])),
+        Dwf : ( |- kd-wf K),
+        Dof3 :
+          (a : con, x1044 : cn-of a (pi K[] (\l. t)), b : con,
+           z1044 : cn-of b K[] |- cn-of (C[a, b]) t),
+        Dof4 : ( |- cn-of C1 K)
+      | tof : [ |- tm-of F (tm/unroll (tm/roll E' K (\y357. \x357. C) C1)) T],
+        sof : [ |- store-of F ST' F],
+        x :
+          [ |-
+             step ST' (tm/unroll (tm/roll E' K (\y357. \x357. C) C1)) ST' E']
+      ; split injective-rec [ |- Dequiv1] as
+        case injective-rec/i:
+        { F : ( |- sttp),
+          E' : ( |- term),
+          K : ( |- kind),
+          C : (a78 : con, a77 : con |- con),
+          C1 : ( |- con),
+          T : ( |- con),
+          ST' : ( |- store),
+          Dof :
+            ( |- tm-of F (tm/unroll (tm/roll E' K (\z126. \y127. C) C1)) T),
+          Dstof : ( |- store-of F ST' F),
+          Dvalue : ( |- value E'),
+          K1 : ( |- kind),
+          C3 : (x1047 : con, z1047 : con |- con),
+          C4 : ( |- con),
+          Dequiv :
+            ( |-
+               cn-equiv
+                 (C3[lam K1 (\a. rec' K1[] (\z335. \y336. C3[z335, y336]) a),
+                     C4]) T t),
+          Dof1 :
+            ( |-
+               tm-of
+                 F
+                 (tm/roll E' K (\z126. \y127. C) C1)
+                 (rec' K1 (\z335. \y336. C3) C4)),
+          Dequiv1 :
+            ( |-
+               cn-equiv
+                 (rec' K (\z335. \y336. C) C1)
+                 (rec' K1 (\z335. \y336. C3) C4) t),
+          Dof2 :
+            ( |-
+               tm-of
+                 F
+                 E'
+                 (C[lam K (\a. rec' K[] (\z335. \y336. C[z335, y336]) a), C1])),
+          Dwf : ( |- kd-wf K),
+          Dof3 :
+            (a : con, x1044 : cn-of a (pi K[] (\l. t)), b : con,
+             z1044 : cn-of b K[] |- cn-of (C[a, b]) t),
+          Dof4 : ( |- cn-of C1 K),
+          Dequiv2 : ( |- kd-equiv K K1),
+          Dequiv3 :
+            (a : con, x989 : cn-of a (pi K[] (\l. t)), b : con,
+             z989 : cn-of b K[] |- cn-equiv (C[a, b]) (C3[a, b]) t),
+          Dequiv4 : ( |- cn-equiv C1 C4 K)
+        | tof :
+            [ |- tm-of F (tm/unroll (tm/roll E' K (\y357. \x357. C) C1)) T],
+          sof : [ |- store-of F ST' F],
+          x :
+            [ |-
+               step
+                 ST' (tm/unroll (tm/roll E' K (\y357. \x357. C) C1)) ST' E']
+        ; split cn-equiv-reg [ |- Dequiv1] as
+          case cn-equiv-reg/i:
+          { F : ( |- sttp),
+            E' : ( |- term),
+            K : ( |- kind),
+            C : (a78 : con, a77 : con |- con),
+            C1 : ( |- con),
+            T : ( |- con),
+            ST' : ( |- store),
+            Dof :
+              ( |- tm-of F (tm/unroll (tm/roll E' K (\z126. \y127. C) C1)) T),
+            Dstof : ( |- store-of F ST' F),
+            Dvalue : ( |- value E'),
+            K1 : ( |- kind),
+            C3 : (x1047 : con, z1047 : con |- con),
+            C4 : ( |- con),
+            Dequiv :
+              ( |-
+                 cn-equiv
+                   (C3[lam K1
+                       (\a. rec' K1[] (\z335. \y336. C3[z335, y336]) a), C4])
+                   T t),
+            Dof1 :
+              ( |-
+                 tm-of
+                   F
+                   (tm/roll E' K (\z126. \y127. C) C1)
+                   (rec' K1 (\z335. \y336. C3) C4)),
+            Dequiv1 :
+              ( |-
+                 cn-equiv
+                   (rec' K (\z335. \y336. C) C1)
+                   (rec' K1 (\z335. \y336. C3) C4) t),
+            Dof2 :
+              ( |-
+                 tm-of
+                   F
+                   E'
+                   (C[lam K (\a. rec' K[] (\z335. \y336. C[z335, y336]) a),
+                      C1])),
+            Dwf : ( |- kd-wf K),
+            Dof3 :
+              (a : con, x1044 : cn-of a (pi K[] (\l. t)), b : con,
+               z1044 : cn-of b K[] |- cn-of (C[a, b]) t),
+            Dof4 : ( |- cn-of C1 K),
+            Dequiv2 : ( |- kd-equiv K K1),
+            Dequiv3 :
+              (a : con, x989 : cn-of a (pi K[] (\l. t)), b : con,
+               z989 : cn-of b K[] |- cn-equiv (C[a, b]) (C3[a, b]) t),
+            Dequiv4 : ( |- cn-equiv C1 C4 K),
+            Dof5 : ( |- cn-of (rec' K (\z335. \y336. C) C1) t),
+            Dof6 : ( |- cn-of (rec' K1 (\z335. \y336. C3) C4) t),
+            Dwf1 : ( |- kd-wf t)
+          | tof :
+              [ |- tm-of F (tm/unroll (tm/roll E' K (\y357. \x357. C) C1)) T],
+            sof : [ |- store-of F ST' F],
+            x :
+              [ |-
+                 step
+                   ST' (tm/unroll (tm/roll E' K (\y357. \x357. C) C1)) ST' E']
+          ; split inversion-rec [ |- Dof6] as
+            case inversion-rec/i:
+            { F : ( |- sttp),
+              E' : ( |- term),
+              K : ( |- kind),
+              C : (a78 : con, a77 : con |- con),
+              C1 : ( |- con),
+              T : ( |- con),
+              ST' : ( |- store),
+              Dof :
+                ( |-
+                   tm-of F (tm/unroll (tm/roll E' K (\z126. \y127. C) C1)) T),
+              Dstof : ( |- store-of F ST' F),
+              Dvalue : ( |- value E'),
+              K1 : ( |- kind),
+              C3 : (x1047 : con, z1047 : con |- con),
+              C4 : ( |- con),
+              Dequiv :
+                ( |-
+                   cn-equiv
+                     (C3[lam K1
+                         (\a. rec' K1[] (\z335. \y336. C3[z335, y336]) a), C4])
+                     T t),
+              Dof1 :
+                ( |-
+                   tm-of
+                     F
+                     (tm/roll E' K (\z126. \y127. C) C1)
+                     (rec' K1 (\z335. \y336. C3) C4)),
+              Dequiv1 :
+                ( |-
+                   cn-equiv
+                     (rec' K (\z335. \y336. C) C1)
+                     (rec' K1 (\z335. \y336. C3) C4) t),
+              Dof2 :
+                ( |-
+                   tm-of
+                     F
+                     E'
+                     (C[lam K (\a. rec' K[] (\z335. \y336. C[z335, y336]) a),
+                        C1])),
+              Dwf : ( |- kd-wf K),
+              Dof3 :
+                (a : con, x1044 : cn-of a (pi K[] (\l. t)), b : con,
+                 z1044 : cn-of b K[] |- cn-of (C[a, b]) t),
+              Dof4 : ( |- cn-of C1 K),
+              Dequiv2 : ( |- kd-equiv K K1),
+              Dequiv3 :
+                (a : con, x989 : cn-of a (pi K[] (\l. t)), b : con,
+                 z989 : cn-of b K[] |- cn-equiv (C[a, b]) (C3[a, b]) t),
+              Dequiv4 : ( |- cn-equiv C1 C4 K),
+              Dof5 : ( |- cn-of (rec' K (\z335. \y336. C) C1) t),
+              Dof6 : ( |- cn-of (rec' K1 (\z335. \y336. C3) C4) t),
+              Dwf1 : ( |- kd-wf t),
+              Dwf2 : ( |- kd-wf K1),
+              Dof7 :
+                (a : con, z708 : cn-of a (pi K1[] (\l. t)), b : con,
+                 y709 : cn-of b K1[] |- cn-of (C3[a, b]) t),
+              Dof8 : ( |- cn-of C4 K1)
+            | tof :
+                [ |-
+                   tm-of F (tm/unroll (tm/roll E' K (\y357. \x357. C) C1)) T],
+              sof : [ |- store-of F ST' F],
+              x :
+                [ |-
+                   step
+                     ST'
+                     (tm/unroll (tm/roll E' K (\y357. \x357. C) C1)) ST' E']
+            ; ?
+            }
+          }
+        }
+      }
+    }
   }
   case step/unroll:
   { F : ( |- sttp),
@@ -3024,7 +3391,194 @@ intros
            ST'
            (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
            (tm/tagloc Dloc) (\y125. E2) E3) ST' (E2[E1])]
-  ; ?
+  ; split inversion-tm/iftag [ |- Dof] as
+    case inversion-tm/iftag/i:
+    { F : ( |- sttp),
+      Dloc : ( |- location),
+      E1 : ( |- term),
+      E2 : (x18 : term |- term),
+      E3 : ( |- term),
+      T : ( |- con),
+      ST' : ( |- store),
+      Dof :
+        ( |-
+           tm-of
+             F
+             (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+             (tm/tagloc Dloc) (\y125. E2) E3) T),
+      Dstof : ( |- store-of F ST' F),
+      Dvalue : ( |- value E1),
+      C1 : ( |- con),
+      Dof1 : ( |- tm-of F (tm/tag (tm/tagloc Dloc) E1) tagged),
+      Dof2 : ( |- tm-of F (tm/tagloc Dloc) (tag C1)),
+      Dof3 :
+        (x : term, u : {F' : sttp}  tm-of F' x C1[] |- tm-of F[] (E2[x]) T[]),
+      Dof4 : ( |- tm-of F E3 T)
+    | tof :
+        [ |-
+           tm-of
+             F
+             (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+             (tm/tagloc Dloc) (\x355. E2) E3) T],
+      sof : [ |- store-of F ST' F],
+      x :
+        [ |-
+           step
+             ST'
+             (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+             (tm/tagloc Dloc) (\x355. E2) E3) ST' (E2[E1])]
+    ; split inversion-tm/tag [ |- Dof1] as
+      case inversion-tm/tag/i:
+      { F : ( |- sttp),
+        Dloc : ( |- location),
+        E1 : ( |- term),
+        E2 : (x18 : term |- term),
+        E3 : ( |- term),
+        T : ( |- con),
+        ST' : ( |- store),
+        Dof :
+          ( |-
+             tm-of
+               F
+               (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+               (tm/tagloc Dloc) (\y125. E2) E3) T),
+        Dstof : ( |- store-of F ST' F),
+        Dvalue : ( |- value E1),
+        C1 : ( |- con),
+        Dof1 : ( |- tm-of F (tm/tag (tm/tagloc Dloc) E1) tagged),
+        Dof2 : ( |- tm-of F (tm/tagloc Dloc) (tag C1)),
+        Dof3 :
+          (x : term, u : {F' : sttp}  tm-of F' x C1[] |-
+             tm-of F[] (E2[x]) T[]),
+        Dof4 : ( |- tm-of F E3 T),
+        C3 : ( |- con),
+        Dequiv : ( |- cn-equiv tagged tagged t),
+        Dof5 : ( |- tm-of F (tm/tagloc Dloc) (tag C3)),
+        Dof6 : ( |- tm-of F E1 C3)
+      | tof :
+          [ |-
+             tm-of
+               F
+               (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+               (tm/tagloc Dloc) (\x355. E2) E3) T],
+        sof : [ |- store-of F ST' F],
+        x :
+          [ |-
+             step
+               ST'
+               (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+               (tm/tagloc Dloc) (\x355. E2) E3) ST' (E2[E1])]
+      ; split inversion-tm/tagloc [ |- Dof2] as
+        case inversion-tm/tagloc/i:
+        { F : ( |- sttp),
+          Dloc : ( |- location),
+          E1 : ( |- term),
+          E2 : (x18 : term |- term),
+          E3 : ( |- term),
+          T : ( |- con),
+          ST' : ( |- store),
+          Dof :
+            ( |-
+               tm-of
+                 F
+                 (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+                 (tm/tagloc Dloc) (\y125. E2) E3) T),
+          Dstof : ( |- store-of F ST' F),
+          Dvalue : ( |- value E1),
+          C1 : ( |- con),
+          Dof1 : ( |- tm-of F (tm/tag (tm/tagloc Dloc) E1) tagged),
+          Dof2 : ( |- tm-of F (tm/tagloc Dloc) (tag C1)),
+          Dof3 :
+            (x : term, u : {F' : sttp}  tm-of F' x C1[] |-
+               tm-of F[] (E2[x]) T[]),
+          Dof4 : ( |- tm-of F E3 T),
+          C3 : ( |- con),
+          Dequiv : ( |- cn-equiv tagged tagged t),
+          Dof5 : ( |- tm-of F (tm/tagloc Dloc) (tag C3)),
+          Dof6 : ( |- tm-of F E1 C3),
+          C5 : ( |- con),
+          Dequiv1 : ( |- cn-equiv (tag C5) (tag C1) t),
+          Dlookup : ( |- st-lookup F Dloc (et/tag C5)),
+          Dof7 : ( |- cn-of C5 t)
+        | tof :
+            [ |-
+               tm-of
+                 F
+                 (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+                 (tm/tagloc Dloc) (\x355. E2) E3) T],
+          sof : [ |- store-of F ST' F],
+          x :
+            [ |-
+               step
+                 ST'
+                 (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+                 (tm/tagloc Dloc) (\x355. E2) E3) ST' (E2[E1])]
+        ; split inversion-tm/tagloc [ |- Dof5] as
+          case inversion-tm/tagloc/i:
+          { F : ( |- sttp),
+            Dloc : ( |- location),
+            E1 : ( |- term),
+            E2 : (x18 : term |- term),
+            E3 : ( |- term),
+            T : ( |- con),
+            ST' : ( |- store),
+            Dof :
+              ( |-
+                 tm-of
+                   F
+                   (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+                   (tm/tagloc Dloc) (\y125. E2) E3) T),
+            Dstof : ( |- store-of F ST' F),
+            Dvalue : ( |- value E1),
+            C1 : ( |- con),
+            Dof1 : ( |- tm-of F (tm/tag (tm/tagloc Dloc) E1) tagged),
+            Dof2 : ( |- tm-of F (tm/tagloc Dloc) (tag C1)),
+            Dof3 :
+              (x : term, u : {F' : sttp}  tm-of F' x C1[] |-
+                 tm-of F[] (E2[x]) T[]),
+            Dof4 : ( |- tm-of F E3 T),
+            C3 : ( |- con),
+            Dequiv : ( |- cn-equiv tagged tagged t),
+            Dof5 : ( |- tm-of F (tm/tagloc Dloc) (tag C3)),
+            Dof6 : ( |- tm-of F E1 C3),
+            C5 : ( |- con),
+            Dequiv1 : ( |- cn-equiv (tag C5) (tag C1) t),
+            Dlookup : ( |- st-lookup F Dloc (et/tag C5)),
+            Dof7 : ( |- cn-of C5 t),
+            C7 : ( |- con),
+            Dequiv2 : ( |- cn-equiv (tag C7) (tag C3) t),
+            Dlookup1 : ( |- st-lookup F Dloc (et/tag C7)),
+            Dof8 : ( |- cn-of C7 t)
+          | tof :
+              [ |-
+                 tm-of
+                   F
+                   (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+                   (tm/tagloc Dloc) (\x355. E2) E3) T],
+            sof : [ |- store-of F ST' F],
+            x :
+              [ |-
+                 step
+                   ST'
+                   (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+                   (tm/tagloc Dloc) (\x355. E2) E3) ST' (E2[E1])]
+          ; by injective-tag [ |- Dequiv1] as Dequiv1' unboxed;
+            by injective-tag [ |- Dequiv2] as Dequiv2' unboxed;
+            by st-lookup-fun [ |- Dstof] [ |- Dlookup] [ |- Dlookup1]
+            as Deq unboxed;
+            by entp-eq-invert-tag [ |- Deq] as Deq' unboxed;
+            by cn-equiv-resp [ |- Deq'] [ |- con-eq/i ] [ |- kind-eq/i ]
+                 [ |- Dequiv1']
+            as Dequiv1'' unboxed;
+            by [ |-
+                  tm-of/equiv Dof6
+                  (cn-equiv/trans (cn-equiv/symm Dequiv2') Dequiv1'')]
+            as Dof' unboxed;
+            ? % TODO: Requires higher-order substitution like Dof3[E1, {F} Dof']
+          }
+        }
+      }
+    }
   }
   case step/iftag2:
   { F : ( |- sttp),
@@ -3372,7 +3926,41 @@ intros
          step
            ST
            (tm/newtag C) (store/cons ST Dloc (entry/tag C)) (tm/tagloc Dloc)]
-  ; ?
+  ; by nextloc-bounds [ |- Dnextloc] as Dbound unboxed;
+    by inversion-tm/newtag [ |- Dof] as Dequiv unboxed;
+    split cn-equiv-reg [ |- Dequiv] as
+    case cn-equiv-reg/i:
+    { F : ( |- sttp),
+      C : ( |- con),
+      T : ( |- con),
+      ST : ( |- store),
+      Dloc : ( |- location),
+      Dof : ( |- tm-of F (tm/newtag C) T),
+      Dstof : ( |- store-of F ST F),
+      Dnextloc : ( |- nextloc ST Dloc),
+      Dbound : ( |- store-bounds ST Dloc),
+      Dequiv : ( |- cn-equiv (tag C) T t),
+      Dof1 : ( |- cn-of (tag C) t),
+      Dof2 : ( |- cn-of T t),
+      Dwf : ( |- kd-wf t)
+    | tof : [ |- tm-of F (tm/newtag C) T],
+      sof : [ |- store-of F ST F],
+      x :
+        [ |-
+           step
+             ST
+             (tm/newtag C)
+             (store/cons ST Dloc (entry/tag C)) (tm/tagloc Dloc)]
+    ; by inversion-tag [ |- Dof1] as Dwf' unboxed;
+      by monotonicity-store [ |- Dstof] [ |- extends/cons (extends/nil )]
+      as Dstof' unboxed;
+      by [ |- tm-of/equiv (tm-of/tagloc (st-lookup/hit ) Dwf') Dequiv]
+      as Dof' unboxed;
+      by [ |- extends/cons (extends/nil )] as Dextends' unboxed;
+      by [ |- store-of/cons Dbound (entry-of/tag Dwf') Dstof']
+      as Dstof'' unboxed;
+      solve [ |- preservation-tm/i _ Dof' Dstof'' Dextends']
+    }
   }
   case step/assign-beta:
   { F : ( |- sttp),
@@ -3388,7 +3976,60 @@ intros
   | tof : [ |- tm-of F (tm/assign (tm/refloc Dloc) E1) T],
     sof : [ |- store-of F ST F],
     x : [ |- step ST (tm/assign (tm/refloc Dloc) E1) ST' tm/unit]
-  ; ?
+  ; split inversion-tm/assign [ |- Dof] as
+    case inversion-tm/assign/i:
+    { F : ( |- sttp),
+      Dloc : ( |- location),
+      E1 : ( |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      ST' : ( |- store),
+      Dof : ( |- tm-of F (tm/assign (tm/refloc Dloc) E1) T),
+      Dstof : ( |- store-of F ST F),
+      Dvalue : ( |- value E1),
+      Dupdate : ( |- store-update ST Dloc (entry/ref E1) ST'),
+      C1 : ( |- con),
+      Dequiv : ( |- cn-equiv unit T t),
+      Dof1 : ( |- tm-of F (tm/refloc Dloc) (ref C1)),
+      Dof2 : ( |- tm-of F E1 C1)
+    | tof : [ |- tm-of F (tm/assign (tm/refloc Dloc) E1) T],
+      sof : [ |- store-of F ST F],
+      x : [ |- step ST (tm/assign (tm/refloc Dloc) E1) ST' tm/unit]
+    ; split inversion-tm/refloc [ |- Dof1] as
+      case inversion-tm/refloc/i:
+      { F : ( |- sttp),
+        Dloc : ( |- location),
+        E1 : ( |- term),
+        T : ( |- con),
+        ST : ( |- store),
+        ST' : ( |- store),
+        Dof : ( |- tm-of F (tm/assign (tm/refloc Dloc) E1) T),
+        Dstof : ( |- store-of F ST F),
+        Dvalue : ( |- value E1),
+        Dupdate : ( |- store-update ST Dloc (entry/ref E1) ST'),
+        C1 : ( |- con),
+        Dequiv : ( |- cn-equiv unit T t),
+        Dof1 : ( |- tm-of F (tm/refloc Dloc) (ref C1)),
+        Dof2 : ( |- tm-of F E1 C1),
+        C3 : ( |- con),
+        Dequiv1 : ( |- cn-equiv (ref C3) (ref C1) t),
+        Dlookup : ( |- st-lookup F Dloc (et/ref C3)),
+        Dof3 : ( |- cn-of C3 t)
+      | tof : [ |- tm-of F (tm/assign (tm/refloc Dloc) E1) T],
+        sof : [ |- store-of F ST F],
+        x : [ |- step ST (tm/assign (tm/refloc Dloc) E1) ST' tm/unit]
+      ; by injective-ref [ |- Dequiv1] as Dequiv' unboxed;
+        by preservation-update [ |- Dstof] [ |- Dlookup] [ |- Dupdate]
+             [ |-
+                entry-of/ref Dvalue
+                (tm-of/equiv Dof2 (cn-equiv/symm Dequiv'))]
+        as Dstof' unboxed;
+        solve
+          [ |-
+             preservation-tm/i F
+             (tm-of/equiv (tm-of/unit ) Dequiv) Dstof' (extends/nil )]
+      }
+    }
   }
   case step/assign2:
   { F : ( |- sttp),
@@ -3533,7 +4174,52 @@ intros
   | tof : [ |- tm-of F (tm/deref (tm/refloc Dloc)) T],
     sof : [ |- store-of F ST' F],
     x : [ |- step ST' (tm/deref (tm/refloc Dloc)) ST' E']
-  ; ?
+  ; by inversion-tm/deref [ |- Dof] as Dof' unboxed;
+    split inversion-tm/refloc [ |- Dof'] as
+    case inversion-tm/refloc/i:
+    { F : ( |- sttp),
+      Dloc : ( |- location),
+      T : ( |- con),
+      ST' : ( |- store),
+      E' : ( |- term),
+      Dof : ( |- tm-of F (tm/deref (tm/refloc Dloc)) T),
+      Dstof : ( |- store-of F ST' F),
+      Dlookup : ( |- store-lookup ST' Dloc (entry/ref E')),
+      Dof' : ( |- tm-of F (tm/refloc Dloc) (ref T)),
+      C1 : ( |- con),
+      Dequiv : ( |- cn-equiv (ref C1) (ref T) t),
+      Dlookup1 : ( |- st-lookup F Dloc (et/ref C1)),
+      Dof1 : ( |- cn-of C1 t)
+    | tof : [ |- tm-of F (tm/deref (tm/refloc Dloc)) T],
+      sof : [ |- store-of F ST' F],
+      x : [ |- step ST' (tm/deref (tm/refloc Dloc)) ST' E']
+    ; split preservation-lookup [ |- Dstof] [ |- Dlookup1] [ |- Dlookup] as
+      case entry-of/ref:
+      { F : ( |- sttp),
+        Dloc : ( |- location),
+        T : ( |- con),
+        ST' : ( |- store),
+        E' : ( |- term),
+        Dof : ( |- tm-of F (tm/deref (tm/refloc Dloc)) T),
+        Dstof : ( |- store-of F ST' F),
+        Dlookup : ( |- store-lookup ST' Dloc (entry/ref E')),
+        Dof' : ( |- tm-of F (tm/refloc Dloc) (ref T)),
+        C1 : ( |- con),
+        Dequiv : ( |- cn-equiv (ref C1) (ref T) t),
+        Dlookup1 : ( |- st-lookup F Dloc (et/ref C1)),
+        Dof1 : ( |- cn-of C1 t),
+        Dvalue : ( |- value E'),
+        Dof2 : ( |- tm-of F E' C1)
+      | tof : [ |- tm-of F (tm/deref (tm/refloc Dloc)) T],
+        sof : [ |- store-of F ST' F],
+        x : [ |- step ST' (tm/deref (tm/refloc Dloc)) ST' E']
+      ; by injective-ref [ |- Dequiv] as Dequiv' unboxed;
+        solve
+          [ |-
+             preservation-tm/i F
+             (tm-of/equiv Dof2 Dequiv') Dstof (extends/nil )]
+      }
+    }
   }
   case step/deref:
   { F : ( |- sttp),
@@ -3588,7 +4274,31 @@ intros
          step
            ST
            (tm/ref E1) (store/cons ST Dloc (entry/ref E1)) (tm/refloc Dloc)]
-  ; ?
+  ; by nextloc-bounds [ |- Dnextloc] as Dbound unboxed;
+    split inversion-tm/ref [ |- Dof] as
+    case inversion-tm/ref/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      T : ( |- con),
+      ST : ( |- store),
+      Dloc : ( |- location),
+      Dof : ( |- tm-of F (tm/ref E1) T),
+      Dstof : ( |- store-of F ST F),
+      Dvalue : ( |- value E1),
+      Dnextloc : ( |- nextloc ST Dloc),
+      Dbound : ( |- store-bounds ST Dloc),
+      C1 : ( |- con),
+      Dequiv : ( |- cn-equiv (ref C1) T t),
+      Dof1 : ( |- tm-of F E1 C1)
+    | tof : [ |- tm-of F (tm/ref E1) T],
+      sof : [ |- store-of F ST F],
+      x :
+        [ |-
+           step
+             ST
+             (tm/ref E1) (store/cons ST Dloc (entry/ref E1)) (tm/refloc Dloc)]
+    ; ? % TODO: Depends on `tm-of-reg`
+    }
   }
   case step/ref:
   { F : ( |- sttp),
@@ -3665,7 +4375,104 @@ intros
       [ |-
          step
            ST' (tm/case (tm/in2 E1 C) (\x120. E2) (\y120. E3)) ST' (E3[E1])]
-  ; ?
+  ; split inversion-tm/case [ |- Dof] as
+    case inversion-tm/case/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      C : ( |- con),
+      E2 : (x14 : term |- term),
+      E3 : (x15 : term |- term),
+      T : ( |- con),
+      ST' : ( |- store),
+      Dof : ( |- tm-of F (tm/case (tm/in2 E1 C) (\x120. E2) (\y120. E3)) T),
+      Dstof : ( |- store-of F ST' F),
+      Dvalue : ( |- value E1),
+      C2 : ( |- con),
+      C3 : ( |- con),
+      Dof1 : ( |- tm-of F (tm/in2 E1 C) (plus C2 C3)),
+      Dof2 :
+        (x : term, u : {F' : sttp}  tm-of F' x C2[] |- tm-of F[] (E2[x]) T[]),
+      Dof3 :
+        (x : term, u : {F' : sttp}  tm-of F' x C3[] |- tm-of F[] (E3[x]) T[])
+    | tof : [ |- tm-of F (tm/case (tm/in2 E1 C) (\z350. E2) (\x350. E3)) T],
+      sof : [ |- store-of F ST' F],
+      x :
+        [ |-
+           step
+             ST' (tm/case (tm/in2 E1 C) (\z350. E2) (\x350. E3)) ST' (E3[E1])]
+    ; split inversion-tm/in2 [ |- Dof1] as
+      case inversion-tm/in2/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        C : ( |- con),
+        E2 : (x14 : term |- term),
+        E3 : (x15 : term |- term),
+        T : ( |- con),
+        ST' : ( |- store),
+        Dof : ( |- tm-of F (tm/case (tm/in2 E1 C) (\x120. E2) (\y120. E3)) T),
+        Dstof : ( |- store-of F ST' F),
+        Dvalue : ( |- value E1),
+        C2 : ( |- con),
+        C3 : ( |- con),
+        Dof1 : ( |- tm-of F (tm/in2 E1 C) (plus C2 C3)),
+        Dof2 :
+          (x : term, u : {F' : sttp}  tm-of F' x C2[] |-
+             tm-of F[] (E2[x]) T[]),
+        Dof3 :
+          (x : term, u : {F' : sttp}  tm-of F' x C3[] |-
+             tm-of F[] (E3[x]) T[]),
+        C6 : ( |- con),
+        Dequiv : ( |- cn-equiv (plus C C6) (plus C2 C3) t),
+        Dof4 : ( |- tm-of F E1 C6),
+        Dof5 : ( |- cn-of C t)
+      | tof : [ |- tm-of F (tm/case (tm/in2 E1 C) (\z350. E2) (\x350. E3)) T],
+        sof : [ |- store-of F ST' F],
+        x :
+          [ |-
+             step
+               ST'
+               (tm/case (tm/in2 E1 C) (\z350. E2) (\x350. E3)) ST' (E3[E1])]
+      ; split injective-plus [ |- Dequiv] as
+        case injective-plus/i:
+        { F : ( |- sttp),
+          E1 : ( |- term),
+          C : ( |- con),
+          E2 : (x14 : term |- term),
+          E3 : (x15 : term |- term),
+          T : ( |- con),
+          ST' : ( |- store),
+          Dof :
+            ( |- tm-of F (tm/case (tm/in2 E1 C) (\x120. E2) (\y120. E3)) T),
+          Dstof : ( |- store-of F ST' F),
+          Dvalue : ( |- value E1),
+          C2 : ( |- con),
+          C3 : ( |- con),
+          Dof1 : ( |- tm-of F (tm/in2 E1 C) (plus C2 C3)),
+          Dof2 :
+            (x : term, u : {F' : sttp}  tm-of F' x C2[] |-
+               tm-of F[] (E2[x]) T[]),
+          Dof3 :
+            (x : term, u : {F' : sttp}  tm-of F' x C3[] |-
+               tm-of F[] (E3[x]) T[]),
+          C6 : ( |- con),
+          Dequiv : ( |- cn-equiv (plus C C6) (plus C2 C3) t),
+          Dof4 : ( |- tm-of F E1 C6),
+          Dof5 : ( |- cn-of C t),
+          Dequiv1 : ( |- cn-equiv C C2 t),
+          Dequiv2 : ( |- cn-equiv C6 C3 t)
+        | tof :
+            [ |- tm-of F (tm/case (tm/in2 E1 C) (\z350. E2) (\x350. E3)) T],
+          sof : [ |- store-of F ST' F],
+          x :
+            [ |-
+               step
+                 ST'
+                 (tm/case (tm/in2 E1 C) (\z350. E2) (\x350. E3)) ST' (E3[E1])]
+        ; by [ |- tm-of/equiv Dof4 Dequiv2] as Dof' unboxed;
+          ? % TODO: Requires higher-order substitution like Dof3[E1, {F} Dof']
+        }
+      }
+    }
   }
   case step/case-beta1:
   { F : ( |- sttp),
@@ -3684,7 +4491,104 @@ intros
       [ |-
          step
            ST' (tm/case (tm/in1 E1 C) (\x120. E2) (\y120. E3)) ST' (E2[E1])]
-  ; ?
+  ; split inversion-tm/case [ |- Dof] as
+    case inversion-tm/case/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      C : ( |- con),
+      E2 : (x12 : term |- term),
+      E3 : (x13 : term |- term),
+      T : ( |- con),
+      ST' : ( |- store),
+      Dof : ( |- tm-of F (tm/case (tm/in1 E1 C) (\x120. E2) (\y120. E3)) T),
+      Dstof : ( |- store-of F ST' F),
+      Dvalue : ( |- value E1),
+      C2 : ( |- con),
+      C3 : ( |- con),
+      Dof1 : ( |- tm-of F (tm/in1 E1 C) (plus C2 C3)),
+      Dof2 :
+        (x : term, u : {F' : sttp}  tm-of F' x C2[] |- tm-of F[] (E2[x]) T[]),
+      Dof3 :
+        (x : term, u : {F' : sttp}  tm-of F' x C3[] |- tm-of F[] (E3[x]) T[])
+    | tof : [ |- tm-of F (tm/case (tm/in1 E1 C) (\z350. E2) (\x350. E3)) T],
+      sof : [ |- store-of F ST' F],
+      x :
+        [ |-
+           step
+             ST' (tm/case (tm/in1 E1 C) (\z350. E2) (\x350. E3)) ST' (E2[E1])]
+    ; split inversion-tm/in1 [ |- Dof1] as
+      case inversion-tm/in1/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        C : ( |- con),
+        E2 : (x12 : term |- term),
+        E3 : (x13 : term |- term),
+        T : ( |- con),
+        ST' : ( |- store),
+        Dof : ( |- tm-of F (tm/case (tm/in1 E1 C) (\x120. E2) (\y120. E3)) T),
+        Dstof : ( |- store-of F ST' F),
+        Dvalue : ( |- value E1),
+        C2 : ( |- con),
+        C3 : ( |- con),
+        Dof1 : ( |- tm-of F (tm/in1 E1 C) (plus C2 C3)),
+        Dof2 :
+          (x : term, u : {F' : sttp}  tm-of F' x C2[] |-
+             tm-of F[] (E2[x]) T[]),
+        Dof3 :
+          (x : term, u : {F' : sttp}  tm-of F' x C3[] |-
+             tm-of F[] (E3[x]) T[]),
+        C6 : ( |- con),
+        Dequiv : ( |- cn-equiv (plus C6 C) (plus C2 C3) t),
+        Dof4 : ( |- tm-of F E1 C6),
+        Dof5 : ( |- cn-of C t)
+      | tof : [ |- tm-of F (tm/case (tm/in1 E1 C) (\z350. E2) (\x350. E3)) T],
+        sof : [ |- store-of F ST' F],
+        x :
+          [ |-
+             step
+               ST'
+               (tm/case (tm/in1 E1 C) (\z350. E2) (\x350. E3)) ST' (E2[E1])]
+      ; split injective-plus [ |- Dequiv] as
+        case injective-plus/i:
+        { F : ( |- sttp),
+          E1 : ( |- term),
+          C : ( |- con),
+          E2 : (x12 : term |- term),
+          E3 : (x13 : term |- term),
+          T : ( |- con),
+          ST' : ( |- store),
+          Dof :
+            ( |- tm-of F (tm/case (tm/in1 E1 C) (\x120. E2) (\y120. E3)) T),
+          Dstof : ( |- store-of F ST' F),
+          Dvalue : ( |- value E1),
+          C2 : ( |- con),
+          C3 : ( |- con),
+          Dof1 : ( |- tm-of F (tm/in1 E1 C) (plus C2 C3)),
+          Dof2 :
+            (x : term, u : {F' : sttp}  tm-of F' x C2[] |-
+               tm-of F[] (E2[x]) T[]),
+          Dof3 :
+            (x : term, u : {F' : sttp}  tm-of F' x C3[] |-
+               tm-of F[] (E3[x]) T[]),
+          C6 : ( |- con),
+          Dequiv : ( |- cn-equiv (plus C6 C) (plus C2 C3) t),
+          Dof4 : ( |- tm-of F E1 C6),
+          Dof5 : ( |- cn-of C t),
+          Dequiv1 : ( |- cn-equiv C6 C2 t),
+          Dequiv2 : ( |- cn-equiv C C3 t)
+        | tof :
+            [ |- tm-of F (tm/case (tm/in1 E1 C) (\z350. E2) (\x350. E3)) T],
+          sof : [ |- store-of F ST' F],
+          x :
+            [ |-
+               step
+                 ST'
+                 (tm/case (tm/in1 E1 C) (\z350. E2) (\x350. E3)) ST' (E2[E1])]
+        ; by [ |- tm-of/equiv Dof4 Dequiv1] as Dof' unboxed;
+          ? % TODO: Requires higher-order substitution like Dof2[E1, {F} Dof']
+        }
+      }
+    }
   }
   case step/case:
   { F : ( |- sttp),
@@ -3927,7 +4831,73 @@ intros
   | tof : [ |- tm-of F (tm/app (tm/lam C (\x. E2)) E1) T],
     sof : [ |- store-of F ST' F],
     x : [ |- step ST' (tm/app (tm/lam C (\x. E2)) E1) ST' (E2[E1])]
-  ; ?
+  ; split inversion-tm/app [ |- Dof] as
+    case inversion-tm/app/i:
+    { F : ( |- sttp),
+      C : ( |- con),
+      E2 : (x9 : term |- term),
+      E1 : ( |- term),
+      T : ( |- con),
+      ST' : ( |- store),
+      Dof : ( |- tm-of F (tm/app (tm/lam C (\x. E2)) E1) T),
+      Dstof : ( |- store-of F ST' F),
+      Dvalue : ( |- value E1),
+      C2 : ( |- con),
+      Dof1 : ( |- tm-of F (tm/lam C (\x. E2)) (arrow C2 T)),
+      Dof2 : ( |- tm-of F E1 C2)
+    | tof : [ |- tm-of F (tm/app (tm/lam C (\x. E2)) E1) T],
+      sof : [ |- store-of F ST' F],
+      x : [ |- step ST' (tm/app (tm/lam C (\x. E2)) E1) ST' (E2[E1])]
+    ; split inversion-tm/lam [ |- Dof1] as
+      case inversion-tm/lam/i:
+      { F : ( |- sttp),
+        C : ( |- con),
+        E2 : (x9 : term |- term),
+        E1 : ( |- term),
+        T : ( |- con),
+        ST' : ( |- store),
+        Dof : ( |- tm-of F (tm/app (tm/lam C (\x. E2)) E1) T),
+        Dstof : ( |- store-of F ST' F),
+        Dvalue : ( |- value E1),
+        C2 : ( |- con),
+        Dof1 : ( |- tm-of F (tm/lam C (\x. E2)) (arrow C2 T)),
+        Dof2 : ( |- tm-of F E1 C2),
+        C5 : ( |- con),
+        Dequiv : ( |- cn-equiv (arrow C C5) (arrow C2 T) t),
+        Dof3 :
+          (x : term, u : {F' : sttp}  tm-of F' x C[] |-
+             tm-of F[] (E2[x]) C5[])
+      | tof : [ |- tm-of F (tm/app (tm/lam C (\x. E2)) E1) T],
+        sof : [ |- store-of F ST' F],
+        x : [ |- step ST' (tm/app (tm/lam C (\x. E2)) E1) ST' (E2[E1])]
+      ; split injective-arrow [ |- Dequiv] as
+        case injective-arrow/i:
+        { F : ( |- sttp),
+          C : ( |- con),
+          E2 : (x9 : term |- term),
+          E1 : ( |- term),
+          T : ( |- con),
+          ST' : ( |- store),
+          Dof : ( |- tm-of F (tm/app (tm/lam C (\x. E2)) E1) T),
+          Dstof : ( |- store-of F ST' F),
+          Dvalue : ( |- value E1),
+          C2 : ( |- con),
+          Dof1 : ( |- tm-of F (tm/lam C (\x. E2)) (arrow C2 T)),
+          Dof2 : ( |- tm-of F E1 C2),
+          C5 : ( |- con),
+          Dequiv : ( |- cn-equiv (arrow C C5) (arrow C2 T) t),
+          Dof3 :
+            (x : term, u : {F' : sttp}  tm-of F' x C[] |-
+               tm-of F[] (E2[x]) C5[]),
+          Dequiv1 : ( |- cn-equiv C C2 t),
+          Dequiv2 : ( |- cn-equiv C5 T t)
+        | tof : [ |- tm-of F (tm/app (tm/lam C (\x. E2)) E1) T],
+          sof : [ |- store-of F ST' F],
+          x : [ |- step ST' (tm/app (tm/lam C (\x. E2)) E1) ST' (E2[E1])]
+        ; ? % TODO: Requires higher-order substitution like Dof3[E1, {F} Dof2]
+        }
+      }
+    }
   }
   case step/app2:
   { F : ( |- sttp),
@@ -4063,7 +5033,73 @@ intros
   | tof : [ |- tm-of F (tm/pi2 (tm/pair E1 E')) T],
     sof : [ |- store-of F ST' F],
     x : [ |- step ST' (tm/pi2 (tm/pair E1 E')) ST' E']
-  ; ?
+  ; split inversion-tm/pi2 [ |- Dof] as
+    case inversion-tm/pi2/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E' : ( |- term),
+      T : ( |- con),
+      ST' : ( |- store),
+      Dof : ( |- tm-of F (tm/pi2 (tm/pair E1 E')) T),
+      Dstof : ( |- store-of F ST' F),
+      Dvalue : ( |- value E1),
+      Dvalue1 : ( |- value E'),
+      C1 : ( |- con),
+      Dof1 : ( |- tm-of F (tm/pair E1 E') (prod C1 T))
+    | tof : [ |- tm-of F (tm/pi2 (tm/pair E1 E')) T],
+      sof : [ |- store-of F ST' F],
+      x : [ |- step ST' (tm/pi2 (tm/pair E1 E')) ST' E']
+    ; split inversion-tm/pair [ |- Dof1] as
+      case inversion-tm/pair/i:
+      { F : ( |- sttp),
+        E1 : ( |- term),
+        E' : ( |- term),
+        T : ( |- con),
+        ST' : ( |- store),
+        Dof : ( |- tm-of F (tm/pi2 (tm/pair E1 E')) T),
+        Dstof : ( |- store-of F ST' F),
+        Dvalue : ( |- value E1),
+        Dvalue1 : ( |- value E'),
+        C1 : ( |- con),
+        Dof1 : ( |- tm-of F (tm/pair E1 E') (prod C1 T)),
+        C3 : ( |- con),
+        C4 : ( |- con),
+        Dequiv : ( |- cn-equiv (prod C3 C4) (prod C1 T) t),
+        Dof2 : ( |- tm-of F E1 C3),
+        Dof3 : ( |- tm-of F E' C4)
+      | tof : [ |- tm-of F (tm/pi2 (tm/pair E1 E')) T],
+        sof : [ |- store-of F ST' F],
+        x : [ |- step ST' (tm/pi2 (tm/pair E1 E')) ST' E']
+      ; split injective-prod [ |- Dequiv] as
+        case injective-prod/i:
+        { F : ( |- sttp),
+          E1 : ( |- term),
+          E' : ( |- term),
+          T : ( |- con),
+          ST' : ( |- store),
+          Dof : ( |- tm-of F (tm/pi2 (tm/pair E1 E')) T),
+          Dstof : ( |- store-of F ST' F),
+          Dvalue : ( |- value E1),
+          Dvalue1 : ( |- value E'),
+          C1 : ( |- con),
+          Dof1 : ( |- tm-of F (tm/pair E1 E') (prod C1 T)),
+          C3 : ( |- con),
+          C4 : ( |- con),
+          Dequiv : ( |- cn-equiv (prod C3 C4) (prod C1 T) t),
+          Dof2 : ( |- tm-of F E1 C3),
+          Dof3 : ( |- tm-of F E' C4),
+          Dequiv1 : ( |- cn-equiv C3 C1 t),
+          Dequiv2 : ( |- cn-equiv C4 T t)
+        | tof : [ |- tm-of F (tm/pi2 (tm/pair E1 E')) T],
+          sof : [ |- store-of F ST' F],
+          x : [ |- step ST' (tm/pi2 (tm/pair E1 E')) ST' E']
+        ; solve
+            [ |-
+               preservation-tm/i F
+               (tm-of/equiv Dof3 Dequiv2) Dstof (extends/nil )]
+        }
+      }
+    }
   }
   case step/pi2:
   { F : ( |- sttp),
@@ -4131,7 +5167,73 @@ intros
   | tof : [ |- tm-of F (tm/pi1 (tm/pair E' E2)) T],
     sof : [ |- store-of F ST' F],
     x : [ |- step ST' (tm/pi1 (tm/pair E' E2)) ST' E']
-  ; ?
+  ; split inversion-tm/pi1 [ |- Dof] as
+    case inversion-tm/pi1/i:
+    { F : ( |- sttp),
+      E' : ( |- term),
+      E2 : ( |- term),
+      T : ( |- con),
+      ST' : ( |- store),
+      Dof : ( |- tm-of F (tm/pi1 (tm/pair E' E2)) T),
+      Dstof : ( |- store-of F ST' F),
+      Dvalue : ( |- value E'),
+      Dvalue1 : ( |- value E2),
+      C1 : ( |- con),
+      Dof1 : ( |- tm-of F (tm/pair E' E2) (prod T C1))
+    | tof : [ |- tm-of F (tm/pi1 (tm/pair E' E2)) T],
+      sof : [ |- store-of F ST' F],
+      x : [ |- step ST' (tm/pi1 (tm/pair E' E2)) ST' E']
+    ; split inversion-tm/pair [ |- Dof1] as
+      case inversion-tm/pair/i:
+      { F : ( |- sttp),
+        E' : ( |- term),
+        E2 : ( |- term),
+        T : ( |- con),
+        ST' : ( |- store),
+        Dof : ( |- tm-of F (tm/pi1 (tm/pair E' E2)) T),
+        Dstof : ( |- store-of F ST' F),
+        Dvalue : ( |- value E'),
+        Dvalue1 : ( |- value E2),
+        C1 : ( |- con),
+        Dof1 : ( |- tm-of F (tm/pair E' E2) (prod T C1)),
+        C3 : ( |- con),
+        C4 : ( |- con),
+        Dequiv : ( |- cn-equiv (prod C3 C4) (prod T C1) t),
+        Dof2 : ( |- tm-of F E' C3),
+        Dof3 : ( |- tm-of F E2 C4)
+      | tof : [ |- tm-of F (tm/pi1 (tm/pair E' E2)) T],
+        sof : [ |- store-of F ST' F],
+        x : [ |- step ST' (tm/pi1 (tm/pair E' E2)) ST' E']
+      ; split injective-prod [ |- Dequiv] as
+        case injective-prod/i:
+        { F : ( |- sttp),
+          E' : ( |- term),
+          E2 : ( |- term),
+          T : ( |- con),
+          ST' : ( |- store),
+          Dof : ( |- tm-of F (tm/pi1 (tm/pair E' E2)) T),
+          Dstof : ( |- store-of F ST' F),
+          Dvalue : ( |- value E'),
+          Dvalue1 : ( |- value E2),
+          C1 : ( |- con),
+          Dof1 : ( |- tm-of F (tm/pair E' E2) (prod T C1)),
+          C3 : ( |- con),
+          C4 : ( |- con),
+          Dequiv : ( |- cn-equiv (prod C3 C4) (prod T C1) t),
+          Dof2 : ( |- tm-of F E' C3),
+          Dof3 : ( |- tm-of F E2 C4),
+          Dequiv1 : ( |- cn-equiv C3 T t),
+          Dequiv2 : ( |- cn-equiv C4 C1 t)
+        | tof : [ |- tm-of F (tm/pi1 (tm/pair E' E2)) T],
+          sof : [ |- store-of F ST' F],
+          x : [ |- step ST' (tm/pi1 (tm/pair E' E2)) ST' E']
+        ; solve
+            [ |-
+               preservation-tm/i F
+               (tm-of/equiv Dof2 Dequiv1) Dstof (extends/nil )]
+        }
+      }
+    }
   }
   case step/pi1:
   { F : ( |- sttp),
@@ -4406,4 +5508,12 @@ intros
     }
   }
 }
+
+and proof preservation-md :
+  [ |- md-of P F M S] ->
+  [ |- store-of F ST F] ->
+  [ |- step-md ST M ST' M'] ->
+    [ |- preservation-md/e P F M' S ST'] =
+/ total 3 /
+?
 ;
