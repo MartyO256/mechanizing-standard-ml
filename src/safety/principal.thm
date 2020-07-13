@@ -108,6 +108,21 @@ proof cn-ofp-sound :
 ?
 ;
 
+LF tidy : kind -> type =
+| tidy/sing : tidy (sing C)
+
+| tidy/pi :
+  ({ a : con } tidy (K2 a)) ->
+    tidy (pi K1 K2)
+
+| tidy/sigma :
+  tidy K1 ->
+  tidy K2 ->
+    tidy (sigma K1 (\l. K2))
+
+| tidy/one : tidy one
+;
+
 % Purity
 
 LF purity-join : purity -> purity -> purity -> type =
@@ -495,7 +510,7 @@ LF md-ofp : purity -> sttp -> module' -> sg -> type =
 
 | md-ofp/lete :
   tm-of F E T ->
-  ({ x : term } {F' : sttp} tm-of F' x T -> md-ofp P F (M x) S) ->
+  ({ x : term } { F' : sttp } tm-of F' x T -> md-ofp P F (M x) S) ->
     md-ofp P F (md/lete E T M) S
 
 | md-ofp/seal :
@@ -503,3 +518,41 @@ LF md-ofp : purity -> sttp -> module' -> sg -> type =
     md-ofp impure F (md/seal M S) S
 ;
 --name md-ofp Dofp ofp.
+
+schema md-ofp-complete-ctx =
+  % modbind-prin-complete
+  some [
+    K : kind, S : sg, Ks : con -> kind,
+    DwfK : kd-wf K, DwfS : sg-wf S, DfstS : sg-fst S K,
+    Dof : { a : con } cn-of a K -> cn-of a (Ks a),
+    Dtidy : { a : con } tidy (Ks a),
+    Dsing : single K Ks,
+    DwfKs : { a : con } cn-of a K -> kd-wf (Ks a)
+  ]
+  block (
+    a : con, da : cn-of a K, m : module',
+    dm : { P' : purity } { F' : sttp } md-of P' F' m S,
+    dfst : md-fst m a,
+    dp : cn-ofp a (Ks a)
+  ) +
+  % termbind-reg
+  some [T : con, Dwf : cn-of T t]
+  block (x : term, d : { F' : sttp } tm-of F' x T);
+
+LF md-ofp-complete/e : purity -> sttp -> module' -> sg -> type =
+| md-ofp-complete/i :
+  { P' : purity } { S' : sg }
+  md-ofp P' F M S' ->
+  sg-sub S' S ->
+  purity-sub P' P ->
+    md-ofp-complete/e P F M S
+;
+
+% TODO: [ctxToSub_mclosed] non-atomic cPsi entry not supported
+proof md-ofp-complete :
+  (g : md-ofp-complete-ctx)
+  [g |- md-of P F M S] ->
+    [g |- md-ofp-complete/e P F M S] =
+/ total 1 /
+?
+;
