@@ -121,6 +121,278 @@ LF purity-sub : purity -> purity -> type =
 | purity-sub/forget : purity-sub pure impure
 ;
 
+proof purity-join-resp :
+  [ |- purity-eq P1 P1'] ->
+  [ |- purity-eq P2 P2'] ->
+  [ |- purity-eq P P'] ->
+  [ |- purity-join P1 P2 P] ->
+    [ |- purity-join P1' P2' P'] =
+/ total /
+intros
+{ P : ( |- purity),
+  P1' : ( |- purity),
+  P1 : ( |- purity),
+  P2' : ( |- purity),
+  P2 : ( |- purity),
+  P' : ( |- purity)
+| eq : [ |- purity-eq P P1'],
+  eq1 : [ |- purity-eq P1 P2'],
+  eq2 : [ |- purity-eq P2 P'],
+  x : [ |- purity-join P P1 P2]
+; split eq as
+  case purity-eq/i:
+  { P1' : ( |- purity),
+    P1 : ( |- purity),
+    P2' : ( |- purity),
+    P2 : ( |- purity),
+    P' : ( |- purity)
+  | eq : [ |- purity-eq P1' P1'],
+    eq1 : [ |- purity-eq P1 P2'],
+    eq2 : [ |- purity-eq P2 P'],
+    x : [ |- purity-join P1' P1 P2]
+  ; split eq1 as
+    case purity-eq/i:
+    { P1' : ( |- purity),
+      P2' : ( |- purity),
+      P2 : ( |- purity),
+      P' : ( |- purity)
+    | eq : [ |- purity-eq P1' P1'],
+      eq1 : [ |- purity-eq P2' P2'],
+      eq2 : [ |- purity-eq P2 P'],
+      x : [ |- purity-join P1' P2' P2]
+    ; split eq2 as
+      case purity-eq/i:
+      { P1' : ( |- purity), P2' : ( |- purity), P' : ( |- purity)
+      | eq : [ |- purity-eq P1' P1'],
+        eq1 : [ |- purity-eq P2' P2'],
+        eq2 : [ |- purity-eq P' P'],
+        x : [ |- purity-join P1' P2' P']
+      ; solve x
+      }
+    }
+  }
+}
+;
+
+proof purity-join-fun :
+  [ |- purity-join P1 P2 P] ->
+  [ |- purity-join P1 P2 P'] ->
+    [ |- purity-eq P P'] =
+/ total /
+intros
+{ P : ( |- purity), P1 : ( |- purity), P2 : ( |- purity), P' : ( |- purity)
+| x : [ |- purity-join P P1 P2], x1 : [ |- purity-join P P1 P']
+; split x as
+  case purity-join/impure2:
+  { P : ( |- purity), P' : ( |- purity)
+  | x : [ |- purity-join P impure impure], x1 : [ |- purity-join P impure P']
+  ; split x1 as
+    case purity-join/impure2:
+    { P : ( |- purity)
+    | x : [ |- purity-join P impure impure],
+      x1 : [ |- purity-join P impure impure]
+    ; solve [ |- purity-eq/i ]
+    }
+    case purity-join/impure1:
+    {
+    | x : [ |- purity-join impure impure impure],
+      x1 : [ |- purity-join impure impure impure]
+    ; solve [ |- purity-eq/i ]
+    }
+  }
+  case purity-join/impure1:
+  { P1 : ( |- purity), P' : ( |- purity)
+  | x : [ |- purity-join impure P1 impure],
+    x1 : [ |- purity-join impure P1 P']
+  ; split x1 as
+    case purity-join/impure2:
+    {
+    | x : [ |- purity-join impure impure impure],
+      x1 : [ |- purity-join impure impure impure]
+    ; solve [ |- purity-eq/i ]
+    }
+    case purity-join/impure1:
+    { P1 : ( |- purity)
+    | x : [ |- purity-join impure P1 impure],
+      x1 : [ |- purity-join impure P1 impure]
+    ; solve [ |- purity-eq/i ]
+    }
+  }
+  case purity-join/pure:
+  { P' : ( |- purity)
+  | x : [ |- purity-join pure pure pure], x1 : [ |- purity-join pure pure P']
+  ; split x1 as
+    case purity-join/pure:
+    {
+    | x : [ |- purity-join pure pure pure],
+      x1 : [ |- purity-join pure pure pure]
+    ; solve [ |- purity-eq/i ]
+    }
+  }
+}
+;
+
+LF purity-join-sub/e : purity -> purity -> purity -> type =
+| purity-join-sub/i :
+  { P' : purity }
+  purity-join P1 P2 P' ->
+  purity-sub P' P ->
+    purity-join-sub/e P1 P2 P
+;
+
+proof purity-join-sub :
+  [ |- purity-sub P1 P] ->
+  [ |- purity-sub P2 P] ->
+    [ |- purity-join-sub/e P1 P2 P] =
+/ total /
+intros
+{ P : ( |- purity), P1 : ( |- purity), P2 : ( |- purity)
+| x : [ |- purity-sub P P1], x1 : [ |- purity-sub P2 P1]
+; split x as
+  case purity-sub/forget:
+  { P2 : ( |- purity)
+  | x : [ |- purity-sub pure impure], x1 : [ |- purity-sub P2 impure]
+  ; split x1 as
+    case purity-sub/forget:
+    {
+    | x : [ |- purity-sub pure impure], x1 : [ |- purity-sub pure impure]
+    ; by x as Dsub unboxed;
+      solve [ |- purity-join-sub/i _ purity-join/pure Dsub]
+    }
+    case purity-sub/refl:
+    {
+    | x : [ |- purity-sub pure impure], x1 : [ |- purity-sub impure impure]
+    ; solve
+        [ |- purity-join-sub/i _ (purity-join/impure2 ) (purity-sub/refl )]
+    }
+  }
+  case purity-sub/refl:
+  { P1 : ( |- purity), P2 : ( |- purity)
+  | x : [ |- purity-sub P1 P1], x1 : [ |- purity-sub P2 P1]
+  ; split x1 as
+    case purity-sub/forget:
+    {
+    | x : [ |- purity-sub impure impure], x1 : [ |- purity-sub pure impure]
+    ; solve
+        [ |- purity-join-sub/i _ (purity-join/impure1 ) (purity-sub/refl )]
+    }
+    case purity-sub/refl:
+    { P1 : ( |- purity)
+    | x : [ |- purity-sub P1 P1], x1 : [ |- purity-sub P1 P1]
+    ; split [ |- P1] as
+      case impure:
+      {
+      | x : [ |- purity-sub impure impure],
+        x1 : [ |- purity-sub impure impure]
+      ; solve
+          [ |- purity-join-sub/i _ (purity-join/impure1 ) (purity-sub/refl )]
+      }
+      case pure:
+      {
+      | x : [ |- purity-sub pure pure], x1 : [ |- purity-sub pure pure]
+      ; solve [ |- purity-join-sub/i _ purity-join/pure (purity-sub/refl )]
+      }
+    }
+  }
+}
+;
+
+proof purity-sub-pure :
+  { P : [ |- purity] }
+  [ |- purity-sub pure P] =
+/ total /
+intros
+{ P : ( |- purity)
+|
+; split [ |- P] as
+  case impure:
+  {
+  |
+  ; solve [ |- purity-sub/forget]
+  }
+  case pure:
+  {
+  |
+  ; solve [ |- purity-sub/refl ]
+  }
+}
+;
+
+proof purity-sub-impure :
+  { P : [ |- purity] }
+  [ |- purity-sub P impure] =
+/ total /
+intros
+{ P : ( |- purity)
+|
+; split [ |- P] as
+  case impure:
+  {
+  |
+  ; solve [ |- purity-sub/refl ]
+  }
+  case pure:
+  {
+  |
+  ; solve [ |- purity-sub/forget]
+  }
+}
+;
+
+proof purity-subsume :
+  [ |- md-of P F M S] ->
+  [ |- purity-sub P P'] ->
+    [ |- md-of P' F M S] =
+/ total /
+intros
+{ P : ( |- purity),
+  F : ( |- sttp),
+  M : ( |- module'),
+  S : ( |- sg),
+  P' : ( |- purity)
+| mof : [ |- md-of P F M S], x : [ |- purity-sub P P']
+; split x as
+  case purity-sub/forget:
+  { F : ( |- sttp), M : ( |- module'), S : ( |- sg)
+  | mof : [ |- md-of pure F M S], x : [ |- purity-sub pure impure]
+  ; by mof as D unboxed;
+    solve [ |- md-of/forget D]
+  }
+  case purity-sub/refl:
+  { P' : ( |- purity), F : ( |- sttp), M : ( |- module'), S : ( |- sg)
+  | mof : [ |- md-of P' F M S], x : [ |- purity-sub P' P']
+  ; solve mof
+  }
+}
+;
+
+proof purity-sub-trans :
+  [ |- purity-sub P1 P2] ->
+  [ |- purity-sub P2 P3] ->
+    [ |- purity-sub P1 P3] =
+/ total /
+intros
+{ P : ( |- purity), P1 : ( |- purity), P2 : ( |- purity)
+| x : [ |- purity-sub P P1], x1 : [ |- purity-sub P1 P2]
+; split x as
+  case purity-sub/forget:
+  { P2 : ( |- purity)
+  | x : [ |- purity-sub pure impure], x1 : [ |- purity-sub impure P2]
+  ; split x1 as
+    case purity-sub/refl:
+    {
+    | x : [ |- purity-sub pure impure], x1 : [ |- purity-sub impure impure]
+    ; solve [ |- purity-sub/forget]
+    }
+  }
+  case purity-sub/refl:
+  { P1 : ( |- purity), P2 : ( |- purity)
+  | x : [ |- purity-sub P1 P1], x1 : [ |- purity-sub P1 P2]
+  ; solve x1
+  }
+}
+;
+
 % Principal Signatures
 
 LF md-ofp : purity -> sttp -> module' -> sg -> type =
