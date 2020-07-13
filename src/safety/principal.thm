@@ -107,3 +107,127 @@ proof cn-ofp-sound :
 / total 1 /
 ?
 ;
+
+% Purity
+
+LF purity-join : purity -> purity -> purity -> type =
+| purity-join/pure : purity-join pure pure pure
+| purity-join/impure1 : purity-join impure _ impure
+| purity-join/impure2 : purity-join _ impure impure
+;
+
+LF purity-sub : purity -> purity -> type =
+| purity-sub/refl : purity-sub P P
+| purity-sub/forget : purity-sub pure impure
+;
+
+% Principal Signatures
+
+LF md-ofp : purity -> sttp -> module' -> sg -> type =
+| md-ofp/unit : md-ofp pure F md/unit sg/one
+
+| md-ofp/satom :
+  cn-ofp C K ->
+    md-ofp pure F (md/satom C) (sg/satom K)
+
+| md-ofp/datom :
+  tm-of F E T ->
+    md-ofp pure F (md/datom E T) (sg/datom T)
+
+| md-ofp/sgatom :
+  sg-wf S ->
+    md-ofp pure F (md/sgatom S) (sg/sgatom S)
+
+| md-ofp/pair :
+  md-ofp P1 F M1 S1 ->
+  md-ofp P2 F M2 S2 ->
+  purity-join P1 P2 P ->
+    md-ofp P F (md/pair M1 M2) (sg/sigma S1 (\l. S2))
+
+| md-ofp/dpair-pure :
+  md-ofp pure F M1 S1 ->
+  sg-fst S1 K1 ->
+  md-fst M1 C1 ->
+  single K1 K1s ->
+  ({ a : con } cn-of a K1 ->
+   { m : module' } { P' : purity } { F' : sttp } md-of P' F' m S1 ->
+   md-fst m a ->
+   cn-ofp a (K1s a) ->
+   md-ofp P F (M2 a m) (S2 a)) ->
+    md-ofp P F (md/dpair M1 M2) (sg/sigma S1 (\l. S2 C1))
+
+| md-ofp/dpair-impure :
+  md-ofp impure F M1 S1 ->
+  sg-fst S1 K1 ->
+  single K1 K1s ->
+  ({ a : con } cn-of a K1 ->
+   { m : module' } { P' : purity } { F' : sttp } md-of P' F' m S1 ->
+   md-fst m a ->
+   cn-ofp a (K1s a) ->
+   md-ofp P F (M2 a m) (S2 a)) ->
+    md-ofp impure F (md/dpair M1 M2) (sg/sigma S1 S2)
+
+| md-ofp/pi1 :
+  md-ofp pure F M (sg/sigma S1 (\l. S2)) ->
+    md-ofp pure F (md/pi1 M) S1
+
+| md-ofp/pi2 :
+  md-ofp pure F M (sg/sigma S1 (\l. S2)) ->
+    md-ofp pure F (md/pi2 M) S2
+
+| md-ofp/lam :
+  sg-wf S1 ->
+  sg-fst S1 K1 ->
+  single K1 K1s ->
+  ({ a : con } cn-of a K1 ->
+   { m : module' } { P' : purity } { F' : sttp } md-of P' F' m S1 ->
+   md-fst m a ->
+   cn-ofp a (K1s a) ->
+   md-ofp P F (M a m) (S2 a)) ->
+    md-ofp pure F (md/lam S1 M) (sg/pi S1 S2)
+
+| md-ofp/app :
+  md-ofp P F M1 (sg/pi S1 S2) ->
+  md-of pure F M2 S1 ->
+  md-fst M2 C2 ->
+    md-ofp impure F (md/app M1 M2) (S2 C2)
+
+| md-ofp/in :
+  md-ofp P F M S ->
+    md-ofp P F (md/in L M) (sg/named L S)
+
+| md-ofp/out :
+  md-ofp P F M (sg/named L S) ->
+    md-ofp P F (md/out M) S
+
+| md-ofp/let :
+  md-of P1 F M1 S1 ->
+  sg-fst S1 K1 ->
+  ({ a : con } cn-of a K1 ->
+   { m : module' } { P' : purity } { F' : sttp } md-of P' F' m S1 ->
+   md-fst m a ->
+   md-of P2 F (M2 a m) S) ->
+    md-ofp impure F (md/let M1 M2 S) S
+
+| md-ofp/letp :
+  md-ofp pure F M1 S1 ->
+  sg-fst S1 K1 ->
+  md-fst M1 C1 ->
+  single K1 K1s ->
+  ({ a : con } cn-of a K1 ->
+   { m : module' } { P' : purity } { F' : sttp } md-of P' F' m S1 ->
+   md-fst m a ->
+   cn-ofp a (K1s a) ->
+   md-ofp P F (M2 a m) (S2 a)) ->
+    md-ofp P F (md/letp M1 M2) (S2 C1)
+
+| md-ofp/lete :
+  tm-of F E T ->
+  ({ x : term } {F' : sttp} tm-of F' x T -> md-ofp P F (M x) S) ->
+    md-ofp P F (md/lete E T M) S
+
+| md-ofp/seal :
+  md-of P F M S ->
+    md-ofp impure F (md/seal M S) S
+;
+--name md-ofp Dofp ofp.
