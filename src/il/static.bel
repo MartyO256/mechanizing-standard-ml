@@ -247,6 +247,77 @@ proof cn-equiv/unit : [ |- cn-equiv unit unit t] =
 solve [ |- cn-equiv/refl cn-of/unit]
 ;
 
+proof cn-equiv/app-nd :
+  [ |- cn-equiv C1 C1' (pi K1 (\l. K2[]))] ->
+  [ |- cn-equiv C2 C2' K1] ->
+    [ |- cn-equiv (app C1 C2) (app C1' C2') K2] =
+/ total /
+intros
+{ C : ( |- con),
+  C1' : ( |- con),
+  K : ( |- kind),
+  K1 : ( |- kind),
+  C1 : ( |- con),
+  C2' : ( |- con)
+| equiv : [ |- cn-equiv C C1' (pi K (\l. K1[]))],
+  equiv1 : [ |- cn-equiv C1 C2' K]
+; by equiv as Dequiv1 unboxed;
+  by equiv1 as Dequiv2 unboxed;
+  solve [ |- cn-equiv/app Dequiv1 Dequiv2]
+}
+;
+
+proof cn-equiv/beta-nd :
+  [ |- cn-of C1 K1] ->
+  [a : con, da : cn-of a K1[] |- cn-of (C2[a]) K2[]] ->
+    [ |- cn-equiv (app (lam K1 (\a. C2[a])) C1) (C2[C1]) K2] =
+/ total /
+intros
+{ C : ( |- con), K : ( |- kind), C1 : (a : con |- con), K1 : ( |- kind)
+| cof : [ |- cn-of C K],
+  cof1 : [a : con, da : cn-of a K[] |- cn-of (C1[a]) K1[]]
+; by cof as Dof1 unboxed;
+  by cof1 as Dof2 unboxed;
+  solve [ |- cn-equiv/beta Dof1 (\a. \da. Dof2)]
+}
+;
+
+proof cn-equiv/funct :
+  [ |- kd-wf K] ->
+  [a : con, da : cn-of a K[] |- cn-of (C[a]) K'[]] ->
+  [ |- cn-of C1 K] ->
+  [ |- cn-of C2 K] ->
+  [ |- cn-equiv C1 C2 K] ->
+    [ |- cn-equiv (C[C1]) (C[C2]) K'] =
+/ total /
+intros
+{ K : ( |- kind),
+  C : (a : con |- con),
+  K' : ( |- kind),
+  C1 : ( |- con),
+  C2 : ( |- con)
+| wf : [ |- kd-wf K],
+  cof : [a : con, da : cn-of a K[] |- cn-of (C[a]) K'[]],
+  cof1 : [ |- cn-of C1 K],
+  cof2 : [ |- cn-of C2 K],
+  equiv : [ |- cn-equiv C1 C2 K]
+; by equiv as Dequiv unboxed;
+  by cof as DofC unboxed;
+  by cof1 as DofC1 unboxed;
+  by cof2 as DofC2 unboxed;
+  by wf as DwfK unboxed;
+  by cn-equiv/beta-nd [ |- DofC2] [a : con, da : cn-of a K[] |- DofC]
+  as Dequiv' unboxed;
+  by cn-equiv/app-nd [ |- cn-equiv/refl (cn-of/lam DwfK (\a. \da. DofC))]
+       [ |- Dequiv]
+  as Dequiv'' unboxed;
+  by cn-equiv/beta-nd [ |- DofC1] [a : con, da : cn-of a K[] |- DofC]
+  as Dequiv''' unboxed;
+  by [ |- cn-equiv/symm Dequiv'''] as Dequiv'''' unboxed;
+  solve [ |- cn-equiv/trans (cn-equiv/trans Dequiv'''' Dequiv'') Dequiv']
+}
+;
+
 % Term Formation
 
 LF tm-of : sttp -> term -> con -> type =
