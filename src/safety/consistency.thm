@@ -3125,8 +3125,139 @@ and proof map-wf :
   (g : map-bind+invert-bind-for-map-of)
   [g |- kd-wf K] ->
     [g |- map-wf/e K] =
-/ total 1 /
-?
+/ trust / % FIXME: See issue #4
+intros
+{ g : map-bind+invert-bind-for-map-of, K : (g |- kind)
+| x : [g |- kd-wf K]
+; split x as
+  case kd-wf/one:
+  { g : map-bind+invert-bind-for-map-of
+  | x : [g |- kd-wf one]
+  ; solve [_ |- map-wf/i _ tmap/one ewf/one]
+  }
+  case kd-wf/sigma:
+  { g : map-bind+invert-bind-for-map-of,
+    K1 : (g |- kind),
+    K2 : (g, a4 : con |- kind),
+    Dwf : (g |- kd-wf K1),
+    Dwf1 : (g, a : con, y389 : cn-of a (K1[..]) |- kd-wf (K2[.., a]))
+  | x : [g |- kd-wf (sigma K1 (\z328. K2))]
+  ; split map-wf [g |- Dwf] as
+    case map-wf/i:
+    { g : map-bind+invert-bind-for-map-of,
+      K1 : (g |- kind),
+      K2 : (g, a4 : con |- kind),
+      Dwf : (g |- kd-wf K1),
+      Dwf1 : (g, a : con, y389 : cn-of a (K1[..]) |- kd-wf (K2[.., a])),
+      A : (g |- etp),
+      Dtmap : (g |- tmap K1 A),
+      Dwf2 : (g |- ewf A)
+    | x : [g |- kd-wf (sigma K1 (\z328. K2))]
+    ; split
+      map-wf
+        [g,
+         b :
+           block (
+             x : eterm,
+             dx : evof x (A[..]),
+             a : con,
+             da : cn-of a (K1[..]),
+             at : map a x) |- Dwf1[.., b.3, b.4]] as
+      case map-wf/i:
+      { g : map-bind+invert-bind-for-map-of,
+        K1 : (g |- kind),
+        K3 : (g, a : con |- kind),
+        Dwf : (g |- kd-wf K1),
+        Dwf1 : (g, a : con, y389 : cn-of a (K1[..]) |- kd-wf (K3[.., a])),
+        A : (g |- etp),
+        Dtmap : (g |- tmap K1 A),
+        Dwf2 : (g |- ewf A),
+        A1 : (g, x : eterm |- etp),
+        Dtmap1 :
+          (g, x : eterm, a : con, z1268 : map a x |-
+             tmap (K3[.., a]) (A1[.., x])),
+        Dwf3 : (g, x : eterm, dx : evof x (A[..]) |- ewf (A1[.., x]))
+      | x : [g |- kd-wf (sigma K1 (\z328. K3))]
+      ; by [g |- tmap/sigma Dtmap (\a. \x. \at. Dtmap1[.., x, a, at])]
+as Dtmap' unboxed;
+        by [g |- ewf/sigma Dwf2 (\x. \dx. Dwf3)] as Dwf' unboxed;
+        solve [g |- map-wf/i _ Dtmap' Dwf']
+      }
+    }
+  }
+  case kd-wf/pi:
+  { g : map-bind+invert-bind-for-map-of,
+    K1 : (g |- kind),
+    K2 : (g, a3 : con |- kind),
+    Dwf : (g |- kd-wf K1),
+    Dwf1 : (g, a : con, y388 : cn-of a (K1[..]) |- kd-wf (K2[.., a]))
+  | x : [g |- kd-wf (pi K1 (\z327. K2))]
+  ; split map-wf [g |- Dwf] as
+    case map-wf/i:
+    { g : map-bind+invert-bind-for-map-of,
+      K1 : (g |- kind),
+      K2 : (g, a3 : con |- kind),
+      Dwf : (g |- kd-wf K1),
+      Dwf1 : (g, a : con, y388 : cn-of a (K1[..]) |- kd-wf (K2[.., a])),
+      A : (g |- etp),
+      Dtmap : (g |- tmap K1 A),
+      Dwf2 : (g |- ewf A)
+    | x : [g |- kd-wf (pi K1 (\x363. K2))]
+    ; split
+      map-wf
+        [g,
+         b :
+           block (
+             x : eterm,
+             dx : evof x (A[..]),
+             a : con,
+             da : cn-of a (K1[..]),
+             at : map a x) |- Dwf1[.., b.3, b.4]] as
+      case map-wf/i:
+      { g : map-bind+invert-bind-for-map-of,
+        K1 : (g |- kind),
+        K3 : (g, a : con |- kind),
+        Dwf : (g |- kd-wf K1),
+        Dwf1 : (g, a : con, y388 : cn-of a (K1[..]) |- kd-wf (K3[.., a])),
+        A : (g |- etp),
+        Dtmap : (g |- tmap K1 A),
+        Dwf2 : (g |- ewf A),
+        A1 : (g, x : eterm |- etp),
+        Dtmap1 :
+          (g, x : eterm, a : con, x1333 : map a x |-
+             tmap (K3[.., a]) (A1[.., x])),
+        Dwf3 : (g, x : eterm, dx : evof x (A[..]) |- ewf (A1[.., x]))
+      | x : [g |- kd-wf (pi K1 (\x363. K3))]
+      ; by [g |- tmap/pi Dtmap (\a. \x. \at. Dtmap1[.., x, a, at])]
+        as Dtmap' unboxed;
+        by [g |- ewf/pi Dwf2 (\x. \dx. Dwf3)] as Dwf' unboxed;
+        solve [g |- map-wf/i _ Dtmap' Dwf']
+      }
+    }
+  }
+  case kd-wf/sing:
+  { g : map-bind+invert-bind-for-map-of,
+    C : (g |- con),
+    Dof : (g |- cn-of C t)
+  | x : [g |- kd-wf (sing C)]
+  ; split can-map [g |- C] as
+    case can-map/i:
+    { g : map-bind+invert-bind-for-map-of,
+      C : (g |- con),
+      Dof : (g |- cn-of C t),
+      M : (g |- eterm),
+      Dmap : (g |- map C M)
+    | x : [g |- kd-wf (sing C)]
+    ; by map-of' [g |- Dof] [g |- Dmap] [g |- tmap/t] as Dof' unboxed;
+      solve [g |- map-wf/i _ (tmap/sing Dmap) (ewf/sing Dof')]
+    }
+  }
+  case kd-wf/t:
+  { g : map-bind+invert-bind-for-map-of
+  | x : [g |- kd-wf t]
+  ; solve [g |- map-wf/i _ tmap/t ewf/t]
+  }
+}
 
 and proof map-wf' :
   (g : map-bind+invert-bind-for-map-of)
