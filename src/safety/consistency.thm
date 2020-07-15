@@ -3142,8 +3142,330 @@ and proof map-subtp :
   [g |- tmap K A] ->
   [g |- tmap L B] ->
     [g |- subtp A B] =
-/ total 1 /
-?
+/ trust / % FIXME: See issue #4
+intros
+{ g : map-bind+invert-bind-for-map-of,
+  K : (g |- kind),
+  L : (g |- kind),
+  A : (g |- etp),
+  B : (g |- etp)
+| sub : [g |- kd-sub K L], tmap : [g |- tmap K A], tmap1 : [g |- tmap L B]
+; split sub as
+  case kd-sub/sigma:
+  { g : map-bind+invert-bind-for-map-of,
+    K1 : (g |- kind),
+    K3 : (g, a11 : con |- kind),
+    K2 : (g |- kind),
+    K4 : (g, a12 : con |- kind),
+    A : (g |- etp),
+    B : (g |- etp),
+    Dsub : (g |- kd-sub K1 K2),
+    Dsub1 :
+      (g, a : con, y433 : cn-of a (K1[..]) |- kd-sub (K3[.., a]) (K4[.., a])),
+    Dwf : (g, a : con, z432 : cn-of a (K2[..]) |- kd-wf (K4[.., a]))
+  | sub : [g |- kd-sub (sigma K1 (\x364. K3)) (sigma K2 (\x364. K4))],
+    tmap : [g |- tmap (sigma K1 (\x364. K3)) A],
+    tmap1 : [g |- tmap (sigma K2 (\x364. K4)) B]
+  ; split tmap as
+    case tmap/sigma:
+    { g : map-bind+invert-bind-for-map-of,
+      K1 : (g |- kind),
+      K3 : (g, a11 : con |- kind),
+      K2 : (g |- kind),
+      K4 : (g, a12 : con |- kind),
+      A1 : (g |- etp),
+      A2 : (g, x962 : eterm |- etp),
+      B : (g |- etp),
+      Dsub : (g |- kd-sub K1 K2),
+      Dsub1 :
+        (g, a : con, y433 : cn-of a (K1[..]) |-
+           kd-sub (K3[.., a]) (K4[.., a])),
+      Dwf : (g, a : con, z432 : cn-of a (K2[..]) |- kd-wf (K4[.., a])),
+      Dtmap : (g |- tmap K1 A1),
+      Dtmap1 :
+        (g, a : con, x : eterm, y962 : map a x |-
+           tmap (K3[.., a]) (A2[.., x]))
+    | sub : [g |- kd-sub (sigma K1 (\x364. K3)) (sigma K2 (\x364. K4))],
+      tmap : [g |- tmap (sigma K1 (\x364. K3)) (esigma A1 (\y149. A2))],
+      tmap1 : [g |- tmap (sigma K2 (\x364. K4)) B]
+    ; split tmap1 as
+      case tmap/sigma:
+      { g : map-bind+invert-bind-for-map-of,
+        K1 : (g |- kind),
+        K3 : (g, a11 : con |- kind),
+        K2 : (g |- kind),
+        K4 : (g, a12 : con |- kind),
+        A1 : (g |- etp),
+        A2 : (g, x962 : eterm |- etp),
+        A3 : (g |- etp),
+        A4 : (g, x962 : eterm |- etp),
+        Dsub : (g |- kd-sub K1 K2),
+        Dsub1 :
+          (g, a : con, y433 : cn-of a (K1[..]) |-
+             kd-sub (K3[.., a]) (K4[.., a])),
+        Dwf : (g, a : con, z432 : cn-of a (K2[..]) |- kd-wf (K4[.., a])),
+        Dtmap : (g |- tmap K1 A1),
+        Dtmap1 :
+          (g, a : con, x : eterm, y962 : map a x |-
+             tmap (K3[.., a]) (A2[.., x])),
+        Dtmap2 : (g |- tmap K2 A3),
+        Dtmap3 :
+          (g, a : con, x : eterm, y962 : map a x |-
+             tmap (K4[.., a]) (A4[.., x]))
+      | sub : [g |- kd-sub (sigma K1 (\x364. K3)) (sigma K2 (\x364. K4))],
+        tmap : [g |- tmap (sigma K1 (\x364. K3)) (esigma A1 (\y149. A2))],
+        tmap1 : [g |- tmap (sigma K2 (\x364. K4)) (esigma A3 (\y149. A4))]
+      ; by map-subtp [g |- Dsub] [g |- Dtmap] [g |- Dtmap2] as Dsub1' unboxed;
+        by map-subtp
+             [g,
+              b :
+                block (
+                  x : eterm,
+                  dx : evof x _,
+                  a : con,
+                  da : cn-of a (K1[..]),
+                  at : map a x) |- Dsub1[.., b.3, b.4]]
+             [g,
+              b :
+                block (
+                  x : eterm,
+                  dx : evof x _,
+                  a : con,
+                  da : cn-of a (K1[..]),
+                  at : map a x) |- Dtmap1[.., b.3, b.1, b.5]]
+             [g,
+              b :
+                block (
+                  x : eterm,
+                  dx : evof x _,
+                  a : con,
+                  da : cn-of a (K1[..]),
+                  at : map a x) |- Dtmap3[.., b.3, b.1, b.5]]
+        as Dsub2' unboxed;
+        by map-wf'
+             [g,
+              b :
+                block (
+                  x : eterm,
+                  dx : evof x _,
+                  a : con,
+                  da : cn-of a (K2[..]),
+                  at : map a x) |- Dwf[.., b.3, b.4]]
+             [g,
+              b :
+                block (
+                  x : eterm,
+                  dx : evof x _,
+                  a : con,
+                  da : cn-of a (K2[..]),
+                  at : map a x) |- Dtmap3[.., b.3, b.1, b.5]]
+        as Dwf' unboxed;
+        solve [g |-
+              subtp/sigma Dsub1'
+              (\x. \dx. Dsub2'[.., <x; dx; _; _; _>])
+              (\x. \dx. Dwf'[.., <x; dx; _; _; _>])]
+      }
+    }
+  }
+  case kd-sub/pi:
+  { g : map-bind+invert-bind-for-map-of,
+    K2 : (g |- kind),
+    K3 : (g, a9 : con |- kind),
+    K1 : (g |- kind),
+    K4 : (g, a10 : con |- kind),
+    A : (g |- etp),
+    B : (g |- etp),
+    Dsub : (g |- kd-sub K1 K2),
+    Dsub1 :
+      (g, a : con, x431 : cn-of a (K1[..]) |- kd-sub (K3[.., a]) (K4[.., a])),
+    Dwf : (g, a : con, y431 : cn-of a (K2[..]) |- kd-wf (K3[.., a]))
+  | sub : [g |- kd-sub (pi K2 (\x363. K3)) (pi K1 (\x363. K4))],
+    tmap : [g |- tmap (pi K2 (\x363. K3)) A],
+    tmap1 : [g |- tmap (pi K1 (\x363. K4)) B]
+  ; split tmap as
+    case tmap/pi:
+    { g : map-bind+invert-bind-for-map-of,
+      K2 : (g |- kind),
+      K3 : (g, a9 : con |- kind),
+      K1 : (g |- kind),
+      K4 : (g, a10 : con |- kind),
+      A1 : (g |- etp),
+      A2 : (g, y961 : eterm |- etp),
+      B : (g |- etp),
+      Dsub : (g |- kd-sub K1 K2),
+      Dsub1 :
+        (g, a : con, x431 : cn-of a (K1[..]) |-
+           kd-sub (K3[.., a]) (K4[.., a])),
+      Dwf : (g, a : con, y431 : cn-of a (K2[..]) |- kd-wf (K3[.., a])),
+      Dtmap : (g |- tmap K2 A1),
+      Dtmap1 :
+        (g, a : con, x : eterm, z960 : map a x |-
+           tmap (K3[.., a]) (A2[.., x]))
+    | sub : [g |- kd-sub (pi K2 (\x363. K3)) (pi K1 (\x363. K4))],
+      tmap : [g |- tmap (pi K2 (\x363. K3)) (epi A1 (\y148. A2))],
+      tmap1 : [g |- tmap (pi K1 (\x363. K4)) B]
+    ; split tmap1 as
+      case tmap/pi:
+      { g : map-bind+invert-bind-for-map-of,
+        K2 : (g |- kind),
+        K3 : (g, a9 : con |- kind),
+        K1 : (g |- kind),
+        K4 : (g, a10 : con |- kind),
+        A1 : (g |- etp),
+        A2 : (g, y961 : eterm |- etp),
+        A3 : (g |- etp),
+        A4 : (g, y961 : eterm |- etp),
+        Dsub : (g |- kd-sub K1 K2),
+        Dsub1 :
+          (g, a : con, x431 : cn-of a (K1[..]) |-
+             kd-sub (K3[.., a]) (K4[.., a])),
+        Dwf : (g, a : con, y431 : cn-of a (K2[..]) |- kd-wf (K3[.., a])),
+        Dtmap : (g |- tmap K2 A1),
+        Dtmap1 :
+          (g, a : con, x : eterm, z960 : map a x |-
+             tmap (K3[.., a]) (A2[.., x])),
+        Dtmap2 : (g |- tmap K1 A3),
+        Dtmap3 :
+          (g, a : con, x : eterm, z960 : map a x |-
+             tmap (K4[.., a]) (A4[.., x]))
+      | sub : [g |- kd-sub (pi K2 (\x363. K3)) (pi K1 (\x363. K4))],
+        tmap : [g |- tmap (pi K2 (\x363. K3)) (epi A1 (\y148. A2))],
+        tmap1 : [g |- tmap (pi K1 (\x363. K4)) (epi A3 (\y148. A4))]
+      ; by map-subtp [g |- Dsub] [g |- Dtmap2] [g |- Dtmap] as Dsub1' unboxed;
+        by map-subtp
+             [g,
+              b :
+                block (
+                  x : eterm,
+                  dx : evof x _,
+                  a : con,
+                  da : cn-of a (K1[..]),
+                  at : map a x) |- Dsub1[.., b.3, b.4]]
+             [g,
+              b :
+                block (
+                  x : eterm,
+                  dx : evof x _,
+                  a : con,
+                  da : cn-of a (K1[..]),
+                  at : map a x) |- Dtmap1[.., b.3, b.1, b.5]]
+             [g,
+              b :
+                block (
+                  x : eterm,
+                  dx : evof x _,
+                  a : con,
+                  da : cn-of a (K1[..]),
+                  at : map a x) |- Dtmap3[.., b.3, b.1, b.5]]
+        as Dsub2' unboxed;
+        by map-wf'
+             [g,
+              b :
+                block (
+                  x : eterm,
+                  dx : evof x _,
+                  a : con,
+                  da : cn-of a (K2[..]),
+                  at : map a x) |- Dwf[.., b.3, b.4]]
+             [g,
+              b :
+                block (
+                  x : eterm,
+                  dx : evof x _,
+                  a : con,
+                  da : cn-of a (K2[..]),
+                  at : map a x) |- Dtmap1[.., b.3, b.1, b.5]]
+        as Dwf' unboxed;
+        solve [g |-
+              subtp/pi Dsub1'
+              (\x. \dx. Dsub2'[.., <x; dx; _; _; _>])
+              (\x. \dx. Dwf'[.., <x; dx; _; _; _>])]
+      }
+    }
+  }
+  case kd-sub/sing-t:
+  { g : map-bind+invert-bind-for-map-of,
+    C : (g |- con),
+    A : (g |- etp),
+    B : (g |- etp),
+    Dof : (g |- cn-of C t)
+  | sub : [g |- kd-sub (sing C) t],
+    tmap : [g |- tmap (sing C) A],
+    tmap1 : [g |- tmap t B]
+  ; split tmap as
+    case tmap/sing:
+    { g : map-bind+invert-bind-for-map-of,
+      C : (g |- con),
+      M : (g |- eterm),
+      B : (g |- etp),
+      Dof : (g |- cn-of C t),
+      Dmap : (g |- map C M)
+    | sub : [g |- kd-sub (sing C) t],
+      tmap : [g |- tmap (sing C) (esing M)],
+      tmap1 : [g |- tmap t B]
+    ; split tmap1 as
+      case tmap/t:
+      { g : map-bind+invert-bind-for-map-of,
+        C : (g |- con),
+        M : (g |- eterm),
+        Dof : (g |- cn-of C t),
+        Dmap : (g |- map C M)
+      | sub : [g |- kd-sub (sing C) t],
+        tmap : [g |- tmap (sing C) (esing M)],
+        tmap1 : [g |- tmap t et]
+      ; by map-of' [g |- Dof] [g |- Dmap] [g |- tmap/t] as Dof' unboxed;
+        solve [g |- subtp/sing_t Dof']
+      }
+    }
+  }
+  case kd-sub/trans:
+  { g : map-bind+invert-bind-for-map-of,
+    K : (g |- kind),
+    L : (g |- kind),
+    A : (g |- etp),
+    B : (g |- etp),
+    K2 : (g |- kind),
+    Dsub : (g |- kd-sub K K2),
+    Dsub1 : (g |- kd-sub K2 L)
+  | sub : [g |- kd-sub K L], tmap : [g |- tmap K A], tmap1 : [g |- tmap L B]
+  ; by tmap as DmapA unboxed;
+    by tmap1 as DmapC unboxed;
+    split can-tmap [g |- K2] as
+    case can-tmap/i:
+    { g : map-bind+invert-bind-for-map-of,
+      K : (g |- kind),
+      K'' : (g |- kind),
+      A : (g |- etp),
+      C : (g |- etp),
+      K' : (g |- kind),
+      DsubAB : (g |- kd-sub K K'),
+      DsubBC : (g |- kd-sub K' K''),
+      DmapA : (g |- tmap K A),
+      DmapC : (g |- tmap K'' C),
+      A1 : (g |- etp),
+      Dtmap : (g |- tmap K' A1)
+    | sub : [g |- kd-sub K K''],
+      tmap : [g |- tmap K A],
+      tmap1 : [g |- tmap K'' C]
+    ; by map-subtp [g |- DsubAB] [g |- DmapA] [g |- Dtmap] as DsubAB' unboxed;
+      by map-subtp [g |- DsubBC] [g |- Dtmap] [g |- DmapC] as DsubBC' unboxed;
+      solve [g |- subtp/trans DsubAB' DsubBC']
+    }
+  }
+  case kd-sub/refl:
+  { g : map-bind+invert-bind-for-map-of,
+    K : (g |- kind),
+    L : (g |- kind),
+    A : (g |- etp),
+    B : (g |- etp),
+    Dequiv : (g |- kd-equiv K L)
+  | sub : [g |- kd-sub K L], tmap : [g |- tmap K A], tmap1 : [g |- tmap L B]
+  ; by tmap as DmapA unboxed;
+    by tmap1 as DmapB unboxed;
+    by map-tequiv [g |- Dequiv] [g |- DmapA] [g |- DmapB] as Dequiv' unboxed;
+    solve [g |- subtp/reflex Dequiv']
+  }
+}
 
 and proof map-tequiv :
   (g : map-bind+invert-bind-for-map-of)
