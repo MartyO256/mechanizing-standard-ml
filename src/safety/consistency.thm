@@ -3133,8 +3133,37 @@ and proof map-wf' :
   [g |- kd-wf K] ->
   [g |- tmap K A] ->
     [g |- ewf A] =
-/ total 1 /
-?
+/ trust / % FIXME: See issue #4
+intros
+{ g : map-bind+invert-bind-for-map-of, K : (g |- kind), A : (g |- etp)
+| x : [g |- kd-wf K], tmap : [g |- tmap K A]
+; by x as Dwf unboxed;
+  by tmap as Dmap unboxed;
+  split map-wf [_ |- Dwf] as
+  case map-wf/i:
+  { g : map-bind+invert-bind-for-map-of,
+    K : (g |- kind),
+    A : (g |- etp),
+    Dwf : (g |- kd-wf K),
+    Dmap : (g |- tmap K A),
+    A1 : (g |- etp),
+    Dtmap : (g |- tmap K A1),
+    Dwf1 : (g |- ewf A1)
+  | x : [g |- kd-wf K], tmap : [g |- tmap K A]
+  ; split tmap-fun [_ |- Dmap] [_ |- Dtmap] as
+    case etp-eq/i:
+    { g : map-bind+invert-bind-for-map-of,
+      K : (g |- kind),
+      A' : (g |- etp),
+      Dwf : (g |- kd-wf K),
+      Dmap : (g |- tmap K A'),
+      Dmap' : (g |- tmap K A'),
+      Dwf' : (g |- ewf A')
+    | x : [g |- kd-wf K], tmap : [g |- tmap K A']
+    ; solve [_ |- Dwf']
+    }
+  }
+}
 
 and proof map-subtp :
   (g : map-bind+invert-bind-for-map-of)
