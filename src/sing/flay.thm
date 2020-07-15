@@ -1,3 +1,5 @@
+% Definitions
+
 LF eexpand : eterm -> etp -> eterm -> type =
 | eexpand/t : eexpand R et R
 
@@ -230,6 +232,316 @@ intros
       ; solve skof
       }
     }
+  }
+}
+;
+
+% Eexpand Theorems
+
+LF esimp : etp -> stp -> type =
+| esimp/t : esimp et st
+
+| esimp/pi :
+  esimp A S ->
+  ({ x : eterm } esimp (B x) T) ->
+    esimp (epi A B) (spi S T)
+
+| esimp/sigma :
+  esimp A S ->
+  ({ x : eterm } esimp (B x) T) ->
+    esimp (esigma A B) (ssigma S T)
+
+| esimp/sing : esimp (esing R) st
+
+| esimp/one : esimp eone sone
+;
+--name esimp Dsimp esimp.
+
+LF can-esimp/e : etp -> type =
+| can-esimp/i : { T : stp } esimp A T -> can-esimp/e A
+;
+
+proof can-esimp :
+  (g : evar)
+  { A : [g |- etp] }
+  [g |- can-esimp/e A] =
+/ total 1 /
+intros
+{ g : evar, A : (g |- etp)
+|
+; split [_ |- A] as
+  case eone:
+  { g : evar
+  |
+  ; solve [_ |- can-esimp/i _ esimp/one]
+  }
+  case esing:
+  { g : evar, M : (g |- eterm)
+  |
+  ; solve [_ |- can-esimp/i _ (esimp/sing )]
+  }
+  case esigma:
+  { g : evar, A1 : (g |- etp), A2 : (g, y149 : eterm |- etp)
+  |
+  ; split can-esimp [_ |- A1] as
+    case can-esimp/i:
+    { g : evar,
+      A1 : (g |- etp),
+      A2 : (g, y149 : eterm |- etp),
+      T : ( |- stp),
+      Dsimp : (g |- esimp A1 T[])
+    |
+    ; split can-esimp [_, y149 : eterm |- A2] as
+      case can-esimp/i:
+      { g : evar,
+        A1 : (g |- etp),
+        A2 : (g, y149 : eterm |- etp),
+        T : ( |- stp),
+        Dsimp : (g |- esimp A1 T[]),
+        T1 : ( |- stp),
+        Dsimp1 : (g, y149 : eterm |- esimp A2 T1[])
+      |
+      ; solve [_ |- can-esimp/i _ (esimp/sigma Dsimp (\x. Dsimp1))]
+      }
+    }
+  }
+  case epi:
+  { g : evar, A1 : (g |- etp), A2 : (g, y148 : eterm |- etp)
+  |
+  ; split can-esimp [_ |- A1] as
+    case can-esimp/i:
+    { g : evar,
+      A1 : (g |- etp),
+      A2 : (g, y148 : eterm |- etp),
+      T : ( |- stp),
+      Dsimp : (g |- esimp A1 T[])
+    |
+    ; split can-esimp [_, y148 : eterm |- A2] as
+      case can-esimp/i:
+      { g : evar,
+        A1 : (g |- etp),
+        A2 : (g, y148 : eterm |- etp),
+        T : ( |- stp),
+        Dsimp : (g |- esimp A1 T[]),
+        T1 : ( |- stp),
+        Dsimp1 : (g, y148 : eterm |- esimp A2 T1[])
+      |
+      ; solve [_ |- can-esimp/i _ (esimp/pi Dsimp (\x. Dsimp1))]
+      }
+    }
+  }
+  case et:
+  { g : evar
+  |
+  ; solve [_ |- can-esimp/i _ esimp/t]
+  }
+}
+;
+
+LF can-eexpand/e : eterm -> etp -> type =
+| can-eexpand/i : { M : eterm } eexpand R A M -> can-eexpand/e R A
+;
+
+proof can-eexpand :
+  (g : evar)
+  { R : [g |- eterm] }
+  { A : [g |- etp] }
+  [g |- can-eexpand/e R A] =
+/ trust / % FIXME: See issue #4
+intros
+{ g : evar, R : (g |- eterm), A : (g |- etp)
+|
+; split can-esimp [_ |- A] as
+  case can-esimp/i:
+  { g : evar,
+    R : (g |- eterm),
+    A : (g |- etp),
+    T : ( |- stp),
+    Dsimp : (g |- esimp A T[])
+  |
+  ; split [_ |- Dsimp] as
+    case esimp/one:
+    { g : evar, R : (g |- eterm)
+    |
+    ; solve [_ |- can-eexpand/i _ (eexpand/one )]
+    }
+    case esimp/sing:
+    { g : evar, R : (g |- eterm), M : (g |- eterm)
+    |
+    ; solve [_ |- can-eexpand/i _ (eexpand/sing )]
+    }
+    case esimp/sigma:
+    { g : evar,
+      R : (g |- eterm),
+      A1 : (g |- etp),
+      A2 : (g, z329 : eterm |- etp),
+      T1 : ( |- stp),
+      T2 : ( |- stp),
+      Dsimp1 : (g |- esimp A1 T1[]),
+      Dsimp2 : (g, x : eterm |- esimp A2 T2[])
+    |
+    ; split can-eexpand [g |- epi1 R] [g |- A1] as
+      case can-eexpand/i:
+      { g : evar,
+        R : (g |- eterm),
+        A1 : (g |- etp),
+        A2 : (g, z329 : eterm |- etp),
+        T1 : ( |- stp),
+        T2 : ( |- stp),
+        Dsimp1 : (g |- esimp A1 T1[]),
+        Dsimp2 : (g, x : eterm |- esimp A2 T2[]),
+        M1 : (g |- eterm),
+        Dexpand : (g |- eexpand (epi1 R) A1 M1)
+      |
+      ; split can-eexpand [g |- epi2 R] [g |- A2[.., epi1 R]] as
+        case can-eexpand/i:
+        { g : evar,
+          R : (g |- eterm),
+          A1 : (g |- etp),
+          A2 : (g, z329 : eterm |- etp),
+          T1 : ( |- stp),
+          T2 : ( |- stp),
+          Dsimp1 : (g |- esimp A1 T1[]),
+          Dsimp2 : (g, x : eterm |- esimp A2 T2[]),
+          M1 : (g |- eterm),
+          Dexpand : (g |- eexpand (epi1 R) A1 M1),
+          M3 : (g |- eterm),
+          Dexpand1 : (g |- eexpand (epi2 R) (A2[.., epi1 R]) M3)
+        |
+        ; solve [g |- can-eexpand/i _ (eexpand/sigma Dexpand Dexpand1)]
+        }
+      }
+    }
+    case esimp/pi:
+    { g : evar,
+      R : (g |- eterm),
+      A1 : (g |- etp),
+      A2 : (g, z328 : eterm |- etp),
+      T1 : ( |- stp),
+      T2 : ( |- stp),
+      Dsimp1 : (g |- esimp A1 T1[]),
+      Dsimp2 : (g, x : eterm |- esimp A2 T2[])
+    |
+    ; split
+        can-eexpand
+          [g, b : block (x : eterm) |- b.1]
+          [g, b : block (x : eterm) |- A1[..]]
+      as
+      case can-eexpand/i:
+      { g : evar,
+        R : (g |- eterm),
+        A1 : (g |- etp),
+        A2 : (g, z328 : eterm |- etp),
+        T1 : ( |- stp),
+        T2 : ( |- stp),
+        Dsimp1 : (g |- esimp A1 T1[]),
+        Dsimp2 : (g, x : eterm |- esimp A2 T2[]),
+        M1 : (g, y1 : eterm |- eterm),
+        Dexpand : (g, x1 : eterm |- eexpand x1 (A1[..]) M1)
+      |
+      ; %{ FIXME: Wrong block projections after
+            invert can-eexpand [g, b : block (x : eterm) |- eapp (R[..]) (M1[.., b.x])] [g, b |- A2[.., b.x]]
+        }%
+        ?
+      }
+    }
+    case esimp/t:
+    { g : evar, R : (g |- eterm)
+    |
+    ; solve [_ |- can-eexpand/i _ (eexpand/t )]
+    }
+  }
+}
+;
+
+% Skof Theorems
+
+LF can-skof/e : skel -> type =
+| can-skof/i : { A : etp } { B : eterm -> etp } skof K A B -> can-skof/e K
+;
+
+proof can-skof :
+  (g : evar)
+  { K : [g |- skel] }
+  [g |- can-skof/e K] =
+/ total 1 /
+intros
+{ g : evar, K : (g |- skel)
+|
+; split [_ |- K] as
+  case kone:
+  { g : evar
+  |
+  ; solve [_ |- can-skof/i _ (\x. _) skof/one]
+  }
+  case ksing:
+  { g : evar
+  |
+  ; solve [_ |- can-skof/i _ (\x. _) skof/sing]
+  }
+  case ksigma:
+  { g : evar, Dskel : ( |- skel), Dskel1 : ( |- skel)
+  |
+  ; split can-skof [ |- Dskel] as
+    case can-skof/i:
+    { g : evar,
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      A : ( |- etp),
+      A1 : (z332 : eterm |- etp),
+      Dskof : ( |- skof Dskel A (\z310. A1))
+    |
+    ; split can-skof [ |- Dskel1] as
+      case can-skof/i:
+      { g : evar,
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        A : ( |- etp),
+        A1 : (z332 : eterm |- etp),
+        Dskof : ( |- skof Dskel A (\z310. A1)),
+        A2 : ( |- etp),
+        A3 : (z332 : eterm |- etp),
+        Dskof1 : ( |- skof Dskel1 A2 (\z310. A3))
+      |
+      ; ?
+      }
+    }
+  }
+  case kpi:
+  { g : evar, Dskel : ( |- skel), Dskel1 : ( |- skel)
+  |
+  ; split can-skof [ |- Dskel] as
+    case can-skof/i:
+    { g : evar,
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      A : ( |- etp),
+      A1 : (z332 : eterm |- etp),
+      Dskof : ( |- skof Dskel A (\z310. A1))
+    |
+    ; split can-skof [ |- Dskel1] as
+      case can-skof/i:
+      { g : evar,
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        A : ( |- etp),
+        A1 : (z332 : eterm |- etp),
+        Dskof : ( |- skof Dskel A (\z310. A1)),
+        A2 : ( |- etp),
+        A3 : (z332 : eterm |- etp),
+        Dskof1 : ( |- skof Dskel1 A2 (\z310. A3))
+      |
+      ; %{ FIXME: Wrong projections after
+            invert can-eexpand [_, b1 : block (x : eterm), b2 : block (y : eterm)|- b1.x] [g, b1, b2|-A1[b2.y]]
+        }%
+        ?
+      }
+    }
+  }
+  case kt:
+  { g : evar
+  |
+  ; solve [_ |- can-skof/i _ (\x. _) skof/t]
   }
 }
 ;

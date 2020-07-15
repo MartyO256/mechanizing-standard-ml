@@ -1,0 +1,53 @@
+
+% Simple Types
+
+LF stp : type =
+| st : stp
+| spi : stp -> stp -> stp
+| ssigma : stp -> stp -> stp
+| sone : stp
+;
+--name stp T.
+
+
+LF simp : tp -> stp -> type =
+| simp/t : simp t st
+
+| simp/pi :
+  simp A S ->
+  ({ x : atom } simp (B x) T) ->
+    simp (pi A B) (spi S T)
+
+| simp/sigma :
+  simp A S ->
+  ({ x : atom } simp (B x) T) ->
+    simp (sigma A B) (ssigma S T)
+
+| simp/sing : simp (sing R) st
+
+| simp/one : simp one sone
+;
+--name simp Dsimp simp.
+
+
+
+LF stp-leq : stp -> stp -> type =
+| stp-leq/eq : stp-leq T T
+
+| stp-leq/pi1 :
+  stp-leq S T1 ->
+    stp-leq S (spi T1 T2)
+
+| stp-leq/pi2 :
+  stp-leq S T2 ->
+    stp-leq S (spi T1 T2)
+
+| stp-leq/sigma1 :
+  stp-leq S T1 ->
+    stp-leq S (ssigma T1 T2)
+
+| stp-leq/sigma2 :
+  stp-leq S T2 ->
+    stp-leq S (ssigma T1 T2)
+;
+--name stp-leq Dleq leq.
