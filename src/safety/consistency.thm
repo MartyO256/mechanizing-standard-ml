@@ -3120,6 +3120,48 @@ and proof map-of' :
   [g |- tmap K A] ->
     [g |- eof M A] =
 / trust / % FIXME: See issue #4
+intros
+{ g : map-bind+invert-bind-for-map-of,
+  C : (g |- con),
+  K : (g |- kind),
+  M : (g |- eterm),
+  A : (g |- etp)
+| x : [g |- cn-of C K], map : [g |- map C M], tmap : [g |- tmap K A]
+; by x as Dof unboxed;
+  by map as Dmap unboxed;
+  by tmap as DmapA unboxed;
+  split map-of [_ |- Dof] [_ |- Dmap] as
+  case map-of/i:
+  { g : map-bind+invert-bind-for-map-of,
+    C : (g |- con),
+    K : (g |- kind),
+    M : (g |- eterm),
+    A : (g |- etp),
+    Dof : (g |- cn-of C K),
+    Dmap : (g |- map C M),
+    DmapA : (g |- tmap K A),
+    A1 : (g |- etp),
+    Dtmap : (g |- tmap K A1),
+    Dof1 : (g |- eof M A1)
+  | x : [g |- cn-of C K], map : [g |- map C M], tmap : [g |- tmap K A]
+  ; by tmap-fun [_ |- Dtmap] [_ |- DmapA] as Deq unboxed;
+    split [_ |- Deq] as
+    case etp-eq/i:
+    { g : map-bind+invert-bind-for-map-of,
+      C : (g |- con),
+      K : (g |- kind),
+      M : (g |- eterm),
+      A : (g |- etp),
+      Dof : (g |- cn-of C K),
+      Dmap : (g |- map C M),
+      DmapA : (g |- tmap K A),
+      DmapA' : (g |- tmap K A),
+      Dof' : (g |- eof M A)
+    | x : [g |- cn-of C K], map : [g |- map C M], tmap : [g |- tmap K A]
+    ; solve [_ |- Dof']
+    }
+  }
+}
 
 and proof map-wf :
   (g : map-bind+invert-bind-for-map-of)
