@@ -546,6 +546,207 @@ intros
 }
 ;
 
+LF skof-reg/e : etp -> (eterm -> etp) -> type =
+| skof-reg/i :
+  ewf A -> ({ x : eterm } evof x A -> ewf (B x)) -> skof-reg/e A B
+;
+
+schema ebind+topenblock =
+  % ebind
+  some [ea : etp]
+  block (ex : eterm, ed : evof ex ea) +
+  % topenblock
+  some [a : tp, r : atom]
+  block (xc : catom, d : topenr xc a r);
+
+proof skof-reg :
+  (g : ebind+topenblock)
+  [g |- skof K A (\x. B)] ->
+    [g |- skof-reg/e A (\x. B)] =
+/ total 1 /
+intros
+{ g : ebind+topenblock,
+  K : (g |- skel),
+  A : (g |- etp),
+  B : (g, z310 : eterm |- etp)
+| x : [g |- skof K A (\x. B)]
+; split x as
+  case skof/one:
+  { g : ebind+topenblock
+  | x : [g |- skof kone eone (\x. eone)]
+  ; solve [_ |- skof-reg/i ewf/one (\x. \dx. ewf/one)]
+  }
+  case skof/sing:
+  { g : ebind+topenblock
+  | x : [g |- skof ksing et (\x. esing x)]
+  ; solve [_ |- skof-reg/i ewf/t (\x. \dx. ewf/sing (eof/var dx ewf/t))]
+  }
+  case skof/sigma:
+  { g : ebind+topenblock,
+    Dskel : ( |- skel),
+    Dskel1 : ( |- skel),
+    A1 : (g |- etp),
+    A2 : (g, x314 : eterm |- etp),
+    A3 : (g |- etp),
+    A4 : (g, z314 : eterm |- etp),
+    M : (g, x315 : eterm, y315 : eterm |- eterm),
+    Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+    Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+    Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M)
+  | x :
+      [g |-
+         skof
+           (ksigma Dskel[] Dskel1[])
+           (esigma A1 (\y. epi A2 (\l. A3[..])))
+           (\x.
+              esigma (A2[.., epi1 x])
+              (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))]
+  ; split skof-reg [g |- Dskof] as
+    case skof-reg/i:
+    { g : ebind+topenblock,
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      A1 : (g |- etp),
+      A2 : (g, x314 : eterm |- etp),
+      A3 : (g |- etp),
+      A4 : (g, z314 : eterm |- etp),
+      M : (g, x315 : eterm, y315 : eterm |- eterm),
+      Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+      Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+      Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M),
+      Dwf : (g |- ewf A1),
+      Dwf1 : (g, x : eterm, z337 : evof x (A1[..]) |- ewf (A2[.., x]))
+    | x :
+        [g |-
+           skof
+             (ksigma Dskel[] Dskel1[])
+             (esigma A1 (\y. epi A2 (\l. A3[..])))
+             (\x.
+                esigma (A2[.., epi1 x])
+                (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))]
+    ; split skof-reg [g |- Dskof1] as
+      case skof-reg/i:
+      { g : ebind+topenblock,
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        A1 : (g |- etp),
+        A2 : (g, x314 : eterm |- etp),
+        A3 : (g |- etp),
+        A4 : (g, z314 : eterm |- etp),
+        M : (g, x315 : eterm, y315 : eterm |- eterm),
+        Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+        Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+        Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M),
+        Dwf : (g |- ewf A1),
+        Dwf1 : (g, x : eterm, z337 : evof x (A1[..]) |- ewf (A2[.., x])),
+        Dwf2 : (g |- ewf A3),
+        Dwf3 : (g, x : eterm, z337 : evof x (A3[..]) |- ewf (A4[.., x]))
+      | x :
+          [g |-
+             skof
+               (ksigma Dskel[] Dskel1[])
+               (esigma A1 (\y. epi A2 (\l. A3[..])))
+               (\x.
+                  esigma (A2[.., epi1 x])
+                  (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))]
+      ; by [g |-
+      ewf/sigma Dwf (\x. \dx. ewf/pi (Dwf1[.., x, _]) (\x1. \dx1. Dwf2[..]))]
+as Dwf' unboxed;
+        by [g, x : eterm |-
+      ewf/sigma (Dwf1[.., epi1 x, _])
+      (\x1. \dx. Dwf3[.., eapp (epi2 x) (M[.., epi1 x, x1]), _])]
+as Dwf'' unboxed;
+        solve [g |- skof-reg/i Dwf' (\x. \dx. Dwf''[.., x])]
+      }
+    }
+  }
+  case skof/pi:
+  { g : ebind+topenblock,
+    Dskel : ( |- skel),
+    Dskel1 : ( |- skel),
+    A1 : (g |- etp),
+    A2 : (g, y312 : eterm |- etp),
+    A3 : (g |- etp),
+    A4 : (g, x312 : eterm |- etp),
+    M : (g, y313 : eterm, z312 : eterm |- eterm),
+    Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+    Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+    Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M)
+  | x :
+      [g |-
+         skof
+           (kpi Dskel[] Dskel1[])
+           (esigma A1 (\y. epi A2 (\l. A3[..])))
+           (\x.
+              epi (A2[.., epi1 x])
+              (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))]
+  ; split skof-reg [g |- Dskof] as
+    case skof-reg/i:
+    { g : ebind+topenblock,
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      A1 : (g |- etp),
+      A2 : (g, y312 : eterm |- etp),
+      A3 : (g |- etp),
+      A4 : (g, x312 : eterm |- etp),
+      M : (g, y313 : eterm, z312 : eterm |- eterm),
+      Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+      Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+      Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M),
+      Dwf : (g |- ewf A1),
+      Dwf1 : (g, x : eterm, z337 : evof x (A1[..]) |- ewf (A2[.., x]))
+    | x :
+        [g |-
+           skof
+             (kpi Dskel[] Dskel1[])
+             (esigma A1 (\y. epi A2 (\l. A3[..])))
+             (\x.
+                epi (A2[.., epi1 x])
+                (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))]
+    ; split skof-reg [g |- Dskof1] as
+      case skof-reg/i:
+      { g : ebind+topenblock,
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        A1 : (g |- etp),
+        A2 : (g, y312 : eterm |- etp),
+        A3 : (g |- etp),
+        A4 : (g, x312 : eterm |- etp),
+        M : (g, y313 : eterm, z312 : eterm |- eterm),
+        Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+        Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+        Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M),
+        Dwf : (g |- ewf A1),
+        Dwf1 : (g, x : eterm, z337 : evof x (A1[..]) |- ewf (A2[.., x])),
+        Dwf2 : (g |- ewf A3),
+        Dwf3 : (g, x : eterm, z337 : evof x (A3[..]) |- ewf (A4[.., x]))
+      | x :
+          [g |-
+             skof
+               (kpi Dskel[] Dskel1[])
+               (esigma A1 (\y. epi A2 (\l. A3[..])))
+               (\x.
+                  epi (A2[.., epi1 x])
+                  (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))]
+      ; by [g |-
+      ewf/sigma Dwf (\x. \dx. ewf/pi (Dwf1[.., x, _]) (\x1. \dx1. Dwf2[..]))]
+as Dwf' unboxed;
+        by [g, x : eterm |-
+      ewf/pi (Dwf1[.., epi1 x, _])
+      (\x1. \dx. Dwf3[.., eapp (epi2 x) (M[.., epi1 x, x1]), _])]
+as Dwf'' unboxed;
+        solve [g |- skof-reg/i Dwf' (\x. \dx. Dwf''[.., x])]
+      }
+    }
+  }
+  case skof/t:
+  { g : ebind+topenblock
+  | x : [g |- skof kt eone (\x. et)]
+  ; solve [g |- skof-reg/i ewf/one (\x. \dx. ewf/t)]
+  }
+}
+;
+
 % Flay Theorems
 
 LF can-flay/e : etp -> type =
