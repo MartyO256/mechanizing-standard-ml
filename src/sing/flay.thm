@@ -749,6 +749,646 @@ as Dwf'' unboxed;
 
 % Flay Theorems
 
+LF flay-sound/e : etp -> (eterm -> etp) -> etp -> eterm -> type =
+| flay-sound/i : eof M B -> tequiv A (A' M) -> flay-sound/e A A' B M
+;
+
+proof flay-sound :
+  (g : ebind)
+  [g |- ewf A] ->
+  [g |- flay A K M] ->
+  [g |- skof K B (\x. A')] ->
+    [g |- flay-sound/e A (\x. A') B M] =
+/ total 1 /
+intros
+{ g : ebind,
+  A : (g |- etp),
+  K : (g |- skel),
+  M : (g |- eterm),
+  B : (g |- etp),
+  A' : (g, z310 : eterm |- etp)
+| x : [g |- ewf A], flay : [g |- flay A K M], skof : [g |- skof K B (\x. A')]
+; split x as
+  case ewf/one:
+  { g : ebind,
+    K : (g |- skel),
+    M : (g |- eterm),
+    B : (g |- etp),
+    A' : (g, z310 : eterm |- etp)
+  | x : [g |- ewf eone],
+    flay : [g |- flay eone K M],
+    skof : [g |- skof K B (\x. A')]
+  ; split flay as
+    case flay/one:
+    { g : ebind, B : (g |- etp), A' : (g, z310 : eterm |- etp)
+    | x : [g |- ewf eone],
+      flay : [g |- flay eone kone estar],
+      skof : [g |- skof kone B (\x. A')]
+    ; split skof as
+      case skof/one:
+      { g : ebind
+      | x : [g |- ewf eone],
+        flay : [g |- flay eone kone estar],
+        skof : [g |- skof kone eone (\x. eone)]
+      ; solve [g |- flay-sound/i eof/star (tequiv/reflex ewf/one)]
+      }
+    }
+  }
+  case ewf/sing:
+  { g : ebind,
+    M1 : (g |- eterm),
+    K : (g |- skel),
+    M : (g |- eterm),
+    B : (g |- etp),
+    A' : (g, z310 : eterm |- etp),
+    Dof : (g |- eof M1 et)
+  | x : [g |- ewf (esing M1)],
+    flay : [g |- flay (esing M1) K M],
+    skof : [g |- skof K B (\x. A')]
+  ; split flay as
+    case flay/sing:
+    { g : ebind,
+      M : (g |- eterm),
+      B : (g |- etp),
+      A' : (g, z310 : eterm |- etp),
+      Dof : (g |- eof M et)
+    | x : [g |- ewf (esing M)],
+      flay : [g |- flay (esing M) ksing M],
+      skof : [g |- skof ksing B (\x. A')]
+    ; split skof as
+      case skof/sing:
+      { g : ebind, M : (g |- eterm), Dof : (g |- eof M et)
+      | x : [g |- ewf (esing M)],
+        flay : [g |- flay (esing M) ksing M],
+        skof : [g |- skof ksing et (\x. esing x)]
+      ; solve [g |- flay-sound/i Dof (tequiv/reflex (ewf/sing Dof))]
+      }
+    }
+  }
+  case ewf/sigma:
+  { g : ebind,
+    A1 : (g |- etp),
+    A2 : (g, x163 : eterm |- etp),
+    K : (g |- skel),
+    M : (g |- eterm),
+    B : (g |- etp),
+    A' : (g, z310 : eterm |- etp),
+    Dwf : (g |- ewf A1),
+    Dwf1 : (g, x : eterm, y163 : evof x (A1[..]) |- ewf (A2[.., x]))
+  | x : [g |- ewf (esigma A1 (\y149. A2))],
+    flay : [g |- flay (esigma A1 (\y149. A2)) K M],
+    skof : [g |- skof K B (\x. A')]
+  ; split flay as
+    case flay/sigma:
+    { g : ebind,
+      A1 : (g |- etp),
+      A2 : (g, x163 : eterm |- etp),
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      M1 : (g |- eterm),
+      M2 : (g, y319 : eterm |- eterm),
+      B : (g |- etp),
+      A' : (g, z310 : eterm |- etp),
+      Dwf : (g |- ewf A1),
+      Dwf1 : (g, x : eterm, y163 : evof x (A1[..]) |- ewf (A2[.., x])),
+      Dflay : (g |- flay A1 Dskel[] M1),
+      Dflay1 : (g, x : eterm |- flay A2 Dskel1[] M2)
+    | x : [g |- ewf (esigma A1 (\y149. A2))],
+      flay :
+        [g |-
+           flay
+             (esigma A1 (\y149. A2))
+             (ksigma Dskel[] Dskel1[]) (epair M1 (elam A1 (\x. M2)))],
+      skof : [g |- skof (ksigma Dskel[] Dskel1[]) B (\x. A')]
+    ; split skof as
+      case skof/sigma:
+      { g : ebind,
+        A1 : (g |- etp),
+        A2 : (g, x163 : eterm |- etp),
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        M1 : (g |- eterm),
+        M2 : (g, y319 : eterm |- eterm),
+        A3 : (g |- etp),
+        A4 : (g, x314 : eterm |- etp),
+        A5 : (g |- etp),
+        A6 : (g, z314 : eterm |- etp),
+        M3 : (g, x315 : eterm, y315 : eterm |- eterm),
+        Dwf : (g |- ewf A1),
+        Dwf1 : (g, x : eterm, y163 : evof x (A1[..]) |- ewf (A2[.., x])),
+        Dflay : (g |- flay A1 Dskel[] M1),
+        Dflay1 : (g, x : eterm |- flay A2 Dskel1[] M2),
+        Dskof : (g |- skof Dskel[] A3 (\y. A4)),
+        Dskof1 : (g |- skof Dskel1[] A5 (\z. A6)),
+        Dexpand : (g, y : eterm, x : eterm |- eexpand x (A4[.., y]) M3)
+      | x : [g |- ewf (esigma A1 (\y149. A2))],
+        flay :
+          [g |-
+             flay
+               (esigma A1 (\y149. A2))
+               (ksigma Dskel[] Dskel1[]) (epair M1 (elam A1 (\x. M2)))],
+        skof :
+          [g |-
+             skof
+               (ksigma Dskel[] Dskel1[])
+               (esigma A3 (\y. epi A4 (\l. A5[..])))
+               (\x.
+                  esigma (A4[.., epi1 x])
+                  (\x1. A6[.., eapp (epi2 x) (M3[.., epi1 x, x1])]))]
+      ; split flay-sound [g |- Dwf] [g |- Dflay] [g |- Dskof] as
+        case flay-sound/i:
+        { g : ebind,
+          A1 : (g |- etp),
+          A2 : (g, x163 : eterm |- etp),
+          Dskel : ( |- skel),
+          Dskel1 : ( |- skel),
+          M1 : (g |- eterm),
+          M2 : (g, y319 : eterm |- eterm),
+          A3 : (g |- etp),
+          A4 : (g, x314 : eterm |- etp),
+          A5 : (g |- etp),
+          A6 : (g, z314 : eterm |- etp),
+          M3 : (g, x315 : eterm, y315 : eterm |- eterm),
+          Dwf : (g |- ewf A1),
+          Dwf1 : (g, x : eterm, y163 : evof x (A1[..]) |- ewf (A2[.., x])),
+          Dflay : (g |- flay A1 Dskel[] M1),
+          Dflay1 : (g, x : eterm |- flay A2 Dskel1[] M2),
+          Dskof : (g |- skof Dskel[] A3 (\y. A4)),
+          Dskof1 : (g |- skof Dskel1[] A5 (\z. A6)),
+          Dexpand : (g, y : eterm, x : eterm |- eexpand x (A4[.., y]) M3),
+          Dof : (g |- eof M1 A3),
+          Dtequiv : (g |- tequiv A1 (A4[.., M1]))
+        | x : [g |- ewf (esigma A1 (\y149. A2))],
+          flay :
+            [g |-
+               flay
+                 (esigma A1 (\y149. A2))
+                 (ksigma Dskel[] Dskel1[]) (epair M1 (elam A1 (\x. M2)))],
+          skof :
+            [g |-
+               skof
+                 (ksigma Dskel[] Dskel1[])
+                 (esigma A3 (\y. epi A4 (\l. A5[..])))
+                 (\x.
+                    esigma (A4[.., epi1 x])
+                    (\x1. A6[.., eapp (epi2 x) (M3[.., epi1 x, x1])]))]
+        ; split
+          flay-sound
+            [g, b : block (x : eterm, dx : evof x (A1[..])) |-
+               Dwf1[.., b.1, b.2]]
+            [g, b : block (x : eterm, dx : evof x (A1[..])) |-
+               Dflay1[.., b.1]]
+            [g, b : block (x : eterm, dx : evof x (A1[..])) |- Dskof1[..]] as
+          case flay-sound/i:
+          { g : ebind,
+            A1 : (g |- etp),
+            A8 : (g, x : eterm |- etp),
+            Dskel : ( |- skel),
+            Dskel1 : ( |- skel),
+            M1 : (g |- eterm),
+            M4 : (g, x : eterm |- eterm),
+            A3 : (g |- etp),
+            A4 : (g, x314 : eterm |- etp),
+            A7 : (g |- etp),
+            A9 : (g, x343 : eterm |- etp),
+            M3 : (g, x315 : eterm, y315 : eterm |- eterm),
+            Dwf : (g |- ewf A1),
+            Dwf1 : (g, x : eterm, y163 : evof x (A1[..]) |- ewf (A8[.., x])),
+            Dflay : (g |- flay A1 Dskel[] M1),
+            Dflay1 : (g, x : eterm |- flay A8 Dskel1[] M4),
+            Dskof : (g |- skof Dskel[] A3 (\y. A4)),
+            Dskof1 : (g |- skof Dskel1[] A7 (\z. A9)),
+            Dexpand : (g, y : eterm, x : eterm |- eexpand x (A4[.., y]) M3),
+            Dof : (g |- eof M1 A3),
+            Dtequiv : (g |- tequiv A1 (A4[.., M1])),
+            Dof1 :
+              (g, x : eterm, x8 : evof x (A1[..]) |- eof (M4[.., x]) (A7[..])),
+            Dtequiv1 :
+              (g, x : eterm, z8 : evof x (A1[..]) |-
+                 tequiv (A8[.., x]) (A9[.., (M4[.., x])]))
+          | x : [g |- ewf (esigma A1 (\y149. A8))],
+            flay :
+              [g |-
+                 flay
+                   (esigma A1 (\y149. A8))
+                   (ksigma Dskel[] Dskel1[]) (epair M1 (elam A1 (\x. M4)))],
+            skof :
+              [g |-
+                 skof
+                   (ksigma Dskel[] Dskel1[])
+                   (esigma A3 (\y. epi A4 (\l. A7[..])))
+                   (\x.
+                      esigma (A4[.., epi1 x])
+                      (\x1. A9[.., eapp (epi2 x) (M3[.., epi1 x, x1])]))]
+          ; split skof-reg [g |- Dskof] as
+            case skof-reg/i:
+            { g : ebind,
+              A1 : (g |- etp),
+              A8 : (g, x : eterm |- etp),
+              Dskel : ( |- skel),
+              Dskel1 : ( |- skel),
+              M1 : (g |- eterm),
+              M4 : (g, x : eterm |- eterm),
+              A3 : (g |- etp),
+              A4 : (g, x314 : eterm |- etp),
+              A7 : (g |- etp),
+              A9 : (g, x343 : eterm |- etp),
+              M3 : (g, x315 : eterm, y315 : eterm |- eterm),
+              Dwf : (g |- ewf A1),
+              Dwf1 :
+                (g, x : eterm, y163 : evof x (A1[..]) |- ewf (A8[.., x])),
+              Dflay : (g |- flay A1 Dskel[] M1),
+              Dflay1 : (g, x : eterm |- flay A8 Dskel1[] M4),
+              Dskof : (g |- skof Dskel[] A3 (\y. A4)),
+              Dskof1 : (g |- skof Dskel1[] A7 (\z. A9)),
+              Dexpand : (g, y : eterm, x : eterm |- eexpand x (A4[.., y]) M3),
+              Dof : (g |- eof M1 A3),
+              Dtequiv : (g |- tequiv A1 (A4[.., M1])),
+              Dof1 :
+                (g, x : eterm, x8 : evof x (A1[..]) |-
+                   eof (M4[.., x]) (A7[..])),
+              Dtequiv1 :
+                (g, x : eterm, z8 : evof x (A1[..]) |-
+                   tequiv (A8[.., x]) (A9[.., (M4[.., x])])),
+              Dwf2 : (g |- ewf A3),
+              Dwf3 :
+                (g, x : eterm, z337 : evof x (A3[..]) |- ewf (A4[.., x]))
+            | x : [g |- ewf (esigma A1 (\y149. A8))],
+              flay :
+                [g |-
+                   flay
+                     (esigma A1 (\y149. A8))
+                     (ksigma Dskel[] Dskel1[]) (epair M1 (elam A1 (\x. M4)))],
+              skof :
+                [g |-
+                   skof
+                     (ksigma Dskel[] Dskel1[])
+                     (esigma A3 (\y. epi A4 (\l. A7[..])))
+                     (\x.
+                        esigma (A4[.., epi1 x])
+                        (\x1. A9[.., eapp (epi2 x) (M3[.., epi1 x, x1])]))]
+            ; split skof-reg [g |- Dskof1] as
+              case skof-reg/i:
+              { g : ebind,
+                A1 : (g |- etp),
+                A8 : (g, x : eterm |- etp),
+                Dskel : ( |- skel),
+                Dskel1 : ( |- skel),
+                M1 : (g |- eterm),
+                M4 : (g, x : eterm |- eterm),
+                A3 : (g |- etp),
+                A4 : (g, x314 : eterm |- etp),
+                A7 : (g |- etp),
+                A9 : (g, x343 : eterm |- etp),
+                M3 : (g, x315 : eterm, y315 : eterm |- eterm),
+                Dwf : (g |- ewf A1),
+                Dwf1 :
+                  (g, x : eterm, y163 : evof x (A1[..]) |- ewf (A8[.., x])),
+                Dflay : (g |- flay A1 Dskel[] M1),
+                Dflay1 : (g, x : eterm |- flay A8 Dskel1[] M4),
+                Dskof : (g |- skof Dskel[] A3 (\y. A4)),
+                Dskof1 : (g |- skof Dskel1[] A7 (\z. A9)),
+                Dexpand :
+                  (g, y : eterm, x : eterm |- eexpand x (A4[.., y]) M3),
+                Dof : (g |- eof M1 A3),
+                Dtequiv : (g |- tequiv A1 (A4[.., M1])),
+                Dof1 :
+                  (g, x : eterm, x8 : evof x (A1[..]) |-
+                     eof (M4[.., x]) (A7[..])),
+                Dtequiv1 :
+                  (g, x : eterm, z8 : evof x (A1[..]) |-
+                     tequiv (A8[.., x]) (A9[.., (M4[.., x])])),
+                Dwf2 : (g |- ewf A3),
+                Dwf3 :
+                  (g, x : eterm, z337 : evof x (A3[..]) |- ewf (A4[.., x])),
+                Dwf4 : (g |- ewf A7),
+                Dwf5 :
+                  (g, x : eterm, z337 : evof x (A7[..]) |- ewf (A9[.., x]))
+              | x : [g |- ewf (esigma A1 (\y149. A8))],
+                flay :
+                  [g |-
+                     flay
+                       (esigma A1 (\y149. A8))
+                       (ksigma Dskel[] Dskel1[])
+                       (epair M1 (elam A1 (\x. M4)))],
+                skof :
+                  [g |-
+                     skof
+                       (ksigma Dskel[] Dskel1[])
+                       (esigma A3 (\y. epi A4 (\l. A7[..])))
+                       (\x.
+                          esigma (A4[.., epi1 x])
+                          (\x1. A9[.., eapp (epi2 x) (M3[.., epi1 x, x1])]))]
+              ; by [g |-
+                      eof/pair Dof
+                      (eof/subsume (eof/lam Dwf (\x. \dx. Dof1))
+                      (subtp/reflex (tequiv/pi Dtequiv
+                                    (\x. \dx. tequiv/reflex (Dwf4[..])))))
+                      (\y. \e. ewf/pi Dwf3 (\x. \dx. Dwf4[..]))]
+                as Dof' unboxed;
+                ?
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  case ewf/pi:
+  { g : ebind,
+    A1 : (g |- etp),
+    A2 : (g, y162 : eterm |- etp),
+    K : (g |- skel),
+    M : (g |- eterm),
+    B : (g |- etp),
+    A' : (g, z310 : eterm |- etp),
+    Dwf : (g |- ewf A1),
+    Dwf1 : (g, x : eterm, z161 : evof x (A1[..]) |- ewf (A2[.., x]))
+  | x : [g |- ewf (epi A1 (\y148. A2))],
+    flay : [g |- flay (epi A1 (\y148. A2)) K M],
+    skof : [g |- skof K B (\x. A')]
+  ; split flay as
+    case flay/pi:
+    { g : ebind,
+      A1 : (g |- etp),
+      A2 : (g, y162 : eterm |- etp),
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      M1 : (g |- eterm),
+      M2 : (g, z317 : eterm |- eterm),
+      B : (g |- etp),
+      A' : (g, z310 : eterm |- etp),
+      Dwf : (g |- ewf A1),
+      Dwf1 : (g, x : eterm, z161 : evof x (A1[..]) |- ewf (A2[.., x])),
+      Dflay : (g |- flay A1 Dskel[] M1),
+      Dflay1 : (g, x : eterm |- flay A2 Dskel1[] M2)
+    | x : [g |- ewf (epi A1 (\y148. A2))],
+      flay :
+        [g |-
+           flay
+             (epi A1 (\y148. A2))
+             (kpi Dskel[] Dskel1[]) (epair M1 (elam A1 (\x. M2)))],
+      skof : [g |- skof (kpi Dskel[] Dskel1[]) B (\x. A')]
+    ; split skof as
+      case skof/pi:
+      { g : ebind,
+        A1 : (g |- etp),
+        A2 : (g, y162 : eterm |- etp),
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        M1 : (g |- eterm),
+        M2 : (g, z317 : eterm |- eterm),
+        A3 : (g |- etp),
+        A4 : (g, y312 : eterm |- etp),
+        A5 : (g |- etp),
+        A6 : (g, x312 : eterm |- etp),
+        M3 : (g, y313 : eterm, z312 : eterm |- eterm),
+        Dwf : (g |- ewf A1),
+        Dwf1 : (g, x : eterm, z161 : evof x (A1[..]) |- ewf (A2[.., x])),
+        Dflay : (g |- flay A1 Dskel[] M1),
+        Dflay1 : (g, x : eterm |- flay A2 Dskel1[] M2),
+        Dskof : (g |- skof Dskel[] A3 (\y. A4)),
+        Dskof1 : (g |- skof Dskel1[] A5 (\z. A6)),
+        Dexpand : (g, y : eterm, x : eterm |- eexpand x (A4[.., y]) M3)
+      | x : [g |- ewf (epi A1 (\y148. A2))],
+        flay :
+          [g |-
+             flay
+               (epi A1 (\y148. A2))
+               (kpi Dskel[] Dskel1[]) (epair M1 (elam A1 (\x. M2)))],
+        skof :
+          [g |-
+             skof
+               (kpi Dskel[] Dskel1[])
+               (esigma A3 (\y. epi A4 (\l. A5[..])))
+               (\x.
+                  epi (A4[.., epi1 x])
+                  (\x1. A6[.., eapp (epi2 x) (M3[.., epi1 x, x1])]))]
+      ; split flay-sound [g |- Dwf] [g |- Dflay] [g |- Dskof] as
+        case flay-sound/i:
+        { g : ebind,
+          A1 : (g |- etp),
+          A2 : (g, y162 : eterm |- etp),
+          Dskel : ( |- skel),
+          Dskel1 : ( |- skel),
+          M1 : (g |- eterm),
+          M2 : (g, z317 : eterm |- eterm),
+          A3 : (g |- etp),
+          A4 : (g, y312 : eterm |- etp),
+          A5 : (g |- etp),
+          A6 : (g, x312 : eterm |- etp),
+          M3 : (g, y313 : eterm, z312 : eterm |- eterm),
+          Dwf : (g |- ewf A1),
+          Dwf1 : (g, x : eterm, z161 : evof x (A1[..]) |- ewf (A2[.., x])),
+          Dflay : (g |- flay A1 Dskel[] M1),
+          Dflay1 : (g, x : eterm |- flay A2 Dskel1[] M2),
+          Dskof : (g |- skof Dskel[] A3 (\y. A4)),
+          Dskof1 : (g |- skof Dskel1[] A5 (\z. A6)),
+          Dexpand : (g, y : eterm, x : eterm |- eexpand x (A4[.., y]) M3),
+          Dof : (g |- eof M1 A3),
+          Dtequiv : (g |- tequiv A1 (A4[.., M1]))
+        | x : [g |- ewf (epi A1 (\y148. A2))],
+          flay :
+            [g |-
+               flay
+                 (epi A1 (\y148. A2))
+                 (kpi Dskel[] Dskel1[]) (epair M1 (elam A1 (\x. M2)))],
+          skof :
+            [g |-
+               skof
+                 (kpi Dskel[] Dskel1[])
+                 (esigma A3 (\y. epi A4 (\l. A5[..])))
+                 (\x.
+                    epi (A4[.., epi1 x])
+                    (\x1. A6[.., eapp (epi2 x) (M3[.., epi1 x, x1])]))]
+        ; split
+          flay-sound
+            [g, b : block (x : eterm, dx : evof x (A1[..])) |-
+               Dwf1[.., b.1, b.2]]
+            [g, b : block (x : eterm, dx : evof x (A1[..])) |-
+               Dflay1[.., b.1]]
+            [g, b : block (x : eterm, dx : evof x (A1[..])) |- Dskof1[..]] as
+          case flay-sound/i:
+          { g : ebind,
+            A1 : (g |- etp),
+            A8 : (g, x : eterm |- etp),
+            Dskel : ( |- skel),
+            Dskel1 : ( |- skel),
+            M1 : (g |- eterm),
+            M4 : (g, x : eterm |- eterm),
+            A3 : (g |- etp),
+            A4 : (g, y312 : eterm |- etp),
+            A7 : (g |- etp),
+            A9 : (g, x343 : eterm |- etp),
+            M3 : (g, y313 : eterm, z312 : eterm |- eterm),
+            Dwf : (g |- ewf A1),
+            Dwf1 : (g, x : eterm, z161 : evof x (A1[..]) |- ewf (A8[.., x])),
+            Dflay : (g |- flay A1 Dskel[] M1),
+            Dflay1 : (g, x : eterm |- flay A8 Dskel1[] M4),
+            Dskof : (g |- skof Dskel[] A3 (\y. A4)),
+            Dskof1 : (g |- skof Dskel1[] A7 (\z. A9)),
+            Dexpand : (g, y : eterm, x : eterm |- eexpand x (A4[.., y]) M3),
+            Dof : (g |- eof M1 A3),
+            Dtequiv : (g |- tequiv A1 (A4[.., M1])),
+            Dof1 :
+              (g, x : eterm, z8 : evof x (A1[..]) |- eof (M4[.., x]) (A7[..])),
+            Dtequiv1 :
+              (g, x : eterm, y9 : evof x (A1[..]) |-
+                 tequiv (A8[.., x]) (A9[.., (M4[.., x])]))
+          | x : [g |- ewf (epi A1 (\y148. A8))],
+            flay :
+              [g |-
+                 flay
+                   (epi A1 (\y148. A8))
+                   (kpi Dskel[] Dskel1[]) (epair M1 (elam A1 (\x. M4)))],
+            skof :
+              [g |-
+                 skof
+                   (kpi Dskel[] Dskel1[])
+                   (esigma A3 (\y. epi A4 (\l. A7[..])))
+                   (\x.
+                      epi (A4[.., epi1 x])
+                      (\x1. A9[.., eapp (epi2 x) (M3[.., epi1 x, x1])]))]
+          ; split skof-reg [g |- Dskof] as
+            case skof-reg/i:
+            { g : ebind,
+              A1 : (g |- etp),
+              A8 : (g, x : eterm |- etp),
+              Dskel : ( |- skel),
+              Dskel1 : ( |- skel),
+              M1 : (g |- eterm),
+              M4 : (g, x : eterm |- eterm),
+              A3 : (g |- etp),
+              A4 : (g, y312 : eterm |- etp),
+              A7 : (g |- etp),
+              A9 : (g, x343 : eterm |- etp),
+              M3 : (g, y313 : eterm, z312 : eterm |- eterm),
+              Dwf : (g |- ewf A1),
+              Dwf1 :
+                (g, x : eterm, z161 : evof x (A1[..]) |- ewf (A8[.., x])),
+              Dflay : (g |- flay A1 Dskel[] M1),
+              Dflay1 : (g, x : eterm |- flay A8 Dskel1[] M4),
+              Dskof : (g |- skof Dskel[] A3 (\y. A4)),
+              Dskof1 : (g |- skof Dskel1[] A7 (\z. A9)),
+              Dexpand : (g, y : eterm, x : eterm |- eexpand x (A4[.., y]) M3),
+              Dof : (g |- eof M1 A3),
+              Dtequiv : (g |- tequiv A1 (A4[.., M1])),
+              Dof1 :
+                (g, x : eterm, z8 : evof x (A1[..]) |-
+                   eof (M4[.., x]) (A7[..])),
+              Dtequiv1 :
+                (g, x : eterm, y9 : evof x (A1[..]) |-
+                   tequiv (A8[.., x]) (A9[.., (M4[.., x])])),
+              Dwf2 : (g |- ewf A3),
+              Dwf3 :
+                (g, x : eterm, z337 : evof x (A3[..]) |- ewf (A4[.., x]))
+            | x : [g |- ewf (epi A1 (\y148. A8))],
+              flay :
+                [g |-
+                   flay
+                     (epi A1 (\y148. A8))
+                     (kpi Dskel[] Dskel1[]) (epair M1 (elam A1 (\x. M4)))],
+              skof :
+                [g |-
+                   skof
+                     (kpi Dskel[] Dskel1[])
+                     (esigma A3 (\y. epi A4 (\l. A7[..])))
+                     (\x.
+                        epi (A4[.., epi1 x])
+                        (\x1. A9[.., eapp (epi2 x) (M3[.., epi1 x, x1])]))]
+            ; split skof-reg [g |- Dskof1] as
+              case skof-reg/i:
+              { g : ebind,
+                A1 : (g |- etp),
+                A8 : (g, x : eterm |- etp),
+                Dskel : ( |- skel),
+                Dskel1 : ( |- skel),
+                M1 : (g |- eterm),
+                M4 : (g, x : eterm |- eterm),
+                A3 : (g |- etp),
+                A4 : (g, y312 : eterm |- etp),
+                A7 : (g |- etp),
+                A9 : (g, x343 : eterm |- etp),
+                M3 : (g, y313 : eterm, z312 : eterm |- eterm),
+                Dwf : (g |- ewf A1),
+                Dwf1 :
+                  (g, x : eterm, z161 : evof x (A1[..]) |- ewf (A8[.., x])),
+                Dflay : (g |- flay A1 Dskel[] M1),
+                Dflay1 : (g, x : eterm |- flay A8 Dskel1[] M4),
+                Dskof : (g |- skof Dskel[] A3 (\y. A4)),
+                Dskof1 : (g |- skof Dskel1[] A7 (\z. A9)),
+                Dexpand :
+                  (g, y : eterm, x : eterm |- eexpand x (A4[.., y]) M3),
+                Dof : (g |- eof M1 A3),
+                Dtequiv : (g |- tequiv A1 (A4[.., M1])),
+                Dof1 :
+                  (g, x : eterm, z8 : evof x (A1[..]) |-
+                     eof (M4[.., x]) (A7[..])),
+                Dtequiv1 :
+                  (g, x : eterm, y9 : evof x (A1[..]) |-
+                     tequiv (A8[.., x]) (A9[.., (M4[.., x])])),
+                Dwf2 : (g |- ewf A3),
+                Dwf3 :
+                  (g, x : eterm, z337 : evof x (A3[..]) |- ewf (A4[.., x])),
+                Dwf4 : (g |- ewf A7),
+                Dwf5 :
+                  (g, x : eterm, z337 : evof x (A7[..]) |- ewf (A9[.., x]))
+              | x : [g |- ewf (epi A1 (\y148. A8))],
+                flay :
+                  [g |-
+                     flay
+                       (epi A1 (\y148. A8))
+                       (kpi Dskel[] Dskel1[]) (epair M1 (elam A1 (\x. M4)))],
+                skof :
+                  [g |-
+                     skof
+                       (kpi Dskel[] Dskel1[])
+                       (esigma A3 (\y. epi A4 (\l. A7[..])))
+                       (\x.
+                          epi (A4[.., epi1 x])
+                          (\x1. A9[.., eapp (epi2 x) (M3[.., epi1 x, x1])]))]
+              ; by [g |-
+      eof/pair Dof
+      (eof/subsume (eof/lam Dwf (\x. \dx. Dof1))
+      (subtp/reflex (tequiv/pi Dtequiv (\x. \dx. tequiv/reflex (Dwf4[..])))))
+      (\y. \e. ewf/pi Dwf3 (\x. \dx. Dwf4[..]))]
+as Dof' unboxed;
+                ?
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  case ewf/t:
+  { g : ebind,
+    K : (g |- skel),
+    M : (g |- eterm),
+    B : (g |- etp),
+    A' : (g, z310 : eterm |- etp)
+  | x : [g |- ewf et],
+    flay : [g |- flay et K M],
+    skof : [g |- skof K B (\x. A')]
+  ; split flay as
+    case flay/t:
+    { g : ebind, B : (g |- etp), A' : (g, z310 : eterm |- etp)
+    | x : [g |- ewf et],
+      flay : [g |- flay et kt estar],
+      skof : [g |- skof kt B (\x. A')]
+    ; split skof as
+      case skof/t:
+      { g : ebind
+      | x : [g |- ewf et],
+        flay : [g |- flay et kt estar],
+        skof : [g |- skof kt eone (\x. et)]
+      ; solve [g |- flay-sound/i eof/star (tequiv/reflex ewf/t)]
+      }
+    }
+  }
+}
+;
+
 LF can-flay/e : etp -> type =
 | can-flay/i:
   { K : skel } { M : eterm } flay A K M ->
