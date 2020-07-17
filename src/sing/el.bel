@@ -46,8 +46,6 @@ LF ewf : etp -> type =
 % Typing
 
 and eof : eterm -> etp -> type =
-| eof/var : evof X A -> ewf A -> eof X A
-
 | eof/const : ekof K A -> ewf A -> eof (econst K) A
 
 | eof/lam :

@@ -251,19 +251,6 @@ as Dequiv' unboxed;
     by [g |- eof/const (Dekof[.., M]) Dwf'] as Dof' unboxed;
     solve [g |- equiv/reflex Dof']
   }
-  case eof/var:
-  { g : eregularity-ctx,
-    A : (g |- etp),
-    O : (g, y : eterm |- eterm),
-    B : (g, y : eterm |- etp),
-    M : (g |- eterm),
-    N : (g |- eterm),
-    X : (g, y : eterm, dy : evof y (A[..]) |- evof (O[.., y]) (B[.., y])),
-    Dwf : (g, y : eterm, dy : evof y (A[..]) |- ewf (B[.., y]))
-  | eof : [g, y : eterm, dy : evof y (A[..]) |- eof (O[.., y]) (B[.., y])],
-    equiv : [g |- equiv M N A]
-  ; impossible [g |- X[.., _, _]]
-  }
 }
 
 and proof tfunctionality :
@@ -559,15 +546,6 @@ as DwfB unboxed;
     Dekof : (g |- ekof K[] A),
     Dwf : (g |- ewf A)
   | x : [g |- eof (econst K[]) A]
-  ; solve [_ |- Dwf]
-  }
-  case eof/var:
-  { g : eregularity-ctx,
-    M : (g |- eterm),
-    A : (g |- etp),
-    X : (g |- evof M A),
-    Dwf : (g |- ewf A)
-  | x : [g |- eof M A]
   ; solve [_ |- Dwf]
   }
 }

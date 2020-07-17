@@ -976,7 +976,7 @@ intros
   case skof/sing:
   { g : ebind+topenblock
   | x : [g |- skof ksing et (\x. esing x)]
-  ; solve [_ |- skof-reg/i ewf/t (\x. \dx. ewf/sing (eof/var dx ewf/t))]
+  ; solve [_ |- skof-reg/i ewf/t (\x. \dx. ewf/sing _)]
   }
   case skof/sigma:
   { g : ebind+topenblock,
