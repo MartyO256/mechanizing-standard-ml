@@ -591,3 +591,351 @@ and proof equiv-reg :
 / total 1 /
 ?
 ;
+
+proof functionality :
+  (g : eregularity-ctx)
+  [g, y : eterm, dy : evof y (A[..]) |- eof (O[.., y]) (B[.., y])] ->
+  [g |- equiv M N A] ->
+    [g |- equiv (O[.., M]) (O[.., N]) (B[.., M])] =
+/ trust / % FIXME: See issue #4
+intros
+{ g : eregularity-ctx,
+  A : (g |- etp),
+  O : (g, y : eterm |- eterm),
+  B : (g, y : eterm |- etp),
+  M : (g |- eterm),
+  N : (g |- eterm)
+| eof : [g, y : eterm, dy : evof y (A[..]) |- eof (O[.., y]) (B[.., y])],
+  equiv : [g |- equiv M N A]
+; split eof as
+  case eof/subsume:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    O : (g, y : eterm |- eterm),
+    B : (g, y : eterm |- etp),
+    M : (g |- eterm),
+    N : (g |- eterm),
+    A1 : (g, y : eterm |- etp),
+    Dof : (g, y : eterm, dy : evof y (A[..]) |- eof (O[.., y]) (A1[.., y])),
+    Dsub :
+      (g, y : eterm, dy : evof y (A[..]) |- subtp (A1[.., y]) (B[.., y]))
+  | eof : [g, y : eterm, dy : evof y (A[..]) |- eof (O[.., y]) (B[.., y])],
+    equiv : [g |- equiv M N A]
+  ; by functionality [_, y : eterm, dy : evof y (A[..]) |- Dof] equiv
+    as Dequiv' unboxed;
+    solve [g |- equiv/subsume Dequiv' (Dsub[.., M, _])]
+  }
+  case eof/extsigma:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    O : (g, y : eterm |- eterm),
+    A1 : (g, y : eterm |- etp),
+    A2 : (g, y : eterm, x174 : eterm |- etp),
+    M : (g |- eterm),
+    N : (g |- eterm),
+    Dof :
+      (g, y : eterm, dy : evof y (A[..]) |- eof (epi1 (O[.., y])) (A1[.., y])),
+    Dof1 :
+      (g, y : eterm, dy : evof y (A[..]) |-
+         eof (epi2 (O[.., y])) (A2[.., y, epi1 (O[.., y])])),
+    Dwf :
+      (g, y : eterm, dy : evof y (A[..]), x : eterm,
+       y174 : evof x (A1[.., y]) |- ewf (A2[.., y, x]))
+  | eof :
+      [g, y : eterm, dy : evof y (A[..]) |-
+         eof (O[.., y]) (esigma (A1[.., y]) (\y149. A2[.., y, y149]))],
+    equiv : [g |- equiv M N A]
+  ; by functionality [g, y : eterm, dy : evof y (A[..]) |- Dof] equiv
+as Dequiv1 unboxed;
+    by functionality [g, y : eterm, dy : evof y (A[..]) |- Dof1] equiv
+    as Dequiv2 unboxed;
+    solve [g |-
+        equiv/extsigma Dequiv1 Dequiv2 (\x. \dx. Dwf[.., (M[..]), _, x, _])]
+  }
+  case eof/extpi:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    O : (g, y : eterm |- eterm),
+    A1 : (g, y : eterm |- etp),
+    A3 : (g, y : eterm, z172 : eterm |- etp),
+    M : (g |- eterm),
+    N : (g |- eterm),
+    A2 : (g, y : eterm, x172 : eterm |- etp),
+    Dof :
+      (g, y : eterm, dy : evof y (A[..]) |-
+         eof (O[.., y]) (epi (A1[.., y]) (\y148. A2[.., y, y148]))),
+    Dof1 :
+      (g, y : eterm, dy : evof y (A[..]), x : eterm,
+       y172 : evof x (A1[.., y]) |- eof (eapp (O[.., y]) x) (A3[.., y, x]))
+  | eof :
+      [g, y : eterm, dy : evof y (A[..]) |-
+         eof (O[.., y]) (epi (A1[.., y]) (\y148. A3[.., y, y148]))],
+    equiv : [g |- equiv M N A]
+  ; by equiv as Dequiv unboxed;
+    by functionality
+         [g, b : block (x : eterm, dx : evof x _),
+          y : eterm, dy : evof y (A[..]) |- Dof1[.., y, dy, b.1, _]]
+         [g, b : block (x : eterm, dx : evof x _) |- Dequiv[..]]
+    as Dequiv' unboxed;
+    solve [g |- equiv/extpi (Dof[.., M, _]) _ (\x. \dx. Dequiv'[.., <x; dx>])]
+  }
+  case eof/star:
+  { g : eregularity-ctx, A : (g |- etp), M : (g |- eterm), N : (g |- eterm)
+  | eof : [g, y : eterm, dy : evof y (A[..]) |- eof estar eone],
+    equiv : [g |- equiv M N A]
+  ; solve [g |- equiv/one eof/star eof/star]
+  }
+  case eof/sing:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    O : (g, y : eterm |- eterm),
+    M : (g |- eterm),
+    N : (g |- eterm),
+    Dof : (g, y : eterm, dy : evof y (A[..]) |- eof (O[.., y]) et)
+  | eof :
+      [g, y : eterm, dy : evof y (A[..]) |- eof (O[.., y]) (esing (O[.., y]))],
+    equiv : [g |- equiv M N A]
+  ; by functionality [g, y : eterm, dy : evof y (A[..]) |- Dof] equiv
+as Dequiv' unboxed;
+    solve [g |- equiv/sing Dequiv']
+  }
+  case eof/pi2:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    M1 : (g, y : eterm |- eterm),
+    A2 : (g, y : eterm, z170 : eterm |- etp),
+    M : (g |- eterm),
+    N : (g |- eterm),
+    A1 : (g, y : eterm |- etp),
+    Dof :
+      (g, y : eterm, dy : evof y (A[..]) |-
+         eof (M1[.., y]) (esigma (A1[.., y]) (\y149. A2[.., y, y149])))
+  | eof :
+      [g, y : eterm, dy : evof y (A[..]) |-
+         eof (epi2 (M1[.., y])) (A2[.., y, epi1 (M1[.., y])])],
+    equiv : [g |- equiv M N A]
+  ; by functionality [g, y : eterm, dy : evof y (A[..]) |- Dof] equiv
+as Dequiv' unboxed;
+    solve [g |- equiv/pi2 Dequiv']
+  }
+  case eof/pi1:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    M1 : (g, y : eterm |- eterm),
+    B : (g, y : eterm |- etp),
+    M : (g |- eterm),
+    N : (g |- eterm),
+    A2 : (g, y : eterm, y170 : eterm |- etp),
+    Dof :
+      (g, y : eterm, dy : evof y (A[..]) |-
+         eof (M1[.., y]) (esigma (B[.., y]) (\y149. A2[.., y, y149])))
+  | eof :
+      [g, y : eterm, dy : evof y (A[..]) |- eof (epi1 (M1[.., y])) (B[.., y])],
+    equiv : [g |- equiv M N A]
+  ; by functionality [g, y : eterm, dy : evof y (A[..]) |- Dof] equiv
+as Dequiv' unboxed;
+    solve [g |- equiv/pi1 Dequiv']
+  }
+  case eof/pair:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    M1 : (g, y : eterm |- eterm),
+    M2 : (g, y : eterm |- eterm),
+    A1 : (g, y : eterm |- etp),
+    A2 : (g, y : eterm, x169 : eterm |- etp),
+    M : (g |- eterm),
+    N : (g |- eterm),
+    Dof : (g, y : eterm, dy : evof y (A[..]) |- eof (M1[.., y]) (A1[.., y])),
+    Dof1 :
+      (g, y : eterm, dy : evof y (A[..]) |-
+         eof (M2[.., y]) (A2[.., y, (M1[.., y])])),
+    Dwf :
+      (g, y : eterm, dy : evof y (A[..]), x : eterm,
+       y169 : evof x (A1[.., y]) |- ewf (A2[.., y, x]))
+  | eof :
+      [g, y : eterm, dy : evof y (A[..]) |-
+         eof
+           (epair (M1[.., y]) (M2[.., y]))
+           (esigma (A1[.., y]) (\y149. A2[.., y, y149]))],
+    equiv : [g |- equiv M N A]
+  ; by functionality [g, y : eterm, dy : evof y (A[..]) |- Dof] equiv
+as Dequiv1 unboxed;
+    by functionality [g, y : eterm, dy : evof y (A[..]) |- Dof1] equiv
+    as Dequiv2 unboxed;
+    solve [g |- equiv/pair Dequiv1 Dequiv2 (\x. \dx. Dwf[.., (M[..]), _, x, _])]
+  }
+  case eof/app:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    M1 : (g, y : eterm |- eterm),
+    M2 : (g, y : eterm |- eterm),
+    A2 : (g, y : eterm, z167 : eterm |- etp),
+    M : (g |- eterm),
+    N : (g |- eterm),
+    A1 : (g, y : eterm |- etp),
+    Dof :
+      (g, y : eterm, dy : evof y (A[..]) |-
+         eof (M1[.., y]) (epi (A1[.., y]) (\y148. A2[.., y, y148]))),
+    Dof1 : (g, y : eterm, dy : evof y (A[..]) |- eof (M2[.., y]) (A1[.., y]))
+  | eof :
+      [g, y : eterm, dy : evof y (A[..]) |-
+         eof (eapp (M1[.., y]) (M2[.., y])) (A2[.., y, (M2[.., y])])],
+    equiv : [g |- equiv M N A]
+  ; by functionality [g, y : eterm, dy : evof y (A[..]) |- Dof] equiv
+as Dequiv1 unboxed;
+    by functionality [g, y : eterm, dy : evof y (A[..]) |- Dof1] equiv
+    as Dequiv2 unboxed;
+    solve [g |- equiv/app Dequiv1 Dequiv2]
+  }
+  case eof/lam:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    A1 : (g, y : eterm |- etp),
+    M1 : (g, y : eterm, x166 : eterm |- eterm),
+    A2 : (g, y : eterm, z166 : eterm |- etp),
+    M : (g |- eterm),
+    N : (g |- eterm),
+    Dwf : (g, y : eterm, dy : evof y (A[..]) |- ewf (A1[.., y])),
+    Dof :
+      (g, y : eterm, dy : evof y (A[..]), x : eterm,
+       y166 : evof x (A1[.., y]) |- eof (M1[.., y, x]) (A2[.., y, x]))
+  | eof :
+      [g, y : eterm, dy : evof y (A[..]) |-
+         eof
+           (elam (A1[.., y]) (\y152. M1[.., y, y152]))
+           (epi (A1[.., y]) (\y148. A2[.., y, y148]))],
+    equiv : [g |- equiv M N A]
+  ; by tfunctionality [g, y : eterm, dy : evof y (A[..]) |- Dwf] equiv
+as Dtequiv unboxed;
+    by equiv as Dequiv unboxed;
+    by functionality
+     [g, b : block (x : eterm, dx : evof x _), y : eterm, dy : evof y (A[..]) |-
+        Dof[.., y, dy, b.1, _]]
+     [g, b : block (x : eterm, dx : evof x _) |- Dequiv[..]]
+as Dequiv' unboxed;
+    solve [g |- equiv/lam Dtequiv (\x. \dx. Dequiv'[.., <x; dx>])]
+  }
+  case eof/const:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    K : ( |- constant),
+    B : (g, y : eterm |- etp),
+    M : (g |- eterm),
+    N : (g |- eterm),
+    Dekof : (g, y : eterm |- ekof K[] B),
+    Dwf : (g, y : eterm, dy : evof y (A[..]) |- ewf (B[.., y]))
+  | eof : [g, y : eterm, dy : evof y (A[..]) |- eof (econst K[]) (B[.., y])],
+    equiv : [g |- equiv M N A]
+  ; by [g |- Dwf[.., M, _]] as Dwf' unboxed;
+    by [g |- eof/const (Dekof[.., M]) Dwf'] as Dof' unboxed;
+    solve [g |- equiv/reflex Dof']
+  }
+  case eof/var:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    O : (g, y : eterm |- eterm),
+    B : (g, y : eterm |- etp),
+    M : (g |- eterm),
+    N : (g |- eterm),
+    X : (g, y : eterm, dy : evof y (A[..]) |- evof (O[.., y]) (B[.., y])),
+    Dwf : (g, y : eterm, dy : evof y (A[..]) |- ewf (B[.., y]))
+  | eof : [g, y : eterm, dy : evof y (A[..]) |- eof (O[.., y]) (B[.., y])],
+    equiv : [g |- equiv M N A]
+  ; impossible [g |- X[.., _, _]]
+  }
+}
+
+and proof tfunctionality :
+  (g : eregularity-ctx)
+  [g, y : eterm, dy : evof y (A[..]) |- ewf (B[.., y])] ->
+  [g |- equiv M N A] ->
+    [g |- tequiv (B[.., M]) (B[.., N])] =
+/ trust / % FIXME: See issue #4
+intros
+{ g : eregularity-ctx,
+  A : (g |- etp),
+  B : (g, y : eterm |- etp),
+  M : (g |- eterm),
+  N : (g |- eterm)
+| wf : [g, y : eterm, dy : evof y (A[..]) |- ewf (B[.., y])],
+  equiv : [g |- equiv M N A]
+; split wf as
+  case ewf/one:
+  { g : eregularity-ctx, A : (g |- etp), M : (g |- eterm), N : (g |- eterm)
+  | wf : [g, y : eterm, dy : evof y (A[..]) |- ewf eone],
+    equiv : [g |- equiv M N A]
+  ; solve [_ |- tequiv/reflex ewf/one]
+  }
+  case ewf/sing:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    M1 : (g, y : eterm |- eterm),
+    M : (g |- eterm),
+    N : (g |- eterm),
+    Dof : (g, y : eterm, dy : evof y (A[..]) |- eof (M1[.., y]) et)
+  | wf : [g, y : eterm, dy : evof y (A[..]) |- ewf (esing (M1[.., y]))],
+    equiv : [g |- equiv M N A]
+  ; by functionality [_, y : eterm, dy : evof y (A[..]) |- Dof] equiv
+    as Dequiv' unboxed;
+    solve [_ |- tequiv/sing Dequiv']
+  }
+  case ewf/sigma:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    A1 : (g, y : eterm |- etp),
+    A2 : (g, y : eterm, x163 : eterm |- etp),
+    M : (g |- eterm),
+    N : (g |- eterm),
+    Dwf : (g, y : eterm, dy : evof y (A[..]) |- ewf (A1[.., y])),
+    Dwf1 :
+      (g, y : eterm, dy : evof y (A[..]), x : eterm,
+       y163 : evof x (A1[.., y]) |- ewf (A2[.., y, x]))
+  | wf :
+      [g, y : eterm, dy : evof y (A[..]) |-
+         ewf (esigma (A1[.., y]) (\y149. A2[.., y, y149]))],
+    equiv : [g |- equiv M N A]
+  ; by equiv as Dequiv unboxed;
+    by tfunctionality [g, y : eterm, dy : evof y (A[..]) |- Dwf]
+         [g |- Dequiv]
+    as Dequiv1 unboxed;
+    by tfunctionality
+         [g, b : block (x : eterm, dx : evof x _), y : eterm,
+          dy : evof y (A[..]) |- Dwf1[.., y, _, b.1, _]]
+         [g, b : block (x : eterm, dx : evof x _) |- Dequiv[..]]
+    as Dequiv2 unboxed;
+    solve [g |- tequiv/sigma Dequiv1 (\x. \dx. Dequiv2[.., <x; dx>])]
+  }
+  case ewf/pi:
+  { g : eregularity-ctx,
+    A : (g |- etp),
+    A1 : (g, y : eterm |- etp),
+    A2 : (g, y : eterm, y162 : eterm |- etp),
+    M : (g |- eterm),
+    N : (g |- eterm),
+    Dwf : (g, y : eterm, dy : evof y (A[..]) |- ewf (A1[.., y])),
+    Dwf1 :
+      (g, y : eterm, dy : evof y (A[..]), x : eterm,
+       z161 : evof x (A1[.., y]) |- ewf (A2[.., y, x]))
+  | wf :
+      [g, y : eterm, dy : evof y (A[..]) |-
+         ewf (epi (A1[.., y]) (\y148. A2[.., y, y148]))],
+    equiv : [g |- equiv M N A]
+  ; by equiv as Dequiv unboxed;
+    by tfunctionality [g, y : eterm, dy : evof y (A[..]) |- Dwf]
+         [g |- Dequiv]
+    as Dequiv1 unboxed;
+    by tfunctionality
+         [g, b : block (x : eterm, dx : evof x _), y : eterm,
+          dy : evof y (A[..]) |- Dwf1[.., y, _, b.1, _]]
+         [g, b : block (x : eterm, dx : evof x _) |- Dequiv[..]]
+    as Dequiv2 unboxed;
+    solve [g |- tequiv/pi Dequiv1 (\x. \dx. Dequiv2[.., <x; dx>])]
+  }
+  case ewf/t:
+  { g : eregularity-ctx, A : (g |- etp), M : (g |- eterm), N : (g |- eterm)
+  | wf : [g, y : eterm, dy : evof y (A[..]) |- ewf et],
+    equiv : [g |- equiv M N A]
+  ; solve [_ |- tequiv/reflex ewf/t]
+  }
+}
+;
