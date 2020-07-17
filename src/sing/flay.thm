@@ -454,6 +454,403 @@ intros
 }
 ;
 
+proof eexpand-fun :
+  (g : evar)
+  [g |- eexpand R A M] ->
+  [g |- eexpand R A M'] ->
+    [g |- eterm-eq M M'] =
+/ total 1 /
+intros
+{ g : evar,
+  R : (g |- eterm),
+  A : (g |- etp),
+  M : (g |- eterm),
+  M' : (g |- eterm)
+| x : [g |- eexpand R A M], expand : [g |- eexpand R A M']
+; split x as
+  case eexpand/one:
+  { g : evar, R : (g |- eterm), M' : (g |- eterm)
+  | x : [g |- eexpand R eone estar], expand : [g |- eexpand R eone M']
+  ; split expand as
+    case eexpand/one:
+    { g : evar, R : (g |- eterm)
+    | x : [g |- eexpand R eone estar], expand : [g |- eexpand R eone estar]
+    ; solve [_ |- eterm-eq/i ]
+    }
+  }
+  case eexpand/sing:
+  { g : evar, R : (g |- eterm), M : (g |- eterm), M' : (g |- eterm)
+  | x : [g |- eexpand R (esing M) M], expand : [g |- eexpand R (esing M) M']
+  ; split expand as
+    case eexpand/sing:
+    { g : evar, R : (g |- eterm), M' : (g |- eterm)
+    | x : [g |- eexpand R (esing M') M'],
+      expand : [g |- eexpand R (esing M') M']
+    ; solve [_ |- eterm-eq/i ]
+    }
+  }
+  case eexpand/sigma:
+  { g : evar,
+    R : (g |- eterm),
+    A1 : (g |- etp),
+    A2 : (g, x309 : eterm |- etp),
+    M2 : (g |- eterm),
+    M3 : (g |- eterm),
+    M' : (g |- eterm),
+    Dexpand : (g |- eexpand (epi1 R) A1 M2),
+    Dexpand1 : (g |- eexpand (epi2 R) (A2[.., epi1 R]) M3)
+  | x : [g |- eexpand R (esigma A1 (\y149. A2)) (epair M2 M3)],
+    expand : [g |- eexpand R (esigma A1 (\y149. A2)) M']
+  ; split expand as
+    case eexpand/sigma:
+    { g : evar,
+      R : (g |- eterm),
+      A1 : (g |- etp),
+      A2 : (g, x309 : eterm |- etp),
+      M2 : (g |- eterm),
+      M3 : (g |- eterm),
+      M5 : (g |- eterm),
+      M6 : (g |- eterm),
+      Dexpand : (g |- eexpand (epi1 R) A1 M2),
+      Dexpand1 : (g |- eexpand (epi2 R) (A2[.., epi1 R]) M3),
+      Dexpand2 : (g |- eexpand (epi1 R) A1 M5),
+      Dexpand3 : (g |- eexpand (epi2 R) (A2[.., epi1 R]) M6)
+    | x : [g |- eexpand R (esigma A1 (\y149. A2)) (epair M2 M3)],
+      expand : [g |- eexpand R (esigma A1 (\y149. A2)) (epair M5 M6)]
+    ; split eexpand-fun [_ |- Dexpand] [_ |- Dexpand2] as
+      case eterm-eq/i:
+      { g : evar,
+        R : (g |- eterm),
+        A1 : (g |- etp),
+        A2 : (g, x309 : eterm |- etp),
+        M5 : (g |- eterm),
+        M3 : (g |- eterm),
+        M6 : (g |- eterm),
+        Dexpand : (g |- eexpand (epi1 R) A1 M5),
+        Dexpand1 : (g |- eexpand (epi2 R) (A2[.., epi1 R]) M3),
+        Dexpand2 : (g |- eexpand (epi1 R) A1 M5),
+        Dexpand3 : (g |- eexpand (epi2 R) (A2[.., epi1 R]) M6)
+      | x : [g |- eexpand R (esigma A1 (\y149. A2)) (epair M5 M3)],
+        expand : [g |- eexpand R (esigma A1 (\y149. A2)) (epair M5 M6)]
+      ; split eexpand-fun [_ |- Dexpand1] [_ |- Dexpand3] as
+        case eterm-eq/i:
+        { g : evar,
+          R : (g |- eterm),
+          A1 : (g |- etp),
+          A2 : (g, x309 : eterm |- etp),
+          M5 : (g |- eterm),
+          M6 : (g |- eterm),
+          Dexpand : (g |- eexpand (epi1 R) A1 M5),
+          Dexpand1 : (g |- eexpand (epi2 R) (A2[.., epi1 R]) M6),
+          Dexpand2 : (g |- eexpand (epi1 R) A1 M5),
+          Dexpand3 : (g |- eexpand (epi2 R) (A2[.., epi1 R]) M6)
+        | x : [g |- eexpand R (esigma A1 (\y149. A2)) (epair M5 M6)],
+          expand : [g |- eexpand R (esigma A1 (\y149. A2)) (epair M5 M6)]
+        ; solve [_ |- eterm-eq/i ]
+        }
+      }
+    }
+  }
+  case eexpand/pi:
+  { g : evar,
+    R : (g |- eterm),
+    A1 : (g |- etp),
+    A2 : (g, y308 : eterm |- etp),
+    M3 : (g, x308 : eterm |- eterm),
+    M' : (g |- eterm),
+    M1 : (g, z307 : eterm |- eterm),
+    Dexpand : (g, x : eterm |- eexpand x (A1[..]) M1),
+    Dexpand1 : (g, x : eterm |- eexpand (eapp (R[..]) M1) A2 M3)
+  | x : [g |- eexpand R (epi A1 (\y148. A2)) (elam A1 (\y152. M3))],
+    expand : [g |- eexpand R (epi A1 (\y148. A2)) M']
+  ; split expand as
+    case eexpand/pi:
+    { g : evar,
+      R : (g |- eterm),
+      A1 : (g |- etp),
+      A2 : (g, y308 : eterm |- etp),
+      M3 : (g, x308 : eterm |- eterm),
+      M6 : (g, x308 : eterm |- eterm),
+      M1 : (g, z307 : eterm |- eterm),
+      Dexpand : (g, x : eterm |- eexpand x (A1[..]) M1),
+      Dexpand1 : (g, x : eterm |- eexpand (eapp (R[..]) M1) A2 M3),
+      M4 : (g, z307 : eterm |- eterm),
+      Dexpand2 : (g, x : eterm |- eexpand x (A1[..]) M4),
+      Dexpand3 : (g, x : eterm |- eexpand (eapp (R[..]) M4) A2 M6)
+    | x : [g |- eexpand R (epi A1 (\y148. A2)) (elam A1 (\y152. M3))],
+      expand : [g |- eexpand R (epi A1 (\y148. A2)) (elam A1 (\y152. M6))]
+    ; split
+      eexpand-fun [_, x : eterm |- Dexpand] [_, x : eterm |- Dexpand2] as
+      case eterm-eq/i:
+      { g : evar,
+        R : (g |- eterm),
+        A1 : (g |- etp),
+        A2 : (g, y308 : eterm |- etp),
+        M3 : (g, x308 : eterm |- eterm),
+        M6 : (g, x308 : eterm |- eterm),
+        M4 : (g, z307 : eterm |- eterm),
+        Dexpand : (g, x : eterm |- eexpand x (A1[..]) M4),
+        Dexpand1 : (g, x : eterm |- eexpand (eapp (R[..]) M4) A2 M3),
+        Dexpand2 : (g, x : eterm |- eexpand x (A1[..]) M4),
+        Dexpand3 : (g, x : eterm |- eexpand (eapp (R[..]) M4) A2 M6)
+      | x : [g |- eexpand R (epi A1 (\y148. A2)) (elam A1 (\y152. M3))],
+        expand : [g |- eexpand R (epi A1 (\y148. A2)) (elam A1 (\y152. M6))]
+      ; split
+        eexpand-fun [_, x : eterm |- Dexpand1] [_, x : eterm |- Dexpand3] as
+        case eterm-eq/i:
+        { g : evar,
+          R : (g |- eterm),
+          A1 : (g |- etp),
+          A2 : (g, y308 : eterm |- etp),
+          M6 : (g, x308 : eterm |- eterm),
+          M4 : (g, z307 : eterm |- eterm),
+          Dexpand : (g, x : eterm |- eexpand x (A1[..]) M4),
+          Dexpand1 : (g, x : eterm |- eexpand (eapp (R[..]) M4) A2 M6),
+          Dexpand2 : (g, x : eterm |- eexpand x (A1[..]) M4),
+          Dexpand3 : (g, x : eterm |- eexpand (eapp (R[..]) M4) A2 M6)
+        | x : [g |- eexpand R (epi A1 (\y148. A2)) (elam A1 (\y152. M6))],
+          expand :
+            [g |- eexpand R (epi A1 (\y148. A2)) (elam A1 (\y152. M6))]
+        ; solve [_ |- eterm-eq/i ]
+        }
+      }
+    }
+  }
+  case eexpand/t:
+  { g : evar, M : (g |- eterm), M' : (g |- eterm)
+  | x : [g |- eexpand M et M], expand : [g |- eexpand M et M']
+  ; split expand as
+    case eexpand/t:
+    { g : evar, M' : (g |- eterm)
+    | x : [g |- eexpand M' et M'], expand : [g |- eexpand M' et M']
+    ; solve [_ |- eterm-eq/i ]
+    }
+  }
+}
+;
+
+schema ebind+etopenblock =
+  % ebind
+  some [ea : etp]
+  block (ex : eterm, ed : evof ex ea) +
+  % etopenblock
+  some [a : skel, x : eterm]
+  block (xc : catom, d : etopenr sc a x);
+
+proof eexpand-equiv :
+  (g : ebind+etopenblock)
+  [g |- eof R A] ->
+  [g |- eexpand R A M] ->
+    [g |- equiv R M A] =
+/ trust / % FIXME: See issue #4
+intros
+{ g : ebind+etopenblock, R : (g |- eterm), A : (g |- etp), M : (g |- eterm)
+| eof : [g |- eof R A], x : [g |- eexpand R A M]
+; split x as
+  case eexpand/one:
+  { g : ebind+etopenblock, R : (g |- eterm)
+  | eof : [g |- eof R eone], x : [g |- eexpand R eone estar]
+  ; by eof as DofR unboxed;
+    solve [_ |- equiv/one DofR eof/star]
+  }
+  case eexpand/sing:
+  { g : ebind+etopenblock, R : (g |- eterm), M : (g |- eterm)
+  | eof : [g |- eof R (esing M)], x : [g |- eexpand R (esing M) M]
+  ; by eof as DofR unboxed;
+    solve [_ |- equiv/symm (equiv/sing (equiv/symm (equiv/singelim DofR)))]
+  }
+  case eexpand/sigma:
+  { g : ebind+etopenblock,
+    R : (g |- eterm),
+    A1 : (g |- etp),
+    A2 : (g, x309 : eterm |- etp),
+    M2 : (g |- eterm),
+    M3 : (g |- eterm),
+    Dexpand : (g |- eexpand (epi1 R) A1 M2),
+    Dexpand1 : (g |- eexpand (epi2 R) (A2[.., epi1 R]) M3)
+  | eof : [g |- eof R (esigma A1 (\y149. A2))],
+    x : [g |- eexpand R (esigma A1 (\y149. A2)) (epair M2 M3)]
+  ; by eof as DofR unboxed;
+    split eof-reg [_ |- DofR] as
+    case ewf/sigma:
+    { g : ebind+etopenblock,
+      R : (g |- eterm),
+      A1 : (g |- etp),
+      A2 : (g, x309 : eterm |- etp),
+      M2 : (g |- eterm),
+      M3 : (g |- eterm),
+      Dexpand : (g |- eexpand (epi1 R) A1 M2),
+      Dexpand1 : (g |- eexpand (epi2 R) (A2[.., epi1 R]) M3),
+      DofR : (g |- eof R (esigma A1 (\y149. A2))),
+      Dwf : (g |- ewf A1),
+      Dwf1 : (g, x : eterm, y163 : evof x (A1[..]) |- ewf (A2[.., x]))
+    | eof : [g |- eof R (esigma A1 (\y149. A2))],
+      x : [g |- eexpand R (esigma A1 (\y149. A2)) (epair M2 M3)]
+    ; by eexpand-equiv [_ |- eof/pi1 DofR] [_ |- Dexpand] as Dequiv1 unboxed;
+      by eexpand-equiv [_ |- eof/pi2 DofR] [_ |- Dexpand1] as Dequiv2 unboxed;
+      solve
+  [g |-
+     equiv/trans (equiv/extsigma (equiv/symm (equiv/beta1 (eof/pi1 DofR)
+                                             (eof/pi2 DofR)))
+                 (equiv/symm (equiv/beta2 (eof/pi1 DofR) (eof/pi2 DofR)))
+                 (\x. \dx. Dwf1))
+     (equiv/pair Dequiv1 Dequiv2 (\x. \dx. Dwf1))]
+    }
+  }
+  case eexpand/pi:
+  { g : ebind+etopenblock,
+    R : (g |- eterm),
+    A1 : (g |- etp),
+    A2 : (g, y308 : eterm |- etp),
+    M3 : (g, x308 : eterm |- eterm),
+    M1 : (g, z307 : eterm |- eterm),
+    Dexpand : (g, x : eterm |- eexpand x (A1[..]) M1),
+    Dexpand1 : (g, x : eterm |- eexpand (eapp (R[..]) M1) A2 M3)
+  | eof : [g |- eof R (epi A1 (\y148. A2))],
+    x : [g |- eexpand R (epi A1 (\y148. A2)) (elam A1 (\y152. M3))]
+  ; by eof as DofR unboxed;
+    split eof-reg [g |- DofR] as
+    case ewf/pi:
+    { g : ebind+etopenblock,
+      R : (g |- eterm),
+      A1 : (g |- etp),
+      A2 : (g, y308 : eterm |- etp),
+      M3 : (g, x308 : eterm |- eterm),
+      M1 : (g, z307 : eterm |- eterm),
+      Dexpand : (g, x : eterm |- eexpand x (A1[..]) M1),
+      Dexpand1 : (g, x : eterm |- eexpand (eapp (R[..]) M1) A2 M3),
+      DofR : (g |- eof R (epi A1 (\y148. A2))),
+      Dwf : (g |- ewf A1),
+      Dwf1 : (g, x : eterm, z161 : evof x (A1[..]) |- ewf (A2[.., x]))
+    | eof : [g |- eof R (epi A1 (\y148. A2))],
+      x : [g |- eexpand R (epi A1 (\y148. A2)) (elam A1 (\y152. M3))]
+    ; by eexpand-equiv [g, b : block (x : eterm, dx : evof x _) |- _]
+     [g, b : block (x : eterm, dx : evof x _) |- Dexpand[.., b.1]]
+as DequivX unboxed;
+      split
+      equiv-reg [g, b : block (x : eterm, dx : evof x (A1[..])) |- DequivX] as
+      case equiv-reg/i:
+      { g : ebind+etopenblock,
+        R : (g |- eterm),
+        A3 : (g |- etp),
+        A2 : (g, y308 : eterm |- etp),
+        M3 : (g, x308 : eterm |- eterm),
+        M5 : (g, x : eterm |- eterm),
+        Dexpand : (g, x : eterm |- eexpand x (A3[..]) M5),
+        Dexpand1 : (g, x : eterm |- eexpand (eapp (R[..]) M5) A2 M3),
+        DofR : (g |- eof R (epi A3 (\y148. A2))),
+        Dwf : (g |- ewf A3),
+        Dwf1 : (g, x : eterm, z161 : evof x (A3[..]) |- ewf (A2[.., x])),
+        DequivX :
+          (g, b : block (x : eterm, dx : evof x (A3[..])) |-
+             equiv b.1 (M5[.., b.1]) (A3[..])),
+        Dof : (g, x : eterm, y10 : evof x (A3[..]) |- eof x (A3[..])),
+        Dof1 :
+          (g, x : eterm, x10 : evof x (A3[..]) |- eof (M5[.., x]) (A3[..])),
+        Dwf2 : (g, x : eterm, z10 : evof x (A3[..]) |- ewf (A3[..]))
+      | eof : [g |- eof R (epi A3 (\y148. A2))],
+        x : [g |- eexpand R (epi A3 (\y148. A2)) (elam A3 (\y152. M3))]
+      ; by tfunctionality
+     [g, b : block (y : eterm, dy : evof y (A3[..])), y : eterm,
+      dy : evof y (A3[..]) |- Dwf1[.., y, dy]]
+     [g, b : block (y : eterm, dy : evof y (A3[..])) |- DequivX]
+as DequivBx unboxed;
+        by [g, b : block (x : eterm, dx : evof x (A3[..])) |-
+              eof/app (DofR[..]) (Dof1[.., b.1, b.2])]
+        as DofX' unboxed;
+        by [g, b : block (x : eterm, dx : evof x (A3[..])) |-
+              eof/subsume DofX' (subtp/reflex (tequiv/symm DequivBx))]
+        as DofX'' unboxed;
+        by eexpand-equiv
+             [g, b : block (x : eterm, dx : evof x (A3[..])) |- DofX'']
+             [g, b : block (x : eterm, dx : evof x (A3[..])) |-
+                Dexpand1[.., b.1]]
+        as DequivRX unboxed;
+        solve [g |-
+      equiv/trans (equiv/extpi DofR
+                  (eof/lam Dwf (\x. \dx. eof/app (DofR[..]) _))
+                  (\x.
+                     \dx.
+                       equiv/symm (equiv/beta (\x1.
+                                                 \dx1. eof/app (DofR[..]) _)
+                                  _)))
+      (equiv/lam (tequiv/reflex Dwf)
+      (\x.
+         \dx.
+           equiv/trans (equiv/app (equiv/reflex (DofR[..])) _)
+           (DequivRX[.., <x; dx>])))]
+      }
+    }
+  }
+  case eexpand/t:
+  { g : ebind+etopenblock, M : (g |- eterm)
+  | eof : [g |- eof M et], x : [g |- eexpand M et M]
+  ; by eof as D unboxed;
+    solve [g |- equiv/reflex D]
+  }
+}
+;
+
+proof eexpand-reg :
+  (g : ebind+etopenblock)
+  [g |- eof R A] ->
+  [g |- eexpand R A M] ->
+    [g |- eof M A] =
+/ total /
+intros
+{ g : ebind+etopenblock, R : (g |- eterm), A : (g |- etp), M : (g |- eterm)
+| eof : [g |- eof R A], expand : [g |- eexpand R A M]
+; by eof as Dof unboxed;
+  by expand as Dexpand unboxed;
+  by eexpand-equiv [_ |- Dof] [_ |- Dexpand] as Dequiv unboxed;
+  split equiv-reg [_ |- Dequiv] as
+  case equiv-reg/i:
+  { g : ebind+etopenblock,
+    R : (g |- eterm),
+    A : (g |- etp),
+    M : (g |- eterm),
+    Dof : (g |- eof R A),
+    Dexpand : (g |- eexpand R A M),
+    Dequiv : (g |- equiv R M A),
+    Dof1 : (g |- eof R A),
+    Dof2 : (g |- eof M A),
+    Dwf : (g |- ewf A)
+  | eof : [g |- eof R A], expand : [g |- eexpand R A M]
+  ; solve [_ |- Dof2]
+  }
+}
+;
+
+proof eexpand-reg :
+  (g : ebind+etopenblock)
+  [g |- eof R A] ->
+  [g |- eexpand R A M] ->
+    [g |- eof M A] =
+/ total /
+intros
+{ g : ebind+etopenblock, R : (g |- eterm), A : (g |- etp), M : (g |- eterm)
+| eof : [g |- eof R A], expand : [g |- eexpand R A M]
+; by eof as Dof unboxed;
+  by expand as Dexpand unboxed;
+  by eexpand-equiv [_ |- Dof] [_ |- Dexpand] as Dequiv unboxed;
+  split equiv-reg [_ |- Dequiv] as
+  case equiv-reg/i:
+  { g : ebind+etopenblock,
+    R : (g |- eterm),
+    A : (g |- etp),
+    M : (g |- eterm),
+    Dof : (g |- eof R A),
+    Dexpand : (g |- eexpand R A M),
+    Dequiv : (g |- equiv R M A),
+    Dof1 : (g |- eof R A),
+    Dof2 : (g |- eof M A),
+    Dwf : (g |- ewf A)
+  | eof : [g |- eof R A], expand : [g |- eexpand R A M]
+  ; solve [_ |- Dof2]
+  }
+}
+;
+
 % Skof Theorems
 
 LF can-skof/e : skel -> type =
