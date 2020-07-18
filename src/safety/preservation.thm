@@ -2372,7 +2372,8 @@ intros
     | tof : [ |- tm-of F (tm/lett E1 (\x361. E2)) T],
       sof : [ |- store-of F ST' F],
       x : [ |- step ST' (tm/lett E1 (\x361. E2)) ST' (E2[E1])]
-    ; ? % TODO: Requires higher-order substitution like Dof2[E1, {F} Dof1]
+    ; by [ |- Dof2[E1, (\f. _)]] as Dof'' unboxed;
+      solve [ |- preservation-tm/i F Dof'' Dstof (extends/nil )]
     }
   }
   case step/lett1:
@@ -3574,7 +3575,8 @@ intros
                   tm-of/equiv Dof6
                   (cn-equiv/trans (cn-equiv/symm Dequiv2') Dequiv1'')]
             as Dof' unboxed;
-            ? % TODO: Requires higher-order substitution like Dof3[E1, {F} Dof']
+            by [ |- Dof3[E1, (\f. _)]] as Dof'' unboxed;
+            solve [ |- preservation-tm/i F Dof'' Dstof (extends/nil )]
           }
         }
       }
@@ -4469,7 +4471,8 @@ intros
                  ST'
                  (tm/case (tm/in2 E1 C) (\z350. E2) (\x350. E3)) ST' (E3[E1])]
         ; by [ |- tm-of/equiv Dof4 Dequiv2] as Dof' unboxed;
-          ? % TODO: Requires higher-order substitution like Dof3[E1, {F} Dof']
+          by [ |- Dof3[E1, (\f. _)]] as Dof'' unboxed;
+          solve [ |- preservation-tm/i F Dof'' Dstof (extends/nil )]
         }
       }
     }
@@ -4585,7 +4588,8 @@ intros
                  ST'
                  (tm/case (tm/in1 E1 C) (\z350. E2) (\x350. E3)) ST' (E2[E1])]
         ; by [ |- tm-of/equiv Dof4 Dequiv1] as Dof' unboxed;
-          ? % TODO: Requires higher-order substitution like Dof2[E1, {F} Dof']
+          by [ |- Dof2[E1, (\f. _)]] as Dof'' unboxed;
+          solve [ |- preservation-tm/i F Dof'' Dstof (extends/nil )]
         }
       }
     }
@@ -4894,7 +4898,9 @@ intros
         | tof : [ |- tm-of F (tm/app (tm/lam C (\x. E2)) E1) T],
           sof : [ |- store-of F ST' F],
           x : [ |- step ST' (tm/app (tm/lam C (\x. E2)) E1) ST' (E2[E1])]
-        ; ? % TODO: Requires higher-order substitution like Dof3[E1, {F} Dof2]
+        ; by [ |- Dof3[E1, (\f. _)]] as Dof' unboxed;
+          by [ |- tm-of/equiv Dof' Dequiv2] as Dof'' unboxed;
+          solve [ |- preservation-tm/i F Dof'' Dstof (extends/nil )]
         }
       }
     }
