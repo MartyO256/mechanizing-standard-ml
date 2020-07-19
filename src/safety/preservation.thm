@@ -2238,6 +2238,1044 @@ intros
 
 % Preservation
 
+proof preservation-raises-tm :
+  [ |- tm-of F E T] ->
+  [ |- raises E V] ->
+    [ |- tm-of F V tagged] =
+/ total 2 /
+intros
+{ F : ( |- sttp), E : ( |- term), T : ( |- con), V : ( |- term)
+| tof : [ |- tm-of F E T], x : [ |- raises E V]
+; split x as
+  case raises/snd:
+  { F : ( |- sttp),
+    M : ( |- module'),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises-md M V)
+  | tof : [ |- tm-of F (tm/snd M) T], x : [ |- raises (tm/snd M) V]
+  ; by inversion-tm/snd tof as Dof unboxed;
+    solve preservation-raises-md [ |- Dof] [ |- Draises]
+  }
+  case raises/lett:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E3 : (x31 : term |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/lett E1 (\z503. E3)) T],
+    x : [ |- raises (tm/lett E1 (\z503. E3)) V]
+  ; split inversion-tm/lett tof as
+    case inversion-tm/lett/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E3 : (x31 : term |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      C1 : ( |- con),
+      Dof : ( |- tm-of F E1 C1),
+      Dof1 :
+        (x : term, u : {F' : sttp}  tm-of F' x C1[] |- tm-of F[] (E3[x]) T[])
+    | tof : [ |- tm-of F (tm/lett E1 (\z503. E3)) T],
+      x : [ |- raises (tm/lett E1 (\z503. E3)) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/raise2:
+  { F : ( |- sttp),
+    V : ( |- term),
+    C : ( |- con),
+    T : ( |- con),
+    Dvalue : ( |- value V)
+  | tof : [ |- tm-of F (tm/raise V C) T], x : [ |- raises (tm/raise V C) V]
+  ; split inversion-tm/raise tof as
+    case inversion-tm/raise/i:
+    { F : ( |- sttp),
+      V : ( |- term),
+      C : ( |- con),
+      T : ( |- con),
+      Dvalue : ( |- value V),
+      Dequiv : ( |- cn-equiv C T t),
+      Dof : ( |- tm-of F V tagged)
+    | tof : [ |- tm-of F (tm/raise V C) T], x : [ |- raises (tm/raise V C) V]
+    ; solve [ |- Dof]
+    }
+  }
+  case raises/raise1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    C : ( |- con),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/raise E1 C) T], x : [ |- raises (tm/raise E1 C) V]
+  ; split inversion-tm/raise tof as
+    case inversion-tm/raise/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      C : ( |- con),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      Dequiv : ( |- cn-equiv C T t),
+      Dof : ( |- tm-of F E1 tagged)
+    | tof : [ |- tm-of F (tm/raise E1 C) T],
+      x : [ |- raises (tm/raise E1 C) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/out:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/out E1) T], x : [ |- raises (tm/out E1) V]
+  ; split inversion-tm/out tof as
+    case inversion-tm/out/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      X : ( |- label),
+      Dof : ( |- tm-of F E1 (labeled X T))
+    | tof : [ |- tm-of F (tm/out E1) T], x : [ |- raises (tm/out E1) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/in:
+  { F : ( |- sttp),
+    X : ( |- label),
+    E1 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/in X E1) T], x : [ |- raises (tm/in X E1) V]
+  ; split inversion-tm/in tof as
+    case inversion-tm/in/i:
+    { F : ( |- sttp),
+      X : ( |- label),
+      E1 : ( |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      C1 : ( |- con),
+      Dequiv : ( |- cn-equiv (labeled X C1) T t),
+      Dof : ( |- tm-of F E1 C1)
+    | tof : [ |- tm-of F (tm/in X E1) T], x : [ |- raises (tm/in X E1) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/unroll:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/unroll E1) T], x : [ |- raises (tm/unroll E1) V]
+  ; split inversion-tm/unroll tof as
+    case inversion-tm/unroll/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      K : ( |- kind),
+      C1 : (z1316 : con, y1317 : con |- con),
+      C2 : ( |- con),
+      Dequiv :
+        ( |-
+           cn-equiv
+             (C1[lam K (\a. rec' K[] (\y478. \x478. C1[y478, x478]) a), C2])
+             T t),
+      Dof : ( |- tm-of F E1 (rec' K (\y478. \x478. C1) C2))
+    | tof : [ |- tm-of F (tm/unroll E1) T], x : [ |- raises (tm/unroll E1) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/roll:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    K : ( |- kind),
+    C : (a87 : con, a86 : con |- con),
+    C1 : ( |- con),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/roll E1 K (\x499. \z499. C) C1) T],
+    x : [ |- raises (tm/roll E1 K (\x499. \z499. C) C1) V]
+  ; split inversion-tm/roll tof as
+    case inversion-tm/roll/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      K : ( |- kind),
+      C : (a87 : con, a86 : con |- con),
+      C1 : ( |- con),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      Dequiv : ( |- cn-equiv (rec' K (\y478. \x478. C) C1) T t),
+      Dof :
+        ( |-
+           tm-of
+             F
+             E1 (C[lam K (\a. rec' K[] (\y478. \x478. C[y478, x478]) a), C1])),
+      Dwf : ( |- kd-wf K),
+      Dof1 :
+        (a : con, z1313 : cn-of a (pi K[] (\l. t)), b : con,
+         y1314 : cn-of b K[] |- cn-of (C[a, b]) t),
+      Dof2 : ( |- cn-of C1 K)
+    | tof : [ |- tm-of F (tm/roll E1 K (\x499. \z499. C) C1) T],
+      x : [ |- raises (tm/roll E1 K (\x499. \z499. C) C1) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/iftag2:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E2 : ( |- term),
+    E4 : (x30 : term |- term),
+    E5 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Dvalue : ( |- value E1),
+    Draises : ( |- raises E2 V)
+  | tof : [ |- tm-of F (tm/iftag E1 E2 (\z497. E4) E5) T],
+    x : [ |- raises (tm/iftag E1 E2 (\z497. E4) E5) V]
+  ; split inversion-tm/iftag tof as
+    case inversion-tm/iftag/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : ( |- term),
+      E4 : (x30 : term |- term),
+      E5 : ( |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Dvalue : ( |- value E1),
+      Draises : ( |- raises E2 V),
+      C1 : ( |- con),
+      Dof : ( |- tm-of F E1 tagged),
+      Dof1 : ( |- tm-of F E2 (tag C1)),
+      Dof2 :
+        (x : term, u : {F' : sttp}  tm-of F' x C1[] |- tm-of F[] (E4[x]) T[]),
+      Dof3 : ( |- tm-of F E5 T)
+    | tof : [ |- tm-of F (tm/iftag E1 E2 (\z497. E4) E5) T],
+      x : [ |- raises (tm/iftag E1 E2 (\z497. E4) E5) V]
+    ; solve preservation-raises-tm [ |- Dof1] [ |- Draises]
+    }
+  }
+  case raises/iftag1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E3 : ( |- term),
+    E4 : (x29 : term |- term),
+    E5 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/iftag E1 E3 (\z497. E4) E5) T],
+    x : [ |- raises (tm/iftag E1 E3 (\z497. E4) E5) V]
+  ; split inversion-tm/iftag tof as
+    case inversion-tm/iftag/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E3 : ( |- term),
+      E4 : (x29 : term |- term),
+      E5 : ( |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      C1 : ( |- con),
+      Dof : ( |- tm-of F E1 tagged),
+      Dof1 : ( |- tm-of F E3 (tag C1)),
+      Dof2 :
+        (x : term, u : {F' : sttp}  tm-of F' x C1[] |- tm-of F[] (E4[x]) T[]),
+      Dof3 : ( |- tm-of F E5 T)
+    | tof : [ |- tm-of F (tm/iftag E1 E3 (\z497. E4) E5) T],
+      x : [ |- raises (tm/iftag E1 E3 (\z497. E4) E5) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/tag2:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E2 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Dvalue : ( |- value E1),
+    Draises : ( |- raises E2 V)
+  | tof : [ |- tm-of F (tm/tag E1 E2) T], x : [ |- raises (tm/tag E1 E2) V]
+  ; split inversion-tm/tag tof as
+    case inversion-tm/tag/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : ( |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Dvalue : ( |- value E1),
+      Draises : ( |- raises E2 V),
+      C1 : ( |- con),
+      Dequiv : ( |- cn-equiv tagged T t),
+      Dof : ( |- tm-of F E1 (tag C1)),
+      Dof1 : ( |- tm-of F E2 C1)
+    | tof : [ |- tm-of F (tm/tag E1 E2) T], x : [ |- raises (tm/tag E1 E2) V]
+    ; solve preservation-raises-tm [ |- Dof1] [ |- Draises]
+    }
+  }
+  case raises/tag1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/tag E1 E3) T], x : [ |- raises (tm/tag E1 E3) V]
+  ; split inversion-tm/tag tof as
+    case inversion-tm/tag/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E3 : ( |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      C1 : ( |- con),
+      Dequiv : ( |- cn-equiv tagged T t),
+      Dof : ( |- tm-of F E1 (tag C1)),
+      Dof1 : ( |- tm-of F E3 C1)
+    | tof : [ |- tm-of F (tm/tag E1 E3) T], x : [ |- raises (tm/tag E1 E3) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/assign2:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E2 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Dvalue : ( |- value E1),
+    Draises : ( |- raises E2 V)
+  | tof : [ |- tm-of F (tm/assign E1 E2) T],
+    x : [ |- raises (tm/assign E1 E2) V]
+  ; split inversion-tm/assign tof as
+    case inversion-tm/assign/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : ( |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Dvalue : ( |- value E1),
+      Draises : ( |- raises E2 V),
+      C1 : ( |- con),
+      Dequiv : ( |- cn-equiv unit T t),
+      Dof : ( |- tm-of F E1 (ref C1)),
+      Dof1 : ( |- tm-of F E2 C1)
+    | tof : [ |- tm-of F (tm/assign E1 E2) T],
+      x : [ |- raises (tm/assign E1 E2) V]
+    ; solve preservation-raises-tm [ |- Dof1] [ |- Draises]
+    }
+  }
+  case raises/assign1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/assign E1 E3) T],
+    x : [ |- raises (tm/assign E1 E3) V]
+  ; split inversion-tm/assign tof as
+    case inversion-tm/assign/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E3 : ( |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      C1 : ( |- con),
+      Dequiv : ( |- cn-equiv unit T t),
+      Dof : ( |- tm-of F E1 (ref C1)),
+      Dof1 : ( |- tm-of F E3 C1)
+    | tof : [ |- tm-of F (tm/assign E1 E3) T],
+      x : [ |- raises (tm/assign E1 E3) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/deref:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/deref E1) T], x : [ |- raises (tm/deref E1) V]
+  ; by inversion-tm/deref tof as Dof unboxed;
+    solve preservation-raises-tm [ |- Dof] [ |- Draises]
+  }
+  case raises/ref:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/ref E1) T], x : [ |- raises (tm/ref E1) V]
+  ; split inversion-tm/ref tof as
+    case inversion-tm/ref/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      C1 : ( |- con),
+      Dequiv : ( |- cn-equiv (ref C1) T t),
+      Dof : ( |- tm-of F E1 C1)
+    | tof : [ |- tm-of F (tm/ref E1) T], x : [ |- raises (tm/ref E1) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/case:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E3 : (x27 : term |- term),
+    E4 : (x28 : term |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/case E1 (\y493. E3) (\z492. E4)) T],
+    x : [ |- raises (tm/case E1 (\y493. E3) (\z492. E4)) V]
+  ; split inversion-tm/case tof as
+    case inversion-tm/case/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E3 : (x27 : term |- term),
+      E4 : (x28 : term |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      C1 : ( |- con),
+      C2 : ( |- con),
+      Dof : ( |- tm-of F E1 (plus C1 C2)),
+      Dof1 :
+        (x : term, u : {F' : sttp}  tm-of F' x C1[] |- tm-of F[] (E3[x]) T[]),
+      Dof2 :
+        (x : term, u : {F' : sttp}  tm-of F' x C2[] |- tm-of F[] (E4[x]) T[])
+    | tof : [ |- tm-of F (tm/case E1 (\y493. E3) (\z492. E4)) T],
+      x : [ |- raises (tm/case E1 (\y493. E3) (\z492. E4)) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/in2:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    C : ( |- con),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/in2 E1 C) T], x : [ |- raises (tm/in2 E1 C) V]
+  ; split inversion-tm/in2 tof as
+    case inversion-tm/in2/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      C : ( |- con),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      C3 : ( |- con),
+      Dequiv : ( |- cn-equiv (plus C C3) T t),
+      Dof : ( |- tm-of F E1 C3),
+      Dof1 : ( |- cn-of C t)
+    | tof : [ |- tm-of F (tm/in2 E1 C) T], x : [ |- raises (tm/in2 E1 C) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/in1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    C : ( |- con),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/in1 E1 C) T], x : [ |- raises (tm/in1 E1 C) V]
+  ; split inversion-tm/in1 tof as
+    case inversion-tm/in1/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      C : ( |- con),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      C3 : ( |- con),
+      Dequiv : ( |- cn-equiv (plus C3 C) T t),
+      Dof : ( |- tm-of F E1 C3),
+      Dof1 : ( |- cn-of C t)
+    | tof : [ |- tm-of F (tm/in1 E1 C) T], x : [ |- raises (tm/in1 E1 C) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/app2:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E2 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Dvalue : ( |- value E1),
+    Draises : ( |- raises E2 V)
+  | tof : [ |- tm-of F (tm/app E1 E2) T], x : [ |- raises (tm/app E1 E2) V]
+  ; split inversion-tm/app tof as
+    case inversion-tm/app/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : ( |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Dvalue : ( |- value E1),
+      Draises : ( |- raises E2 V),
+      C1 : ( |- con),
+      Dof : ( |- tm-of F E1 (arrow C1 T)),
+      Dof1 : ( |- tm-of F E2 C1)
+    | tof : [ |- tm-of F (tm/app E1 E2) T], x : [ |- raises (tm/app E1 E2) V]
+    ; solve preservation-raises-tm [ |- Dof1] [ |- Draises]
+    }
+  }
+  case raises/app1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/app E1 E3) T], x : [ |- raises (tm/app E1 E3) V]
+  ; split inversion-tm/app tof as
+    case inversion-tm/app/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E3 : ( |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      C1 : ( |- con),
+      Dof : ( |- tm-of F E1 (arrow C1 T)),
+      Dof1 : ( |- tm-of F E3 C1)
+    | tof : [ |- tm-of F (tm/app E1 E3) T], x : [ |- raises (tm/app E1 E3) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/pi2:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/pi2 E1) T], x : [ |- raises (tm/pi2 E1) V]
+  ; split inversion-tm/pi2 tof as
+    case inversion-tm/pi2/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      C1 : ( |- con),
+      Dof : ( |- tm-of F E1 (prod C1 T))
+    | tof : [ |- tm-of F (tm/pi2 E1) T], x : [ |- raises (tm/pi2 E1) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/pi1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/pi1 E1) T], x : [ |- raises (tm/pi1 E1) V]
+  ; split inversion-tm/pi1 tof as
+    case inversion-tm/pi1/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      C1 : ( |- con),
+      Dof : ( |- tm-of F E1 (prod T C1))
+    | tof : [ |- tm-of F (tm/pi1 E1) T], x : [ |- raises (tm/pi1 E1) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/pair2:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E2 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Dvalue : ( |- value E1),
+    Draises : ( |- raises E2 V)
+  | tof : [ |- tm-of F (tm/pair E1 E2) T], x : [ |- raises (tm/pair E1 E2) V]
+  ; split inversion-tm/pair tof as
+    case inversion-tm/pair/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E2 : ( |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Dvalue : ( |- value E1),
+      Draises : ( |- raises E2 V),
+      C1 : ( |- con),
+      C2 : ( |- con),
+      Dequiv : ( |- cn-equiv (prod C1 C2) T t),
+      Dof : ( |- tm-of F E1 C1),
+      Dof1 : ( |- tm-of F E2 C2)
+    | tof : [ |- tm-of F (tm/pair E1 E2) T],
+      x : [ |- raises (tm/pair E1 E2) V]
+    ; solve preservation-raises-tm [ |- Dof1] [ |- Draises]
+    }
+  }
+  case raises/pair1:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    E3 : ( |- term),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/pair E1 E3) T], x : [ |- raises (tm/pair E1 E3) V]
+  ; split inversion-tm/pair tof as
+    case inversion-tm/pair/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E3 : ( |- term),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      C1 : ( |- con),
+      C2 : ( |- con),
+      Dequiv : ( |- cn-equiv (prod C1 C2) T t),
+      Dof : ( |- tm-of F E1 C1),
+      Dof1 : ( |- tm-of F E3 C2)
+    | tof : [ |- tm-of F (tm/pair E1 E3) T],
+      x : [ |- raises (tm/pair E1 E3) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises/abort:
+  { F : ( |- sttp),
+    E1 : ( |- term),
+    C : ( |- con),
+    T : ( |- con),
+    V : ( |- term),
+    Draises : ( |- raises E1 V)
+  | tof : [ |- tm-of F (tm/abort E1 C) T], x : [ |- raises (tm/abort E1 C) V]
+  ; split inversion-tm/abort tof as
+    case inversion-tm/abort/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      C : ( |- con),
+      T : ( |- con),
+      V : ( |- term),
+      Draises : ( |- raises E1 V),
+      Dof : ( |- tm-of F E1 void),
+      Dequiv : ( |- cn-equiv C T t)
+    | tof : [ |- tm-of F (tm/abort E1 C) T],
+      x : [ |- raises (tm/abort E1 C) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+}
+
+and proof preservation-raises-md :
+  [ |- md-of P F M S] ->
+  [ |- raises-md M V] ->
+    [ |- tm-of F V tagged] =
+/ total 2 /
+intros
+{ P : ( |- purity),
+  F : ( |- sttp),
+  M : ( |- module'),
+  S : ( |- sg),
+  V : ( |- term)
+| mof : [ |- md-of P F M S], x : [ |- raises-md M V]
+; split x as
+  case raises-md/lete:
+  { P : ( |- purity),
+    F : ( |- sttp),
+    E : ( |- term),
+    C : ( |- con),
+    M1 : (x32 : term |- module'),
+    S : ( |- sg),
+    V : ( |- term),
+    Draises : ( |- raises E V)
+  | mof : [ |- md-of P F (md/lete E C (\x. M1)) S],
+    x : [ |- raises-md (md/lete E C (\x. M1)) V]
+  ; split inversion-md/lete mof as
+    case inversion-md/lete/i:
+    { P : ( |- purity),
+      F : ( |- sttp),
+      E : ( |- term),
+      C : ( |- con),
+      M1 : (x32 : term |- module'),
+      S : ( |- sg),
+      V : ( |- term),
+      Draises : ( |- raises E V),
+      Dof : ( |- tm-of F E C),
+      Dof1 :
+        (x : term, F' : sttp, y1398 : tm-of F' x C[] |-
+           md-of P[] F[] (M1[x]) S[])
+    | mof : [ |- md-of P F (md/lete E C (\x. M1)) S],
+      x : [ |- raises-md (md/lete E C (\x. M1)) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises-md/letp:
+  { P : ( |- purity),
+    F : ( |- sttp),
+    M1 : ( |- module'),
+    M2 : (a90 : con, m17 : module' |- module'),
+    S : ( |- sg),
+    V : ( |- term),
+    Draises : ( |- raises-md M1 V)
+  | mof : [ |- md-of P F (md/letp M1 (\a. \m. M2)) S],
+    x : [ |- raises-md (md/letp M1 (\a. \m. M2)) V]
+  ; split inversion-md/letp mof as
+    case inversion-md/letp/i:
+    { P : ( |- purity),
+      F : ( |- sttp),
+      M1 : ( |- module'),
+      M2 : (a90 : con, m17 : module' |- module'),
+      S : ( |- sg),
+      V : ( |- term),
+      Draises : ( |- raises-md M1 V),
+      S2 : ( |- sg),
+      S3 : (y1394 : con |- sg),
+      K : ( |- kind),
+      C : ( |- con),
+      Dof : ( |- md-of pure F M1 S2),
+      Dfst : ( |- sg-fst S2 K),
+      Dfst1 : ( |- md-fst M1 C),
+      Dof1 :
+        (a : con, y1393 : cn-of a K[], m : module', P' : purity, F' : sttp,
+         x1393 : md-of P' F' m S2[],
+         z1393 : md-fst m a |- md-of P[] F[] (M2[a, m]) (S3[a])),
+      Dsub : ( |- sg-sub (S3[C]) S)
+    | mof : [ |- md-of P F (md/letp M1 (\a. \m. M2)) S],
+      x : [ |- raises-md (md/letp M1 (\a. \m. M2)) V]
+    ; solve preservation-raises-md [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises-md/let:
+  { P : ( |- purity),
+    F : ( |- sttp),
+    M1 : ( |- module'),
+    M2 : (a89 : con, m16 : module' |- module'),
+    S1 : ( |- sg),
+    S : ( |- sg),
+    V : ( |- term),
+    Draises : ( |- raises-md M1 V)
+  | mof : [ |- md-of P F (md/let M1 (\a. \m. M2) S1) S],
+    x : [ |- raises-md (md/let M1 (\a. \m. M2) S1) V]
+  ; split inversion-md/let mof as
+    case inversion-md/let/i:
+    { P : ( |- purity),
+      F : ( |- sttp),
+      M1 : ( |- module'),
+      M2 : (a89 : con, m16 : module' |- module'),
+      S1 : ( |- sg),
+      S : ( |- sg),
+      V : ( |- term),
+      Draises : ( |- raises-md M1 V),
+      S4 : ( |- sg),
+      K : ( |- kind),
+      Dof : ( |- md-of impure F M1 S4),
+      Dfst : ( |- sg-fst S4 K),
+      Dof1 :
+        (a : con, z1380 : cn-of a K[], m : module', P' : purity, F' : sttp,
+         y1381 : md-of P' F' m S4[],
+         x1381 : md-fst m a |- md-of impure F[] (M2[a, m]) S1[]),
+      Dsub : ( |- sg-sub S1 S),
+      X : ( |- purity-sub impure P)
+    | mof : [ |- md-of P F (md/let M1 (\a. \m. M2) S1) S],
+      x : [ |- raises-md (md/let M1 (\a. \m. M2) S1) V]
+    ; solve preservation-raises-md [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises-md/out:
+  { P : ( |- purity),
+    F : ( |- sttp),
+    M1 : ( |- module'),
+    S : ( |- sg),
+    V : ( |- term),
+    Draises : ( |- raises-md M1 V)
+  | mof : [ |- md-of P F (md/out M1) S], x : [ |- raises-md (md/out M1) V]
+  ; split inversion-md/out mof as
+    case inversion-md/out/i:
+    { P : ( |- purity),
+      F : ( |- sttp),
+      M1 : ( |- module'),
+      S : ( |- sg),
+      V : ( |- term),
+      Draises : ( |- raises-md M1 V),
+      L : ( |- name),
+      Dof : ( |- md-of P F M1 (sg/named L S))
+    | mof : [ |- md-of P F (md/out M1) S], x : [ |- raises-md (md/out M1) V]
+    ; solve preservation-raises-md [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises-md/in:
+  { P : ( |- purity),
+    F : ( |- sttp),
+    L : ( |- name),
+    M1 : ( |- module'),
+    S : ( |- sg),
+    V : ( |- term),
+    Draises : ( |- raises-md M1 V)
+  | mof : [ |- md-of P F (md/in L M1) S], x : [ |- raises-md (md/in L M1) V]
+  ; split inversion-md/in mof as
+    case inversion-md/in/i:
+    { P : ( |- purity),
+      F : ( |- sttp),
+      L : ( |- name),
+      M1 : ( |- module'),
+      S : ( |- sg),
+      V : ( |- term),
+      Draises : ( |- raises-md M1 V),
+      S2 : ( |- sg),
+      Dof : ( |- md-of P F M1 S2),
+      Dsub : ( |- sg-sub (sg/named L S2) S)
+    | mof : [ |- md-of P F (md/in L M1) S],
+      x : [ |- raises-md (md/in L M1) V]
+    ; solve preservation-raises-md [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises-md/app2:
+  { P : ( |- purity),
+    F : ( |- sttp),
+    M1 : ( |- module'),
+    M2 : ( |- module'),
+    S : ( |- sg),
+    V : ( |- term),
+    Dvalue : ( |- value-md M1),
+    Draises : ( |- raises-md M2 V)
+  | mof : [ |- md-of P F (md/app M1 M2) S],
+    x : [ |- raises-md (md/app M1 M2) V]
+  ; split inversion-md/app mof as
+    case inversion-md/app/i:
+    { P : ( |- purity),
+      F : ( |- sttp),
+      M1 : ( |- module'),
+      M2 : ( |- module'),
+      S : ( |- sg),
+      V : ( |- term),
+      Dvalue : ( |- value-md M1),
+      Draises : ( |- raises-md M2 V),
+      S2 : ( |- sg),
+      S3 : (y1367 : con |- sg),
+      C : ( |- con),
+      Dof : ( |- md-of impure F M1 (sg/pi S2 (\z484. S3))),
+      Dof1 : ( |- md-of pure F M2 S2),
+      Dfst : ( |- md-fst M2 C),
+      Dsub : ( |- sg-sub (S3[C]) S),
+      X : ( |- purity-sub impure P)
+    | mof : [ |- md-of P F (md/app M1 M2) S],
+      x : [ |- raises-md (md/app M1 M2) V]
+    ; solve preservation-raises-md [ |- Dof1] [ |- Draises]
+    }
+  }
+  case raises-md/app1:
+  { P : ( |- purity),
+    F : ( |- sttp),
+    M1 : ( |- module'),
+    M2 : ( |- module'),
+    S : ( |- sg),
+    V : ( |- term),
+    Draises : ( |- raises-md M1 V)
+  | mof : [ |- md-of P F (md/app M1 M2) S],
+    x : [ |- raises-md (md/app M1 M2) V]
+  ; split inversion-md/app mof as
+    case inversion-md/app/i:
+    { P : ( |- purity),
+      F : ( |- sttp),
+      M1 : ( |- module'),
+      M2 : ( |- module'),
+      S : ( |- sg),
+      V : ( |- term),
+      Draises : ( |- raises-md M1 V),
+      S2 : ( |- sg),
+      S3 : (y1367 : con |- sg),
+      C : ( |- con),
+      Dof : ( |- md-of impure F M1 (sg/pi S2 (\z484. S3))),
+      Dof1 : ( |- md-of pure F M2 S2),
+      Dfst : ( |- md-fst M2 C),
+      Dsub : ( |- sg-sub (S3[C]) S),
+      X : ( |- purity-sub impure P)
+    | mof : [ |- md-of P F (md/app M1 M2) S],
+      x : [ |- raises-md (md/app M1 M2) V]
+    ; solve preservation-raises-md [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises-md/pi2:
+  { P : ( |- purity),
+    F : ( |- sttp),
+    M1 : ( |- module'),
+    S : ( |- sg),
+    V : ( |- term),
+    Draises : ( |- raises-md M1 V)
+  | mof : [ |- md-of P F (md/pi2 M1) S], x : [ |- raises-md (md/pi2 M1) V]
+  ; split inversion-md/pi2 mof as
+    case inversion-md/pi1/i:
+    { P : ( |- purity),
+      F : ( |- sttp),
+      M1 : ( |- module'),
+      S : ( |- sg),
+      V : ( |- term),
+      Draises : ( |- raises-md M1 V),
+      S2 : ( |- sg),
+      Dof : ( |- md-of pure F M1 (sg/sigma S (\l. S2[])))
+    | mof : [ |- md-of P F (md/pi2 M1) S], x : [ |- raises-md (md/pi2 M1) V]
+    ; solve preservation-raises-md [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises-md/pi1:
+  { P : ( |- purity),
+    F : ( |- sttp),
+    M1 : ( |- module'),
+    S : ( |- sg),
+    V : ( |- term),
+    Draises : ( |- raises-md M1 V)
+  | mof : [ |- md-of P F (md/pi1 M1) S], x : [ |- raises-md (md/pi1 M1) V]
+  ; split inversion-md/pi1 mof as
+    case inversion-md/pi1/i:
+    { P : ( |- purity),
+      F : ( |- sttp),
+      M1 : ( |- module'),
+      S : ( |- sg),
+      V : ( |- term),
+      Draises : ( |- raises-md M1 V),
+      S2 : ( |- sg),
+      Dof : ( |- md-of pure F M1 (sg/sigma S (\l. S2[])))
+    | mof : [ |- md-of P F (md/pi1 M1) S], x : [ |- raises-md (md/pi1 M1) V]
+    ; solve preservation-raises-md [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises-md/dpair:
+  { P : ( |- purity),
+    F : ( |- sttp),
+    M1 : ( |- module'),
+    M2 : (a88 : con, m15 : module' |- module'),
+    S : ( |- sg),
+    V : ( |- term),
+    Draises : ( |- raises-md M1 V)
+  | mof : [ |- md-of P F (md/dpair M1 (\a. \m. M2)) S],
+    x : [ |- raises-md (md/dpair M1 (\a. \m. M2)) V]
+  ; split inversion-md/dpair mof as
+    case inversion-md/dpair/i:
+    { P : ( |- purity),
+      F : ( |- sttp),
+      M1 : ( |- module'),
+      M2 : (a88 : con, m15 : module' |- module'),
+      S : ( |- sg),
+      V : ( |- term),
+      Draises : ( |- raises-md M1 V),
+      S2 : ( |- sg),
+      S3 : (y1346 : con |- sg),
+      K : ( |- kind),
+      Dof : ( |- md-of P F M1 S2),
+      Dfst : ( |- sg-fst S2 K),
+      Dof1 :
+        (a : con, y1345 : cn-of a K[], m : module', P' : purity, F' : sttp,
+         x1345 : md-of P' F' m S2[],
+         z1345 : md-fst m a |- md-of P[] F[] (M2[a, m]) (S3[a])),
+      Dsub : ( |- sg-sub (sg/sigma S2 (\z485. S3)) S)
+    | mof : [ |- md-of P F (md/dpair M1 (\a. \m. M2)) S],
+      x : [ |- raises-md (md/dpair M1 (\a. \m. M2)) V]
+    ; solve preservation-raises-md [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises-md/pair2:
+  { P : ( |- purity),
+    F : ( |- sttp),
+    M1 : ( |- module'),
+    M2 : ( |- module'),
+    S : ( |- sg),
+    V : ( |- term),
+    Dvalue : ( |- value-md M1),
+    Draises : ( |- raises-md M2 V)
+  | mof : [ |- md-of P F (md/pair M1 M2) S],
+    x : [ |- raises-md (md/pair M1 M2) V]
+  ; split inversion-md/pair mof as
+    case inversion-md/pair/i:
+    { P : ( |- purity),
+      F : ( |- sttp),
+      M1 : ( |- module'),
+      M2 : ( |- module'),
+      S : ( |- sg),
+      V : ( |- term),
+      Dvalue : ( |- value-md M1),
+      Draises : ( |- raises-md M2 V),
+      S2 : ( |- sg),
+      S3 : ( |- sg),
+      Dof : ( |- md-of P F M1 S2),
+      Dof1 : ( |- md-of P F M2 S3),
+      Dsub : ( |- sg-sub (sg/sigma S2 (\l. S3[])) S)
+    | mof : [ |- md-of P F (md/pair M1 M2) S],
+      x : [ |- raises-md (md/pair M1 M2) V]
+    ; solve preservation-raises-md [ |- Dof1] [ |- Draises]
+    }
+  }
+  case raises-md/pair1:
+  { P : ( |- purity),
+    F : ( |- sttp),
+    M1 : ( |- module'),
+    M2 : ( |- module'),
+    S : ( |- sg),
+    V : ( |- term),
+    Draises : ( |- raises-md M1 V)
+  | mof : [ |- md-of P F (md/pair M1 M2) S],
+    x : [ |- raises-md (md/pair M1 M2) V]
+  ; split inversion-md/pair mof as
+    case inversion-md/pair/i:
+    { P : ( |- purity),
+      F : ( |- sttp),
+      M1 : ( |- module'),
+      M2 : ( |- module'),
+      S : ( |- sg),
+      V : ( |- term),
+      Draises : ( |- raises-md M1 V),
+      S2 : ( |- sg),
+      S3 : ( |- sg),
+      Dof : ( |- md-of P F M1 S2),
+      Dof1 : ( |- md-of P F M2 S3),
+      Dsub : ( |- sg-sub (sg/sigma S2 (\l. S3[])) S)
+    | mof : [ |- md-of P F (md/pair M1 M2) S],
+      x : [ |- raises-md (md/pair M1 M2) V]
+    ; solve preservation-raises-md [ |- Dof] [ |- Draises]
+    }
+  }
+  case raises-md/datom:
+  { P : ( |- purity),
+    F : ( |- sttp),
+    E : ( |- term),
+    C : ( |- con),
+    S : ( |- sg),
+    V : ( |- term),
+    Draises : ( |- raises E V)
+  | mof : [ |- md-of P F (md/datom E C) S],
+    x : [ |- raises-md (md/datom E C) V]
+  ; split inversion-md/datom mof as
+    case inversion-md/datom/i:
+    { P : ( |- purity),
+      F : ( |- sttp),
+      E : ( |- term),
+      C : ( |- con),
+      S : ( |- sg),
+      V : ( |- term),
+      Draises : ( |- raises E V),
+      Dof : ( |- tm-of F E C),
+      Dsub : ( |- sg-sub (sg/datom C) S)
+    | mof : [ |- md-of P F (md/datom E C) S],
+      x : [ |- raises-md (md/datom E C) V]
+    ; solve preservation-raises-tm [ |- Dof] [ |- Draises]
+    }
+  }
+}
+;
+
 LF preservation-tm/e : sttp -> term -> con -> store -> type =
 | preservation-tm/i :
   { F' : sttp}
