@@ -6801,6 +6801,274 @@ proof map-equiv :
 ?
 ;
 
+% Unmap Effectiveness
+
+schema unmap-ctx =
+  % conblock
+  block (a : con) +
+  % can-unmap-bind
+  some [a : con]
+  block (x : eterm, xt : unmap x a);
+
+LF can-unmap/e : eterm -> type =
+| can-unmap/i : { C : con } unmap M C -> can-unmap/e M
+;
+
+LF can-tunmap/e : etp -> type =
+| can-tunmap/i : { K : kind } tunmap A K -> can-tunmap/e A
+;
+
+proof can-unmap :
+  (g : unmap-ctx)
+  { M : [g |- eterm] }
+  [g |- can-unmap/e M] =
+/ total 1 /
+intros
+{ g : unmap-ctx, M : (g |- eterm)
+|
+; split [_ |- M] as
+  case estar:
+  { g : unmap-ctx
+  |
+  ; solve [_ |- can-unmap/i _ unmap/star]
+  }
+  case epair:
+  { g : unmap-ctx, M1 : (g |- eterm), M2 : (g |- eterm)
+  |
+  ; split can-unmap [_ |- M1] as
+    case can-unmap/i:
+    { g : unmap-ctx,
+      M1 : (g |- eterm),
+      M2 : (g |- eterm),
+      C : (g |- con),
+      Dunmap : (g |- unmap M1 C)
+    |
+    ; split can-unmap [_ |- M2] as
+      case can-unmap/i:
+      { g : unmap-ctx,
+        M1 : (g |- eterm),
+        M2 : (g |- eterm),
+        C : (g |- con),
+        Dunmap : (g |- unmap M1 C),
+        C1 : (g |- con),
+        Dunmap1 : (g |- unmap M2 C1)
+      |
+      ; solve [_ |- can-unmap/i _ (unmap/pair Dunmap Dunmap1)]
+      }
+    }
+  }
+  case elam:
+  { g : unmap-ctx, A : (g |- etp), M1 : (g, y152 : eterm |- eterm)
+  |
+  ; split can-tunmap [_ |- A] as
+    case can-tunmap/i:
+    { g : unmap-ctx,
+      A : (g |- etp),
+      M1 : (g, y152 : eterm |- eterm),
+      K : (g |- kind),
+      Dtunmap : (g |- tunmap A K)
+    |
+    ; %{ FIXME: Wrong block projections
+          invert can-unmap [_, b1 : block (a : con), b2 : block (x : eterm, xt : unmap x b1.1) |- M1[.., b2.1]]
+      }%
+      ?
+    }
+  }
+  case epi2:
+  { g : unmap-ctx, M1 : (g |- eterm)
+  |
+  ; split can-unmap [g |- M1] as
+    case can-unmap/i:
+    { g : unmap-ctx,
+      M1 : (g |- eterm),
+      C : (g |- con),
+      Dunmap : (g |- unmap M1 C)
+    |
+    ; solve [g |- can-unmap/i _ (unmap/pi2 Dunmap)]
+    }
+  }
+  case epi1:
+  { g : unmap-ctx, M1 : (g |- eterm)
+  |
+  ; split can-unmap [g |- M1] as
+    case can-unmap/i:
+    { g : unmap-ctx,
+      M1 : (g |- eterm),
+      C : (g |- con),
+      Dunmap : (g |- unmap M1 C)
+    |
+    ; solve [g |- can-unmap/i _ (unmap/pi1 Dunmap)]
+    }
+  }
+  case eapp:
+  { g : unmap-ctx, M1 : (g |- eterm), M2 : (g |- eterm)
+  |
+  ; split can-unmap [g |- M1] as
+    case can-unmap/i:
+    { g : unmap-ctx,
+      M1 : (g |- eterm),
+      M2 : (g |- eterm),
+      C : (g |- con),
+      Dunmap : (g |- unmap M1 C)
+    |
+    ; split can-unmap [g |- M2] as
+      case can-unmap/i:
+      { g : unmap-ctx,
+        M1 : (g |- eterm),
+        M2 : (g |- eterm),
+        C : (g |- con),
+        Dunmap : (g |- unmap M1 C),
+        C1 : (g |- con),
+        Dunmap1 : (g |- unmap M2 C1)
+      |
+      ; solve [g |- can-unmap/i _ (unmap/app Dunmap Dunmap1)]
+      }
+    }
+  }
+  case econst:
+  { g : unmap-ctx, K : ( |- constant)
+  |
+  ; split [ |- K] as
+    case const/labeled:
+    { g : unmap-ctx, X : ( |- label)
+    |
+    ; solve [g |- can-unmap/i _ (unmap/labeled )]
+    }
+    case const/rec:
+    { g : unmap-ctx, Dskel : ( |- skel)
+    |
+    ; split can-skof-il [ |- Dskel] as
+      case can-skof-il/i:
+      { g : unmap-ctx,
+        Dskel : ( |- skel),
+        K : ( |- kind),
+        K1 : (z934 : con |- kind),
+        Dskof-il : ( |- skof-il Dskel K (\z931. K1))
+      |
+      ; solve [g |- can-unmap/i _ (unmap/rec Dskof-il[])]
+      }
+    }
+    case const/tagged:
+    { g : unmap-ctx
+    |
+    ; solve [g |- can-unmap/i _ unmap/tagged]
+    }
+    case const/tag:
+    { g : unmap-ctx
+    |
+    ; solve [g |- can-unmap/i _ unmap/tag]
+    }
+    case const/plus:
+    { g : unmap-ctx
+    |
+    ; solve [g |- can-unmap/i _ unmap/plus]
+    }
+    case const/ref:
+    { g : unmap-ctx
+    |
+    ; solve [g |- can-unmap/i _ unmap/ref]
+    }
+    case const/void:
+    { g : unmap-ctx
+    |
+    ; solve [g |- can-unmap/i _ unmap/void]
+    }
+    case const/unit:
+    { g : unmap-ctx
+    |
+    ; solve [g |- can-unmap/i _ unmap/unit]
+    }
+    case const/prod:
+    { g : unmap-ctx
+    |
+    ; solve [g |- can-unmap/i _ unmap/prod]
+    }
+    case const/arrow:
+    { g : unmap-ctx
+    |
+    ; solve [g |- can-unmap/i _ unmap/arrow]
+    }
+  }
+  %{ FIXME: File "src/core/reconstruct.ml", line 2248, characters 11-16: Pattern matching failed
+  case #.1:
+  { g : unmap-ctx,
+    C1048 : (g |- con),
+    #unmap : #(g |- block (x : eterm, xt : unmap x (C1048[..])))
+  |
+  ; ?
+  }
+  }%
+}
+
+and proof can-tunmap :
+  (g : unmap-ctx)
+  { A : [g |- etp] }
+  [g |- can-tunmap/e A] =
+/ total 1 /
+intros
+{ g : unmap-ctx, A : (g |- etp)
+|
+; split [_ |- A] as
+  case eone:
+  { g : unmap-ctx
+  |
+  ; solve [_ |- can-tunmap/i _ tunmap/one]
+  }
+  case esing:
+  { g : unmap-ctx, M : (g |- eterm)
+  |
+  ; split can-unmap [_ |- M] as
+    case can-unmap/i:
+    { g : unmap-ctx,
+      M : (g |- eterm),
+      C : (g |- con),
+      Dunmap : (g |- unmap M C)
+    |
+    ; solve [_ |- can-tunmap/i _ (tunmap/sing Dunmap)]
+    }
+  }
+  case esigma:
+  { g : unmap-ctx, A1 : (g |- etp), A2 : (g, y149 : eterm |- etp)
+  |
+  ; split can-tunmap [_ |- A1] as
+    case can-tunmap/i:
+    { g : unmap-ctx,
+      A1 : (g |- etp),
+      A2 : (g, y149 : eterm |- etp),
+      K : (g |- kind),
+      Dtunmap : (g |- tunmap A1 K)
+    |
+    ; %{ FIXME: Wrong block projections
+          invert can-tunmap [_, b1 : block (a : con), b2 : block (x : eterm, dx : unmap x b1.a)|-A2[.., b2.x]]
+      }%
+      ?
+    }
+  }
+  case epi:
+  { g : unmap-ctx, A1 : (g |- etp), A2 : (g, y148 : eterm |- etp)
+  |
+  ; split can-tunmap [_ |- A1] as
+    case can-tunmap/i:
+    { g : unmap-ctx,
+      A1 : (g |- etp),
+      A2 : (g, y148 : eterm |- etp),
+      K : (g |- kind),
+      Dtunmap : (g |- tunmap A1 K)
+    |
+    ; %{ FIXME: Wrong block projections
+          invert can-tunmap [_, b1 : block (a : con), b2 : block (x : eterm, dx : unmap x b1.a)|-A2[.., b2.x]]
+      }%
+      ?
+    }
+  }
+  case et:
+  { g : unmap-ctx
+  |
+  ; solve [_ |- can-tunmap/i _ tunmap/t]
+  }
+}
+;
+
 % Injectivity Lemmas
 
 LF injective-prod/e : con -> con -> con -> con -> type =
