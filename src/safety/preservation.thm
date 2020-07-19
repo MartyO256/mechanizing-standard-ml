@@ -4166,7 +4166,46 @@ intros
                    step
                      ST'
                      (tm/unroll (tm/roll E' K (\y357. \x357. C) C1)) ST' E']
-            ; ?
+            ; by [a : con, da : cn-of a K[] |-
+      cn-equiv/rec Dequiv2[]
+      (\a1. \da1. \b. \db. Dequiv3[a1, da1, b, db]) (cn-equiv/refl da)]
+as DequivRec1 unboxed;
+              by [ |- cn-equiv/lam Dequiv2 (\a. \da. DequivRec1)]
+              as DequivLam1 unboxed;
+              by functionality-cn
+                   [c : con, dc : cn-of c (pi K[] (\l. t)) |-
+                      Dof3[c, dc, C1[], Dof4[]]]
+                   [ |- DequivLam1]
+              as DequivC1' unboxed;
+              by [ |-
+                    cn-of/subsume (cn-of/lam Dwf2
+                                  (\a.
+                                     \da.
+                                       cn-of/rec Dwf2[]
+                                       (\a1.
+                                          \da1. \b. \db. Dof7[a1, da1, b, db])
+                                       da))
+                    (kd-sub/refl (kd-equiv/pi (kd-equiv/symm Dequiv2)
+                                 (\l1. \l2. kd-equiv/refl kd-wf/t)))]
+              as DofLam unboxed;
+              by [b : con, db : cn-of b _ |-
+                    Dof3[lam K1[] (\a. rec' K1[] (\b1. \c. C3[b1, c]) a),
+                         DofLam[], b, db]]
+              as DofC1'' unboxed;
+              by functionality-cn [c : con, dc : cn-of c K[] |- DofC1'']
+                   [ |- Dequiv4]
+              as DequivC1'' unboxed;
+              by [ |-
+                    cn-of/subsume Dof8 (kd-sub/refl (kd-equiv/symm Dequiv2))]
+              as DofC2'' unboxed;
+              by [ |-
+                    cn-equiv/trans (cn-equiv/trans DequivC1'
+                                   (cn-equiv/trans DequivC1''
+                                   (Dequiv3[_, DofLam, _, DofC2''])))
+                    Dequiv]
+              as Dequiv' unboxed;
+              by [ |- tm-of/equiv Dof2 Dequiv'] as Dof' unboxed;
+              solve [ |- preservation-tm/i F Dof' Dstof (extends/nil )]
             }
           }
         }
