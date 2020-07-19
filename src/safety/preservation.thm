@@ -3498,7 +3498,28 @@ intros
   | tof : [ |- tm-of F (tm/try E1 (\y130. E3)) T],
     sof : [ |- store-of F ST' F],
     x : [ |- step ST' (tm/try E1 (\y130. E3)) ST' (E3[E2])]
-  ; ?
+  ; split inversion-tm/try tof as
+    case inversion-tm/try/i:
+    { F : ( |- sttp),
+      E1 : ( |- term),
+      E3 : (x22 : term |- term),
+      T : ( |- con),
+      ST' : ( |- store),
+      E2 : ( |- term),
+      Dof : ( |- tm-of F (tm/try E1 (\y130. E3)) T),
+      Dstof : ( |- store-of F ST' F),
+      Draises : ( |- raises E1 E2),
+      Dof1 : ( |- tm-of F E1 T),
+      Dof2 :
+        (x : term, u : {F' : sttp}  tm-of F' x tagged |-
+           tm-of F[] (E3[x]) T[])
+    | tof : [ |- tm-of F (tm/try E1 (\z502. E3)) T],
+      sof : [ |- store-of F ST' F],
+      x : [ |- step ST' (tm/try E1 (\z502. E3)) ST' (E3[E2])]
+    ; by preservation-raises-tm [ |- Dof1] [ |- Draises] as Dof' unboxed;
+      by [ |- Dof2[E2, (\f. _)]] as Dof'' unboxed;
+      solve [ |- preservation-tm/i F Dof'' Dstof (extends/nil )]
+    }
   }
   case step/try-done:
   { F : ( |- sttp),
