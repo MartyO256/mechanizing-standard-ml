@@ -3344,7 +3344,10 @@ intros
     | tof : [ |- tm-of F (tm/snd (md/datom E' C)) T],
       sof : [ |- store-of F ST' F],
       x : [ |- step ST' (tm/snd (md/datom E' C)) ST' E']
-    ; ?
+    ; by sg-sub-datom-invert [ |- Dsub] as Dequiv unboxed;
+      solve
+        [ |-
+           preservation-tm/i _ (tm-of/equiv Dof1 Dequiv) Dstof (extends/nil )]
     }
   }
   case step/snd:
