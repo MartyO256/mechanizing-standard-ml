@@ -2188,7 +2188,7 @@ intros
       ; by map-of' [g |- Dof1] [g |- map/pi2 Dmap]
              [g |- Dtmap1[.., _, _, map/pi1 Dmap]]
         as Dof2' unboxed;
-        by [g |- tmap/sigma Dtmap (\a. \x. \at. Dtmap1[.., x, a, _])]
+        by [g |- tmap/sigma Dtmap (\a. \x. \at. Dtmap1[.., x, a, at])]
 as Dtmap' unboxed;
         by [g |- eof/extsigma Dof2 Dof2' (\x. \dx. Dwf1)] as Dof' unboxed;
         solve [g |- map-of/i _ Dtmap' Dof']
@@ -2399,7 +2399,7 @@ as Dtmap' unboxed;
           x : eterm,
           dx : evof x (A[..]),
           a : con,
-          da : cn-of a _,
+          da : cn-of a (pi (K1[..]) (\l. t)),
           at : map a x),
       b2 :
         block (
@@ -2414,7 +2414,7 @@ as Dtmap' unboxed;
           x : eterm,
           dx : evof x (A[..]),
           a : con,
-          da : cn-of a _,
+          da : cn-of a (pi (K1[..]) (\l. t)),
           at : map a x),
       b2 :
         block (
@@ -2429,7 +2429,7 @@ as Dtmap' unboxed;
           x : eterm,
           dx : evof x (A[..]),
           a : con,
-          da : cn-of a _,
+          da : cn-of a (pi (K1[..]) (\l. t)),
           at : map a x),
       b2 :
         block (
@@ -2761,7 +2761,7 @@ as DofM1 unboxed;
           map : [g |- map (app C2 C1) (eapp M1 M2)]
         ; by map-of' [g |- Dof] [g |- Dmap2] [g |- Dtmap1] as Dof2' unboxed;
           solve
-            [g |- map-of/i _ (Dtmap2[.., C1, _, Dmap2]) (eof/app Dof2 Dof2')]
+            [g |- map-of/i _ (Dtmap2[.., C1, M2, Dmap2]) (eof/app Dof2 Dof2')]
         }
       }
     }
@@ -2900,7 +2900,8 @@ map-of
         | x : [g |- cn-of (pi2 C1) (K2[.., pi1 C1])],
           map : [g |- map (pi2 C1) (epi2 M1)]
         ; solve
-            [g |- map-of/i _ (Dtmap2[.., _, _, map/pi1 Dmap1]) (eof/pi2 Dof1)]
+  [g |-
+     map-of/i _ (Dtmap2[.., pi1 C1, epi1 M1, map/pi1 Dmap1]) (eof/pi2 Dof1)]
         }
       }
     }
@@ -3046,7 +3047,7 @@ map-of
           Dwf1 : (g, x : eterm, dx : evof x (A[..]) |- ewf (A1[.., x]))
         | x : [g |- cn-of (pair C1 C2) (sigma K1 (\z328. K3))],
           map : [g |- map (pair C1 C2) (epair M1 M2)]
-        ; by map-of' [g |- Dof1] [g |- Dmap2] [g |- Dtmap1[.., _, _, Dmap1]]
+        ; by map-of' [g |- Dof1] [g |- Dmap2] [g |- Dtmap1[.., M1, C1, Dmap1]]
           as Dof2' unboxed;
           by [g |- tmap/sigma Dtmap (\a. \x. \at. Dtmap1[.., x, a, at])]
 as Dtmap' unboxed;
@@ -3413,7 +3414,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x _,
+                  dx : evof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dsub1[.., b.3, b.4]]
@@ -3421,7 +3422,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x _,
+                  dx : evof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dtmap1[.., b.3, b.1, b.5]]
@@ -3429,7 +3430,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x _,
+                  dx : evof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dtmap3[.., b.3, b.1, b.5]]
@@ -3439,7 +3440,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x _,
+                  dx : evof x (A3[..]),
                   a : con,
                   da : cn-of a (K2[..]),
                   at : map a x) |- Dwf[.., b.3, b.4]]
@@ -3447,15 +3448,21 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x _,
+                  dx : evof x (A3[..]),
                   a : con,
                   da : cn-of a (K2[..]),
                   at : map a x) |- Dtmap3[.., b.3, b.1, b.5]]
         as Dwf' unboxed;
-        solve [g |-
-              subtp/sigma Dsub1'
-              (\x. \dx. Dsub2'[.., <x; dx; _; _; _>])
-              (\x. \dx. Dwf'[.., <x; dx; _; _; _>])]
+        by [g, b : block (x : eterm, dx : evof x (A1[..])) |-
+      Dsub2'[.., <b.1; b.2; _; _; _>]]
+as Dsub2'' unboxed;
+        by [g, b : block (x : eterm, dx : evof x (A3[..])) |-
+              Dwf'[.., <b.1; b.2; _; _; _>]]
+        as Dwf'' unboxed;
+        solve
+          [g |-
+             subtp/sigma Dsub1'
+             (\x. \dx. Dsub2''[.., <x; dx>]) (\x. \dx. Dwf''[.., <x; dx>])]
       }
     }
   }
@@ -3529,7 +3536,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x _,
+                  dx : evof x (A3[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dsub1[.., b.3, b.4]]
@@ -3537,7 +3544,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x _,
+                  dx : evof x A3[..],
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dtmap1[.., b.3, b.1, b.5]]
@@ -3545,7 +3552,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x _,
+                  dx : evof x A3[..],
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dtmap3[.., b.3, b.1, b.5]]
@@ -3555,7 +3562,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x _,
+                  dx : evof x (A1[..]),
                   a : con,
                   da : cn-of a (K2[..]),
                   at : map a x) |- Dwf[.., b.3, b.4]]
@@ -3563,15 +3570,21 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x _,
+                  dx : evof x (A1[..]),
                   a : con,
                   da : cn-of a (K2[..]),
                   at : map a x) |- Dtmap1[.., b.3, b.1, b.5]]
         as Dwf' unboxed;
-        solve [g |-
-              subtp/pi Dsub1'
-              (\x. \dx. Dsub2'[.., <x; dx; _; _; _>])
-              (\x. \dx. Dwf'[.., <x; dx; _; _; _>])]
+        by [g, b : block (x : eterm, dx : evof x (A3[..])) |-
+      Dsub2'[.., <b.1; b.2; _; _; _>]]
+as Dsub2'' unboxed;
+        by [g, b : block (x : eterm, dx : evof x (A1[..])) |-
+              Dwf'[.., <b.1; b.2; _; _; _>]]
+        as Dwf'' unboxed;
+        solve
+          [g |-
+             subtp/pi Dsub1'
+             (\x. \dx. Dsub2''[.., <x; dx>]) (\x. \dx. Dwf''[.., <x; dx>])]
       }
     }
   }
@@ -3743,7 +3756,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x _,
+                  dx : evof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dequiv1[.., b.3, b.4]]
@@ -3751,7 +3764,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x _,
+                  dx : evof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dtmap1[.., b.3, b.1, b.5]]
@@ -3759,13 +3772,15 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x _,
+                  dx : evof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dtmap3[.., b.3, b.1, b.5]]
         as Dequiv2' unboxed;
-        solve [_ |-
-              tequiv/sigma Dequiv1' (\x. \dx. Dequiv2'[.., <x; dx; _; _; _>])]
+        by [g, b : block (x : eterm, dx : evof x (A1[..])) |-
+      Dequiv2'[.., <b.1; b.2; _; _; _>]]
+as Dequiv2'' unboxed;
+        solve [g |- tequiv/sigma Dequiv1' (\x. \dx. Dequiv2''[.., <x; dx>])]
       }
     }
   }
@@ -3838,7 +3853,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x _,
+                  dx : evof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dequiv1[.., b.3, b.4]]
@@ -3846,7 +3861,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x _,
+                  dx : evof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dtmap1[.., b.3, b.1, b.5]]
@@ -3854,12 +3869,15 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x _,
+                  dx : evof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dtmap3[.., b.3, b.1, b.5]]
         as Dequiv2' unboxed;
-        solve [g |- tequiv/pi Dequiv1' (\x. \dx. Dequiv2'[.., <x; dx; _; _; _>])]
+        by [g, b : block (x : eterm, dx : evof x (A1[..])) |-
+      Dequiv2'[.., <b.1; b.2; _; _; _>]]
+as Dequiv2'' unboxed;
+        solve [g |- tequiv/pi Dequiv1' (\x. \dx. Dequiv2''[.., <x; dx>])]
       }
     }
   }
@@ -4389,7 +4407,7 @@ intros
             solve
   [g |-
      map-equiv'/i _
-     (DmapB[.., _, _, DmapN]) (equiv/beta (\x. \dx. DofM') DofN')]
+     (DmapB[.., M2, C1, DmapN]) (equiv/beta (\x. \dx. DofM') DofN')]
           }
         }
       }
@@ -4544,7 +4562,7 @@ intros
         map1 : [g |- map D N],
         equiv : [g |- cn-equiv C D (sigma K1 (\x364. K3))]
       ; by map-equiv'' [g |- map/pi2 Dmap] [g |- map/pi2 Dmap']
-             [g |- Dequiv2] [g |- Dtmap[.., _, _, map/pi1 Dmap]]
+             [g |- Dequiv2] [g |- Dtmap[.., epi1 M, pi1 C, map/pi1 Dmap]]
         as Dequiv2' unboxed;
         by [g |- tmap/sigma DmapA (\a. \x. \at. Dtmap[.., x, a, at])]
         as Dtmap' unboxed;
@@ -6109,7 +6127,7 @@ as DequivM2 unboxed;
             solve
               [g |-
                  map-equiv'/i _
-                 (Dtmap2[.., _, _, Dmap1]) (equiv/app Dequiv2 Dequiv2')]
+                 (Dtmap2[.., C3, M2, Dmap1]) (equiv/app Dequiv2 Dequiv2')]
           }
         }
       }
@@ -6346,7 +6364,7 @@ map-equiv'
           ; solve
               [g |-
                  map-equiv'/i _
-                 (Dtmap2[.., _, _, map/pi1 Dmap]) (equiv/pi2 Dequiv1)]
+                 (Dtmap2[.., pi1 C1, epi1 M1, map/pi1 Dmap]) (equiv/pi2 Dequiv1)]
           }
         }
       }
@@ -6569,7 +6587,7 @@ map-equiv'
             equiv :
               [g |- cn-equiv (pair C1 C3) (pair C2 C4) (sigma K1 (\x364. K3))]
           ; by map-equiv'' [g |- Dmap1] [g |- Dmap3] [g |- Dequiv1]
-                 [g |- Dtmap1[.., _, _, Dmap]]
+                 [g |- Dtmap1[.., M1, C1, Dmap]]
             as Dequiv2' unboxed;
             by [g |- tmap/sigma Dtmap (\a. \x. \at. Dtmap1[.., x, a, at])]
             as Dtmap' unboxed;
@@ -6798,7 +6816,11 @@ proof map-equiv :
   [g |- cn-equiv C D K] ->
     [g |- map-equiv/e C D K] =
 / total /
-?
+intros
+{ g : map-bind, C : (g |- con), D : (g |- con), K : (g |- kind)
+| equiv : [g |- cn-equiv C D K]
+; ?
+}
 ;
 
 % Unmap Effectiveness
