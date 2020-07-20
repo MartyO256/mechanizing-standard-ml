@@ -5070,6 +5070,485 @@ intros
 }
 ;
 
+schema can-md-fst-ctx =
+  % termbind-reg
+  some [T : con, Dwf : cn-of T t]
+  block (x : term, d : { F' : sttp } tm-of F' x T) +
+  % modbind-reg
+  some [K : kind, S : sg, DwfK : kd-wf K, DwfS : sg-wf S, DfstS : sg-fst S K]
+  block (
+    a : con, da : cn-of a K,
+    m : module', dm : { P' : purity } { F' : sttp } md-of P' F' m S,
+    dfst : md-fst m a
+  );
+
+LF can-md-fst/e : module' -> type =
+| can-md-fst/i : { C : con } md-fst M C -> can-md-fst/e M
+;
+
+proof can-md-fst :
+  (g : can-md-fst-ctx)
+  [g |- md-of pure F M S] ->
+    [g |- can-md-fst/e M] =
+/ total 1 /
+intros
+{ g : can-md-fst-ctx, F : (g |- sttp), M : (g |- module'), S : (g |- sg)
+| x : [g |- md-of pure F M S]
+; split x as
+  case md-of/subsume:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    M : (g |- module'),
+    S : (g |- sg),
+    S1 : (g |- sg),
+    Dof : (g |- md-of pure F M S1),
+    Dsub : (g |- sg-sub S1 S)
+  | x : [g |- md-of pure F M S]
+  ; solve can-md-fst [_ |- Dof]
+  }
+  case md-of/extnamed:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    M : (g |- module'),
+    L : ( |- name),
+    S2 : (g |- sg),
+    S1 : (g |- sg),
+    Dof : (g |- md-of pure F M (sg/named L[] S1)),
+    Dof1 : (g |- md-of pure F (md/out M) S2)
+  | x : [g |- md-of pure F M (sg/named L[] S2)]
+  ; split can-md-fst [_ |- Dof] as
+    case can-md-fst/i:
+    { g : can-md-fst-ctx,
+      F : (g |- sttp),
+      M : (g |- module'),
+      L : ( |- name),
+      S2 : (g |- sg),
+      S1 : (g |- sg),
+      Dof : (g |- md-of pure F M (sg/named L[] S1)),
+      Dof1 : (g |- md-of pure F (md/out M) S2),
+      C : (g |- con),
+      Dfst : (g |- md-fst M C)
+    | x : [g |- md-of pure F M (sg/named L[] S2)]
+    ; solve [_ |- can-md-fst/i _ Dfst]
+    }
+  }
+  case md-of/extsigma:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    M : (g |- module'),
+    S1 : (g |- sg),
+    S2 : (g |- sg),
+    Dof : (g |- md-of pure F (md/pi1 M) S1),
+    Dof1 : (g |- md-of pure F (md/pi2 M) S2)
+  | x : [g |- md-of pure F M (sg/sigma S1 (\x. S2[..]))]
+  ; split can-md-fst [_ |- Dof] as
+    case can-md-fst/i:
+    { g : can-md-fst-ctx,
+      F : (g |- sttp),
+      M : (g |- module'),
+      S1 : (g |- sg),
+      S2 : (g |- sg),
+      Dof : (g |- md-of pure F (md/pi1 M) S1),
+      Dof1 : (g |- md-of pure F (md/pi2 M) S2),
+      C : (g |- con),
+      Dfst : (g |- md-fst (md/pi1 M) C)
+    | x : [g |- md-of pure F M (sg/sigma S1 (\x. S2[..]))]
+    ; split [_ |- Dfst] as
+      case md-fst/pi1:
+      { g : can-md-fst-ctx,
+        F : (g |- sttp),
+        M : (g |- module'),
+        S1 : (g |- sg),
+        S2 : (g |- sg),
+        Dof : (g |- md-of pure F (md/pi1 M) S1),
+        Dof1 : (g |- md-of pure F (md/pi2 M) S2),
+        C1 : (g |- con),
+        Dfst1 : (g |- md-fst M C1)
+      | x : [g |- md-of pure F M (sg/sigma S1 (\x. S2[..]))]
+      ; solve [_ |- can-md-fst/i _ Dfst1]
+      }
+    }
+  }
+  case md-of/self:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    M : (g |- module'),
+    K1 : (g |- kind),
+    K : (g |- kind),
+    C : (g |- con),
+    Dof : (g |- md-of pure F M (sg/satom K)),
+    Dfst : (g |- md-fst M C),
+    Dof1 : (g |- cn-of C K1)
+  | x : [g |- md-of pure F M (sg/satom K1)]
+  ; solve can-md-fst [_ |- Dof]
+  }
+  case md-of/lete:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    E : (g |- term),
+    C : (g |- con),
+    M1 : (g, x7 : term |- module'),
+    S : (g |- sg),
+    Dof : (g |- tm-of F E C),
+    Dof1 :
+      (g, x : term, u : {F' : sttp}  tm-of F' x (C[..]) |-
+         md-of pure (F[..]) (M1[.., x]) (S[..]))
+  | x : [g |- md-of pure F (md/lete E C (\x. M1)) S]
+  ; split
+    can-md-fst
+      [_, b : block (x : term, u : {F' : sttp}  tm-of F' x (C[..])) |-
+         Dof1[.., b.1, b.2]] as
+    case can-md-fst/i:
+    { g : can-md-fst-ctx,
+      F : (g |- sttp),
+      E : (g |- term),
+      C : (g |- con),
+      M2 : (g, x : term |- module'),
+      S : (g |- sg),
+      Dof : (g |- tm-of F E C),
+      Dof1 :
+        (g, x : term, u : {F' : sttp}  tm-of F' x (C[..]) |-
+           md-of pure (F[..]) (M2[.., x]) (S[..])),
+      C1 : (g |- con),
+      Dfst : (g, x : term |- md-fst M2 (C1[..]))
+    | x : [g |- md-of pure F (md/lete E C (\x. M2)) S]
+    ; solve [_ |- can-md-fst/i _ (md-fst/lete (\x. Dfst))]
+    }
+  }
+  case md-of/letp:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    M2 : (g, a68 : con, m4 : module' |- module'),
+    S2 : (g, a69 : con |- sg),
+    C : (g |- con),
+    S1 : (g |- sg),
+    K : (g |- kind),
+    Dof : (g |- md-of pure F M1 S1),
+    Dfst : (g |- sg-fst S1 K),
+    Dfst1 : (g |- md-fst M1 C),
+    Dof1 :
+      (g, a : con, x629 : cn-of a (K[..]), m : module',
+       u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+       z629 : md-fst m a |- md-of pure (F[..]) (M2[.., a, m]) (S2[.., a]))
+  | x : [g |- md-of pure F (md/letp M1 (\z513. \y514. M2)) (S2[.., C])]
+  ; split
+can-md-fst
+  [g,
+   b :
+     block (
+       a : con,
+       da : cn-of a (K[..]),
+       m : module',
+       u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+       dfst : md-fst m a) |- Dof1[.., b.1, b.2, b.3, b.4, b.5]] as
+    case can-md-fst/i:
+    { g : can-md-fst-ctx,
+      F : (g |- sttp),
+      M1 : (g |- module'),
+      M3 : (g, a : con, m : module' |- module'),
+      S2 : (g, a69 : con |- sg),
+      C : (g |- con),
+      S1 : (g |- sg),
+      K : (g |- kind),
+      Dof : (g |- md-of pure F M1 S1),
+      Dfst : (g |- sg-fst S1 K),
+      Dfst1 : (g |- md-fst M1 C),
+      Dof1 :
+        (g, a : con, x629 : cn-of a (K[..]), m : module',
+         u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+         z629 : md-fst m a |- md-of pure (F[..]) (M3[.., a, m]) (S2[.., a])),
+      C1 : (g, a : con |- con),
+      Dfst2 :
+        (g, a : con, m : module', y1587 : md-fst m a |-
+           md-fst (M3[.., a, m]) (C1[.., a]))
+    | x : [g |- md-of pure F (md/letp M1 (\z513. \y514. M3)) (S2[.., C])]
+    ; solve [g |- can-md-fst/i _ (md-fst/letp Dfst1 (\a. \m. \dfst. Dfst2))]
+    }
+  }
+  case md-of/out:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    S : (g |- sg),
+    L : ( |- name),
+    Dof : (g |- md-of pure F M1 (sg/named L[] S))
+  | x : [g |- md-of pure F (md/out M1) S]
+  ; split can-md-fst [g |- Dof] as
+    case can-md-fst/i:
+    { g : can-md-fst-ctx,
+      F : (g |- sttp),
+      M1 : (g |- module'),
+      S : (g |- sg),
+      L : ( |- name),
+      Dof : (g |- md-of pure F M1 (sg/named L[] S)),
+      C : (g |- con),
+      Dfst : (g |- md-fst M1 C)
+    | x : [g |- md-of pure F (md/out M1) S]
+    ; solve [g |- can-md-fst/i _ (md-fst/out Dfst)]
+    }
+  }
+  case md-of/in:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    L : ( |- name),
+    M1 : (g |- module'),
+    S1 : (g |- sg),
+    Dof : (g |- md-of pure F M1 S1)
+  | x : [g |- md-of pure F (md/in L[] M1) (sg/named L[] S1)]
+  ; split can-md-fst [g |- Dof] as
+    case can-md-fst/i:
+    { g : can-md-fst-ctx,
+      F : (g |- sttp),
+      L : ( |- name),
+      M1 : (g |- module'),
+      S1 : (g |- sg),
+      Dof : (g |- md-of pure F M1 S1),
+      C : (g |- con),
+      Dfst : (g |- md-fst M1 C)
+    | x : [g |- md-of pure F (md/in L[] M1) (sg/named L[] S1)]
+    ; solve [g |- can-md-fst/i _ (md-fst/in Dfst)]
+    }
+  }
+  case md-of/lam:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    S1 : (g |- sg),
+    M1 : (g, a64 : con, m2 : module' |- module'),
+    S2 : (g, a65 : con |- sg),
+    K : (g |- kind),
+    P : ( |- purity),
+    Dwf : (g |- sg-wf S1),
+    Dfst : (g |- sg-fst S1 K),
+    Dof :
+      (g, a : con, y624 : cn-of a (K[..]), m : module',
+       u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+       x624 : md-fst m a |- md-of P[] (F[..]) (M1[.., a, m]) (S2[.., a]))
+  | x :
+      [g |-
+         md-of pure F (md/lam S1 (\y509. \x509. M1)) (sg/pi S1 (\z484. S2))]
+  ; solve [g |- can-md-fst/i _ (md-fst/lam )]
+  }
+  case md-of/pi2:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    S2 : (g, a63 : con |- sg),
+    C : (g |- con),
+    S1 : (g |- sg),
+    Dof : (g |- md-of pure F M1 (sg/sigma S1 (\z485. S2))),
+    Dfst : (g |- md-fst M1 C)
+  | x : [g |- md-of pure F (md/pi2 M1) (S2[.., pi1 C])]
+  ; split can-md-fst [g |- Dof] as
+    case can-md-fst/i:
+    { g : can-md-fst-ctx,
+      F : (g |- sttp),
+      M1 : (g |- module'),
+      S2 : (g, a63 : con |- sg),
+      C : (g |- con),
+      S1 : (g |- sg),
+      Dof : (g |- md-of pure F M1 (sg/sigma S1 (\z485. S2))),
+      Dfst : (g |- md-fst M1 C),
+      C1 : (g |- con),
+      Dfst1 : (g |- md-fst M1 C1)
+    | x : [g |- md-of pure F (md/pi2 M1) (S2[.., pi1 C])]
+    ; solve [g |- can-md-fst/i _ (md-fst/pi2 Dfst)]
+    }
+  }
+  case md-of/pi1:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    S : (g |- sg),
+    S2 : (g, a62 : con |- sg),
+    Dof : (g |- md-of pure F M1 (sg/sigma S (\z485. S2)))
+  | x : [g |- md-of pure F (md/pi1 M1) S]
+  ; split can-md-fst [g |- Dof] as
+    case can-md-fst/i:
+    { g : can-md-fst-ctx,
+      F : (g |- sttp),
+      M1 : (g |- module'),
+      S : (g |- sg),
+      S2 : (g, a62 : con |- sg),
+      Dof : (g |- md-of pure F M1 (sg/sigma S (\z485. S2))),
+      C : (g |- con),
+      Dfst : (g |- md-fst M1 C)
+    | x : [g |- md-of pure F (md/pi1 M1) S]
+    ; solve [g |- can-md-fst/i _ (md-fst/pi1 Dfst)]
+    }
+  }
+  case md-of/dpair:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    M2 : (g, a60 : con, m1 : module' |- module'),
+    S1 : (g |- sg),
+    S2 : (g, a61 : con |- sg),
+    K : (g |- kind),
+    Dof : (g |- md-of pure F M1 S1),
+    Dfst : (g |- sg-fst S1 K),
+    Dof1 :
+      (g, a : con, x621 : cn-of a (K[..]), m : module',
+       u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+       z621 : md-fst m a |- md-of pure (F[..]) (M2[.., a, m]) (S2[.., a]))
+  | x :
+      [g |- md-of pure F (md/dpair M1 (\a. \m. M2)) (sg/sigma S1 (\z485. S2))]
+  ; split can-md-fst [g |- Dof] as
+    case can-md-fst/i:
+    { g : can-md-fst-ctx,
+      F : (g |- sttp),
+      M1 : (g |- module'),
+      M2 : (g, a60 : con, m1 : module' |- module'),
+      S1 : (g |- sg),
+      S2 : (g, a61 : con |- sg),
+      K : (g |- kind),
+      Dof : (g |- md-of pure F M1 S1),
+      Dfst : (g |- sg-fst S1 K),
+      Dof1 :
+        (g, a : con, x621 : cn-of a (K[..]), m : module',
+         u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+         z621 : md-fst m a |- md-of pure (F[..]) (M2[.., a, m]) (S2[.., a])),
+      C : (g |- con),
+      Dfst1 : (g |- md-fst M1 C)
+    | x :
+        [g |-
+           md-of pure F (md/dpair M1 (\a. \m. M2)) (sg/sigma S1 (\z485. S2))]
+    ; split
+      can-md-fst
+        [g,
+         b :
+           block (
+             a : con,
+             da : cn-of a (K[..]),
+             m : module',
+             u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+             dfst : md-fst m a) |- Dof1[.., b.1, b.2, b.3, b.4, b.5]] as
+      case can-md-fst/i:
+      { g : can-md-fst-ctx,
+        F : (g |- sttp),
+        M1 : (g |- module'),
+        M3 : (g, a : con, m : module' |- module'),
+        S1 : (g |- sg),
+        S2 : (g, a61 : con |- sg),
+        K : (g |- kind),
+        Dof : (g |- md-of pure F M1 S1),
+        Dfst : (g |- sg-fst S1 K),
+        Dof1 :
+          (g, a : con, x621 : cn-of a (K[..]), m : module',
+           u : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+           z621 : md-fst m a |- md-of pure (F[..]) (M3[.., a, m]) (S2[.., a])),
+        C : (g |- con),
+        Dfst1 : (g |- md-fst M1 C),
+        C1 : (g, a : con |- con),
+        Dfst2 :
+          (g, a : con, m : module', y8 : md-fst m a |-
+             md-fst (M3[.., a, m]) (C1[.., a]))
+      | x :
+          [g |-
+             md-of
+               pure F (md/dpair M1 (\a. \m. M3)) (sg/sigma S1 (\z485. S2))]
+      ; solve
+          [g |- can-md-fst/i _ (md-fst/dpair Dfst1 (\a. \m. \dfst. Dfst2))]
+      }
+    }
+  }
+  case md-of/pair:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    M2 : (g |- module'),
+    S1 : (g |- sg),
+    S2 : (g |- sg),
+    Dof : (g |- md-of pure F M1 S1),
+    Dof1 : (g |- md-of pure F M2 S2)
+  | x : [g |- md-of pure F (md/pair M1 M2) (sg/sigma S1 (\x. S2[..]))]
+  ; split can-md-fst [g |- Dof] as
+    case can-md-fst/i:
+    { g : can-md-fst-ctx,
+      F : (g |- sttp),
+      M1 : (g |- module'),
+      M2 : (g |- module'),
+      S1 : (g |- sg),
+      S2 : (g |- sg),
+      Dof : (g |- md-of pure F M1 S1),
+      Dof1 : (g |- md-of pure F M2 S2),
+      C : (g |- con),
+      Dfst : (g |- md-fst M1 C)
+    | x : [g |- md-of pure F (md/pair M1 M2) (sg/sigma S1 (\x. S2[..]))]
+    ; split can-md-fst [g |- Dof1] as
+      case can-md-fst/i:
+      { g : can-md-fst-ctx,
+        F : (g |- sttp),
+        M1 : (g |- module'),
+        M2 : (g |- module'),
+        S1 : (g |- sg),
+        S2 : (g |- sg),
+        Dof : (g |- md-of pure F M1 S1),
+        Dof1 : (g |- md-of pure F M2 S2),
+        C : (g |- con),
+        Dfst : (g |- md-fst M1 C),
+        C1 : (g |- con),
+        Dfst1 : (g |- md-fst M2 C1)
+      | x : [g |- md-of pure F (md/pair M1 M2) (sg/sigma S1 (\x. S2[..]))]
+      ; solve [g |- can-md-fst/i _ (md-fst/pair Dfst Dfst1)]
+      }
+    }
+  }
+  case md-of/datom:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    E : (g |- term),
+    C : (g |- con),
+    Dof : (g |- tm-of F E C)
+  | x : [g |- md-of pure F (md/datom E C) (sg/datom C)]
+  ; solve [g |- can-md-fst/i _ (md-fst/datom )]
+  }
+  case md-of/sgatom:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    S1 : (g |- sg),
+    Dwf : (g |- sg-wf S1)
+  | x : [g |- md-of pure F (md/sgatom S1) (sg/sgatom S1)]
+  ; solve [g |- can-md-fst/i _ (md-fst/sgatom )]
+  }
+  case md-of/satom:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    C : (g |- con),
+    K : (g |- kind),
+    Dof : (g |- cn-of C K)
+  | x : [g |- md-of pure F (md/satom C) (sg/satom K)]
+  ; solve [g |- can-md-fst/i _ (md-fst/satom )]
+  }
+  case md-of/unit:
+  { g : can-md-fst-ctx, F : (g |- sttp)
+  | x : [g |- md-of pure F md/unit sg/one]
+  ; solve [g |- can-md-fst/i _ md-fst/unit]
+  }
+  %{ FIXME: Uncaught exception: Not_found
+  case #.4:
+  { g : can-md-fst-ctx,
+    F : (g |- sttp),
+    K1133 : (g |- kind),
+    S : (g |- sg),
+    #fst :
+      #(g |-
+          block (
+            a : con,
+            da : cn-of a (K1133[..]),
+            m : module',
+            dm : {P' : purity}  {F' : sttp}  md-of P' F' m (S[..]),
+            dfst : md-fst m a)),
+    Dwf190 : (g |- kd-wf K1133),
+    Dwf60 : (g |- sg-wf S),
+    Dfst64 : (g |- sg-fst S K1133)
+  | x : [g |- md-of pure F #fst.3 S]
+  ; ?
+  }
+  }%
+}
+;
+
 schema tm-of-reg-ctx =
   % conbind
   some [K : kind]
