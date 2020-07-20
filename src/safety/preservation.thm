@@ -2,7 +2,9 @@
 
 LF extends : sttp -> sttp -> type =
 | extends/nil : extends F F
-| extends/cons : extends F1 F2 -> extends F1 (st/cons F2 _ _)
+| extends/cons :
+  extends F1 F2 ->
+    ({ L : location } { ET : entp } extends F1 (st/cons F2 L ET))
 ;
 --name extends Dextends extends.
 
@@ -5052,14 +5054,16 @@ as DequivRec1 unboxed;
              (tm/newtag C)
              (store/cons ST Dloc (entry/tag C)) (tm/tagloc Dloc)]
     ; by inversion-tag [ |- Dof1] as Dwf' unboxed;
-      by monotonicity-store [ |- Dstof] [ |- extends/cons (extends/nil )]
-      as Dstof' unboxed;
+      by monotonicity-store [ |- Dstof]
+     [ |- extends/cons (extends/nil ) Dloc (et/tag C)]
+as Dstof' unboxed;
       by [ |- tm-of/equiv (tm-of/tagloc (st-lookup/hit ) Dwf') Dequiv]
       as Dof' unboxed;
-      by [ |- extends/cons (extends/nil )] as Dextends' unboxed;
       by [ |- store-of/cons Dbound (entry-of/tag Dwf') Dstof']
       as Dstof'' unboxed;
-      solve [ |- preservation-tm/i _ Dof' Dstof'' Dextends']
+      solve
+        [ |-
+           preservation-tm/i _ Dof' Dstof'' (extends/cons (extends/nil ) _ _)]
     }
   }
   case step/assign-beta:
@@ -5397,7 +5401,21 @@ as DequivRec1 unboxed;
            step
              ST
              (tm/ref E1) (store/cons ST Dloc (entry/ref E1)) (tm/refloc Dloc)]
-    ; ? % TODO: Depends on `tm-of-reg`
+    ; by tm-of-reg [ |- Dof1] as Dwf unboxed;
+      by monotonicity-tm [ |- Dof1]
+           [ |- extends/cons (extends/nil ) Dloc (et/ref C1)]
+      as Dof'' unboxed;
+      by monotonicity-store [ |- Dstof]
+           [ |- extends/cons (extends/nil ) Dloc (et/ref C1)]
+      as Dstof' unboxed;
+      by [ |- tm-of/equiv (tm-of/refloc (st-lookup/hit ) Dwf) Dequiv]
+      as Dof''' unboxed;
+      by [ |- store-of/cons Dbound (entry-of/ref Dvalue Dof'') Dstof']
+      as Dstof'' unboxed;
+      solve
+        [ |-
+           preservation-tm/i _
+           Dof''' Dstof'' (extends/cons (extends/nil ) _ _)]
     }
   }
   case step/ref:
