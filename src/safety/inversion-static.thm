@@ -2432,3 +2432,220 @@ intros
   }
 }
 ;
+
+LF similar-sg-datom/e : sg -> type =
+| similar-sg-datom/i :
+  { T' : con }
+  sg-eq S (sg/datom T') ->
+    similar-sg-datom/e S
+;
+
+proof similar-sg-datom :
+  (g : conblock)
+  [g |- similar-sg (sg/datom T) S] ->
+    [g |- similar-sg-datom/e S] =
+/ total /
+intros
+{ g : conblock, T : (g |- con), S : (g |- sg)
+| x : [g |- similar-sg (sg/datom T) S]
+; split x as
+  case similar-sg/datom:
+  { g : conblock, T : (g |- con), C1 : (g |- con)
+  | x : [g |- similar-sg (sg/datom T) (sg/datom C1)]
+  ; solve [_ |- similar-sg-datom/i _ (sg-eq/i )]
+  }
+}
+;
+
+% Signature Inversion
+
+LF sg-equiv-datom-form'/e : sg -> type =
+| sg-equiv-datom-form'/i :
+  { T' : con }
+  sg-eq S (sg/datom T') ->
+    sg-equiv-datom-form'/e S
+;
+
+proof sg-equiv-datom-form' :
+  (g : conbind)
+  [g |- sg-equiv S (sg/datom T)] ->
+    [g |- sg-equiv-datom-form'/e S] =
+/ total /
+intros
+{ g : conbind, S : (g |- sg), T : (g |- con)
+| equiv : [g |- sg-equiv S (sg/datom T)]
+; by sg-equiv-similar equiv as Dsimilar unboxed;
+  by similar-sg-symm [_ |- Dsimilar] as Dsimilar' unboxed;
+  split similar-sg-datom [_ |- Dsimilar'] as
+  case similar-sg-datom/i:
+  { g : conbind,
+    S : (g |- sg),
+    T : (g |- con),
+    Dsimilar : (g |- similar-sg S (sg/datom T)),
+    Dsimilar' : (g |- similar-sg (sg/datom T) S),
+    C : (g |- con),
+    Deq : (g |- sg-eq S (sg/datom C))
+  | equiv : [g |- sg-equiv S (sg/datom T)]
+  ; solve [_ |- sg-equiv-datom-form'/i _ Deq]
+  }
+}
+;
+
+LF sg-sub-datom-form'/e : sg -> type =
+| sg-sub-datom-form'/i :
+  { T' : con }
+  sg-eq S (sg/datom T') ->
+    sg-sub-datom-form'/e S
+;
+
+proof sg-sub-datom-form' :
+  (g : conbind)
+  [g |- sg-sub S (sg/datom T)] ->
+    [g |- sg-sub-datom-form'/e S] =
+/ total /
+intros
+{ g : conbind, S : (g |- sg), T : (g |- con)
+| sub : [g |- sg-sub S (sg/datom T)]
+; by sg-sub-similar sub as Dsimilar unboxed;
+  by similar-sg-symm [_ |- Dsimilar] as Dsimilar' unboxed;
+  split similar-sg-datom [_ |- Dsimilar'] as
+  case similar-sg-datom/i:
+  { g : conbind,
+    S : (g |- sg),
+    T : (g |- con),
+    Dsimilar : (g |- similar-sg S (sg/datom T)),
+    Dsimilar' : (g |- similar-sg (sg/datom T) S),
+    C : (g |- con),
+    Deq : (g |- sg-eq S (sg/datom C))
+  | sub : [g |- sg-sub S (sg/datom T)]
+  ; solve [_ |- sg-sub-datom-form'/i _ Deq]
+  }
+}
+;
+
+proof injective-sg-datom :
+  (g : conbind)
+  [g |- sg-equiv (sg/datom T) (sg/datom T')] ->
+    [g |- cn-equiv T T' t] =
+/ total 1 /
+intros
+{ g : conbind, T : (g |- con), T' : (g |- con)
+| x : [g |- sg-equiv (sg/datom T) (sg/datom T')]
+; split x as
+  case sg-equiv/datom:
+  { g : conbind,
+    T : (g |- con),
+    T' : (g |- con),
+    Dequiv : (g |- cn-equiv T T' t)
+  | x : [g |- sg-equiv (sg/datom T) (sg/datom T')]
+  ; solve [_ |- Dequiv]
+  }
+  case sg-equiv/trans:
+  { g : conbind,
+    T : (g |- con),
+    T' : (g |- con),
+    S1 : (g |- sg),
+    Dequiv : (g |- sg-equiv (sg/datom T) S1),
+    Dequiv1 : (g |- sg-equiv S1 (sg/datom T'))
+  | x : [g |- sg-equiv (sg/datom T) (sg/datom T')]
+  ; split sg-equiv-datom-form' [g |- Dequiv1] as
+    case sg-equiv-datom-form'/i:
+    { g : conbind,
+      T : (g |- con),
+      T' : (g |- con),
+      S1 : (g |- sg),
+      Dequiv : (g |- sg-equiv (sg/datom T) S1),
+      Dequiv1 : (g |- sg-equiv S1 (sg/datom T')),
+      C : (g |- con),
+      Deq : (g |- sg-eq S1 (sg/datom C))
+    | x : [g |- sg-equiv (sg/datom T) (sg/datom T')]
+    ; split [g |- Deq] as
+      case sg-eq/i:
+      { g : conbind,
+        T : (g |- con),
+        T' : (g |- con),
+        C : (g |- con),
+        Dequiv : (g |- sg-equiv (sg/datom T) (sg/datom C)),
+        Dequiv1 : (g |- sg-equiv (sg/datom C) (sg/datom T'))
+      | x : [g |- sg-equiv (sg/datom T) (sg/datom T')]
+      ; by injective-sg-datom [g |- Dequiv] as Dequiv12' unboxed;
+        by injective-sg-datom [g |- Dequiv1] as Dequiv23' unboxed;
+        solve [g |- cn-equiv/trans Dequiv12' Dequiv23']
+      }
+    }
+  }
+  case sg-equiv/symm:
+  { g : conbind,
+    T : (g |- con),
+    T' : (g |- con),
+    Dequiv : (g |- sg-equiv (sg/datom T') (sg/datom T))
+  | x : [g |- sg-equiv (sg/datom T) (sg/datom T')]
+  ; by injective-sg-datom [_ |- Dequiv] as Dequiv' unboxed;
+    solve [_ |- cn-equiv/symm Dequiv']
+  }
+  case sg-equiv/refl:
+  { g : conbind, T' : (g |- con), Dwf : (g |- sg-wf (sg/datom T'))
+  | x : [g |- sg-equiv (sg/datom T') (sg/datom T')]
+  ; split [_ |- Dwf] as
+    case sg-wf/datom:
+    { g : conbind, T' : (g |- con), Dof : (g |- cn-of T' t)
+    | x : [g |- sg-equiv (sg/datom T') (sg/datom T')]
+    ; solve [_ |- cn-equiv/refl Dof]
+    }
+  }
+}
+;
+
+proof sg-sub-datom-invert :
+  (g : conbind)
+  [g |- sg-sub (sg/datom T) (sg/datom T')] ->
+    [g |- cn-equiv T T' t] =
+/ total 1 /
+intros
+{ g : conbind, T : (g |- con), T' : (g |- con)
+| x : [g |- sg-sub (sg/datom T) (sg/datom T')]
+; split x as
+  case sg-sub/trans:
+  { g : conbind,
+    T : (g |- con),
+    T' : (g |- con),
+    S1 : (g |- sg),
+    Dsub : (g |- sg-sub (sg/datom T) S1),
+    Dsub1 : (g |- sg-sub S1 (sg/datom T'))
+  | x : [g |- sg-sub (sg/datom T) (sg/datom T')]
+  ; split sg-sub-datom-form' [g |- Dsub1] as
+    case sg-sub-datom-form'/i:
+    { g : conbind,
+      T : (g |- con),
+      T' : (g |- con),
+      S1 : (g |- sg),
+      Dsub : (g |- sg-sub (sg/datom T) S1),
+      Dsub1 : (g |- sg-sub S1 (sg/datom T')),
+      C : (g |- con),
+      Deq : (g |- sg-eq S1 (sg/datom C))
+    | x : [g |- sg-sub (sg/datom T) (sg/datom T')]
+    ; split [g |- Deq] as
+      case sg-eq/i:
+      { g : conbind,
+        T : (g |- con),
+        T' : (g |- con),
+        C : (g |- con),
+        Dsub : (g |- sg-sub (sg/datom T) (sg/datom C)),
+        Dsub1 : (g |- sg-sub (sg/datom C) (sg/datom T'))
+      | x : [g |- sg-sub (sg/datom T) (sg/datom T')]
+      ; by sg-sub-datom-invert [g |- Dsub] as Dequiv12' unboxed;
+        by sg-sub-datom-invert [g |- Dsub1] as Dequiv23' unboxed;
+        solve [g |- cn-equiv/trans Dequiv12' Dequiv23']
+      }
+    }
+  }
+  case sg-sub/refl:
+  { g : conbind,
+    T : (g |- con),
+    T' : (g |- con),
+    Dequiv : (g |- sg-equiv (sg/datom T) (sg/datom T'))
+  | x : [g |- sg-sub (sg/datom T) (sg/datom T')]
+  ; solve injective-sg-datom [g |- Dequiv]
+  }
+}
+;
