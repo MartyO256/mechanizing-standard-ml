@@ -122,6 +122,7 @@ LF tidy : kind -> type =
 
 | tidy/one : tidy one
 ;
+--name tidy Dtidy tidy.
 
 % Purity
 
@@ -130,11 +131,13 @@ LF purity-join : purity -> purity -> purity -> type =
 | purity-join/impure1 : purity-join impure _ impure
 | purity-join/impure2 : purity-join _ impure impure
 ;
+--name purity-join Dpjoin pjoin.
 
 LF purity-sub : purity -> purity -> type =
 | purity-sub/refl : purity-sub P P
 | purity-sub/forget : purity-sub pure impure
 ;
+--name purity-sub Dpsub psub.
 
 proof purity-join-resp :
   [ |- purity-eq P1 P1'] ->
