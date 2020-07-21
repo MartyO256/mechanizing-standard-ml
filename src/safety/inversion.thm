@@ -1441,7 +1441,36 @@ proof inversion-md/satom :
 intros
 { P : ( |- purity), F : ( |- sttp), C : ( |- con), S : ( |- sg)
 | mof : [ |- md-of P F (md/satom C) S]
-; ?
+; by mof as Dof unboxed;
+  split md-ofp-complete [ |- Dof] as
+  case md-ofp-complete/i:
+  { P : ( |- purity),
+    F : ( |- sttp),
+    C : ( |- con),
+    S : ( |- sg),
+    Dof : ( |- md-of P F (md/satom C) S),
+    P2 : ( |- purity),
+    S2 : ( |- sg),
+    Dofp : ( |- md-ofp P2 F (md/satom C) S2),
+    Dsub : ( |- sg-sub S2 S),
+    Dpsub : ( |- purity-sub P2 P)
+  | mof : [ |- md-of P F (md/satom C) S]
+  ; split [ |- Dofp] as
+    case md-ofp/satom:
+    { P : ( |- purity),
+      F : ( |- sttp),
+      C : ( |- con),
+      S : ( |- sg),
+      Dof : ( |- md-of P F (md/satom C) S),
+      K : ( |- kind),
+      Dofp1 : ( |- cn-ofp C K),
+      Dsub : ( |- sg-sub (sg/satom K) S),
+      Dpsub : ( |- purity-sub pure P)
+    | mof : [ |- md-of P F (md/satom C) S]
+    ; by cn-ofp-sound [ |- Dofp1] as Dof' unboxed;
+      solve [ |- inversion-md/satom/i _ Dof' Dsub]
+    }
+  }
 }
 ;
 
@@ -1456,14 +1485,75 @@ proof inversion-md/datom :
   [ |- md-of P F (md/datom E T) S] ->
     [ |- inversion-md/datom/e F E T S] =
 / trust / % FIXME: See issue #4
-?
+intros
+{ P : ( |- purity),
+  F : ( |- sttp),
+  E : ( |- term),
+  T : ( |- con),
+  S : ( |- sg)
+| mof : [ |- md-of P F (md/datom E T) S]
+; by mof as Dof unboxed;
+  split md-ofp-complete [ |- Dof] as
+  case md-ofp-complete/i:
+  { P : ( |- purity),
+    F : ( |- sttp),
+    E : ( |- term),
+    T : ( |- con),
+    S : ( |- sg),
+    Dof : ( |- md-of P F (md/datom E T) S),
+    P2 : ( |- purity),
+    S2 : ( |- sg),
+    Dofp : ( |- md-ofp P2 F (md/datom E T) S2),
+    Dsub : ( |- sg-sub S2 S),
+    Dpsub : ( |- purity-sub P2 P)
+  | mof : [ |- md-of P F (md/datom E T) S]
+  ; split inversion-md/datom-invert [ |- Dofp] [ |- Dsub] as
+    case inversion-md/datom/i:
+    { P : ( |- purity),
+      F : ( |- sttp),
+      E : ( |- term),
+      T : ( |- con),
+      S : ( |- sg),
+      Dof : ( |- md-of P F (md/datom E T) S),
+      P' : ( |- purity),
+      S' : ( |- sg),
+      Dofp : ( |- md-ofp P' F (md/datom E T) S'),
+      Dsub : ( |- sg-sub S' S),
+      Dpsub : ( |- purity-sub P' P),
+      Dof1 : ( |- tm-of F E T),
+      Dsub1 : ( |- sg-sub (sg/datom T) S)
+    | mof : [ |- md-of P F (md/datom E T) S]
+    ; solve [ |- inversion-md/datom/i Dof1 Dsub1]
+    }
+  }
+}
 
 and proof inversion-md/datom-invert :
   [ |- md-ofp P F (md/datom E T) S'] ->
   [ |- sg-sub S' S] ->
     [ |- inversion-md/datom/e F E T S] =
 / trust / % FIXME: See issue #4
-?
+intros
+{ P : ( |- purity),
+  F : ( |- sttp),
+  E : ( |- term),
+  T : ( |- con),
+  S' : ( |- sg),
+  S : ( |- sg)
+| ofp : [ |- md-ofp P F (md/datom E T) S'], sub : [ |- sg-sub S' S]
+; split ofp as
+  case md-ofp/datom:
+  { F : ( |- sttp),
+    E : ( |- term),
+    T : ( |- con),
+    S : ( |- sg),
+    Dof : ( |- tm-of F E T)
+  | ofp : [ |- md-ofp pure F (md/datom E T) (sg/datom T)],
+    sub : [ |- sg-sub (sg/datom T) S]
+  ; by sub as Dsub unboxed;
+    solve [ |- inversion-md/datom/i Dof Dsub]
+  }
+}
 ;
 
 LF inversion-md/pair/e : purity -> sttp -> module' -> module' -> sg -> type =
