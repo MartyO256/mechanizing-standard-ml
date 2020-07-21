@@ -790,3 +790,716 @@ intros
   }
 }
 ;
+
+LF skof-il-fun/e : kind -> kind -> (con -> kind) -> (con -> kind) -> type =
+| skof-il-fun/i :
+  kind-eq A A' ->
+  ({ x : con } kind-eq (B x) (B' x)) ->
+    skof-il-fun/e A A' B B'
+;
+
+proof skof-il-fun :
+  (g : conblock)
+  [g |- skof-il K A (\x. B)] ->
+  [g |- skof-il K A' (\x. B')] ->
+    [g |- skof-il-fun/e A A' (\x. B) (\x. B')] =
+/ total 1 /
+intros
+{ g : conblock,
+  K : (g |- skel),
+  A : (g |- kind),
+  B : (g, x1003 : con |- kind),
+  A' : (g |- kind),
+  B' : (g, x1003 : con |- kind)
+| x : [g |- skof-il K A (\x. B)], x1 : [g |- skof-il K A' (\x. B')]
+; split x as
+  case skof-il/one:
+  { g : conblock, A' : (g |- kind), B' : (g, x1003 : con |- kind)
+  | x : [g |- skof-il kone one (\x. one)],
+    x1 : [g |- skof-il kone A' (\x. B')]
+  ; split x1 as
+    case skof-il/one:
+    { g : conblock
+    | x : [g |- skof-il kone one (\x. one)],
+      x1 : [g |- skof-il kone one (\x. one)]
+    ; solve [_ |- skof-il-fun/i (kind-eq/i ) (\x. kind-eq/i )]
+    }
+  }
+  case skof-il/sing:
+  { g : conblock, A' : (g |- kind), B' : (g, x1003 : con |- kind)
+  | x : [g |- skof-il ksing t (\x. sing x)],
+    x1 : [g |- skof-il ksing A' (\x. B')]
+  ; split x1 as
+    case skof-il/sing:
+    { g : conblock
+    | x : [g |- skof-il ksing t (\x. sing x)],
+      x1 : [g |- skof-il ksing t (\x. sing x)]
+    ; solve [_ |- skof-il-fun/i (kind-eq/i ) (\x. kind-eq/i )]
+    }
+  }
+  case skof-il/sigma:
+  { g : conblock,
+    Dskel : ( |- skel),
+    Dskel1 : ( |- skel),
+    K1 : (g |- kind),
+    K2 : (g, a119 : con |- kind),
+    K3 : (g |- kind),
+    K4 : (g, a120 : con |- kind),
+    C : (g, a122 : con, a121 : con |- con),
+    A' : (g |- kind),
+    B' : (g, x1003 : con |- kind),
+    Dskof-il : (g |- skof-il Dskel[] K1 (\y. K2)),
+    Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+    Dexpand-il : (g, y : con, x : con |- expand-il x (K2[.., y]) C)
+  | x :
+      [g |-
+         skof-il
+           (ksigma Dskel[] Dskel1[])
+           (sigma K1 (\y. pi K2 (\l. K3[..])))
+           (\x.
+              sigma (K2[.., pi1 x])
+              (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))],
+    x1 : [g |- skof-il (ksigma Dskel[] Dskel1[]) A' (\x. B')]
+  ; split x1 as
+    case skof-il/sigma:
+    { g : conblock,
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      K1 : (g |- kind),
+      K2 : (g, a119 : con |- kind),
+      K3 : (g |- kind),
+      K4 : (g, a120 : con |- kind),
+      C : (g, a122 : con, a121 : con |- con),
+      K5 : (g |- kind),
+      K6 : (g, a119 : con |- kind),
+      K7 : (g |- kind),
+      K8 : (g, a120 : con |- kind),
+      C1 : (g, a122 : con, a121 : con |- con),
+      Dskof-il : (g |- skof-il Dskel[] K1 (\y. K2)),
+      Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+      Dexpand-il : (g, y : con, x : con |- expand-il x (K2[.., y]) C),
+      Dskof-il2 : (g |- skof-il Dskel[] K5 (\y. K6)),
+      Dskof-il3 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+      Dexpand-il1 : (g, y : con, x : con |- expand-il x (K6[.., y]) C1)
+    | x :
+        [g |-
+           skof-il
+             (ksigma Dskel[] Dskel1[])
+             (sigma K1 (\y. pi K2 (\l. K3[..])))
+             (\x.
+                sigma (K2[.., pi1 x])
+                (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))],
+      x1 :
+        [g |-
+           skof-il
+             (ksigma Dskel[] Dskel1[])
+             (sigma K5 (\y. pi K6 (\l. K7[..])))
+             (\x.
+                sigma (K6[.., pi1 x])
+                (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))]
+    ; split skof-il-fun [_ |- Dskof-il] [_ |- Dskof-il2] as
+      case skof-il-fun/i:
+      { g : conblock,
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        K1 : (g |- kind),
+        K2 : (g, a119 : con |- kind),
+        K3 : (g |- kind),
+        K4 : (g, a120 : con |- kind),
+        C : (g, a122 : con, a121 : con |- con),
+        K5 : (g |- kind),
+        K6 : (g, a119 : con |- kind),
+        K7 : (g |- kind),
+        K8 : (g, a120 : con |- kind),
+        C1 : (g, a122 : con, a121 : con |- con),
+        Dskof-il : (g |- skof-il Dskel[] K1 (\y. K2)),
+        Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+        Dexpand-il : (g, y : con, x : con |- expand-il x (K2[.., y]) C),
+        Dskof-il2 : (g |- skof-il Dskel[] K5 (\y. K6)),
+        Dskof-il3 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+        Dexpand-il1 : (g, y : con, x : con |- expand-il x (K6[.., y]) C1),
+        Deq : (g |- kind-eq K1 K5),
+        Deq1 : (g, x : con |- kind-eq K2 K6)
+      | x :
+          [g |-
+             skof-il
+               (ksigma Dskel[] Dskel1[])
+               (sigma K1 (\y. pi K2 (\l. K3[..])))
+               (\x.
+                  sigma (K2[.., pi1 x])
+                  (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))],
+        x1 :
+          [g |-
+             skof-il
+               (ksigma Dskel[] Dskel1[])
+               (sigma K5 (\y. pi K6 (\l. K7[..])))
+               (\x.
+                  sigma (K6[.., pi1 x])
+                  (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))]
+      ; split [_ |- Deq] as
+        case kind-eq/i:
+        { g : conblock,
+          Dskel : ( |- skel),
+          Dskel1 : ( |- skel),
+          K5 : (g |- kind),
+          K2 : (g, a119 : con |- kind),
+          K3 : (g |- kind),
+          K4 : (g, a120 : con |- kind),
+          C : (g, a122 : con, a121 : con |- con),
+          K6 : (g, a119 : con |- kind),
+          K7 : (g |- kind),
+          K8 : (g, a120 : con |- kind),
+          C1 : (g, a122 : con, a121 : con |- con),
+          Dskof-il : (g |- skof-il Dskel[] K5 (\y. K2)),
+          Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+          Dexpand-il : (g, y : con, x : con |- expand-il x (K2[.., y]) C),
+          Dskof-il2 : (g |- skof-il Dskel[] K5 (\y. K6)),
+          Dskof-il3 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+          Dexpand-il1 : (g, y : con, x : con |- expand-il x (K6[.., y]) C1),
+          Deq1 : (g, x : con |- kind-eq K2 K6)
+        | x :
+            [g |-
+               skof-il
+                 (ksigma Dskel[] Dskel1[])
+                 (sigma K5 (\y. pi K2 (\l. K3[..])))
+                 (\x.
+                    sigma (K2[.., pi1 x])
+                    (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))],
+          x1 :
+            [g |-
+               skof-il
+                 (ksigma Dskel[] Dskel1[])
+                 (sigma K5 (\y. pi K6 (\l. K7[..])))
+                 (\x.
+                    sigma (K6[.., pi1 x])
+                    (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))]
+        ; split [_, x : con |- Deq1] as
+          case kind-eq/i:
+          { g : conblock,
+            Dskel : ( |- skel),
+            Dskel1 : ( |- skel),
+            K5 : (g |- kind),
+            K6 : (g, a119 : con |- kind),
+            K3 : (g |- kind),
+            K4 : (g, a120 : con |- kind),
+            C : (g, a122 : con, a121 : con |- con),
+            K7 : (g |- kind),
+            K8 : (g, a120 : con |- kind),
+            C1 : (g, a122 : con, a121 : con |- con),
+            Dskof-il : (g |- skof-il Dskel[] K5 (\y. K6)),
+            Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+            Dexpand-il : (g, y : con, x : con |- expand-il x (K6[.., y]) C),
+            Dskof-il2 : (g |- skof-il Dskel[] K5 (\y. K6)),
+            Dskof-il3 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+            Dexpand-il1 : (g, y : con, x : con |- expand-il x (K6[.., y]) C1)
+          | x :
+              [g |-
+                 skof-il
+                   (ksigma Dskel[] Dskel1[])
+                   (sigma K5 (\y. pi K6 (\l. K3[..])))
+                   (\x.
+                      sigma (K6[.., pi1 x])
+                      (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))],
+            x1 :
+              [g |-
+                 skof-il
+                   (ksigma Dskel[] Dskel1[])
+                   (sigma K5 (\y. pi K6 (\l. K7[..])))
+                   (\x.
+                      sigma (K6[.., pi1 x])
+                      (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))]
+          ; split skof-il-fun [_ |- Dskof-il1] [_ |- Dskof-il3] as
+            case skof-il-fun/i:
+            { g : conblock,
+              Dskel : ( |- skel),
+              Dskel1 : ( |- skel),
+              K5 : (g |- kind),
+              K6 : (g, a119 : con |- kind),
+              K3 : (g |- kind),
+              K4 : (g, a120 : con |- kind),
+              C : (g, a122 : con, a121 : con |- con),
+              K7 : (g |- kind),
+              K8 : (g, a120 : con |- kind),
+              C1 : (g, a122 : con, a121 : con |- con),
+              Dskof-il : (g |- skof-il Dskel[] K5 (\y. K6)),
+              Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+              Dexpand-il : (g, y : con, x : con |- expand-il x (K6[.., y]) C),
+              Dskof-il2 : (g |- skof-il Dskel[] K5 (\y. K6)),
+              Dskof-il3 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+              Dexpand-il1 :
+                (g, y : con, x : con |- expand-il x (K6[.., y]) C1),
+              Deq : (g |- kind-eq K3 K7),
+              Deq1 : (g, x : con |- kind-eq K4 K8)
+            | x :
+                [g |-
+                   skof-il
+                     (ksigma Dskel[] Dskel1[])
+                     (sigma K5 (\y. pi K6 (\l. K3[..])))
+                     (\x.
+                        sigma (K6[.., pi1 x])
+                        (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))],
+              x1 :
+                [g |-
+                   skof-il
+                     (ksigma Dskel[] Dskel1[])
+                     (sigma K5 (\y. pi K6 (\l. K7[..])))
+                     (\x.
+                        sigma (K6[.., pi1 x])
+                        (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))]
+            ; split [_ |- Deq] as
+              case kind-eq/i:
+              { g : conblock,
+                Dskel : ( |- skel),
+                Dskel1 : ( |- skel),
+                K5 : (g |- kind),
+                K6 : (g, a119 : con |- kind),
+                K7 : (g |- kind),
+                K4 : (g, a120 : con |- kind),
+                C : (g, a122 : con, a121 : con |- con),
+                K8 : (g, a120 : con |- kind),
+                C1 : (g, a122 : con, a121 : con |- con),
+                Dskof-il : (g |- skof-il Dskel[] K5 (\y. K6)),
+                Dskof-il1 : (g |- skof-il Dskel1[] K7 (\z. K4)),
+                Dexpand-il :
+                  (g, y : con, x : con |- expand-il x (K6[.., y]) C),
+                Dskof-il2 : (g |- skof-il Dskel[] K5 (\y. K6)),
+                Dskof-il3 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+                Dexpand-il1 :
+                  (g, y : con, x : con |- expand-il x (K6[.., y]) C1),
+                Deq1 : (g, x : con |- kind-eq K4 K8)
+              | x :
+                  [g |-
+                     skof-il
+                       (ksigma Dskel[] Dskel1[])
+                       (sigma K5 (\y. pi K6 (\l. K7[..])))
+                       (\x.
+                          sigma (K6[.., pi1 x])
+                          (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))],
+                x1 :
+                  [g |-
+                     skof-il
+                       (ksigma Dskel[] Dskel1[])
+                       (sigma K5 (\y. pi K6 (\l. K7[..])))
+                       (\x.
+                          sigma (K6[.., pi1 x])
+                          (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))]
+              ; split [_, x : con |- Deq1] as
+                case kind-eq/i:
+                { g : conblock,
+                  Dskel : ( |- skel),
+                  Dskel1 : ( |- skel),
+                  K5 : (g |- kind),
+                  K6 : (g, a119 : con |- kind),
+                  K7 : (g |- kind),
+                  K8 : (g, a120 : con |- kind),
+                  C : (g, a122 : con, a121 : con |- con),
+                  C1 : (g, a122 : con, a121 : con |- con),
+                  Dskof-il : (g |- skof-il Dskel[] K5 (\y. K6)),
+                  Dskof-il1 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+                  Dexpand-il :
+                    (g, y : con, x : con |- expand-il x (K6[.., y]) C),
+                  Dskof-il2 : (g |- skof-il Dskel[] K5 (\y. K6)),
+                  Dskof-il3 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+                  Dexpand-il1 :
+                    (g, y : con, x : con |- expand-il x (K6[.., y]) C1)
+                | x :
+                    [g |-
+                       skof-il
+                         (ksigma Dskel[] Dskel1[])
+                         (sigma K5 (\y. pi K6 (\l. K7[..])))
+                         (\x.
+                            sigma (K6[.., pi1 x])
+                            (\x1. K8[.., app (pi2 x) (C[.., pi1 x, x1])]))],
+                  x1 :
+                    [g |-
+                       skof-il
+                         (ksigma Dskel[] Dskel1[])
+                         (sigma K5 (\y. pi K6 (\l. K7[..])))
+                         (\x.
+                            sigma (K6[.., pi1 x])
+                            (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))]
+                ; split
+                  expand-il-fun [_, y : con, x : con |- Dexpand-il]
+                    [_, y : con, x : con |- Dexpand-il1] as
+                  case con-eq/i:
+                  { g : conblock,
+                    Dskel : ( |- skel),
+                    Dskel1 : ( |- skel),
+                    K5 : (g |- kind),
+                    K6 : (g, a119 : con |- kind),
+                    K7 : (g |- kind),
+                    K8 : (g, a120 : con |- kind),
+                    C1 : (g, a122 : con, a121 : con |- con),
+                    Dskof-il : (g |- skof-il Dskel[] K5 (\y. K6)),
+                    Dskof-il1 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+                    Dexpand-il :
+                      (g, y : con, x : con |- expand-il x (K6[.., y]) C1),
+                    Dskof-il2 : (g |- skof-il Dskel[] K5 (\y. K6)),
+                    Dskof-il3 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+                    Dexpand-il1 :
+                      (g, y : con, x : con |- expand-il x (K6[.., y]) C1)
+                  | x :
+                      [g |-
+                         skof-il
+                           (ksigma Dskel[] Dskel1[])
+                           (sigma K5 (\y. pi K6 (\l. K7[..])))
+                           (\x.
+                              sigma (K6[.., pi1 x])
+                              (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))],
+                    x1 :
+                      [g |-
+                         skof-il
+                           (ksigma Dskel[] Dskel1[])
+                           (sigma K5 (\y. pi K6 (\l. K7[..])))
+                           (\x.
+                              sigma (K6[.., pi1 x])
+                              (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))]
+                  ; solve [_ |- skof-il-fun/i (kind-eq/i ) (\x. kind-eq/i )]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  case skof-il/pi:
+  { g : conblock,
+    Dskel : ( |- skel),
+    Dskel1 : ( |- skel),
+    K1 : (g |- kind),
+    K2 : (g, a115 : con |- kind),
+    K3 : (g |- kind),
+    K4 : (g, a116 : con |- kind),
+    C : (g, a118 : con, a117 : con |- con),
+    A' : (g |- kind),
+    B' : (g, x1003 : con |- kind),
+    Dskof-il : (g |- skof-il Dskel[] K1 (\y. K2)),
+    Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+    Dexpand-il : (g, y : con, x : con |- expand-il x (K2[.., y]) C)
+  | x :
+      [g |-
+         skof-il
+           (kpi Dskel[] Dskel1[])
+           (sigma K1 (\y. pi K2 (\l. K3[..])))
+           (\x.
+              pi (K2[.., pi1 x])
+              (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))],
+    x1 : [g |- skof-il (kpi Dskel[] Dskel1[]) A' (\x. B')]
+  ; split x1 as
+    case skof-il/pi:
+    { g : conblock,
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      K1 : (g |- kind),
+      K2 : (g, a115 : con |- kind),
+      K3 : (g |- kind),
+      K4 : (g, a116 : con |- kind),
+      C : (g, a118 : con, a117 : con |- con),
+      K5 : (g |- kind),
+      K6 : (g, a115 : con |- kind),
+      K7 : (g |- kind),
+      K8 : (g, a116 : con |- kind),
+      C1 : (g, a118 : con, a117 : con |- con),
+      Dskof-il : (g |- skof-il Dskel[] K1 (\y. K2)),
+      Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+      Dexpand-il : (g, y : con, x : con |- expand-il x (K2[.., y]) C),
+      Dskof-il2 : (g |- skof-il Dskel[] K5 (\y. K6)),
+      Dskof-il3 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+      Dexpand-il1 : (g, y : con, x : con |- expand-il x (K6[.., y]) C1)
+    | x :
+        [g |-
+           skof-il
+             (kpi Dskel[] Dskel1[])
+             (sigma K1 (\y. pi K2 (\l. K3[..])))
+             (\x.
+                pi (K2[.., pi1 x])
+                (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))],
+      x1 :
+        [g |-
+           skof-il
+             (kpi Dskel[] Dskel1[])
+             (sigma K5 (\y. pi K6 (\l. K7[..])))
+             (\x.
+                pi (K6[.., pi1 x])
+                (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))]
+    ; split skof-il-fun [_ |- Dskof-il] [_ |- Dskof-il2] as
+      case skof-il-fun/i:
+      { g : conblock,
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        K1 : (g |- kind),
+        K2 : (g, a115 : con |- kind),
+        K3 : (g |- kind),
+        K4 : (g, a116 : con |- kind),
+        C : (g, a118 : con, a117 : con |- con),
+        K5 : (g |- kind),
+        K6 : (g, a115 : con |- kind),
+        K7 : (g |- kind),
+        K8 : (g, a116 : con |- kind),
+        C1 : (g, a118 : con, a117 : con |- con),
+        Dskof-il : (g |- skof-il Dskel[] K1 (\y. K2)),
+        Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+        Dexpand-il : (g, y : con, x : con |- expand-il x (K2[.., y]) C),
+        Dskof-il2 : (g |- skof-il Dskel[] K5 (\y. K6)),
+        Dskof-il3 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+        Dexpand-il1 : (g, y : con, x : con |- expand-il x (K6[.., y]) C1),
+        Deq : (g |- kind-eq K1 K5),
+        Deq1 : (g, x : con |- kind-eq K2 K6)
+      | x :
+          [g |-
+             skof-il
+               (kpi Dskel[] Dskel1[])
+               (sigma K1 (\y. pi K2 (\l. K3[..])))
+               (\x.
+                  pi (K2[.., pi1 x])
+                  (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))],
+        x1 :
+          [g |-
+             skof-il
+               (kpi Dskel[] Dskel1[])
+               (sigma K5 (\y. pi K6 (\l. K7[..])))
+               (\x.
+                  pi (K6[.., pi1 x])
+                  (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))]
+      ; split [_ |- Deq] as
+        case kind-eq/i:
+        { g : conblock,
+          Dskel : ( |- skel),
+          Dskel1 : ( |- skel),
+          K5 : (g |- kind),
+          K2 : (g, a115 : con |- kind),
+          K3 : (g |- kind),
+          K4 : (g, a116 : con |- kind),
+          C : (g, a118 : con, a117 : con |- con),
+          K6 : (g, a115 : con |- kind),
+          K7 : (g |- kind),
+          K8 : (g, a116 : con |- kind),
+          C1 : (g, a118 : con, a117 : con |- con),
+          Dskof-il : (g |- skof-il Dskel[] K5 (\y. K2)),
+          Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+          Dexpand-il : (g, y : con, x : con |- expand-il x (K2[.., y]) C),
+          Dskof-il2 : (g |- skof-il Dskel[] K5 (\y. K6)),
+          Dskof-il3 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+          Dexpand-il1 : (g, y : con, x : con |- expand-il x (K6[.., y]) C1),
+          Deq1 : (g, x : con |- kind-eq K2 K6)
+        | x :
+            [g |-
+               skof-il
+                 (kpi Dskel[] Dskel1[])
+                 (sigma K5 (\y. pi K2 (\l. K3[..])))
+                 (\x.
+                    pi (K2[.., pi1 x])
+                    (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))],
+          x1 :
+            [g |-
+               skof-il
+                 (kpi Dskel[] Dskel1[])
+                 (sigma K5 (\y. pi K6 (\l. K7[..])))
+                 (\x.
+                    pi (K6[.., pi1 x])
+                    (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))]
+        ; split [_, x : con |- Deq1] as
+          case kind-eq/i:
+          { g : conblock,
+            Dskel : ( |- skel),
+            Dskel1 : ( |- skel),
+            K5 : (g |- kind),
+            K6 : (g, a115 : con |- kind),
+            K3 : (g |- kind),
+            K4 : (g, a116 : con |- kind),
+            C : (g, a118 : con, a117 : con |- con),
+            K7 : (g |- kind),
+            K8 : (g, a116 : con |- kind),
+            C1 : (g, a118 : con, a117 : con |- con),
+            Dskof-il : (g |- skof-il Dskel[] K5 (\y. K6)),
+            Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+            Dexpand-il : (g, y : con, x : con |- expand-il x (K6[.., y]) C),
+            Dskof-il2 : (g |- skof-il Dskel[] K5 (\y. K6)),
+            Dskof-il3 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+            Dexpand-il1 : (g, y : con, x : con |- expand-il x (K6[.., y]) C1)
+          | x :
+              [g |-
+                 skof-il
+                   (kpi Dskel[] Dskel1[])
+                   (sigma K5 (\y. pi K6 (\l. K3[..])))
+                   (\x.
+                      pi (K6[.., pi1 x])
+                      (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))],
+            x1 :
+              [g |-
+                 skof-il
+                   (kpi Dskel[] Dskel1[])
+                   (sigma K5 (\y. pi K6 (\l. K7[..])))
+                   (\x.
+                      pi (K6[.., pi1 x])
+                      (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))]
+          ; split skof-il-fun [_ |- Dskof-il1] [_ |- Dskof-il3] as
+            case skof-il-fun/i:
+            { g : conblock,
+              Dskel : ( |- skel),
+              Dskel1 : ( |- skel),
+              K5 : (g |- kind),
+              K6 : (g, a115 : con |- kind),
+              K3 : (g |- kind),
+              K4 : (g, a116 : con |- kind),
+              C : (g, a118 : con, a117 : con |- con),
+              K7 : (g |- kind),
+              K8 : (g, a116 : con |- kind),
+              C1 : (g, a118 : con, a117 : con |- con),
+              Dskof-il : (g |- skof-il Dskel[] K5 (\y. K6)),
+              Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+              Dexpand-il : (g, y : con, x : con |- expand-il x (K6[.., y]) C),
+              Dskof-il2 : (g |- skof-il Dskel[] K5 (\y. K6)),
+              Dskof-il3 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+              Dexpand-il1 :
+                (g, y : con, x : con |- expand-il x (K6[.., y]) C1),
+              Deq : (g |- kind-eq K3 K7),
+              Deq1 : (g, x : con |- kind-eq K4 K8)
+            | x :
+                [g |-
+                   skof-il
+                     (kpi Dskel[] Dskel1[])
+                     (sigma K5 (\y. pi K6 (\l. K3[..])))
+                     (\x.
+                        pi (K6[.., pi1 x])
+                        (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))],
+              x1 :
+                [g |-
+                   skof-il
+                     (kpi Dskel[] Dskel1[])
+                     (sigma K5 (\y. pi K6 (\l. K7[..])))
+                     (\x.
+                        pi (K6[.., pi1 x])
+                        (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))]
+            ; split [_ |- Deq] as
+              case kind-eq/i:
+              { g : conblock,
+                Dskel : ( |- skel),
+                Dskel1 : ( |- skel),
+                K5 : (g |- kind),
+                K6 : (g, a115 : con |- kind),
+                K7 : (g |- kind),
+                K4 : (g, a116 : con |- kind),
+                C : (g, a118 : con, a117 : con |- con),
+                K8 : (g, a116 : con |- kind),
+                C1 : (g, a118 : con, a117 : con |- con),
+                Dskof-il : (g |- skof-il Dskel[] K5 (\y. K6)),
+                Dskof-il1 : (g |- skof-il Dskel1[] K7 (\z. K4)),
+                Dexpand-il :
+                  (g, y : con, x : con |- expand-il x (K6[.., y]) C),
+                Dskof-il2 : (g |- skof-il Dskel[] K5 (\y. K6)),
+                Dskof-il3 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+                Dexpand-il1 :
+                  (g, y : con, x : con |- expand-il x (K6[.., y]) C1),
+                Deq1 : (g, x : con |- kind-eq K4 K8)
+              | x :
+                  [g |-
+                     skof-il
+                       (kpi Dskel[] Dskel1[])
+                       (sigma K5 (\y. pi K6 (\l. K7[..])))
+                       (\x.
+                          pi (K6[.., pi1 x])
+                          (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))],
+                x1 :
+                  [g |-
+                     skof-il
+                       (kpi Dskel[] Dskel1[])
+                       (sigma K5 (\y. pi K6 (\l. K7[..])))
+                       (\x.
+                          pi (K6[.., pi1 x])
+                          (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))]
+              ; split [_, x : con |- Deq1] as
+                case kind-eq/i:
+                { g : conblock,
+                  Dskel : ( |- skel),
+                  Dskel1 : ( |- skel),
+                  K5 : (g |- kind),
+                  K6 : (g, a115 : con |- kind),
+                  K7 : (g |- kind),
+                  K8 : (g, a116 : con |- kind),
+                  C : (g, a118 : con, a117 : con |- con),
+                  C1 : (g, a118 : con, a117 : con |- con),
+                  Dskof-il : (g |- skof-il Dskel[] K5 (\y. K6)),
+                  Dskof-il1 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+                  Dexpand-il :
+                    (g, y : con, x : con |- expand-il x (K6[.., y]) C),
+                  Dskof-il2 : (g |- skof-il Dskel[] K5 (\y. K6)),
+                  Dskof-il3 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+                  Dexpand-il1 :
+                    (g, y : con, x : con |- expand-il x (K6[.., y]) C1)
+                | x :
+                    [g |-
+                       skof-il
+                         (kpi Dskel[] Dskel1[])
+                         (sigma K5 (\y. pi K6 (\l. K7[..])))
+                         (\x.
+                            pi (K6[.., pi1 x])
+                            (\x1. K8[.., app (pi2 x) (C[.., pi1 x, x1])]))],
+                  x1 :
+                    [g |-
+                       skof-il
+                         (kpi Dskel[] Dskel1[])
+                         (sigma K5 (\y. pi K6 (\l. K7[..])))
+                         (\x.
+                            pi (K6[.., pi1 x])
+                            (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))]
+                ; split
+                  expand-il-fun [_, y : con, x : con |- Dexpand-il]
+                    [_, y : con, x : con |- Dexpand-il1] as
+                  case con-eq/i:
+                  { g : conblock,
+                    Dskel : ( |- skel),
+                    Dskel1 : ( |- skel),
+                    K5 : (g |- kind),
+                    K6 : (g, a115 : con |- kind),
+                    K7 : (g |- kind),
+                    K8 : (g, a116 : con |- kind),
+                    C1 : (g, a118 : con, a117 : con |- con),
+                    Dskof-il : (g |- skof-il Dskel[] K5 (\y. K6)),
+                    Dskof-il1 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+                    Dexpand-il :
+                      (g, y : con, x : con |- expand-il x (K6[.., y]) C1),
+                    Dskof-il2 : (g |- skof-il Dskel[] K5 (\y. K6)),
+                    Dskof-il3 : (g |- skof-il Dskel1[] K7 (\z. K8)),
+                    Dexpand-il1 :
+                      (g, y : con, x : con |- expand-il x (K6[.., y]) C1)
+                  | x :
+                      [g |-
+                         skof-il
+                           (kpi Dskel[] Dskel1[])
+                           (sigma K5 (\y. pi K6 (\l. K7[..])))
+                           (\x.
+                              pi (K6[.., pi1 x])
+                              (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))],
+                    x1 :
+                      [g |-
+                         skof-il
+                           (kpi Dskel[] Dskel1[])
+                           (sigma K5 (\y. pi K6 (\l. K7[..])))
+                           (\x.
+                              pi (K6[.., pi1 x])
+                              (\x1. K8[.., app (pi2 x) (C1[.., pi1 x, x1])]))]
+                  ; solve [_ |- skof-il-fun/i (kind-eq/i ) (\x. kind-eq/i )]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  case skof-il/t:
+  { g : conblock, A' : (g |- kind), B' : (g, x1003 : con |- kind)
+  | x : [g |- skof-il kt one (\x. t)], x1 : [g |- skof-il kt A' (\x. B')]
+  ; split x1 as
+    case skof-il/t:
+    { g : conblock
+    | x : [g |- skof-il kt one (\x. t)], x1 : [g |- skof-il kt one (\x. t)]
+    ; solve [_ |- skof-il-fun/i (kind-eq/i ) (\x. kind-eq/i )]
+    }
+  }
+}
+;
