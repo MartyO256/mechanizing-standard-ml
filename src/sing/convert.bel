@@ -1,5 +1,5 @@
 LF tconvert : tp -> etp -> type =
-tconvert/t : tconvert t et
+| tconvert/t : tconvert t et
 
 | tconvert/pi :
   tconvert A EA ->

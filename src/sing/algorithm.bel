@@ -2,3 +2,91 @@
 
 % TODO: Investigate why this LF declaration is empty
 LF variable : eterm -> type =;
+
+% Beta Normalization
+
+LF oa : eterm -> type = % outermost atomic
+| oa/const: oa (econst C)
+
+| oa/app: oa (eapp M N)
+
+| oa/pi1: oa (epi1 M)
+
+| oa/pi2: oa (epi2 M)
+;
+
+LF reduce : eterm -> eterm -> type =
+| reduce/const : reduce (econst C) (econst C)
+
+| reduce/pi1 :
+  reduce M M' ->
+  reduce-pi1 M' N ->
+    reduce (epi1 M) N
+
+| reduce/pi2 :
+  reduce M M' ->
+  reduce-pi2 M' N ->
+    reduce (epi2 M) N
+
+| reduce/pair :
+  reduce M M' ->
+  reduce N N' ->
+    reduce (epair M N) (epair M' N')
+
+| reduce/lam :
+  treduce A A' ->
+  ({ x : eterm } reduce (M x) (M' x)) ->
+    reduce (elam A M) (elam A' M')
+
+| reduce/app :
+  reduce M M' ->
+  reduce N N' ->
+  reduce-app M' N' O ->
+    reduce (eapp M N) O
+
+| reduce/star : reduce estar estar
+
+and treduce : etp -> etp -> type =
+| treduce/t : treduce et et
+
+| treduce/pi :
+  treduce A A' ->
+  ({ x : eterm } treduce (B x) (B' x)) ->
+    treduce (epi A B) (epi A' B')
+
+| treduce/sigma :
+  treduce A A' ->
+  ({ x : eterm } treduce (B x) (B' x)) ->
+    treduce (esigma A B) (esigma A' B')
+
+| treduce/sing :
+  reduce M M' ->
+    treduce (esing M) (esing M')
+
+| treduce/one : treduce eone eone
+
+and reduce-app : eterm -> eterm -> eterm -> type =
+| reduce-app/atom :
+  oa M ->
+    reduce-app M N (eapp M N)
+
+| reduce-app/beta :
+  reduce (M N) O ->
+    reduce-app (elam A M) N O
+
+and reduce-pi1 : eterm -> eterm -> type =
+
+| reduce-pi1/atom : oa M -> reduce-pi1 M (epi1 M)
+
+| reduce-pi1/beta : reduce-pi1 (epair M N) M
+
+and reduce-pi2 : eterm -> eterm -> type =
+| reduce-pi2/atom : oa M -> reduce-pi2 M (epi2 M)
+
+| reduce-pi2/beta : reduce-pi2 (epair M N) N
+;
+--name reduce D.
+--name treduce D.
+--name reduce-app D.
+--name reduce-pi1 D.
+--name reduce-pi2 D.

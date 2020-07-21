@@ -1,0 +1,721 @@
+% Reduction
+
+schema reduce-ctx =
+  % evar
+  block (x : eterm) +
+  % evbind
+  some [a : etp]
+  block (x : eterm, d : evof x a) +
+  % sbind
+  some [a : tp, ea : etp, d_tconvert : tconvert a ea]
+  block (
+    x : atom, d : vof x a,
+    ex : eterm,
+    xt : vtrans ex x,
+    ed : evof ex ea
+  );
+
+proof reduce-fun :
+  (g : reduce-ctx)
+  [g |- reduce M N] ->
+  [g |- reduce M N'] ->
+    [g |- eterm-eq N N'] =
+/ total 1 /
+intros
+{ g : reduce-ctx, M : (g |- eterm), N : (g |- eterm), N' : (g |- eterm)
+| x : [g |- reduce M N], x1 : [g |- reduce M N']
+; split x as
+  case reduce/star:
+  { g : reduce-ctx, N' : (g |- eterm)
+  | x : [g |- reduce estar estar], x1 : [g |- reduce estar N']
+  ; split x1 as
+    case reduce/star:
+    { g : reduce-ctx
+    | x : [g |- reduce estar estar], x1 : [g |- reduce estar estar]
+    ; solve [_ |- eterm-eq/i ]
+    }
+  }
+  case reduce/app:
+  { g : reduce-ctx,
+    M1 : (g |- eterm),
+    M3 : (g |- eterm),
+    N : (g |- eterm),
+    N' : (g |- eterm),
+    M2 : (g |- eterm),
+    M4 : (g |- eterm),
+    D : (g |- reduce M1 M2),
+    D1 : (g |- reduce M3 M4),
+    D2 : (g |- reduce-app M2 M4 N)
+  | x : [g |- reduce (eapp M1 M3) N], x1 : [g |- reduce (eapp M1 M3) N']
+  ; split x1 as
+    case reduce/app:
+    { g : reduce-ctx,
+      M1 : (g |- eterm),
+      M3 : (g |- eterm),
+      N : (g |- eterm),
+      N' : (g |- eterm),
+      M2 : (g |- eterm),
+      M4 : (g |- eterm),
+      D : (g |- reduce M1 M2),
+      D1 : (g |- reduce M3 M4),
+      D2 : (g |- reduce-app M2 M4 N),
+      M6 : (g |- eterm),
+      M8 : (g |- eterm),
+      D3 : (g |- reduce M1 M6),
+      D4 : (g |- reduce M3 M8),
+      D5 : (g |- reduce-app M6 M8 N')
+    | x : [g |- reduce (eapp M1 M3) N], x1 : [g |- reduce (eapp M1 M3) N']
+    ; split reduce-fun [_ |- D] [_ |- D3] as
+      case eterm-eq/i:
+      { g : reduce-ctx,
+        M1 : (g |- eterm),
+        M3 : (g |- eterm),
+        N : (g |- eterm),
+        N' : (g |- eterm),
+        M6 : (g |- eterm),
+        M4 : (g |- eterm),
+        D : (g |- reduce M1 M6),
+        D1 : (g |- reduce M3 M4),
+        D2 : (g |- reduce-app M6 M4 N),
+        M8 : (g |- eterm),
+        D3 : (g |- reduce M1 M6),
+        D4 : (g |- reduce M3 M8),
+        D5 : (g |- reduce-app M6 M8 N')
+      | x : [g |- reduce (eapp M1 M3) N], x1 : [g |- reduce (eapp M1 M3) N']
+      ; split reduce-fun [_ |- D1] [_ |- D4] as
+        case eterm-eq/i:
+        { g : reduce-ctx,
+          M1 : (g |- eterm),
+          M3 : (g |- eterm),
+          N : (g |- eterm),
+          N' : (g |- eterm),
+          M6 : (g |- eterm),
+          M8 : (g |- eterm),
+          D : (g |- reduce M1 M6),
+          D1 : (g |- reduce M3 M8),
+          D2 : (g |- reduce-app M6 M8 N),
+          D3 : (g |- reduce M1 M6),
+          D4 : (g |- reduce M3 M8),
+          D5 : (g |- reduce-app M6 M8 N')
+        | x : [g |- reduce (eapp M1 M3) N],
+          x1 : [g |- reduce (eapp M1 M3) N']
+        ; split reduce-app-fun [_ |- D2] [_ |- D5] as
+          case eterm-eq/i:
+          { g : reduce-ctx,
+            M1 : (g |- eterm),
+            M3 : (g |- eterm),
+            N' : (g |- eterm),
+            M6 : (g |- eterm),
+            M8 : (g |- eterm),
+            D : (g |- reduce M1 M6),
+            D1 : (g |- reduce M3 M8),
+            D2 : (g |- reduce-app M6 M8 N'),
+            D3 : (g |- reduce M1 M6),
+            D4 : (g |- reduce M3 M8),
+            D5 : (g |- reduce-app M6 M8 N')
+          | x : [g |- reduce (eapp M1 M3) N'],
+            x1 : [g |- reduce (eapp M1 M3) N']
+          ; solve [_ |- eterm-eq/i ]
+          }
+        }
+      }
+    }
+  }
+  case reduce/lam:
+  { g : reduce-ctx,
+    A : (g |- etp),
+    M1 : (g, y223 : eterm |- eterm),
+    A1 : (g |- etp),
+    M2 : (g, x223 : eterm |- eterm),
+    N' : (g |- eterm),
+    D : (g |- treduce A A1),
+    D1 : (g, x : eterm |- reduce M1 M2)
+  | x : [g |- reduce (elam A (\y152. M1)) (elam A1 (\y152. M2))],
+    x1 : [g |- reduce (elam A (\y152. M1)) N']
+  ; split x1 as
+    case reduce/lam:
+    { g : reduce-ctx,
+      A : (g |- etp),
+      M1 : (g, y223 : eterm |- eterm),
+      A1 : (g |- etp),
+      M2 : (g, x223 : eterm |- eterm),
+      A3 : (g |- etp),
+      M4 : (g, x223 : eterm |- eterm),
+      D : (g |- treduce A A1),
+      D1 : (g, x : eterm |- reduce M1 M2),
+      D2 : (g |- treduce A A3),
+      D3 : (g, x : eterm |- reduce M1 M4)
+    | x : [g |- reduce (elam A (\y152. M1)) (elam A1 (\y152. M2))],
+      x1 : [g |- reduce (elam A (\y152. M1)) (elam A3 (\y152. M4))]
+    ; split treduce-fun [_ |- D] [_ |- D2] as
+      case etp-eq/i:
+      { g : reduce-ctx,
+        A : (g |- etp),
+        M1 : (g, y223 : eterm |- eterm),
+        A3 : (g |- etp),
+        M2 : (g, x223 : eterm |- eterm),
+        M4 : (g, x223 : eterm |- eterm),
+        D : (g |- treduce A A3),
+        D1 : (g, x : eterm |- reduce M1 M2),
+        D2 : (g |- treduce A A3),
+        D3 : (g, x : eterm |- reduce M1 M4)
+      | x : [g |- reduce (elam A (\y152. M1)) (elam A3 (\y152. M2))],
+        x1 : [g |- reduce (elam A (\y152. M1)) (elam A3 (\y152. M4))]
+      ; split reduce-fun [_, x : eterm |- D1] [_, x : eterm |- D3] as
+        case eterm-eq/i:
+        { g : reduce-ctx,
+          A : (g |- etp),
+          M1 : (g, y223 : eterm |- eterm),
+          A3 : (g |- etp),
+          M4 : (g, x223 : eterm |- eterm),
+          D : (g |- treduce A A3),
+          D1 : (g, x : eterm |- reduce M1 M4),
+          D2 : (g |- treduce A A3),
+          D3 : (g, x : eterm |- reduce M1 M4)
+        | x : [g |- reduce (elam A (\y152. M1)) (elam A3 (\y152. M4))],
+          x1 : [g |- reduce (elam A (\y152. M1)) (elam A3 (\y152. M4))]
+        ; solve [_ |- eterm-eq/i ]
+        }
+      }
+    }
+  }
+  case reduce/pair:
+  { g : reduce-ctx,
+    M1 : (g |- eterm),
+    M3 : (g |- eterm),
+    M2 : (g |- eterm),
+    M4 : (g |- eterm),
+    N' : (g |- eterm),
+    D : (g |- reduce M1 M2),
+    D1 : (g |- reduce M3 M4)
+  | x : [g |- reduce (epair M1 M3) (epair M2 M4)],
+    x1 : [g |- reduce (epair M1 M3) N']
+  ; split x1 as
+    case reduce/pair:
+    { g : reduce-ctx,
+      M1 : (g |- eterm),
+      M3 : (g |- eterm),
+      M2 : (g |- eterm),
+      M4 : (g |- eterm),
+      M6 : (g |- eterm),
+      M8 : (g |- eterm),
+      D : (g |- reduce M1 M2),
+      D1 : (g |- reduce M3 M4),
+      D2 : (g |- reduce M1 M6),
+      D3 : (g |- reduce M3 M8)
+    | x : [g |- reduce (epair M1 M3) (epair M2 M4)],
+      x1 : [g |- reduce (epair M1 M3) (epair M6 M8)]
+    ; split reduce-fun [_ |- D] [_ |- D2] as
+      case eterm-eq/i:
+      { g : reduce-ctx,
+        M1 : (g |- eterm),
+        M3 : (g |- eterm),
+        M6 : (g |- eterm),
+        M4 : (g |- eterm),
+        M8 : (g |- eterm),
+        D : (g |- reduce M1 M6),
+        D1 : (g |- reduce M3 M4),
+        D2 : (g |- reduce M1 M6),
+        D3 : (g |- reduce M3 M8)
+      | x : [g |- reduce (epair M1 M3) (epair M6 M4)],
+        x1 : [g |- reduce (epair M1 M3) (epair M6 M8)]
+      ; split reduce-fun [_ |- D1] [_ |- D3] as
+        case eterm-eq/i:
+        { g : reduce-ctx,
+          M1 : (g |- eterm),
+          M3 : (g |- eterm),
+          M6 : (g |- eterm),
+          M8 : (g |- eterm),
+          D : (g |- reduce M1 M6),
+          D1 : (g |- reduce M3 M8),
+          D2 : (g |- reduce M1 M6),
+          D3 : (g |- reduce M3 M8)
+        | x : [g |- reduce (epair M1 M3) (epair M6 M8)],
+          x1 : [g |- reduce (epair M1 M3) (epair M6 M8)]
+        ; solve [_ |- eterm-eq/i ]
+        }
+      }
+    }
+  }
+  case reduce/pi2:
+  { g : reduce-ctx,
+    M1 : (g |- eterm),
+    N : (g |- eterm),
+    N' : (g |- eterm),
+    M2 : (g |- eterm),
+    D : (g |- reduce M1 M2),
+    D1 : (g |- reduce-pi2 M2 N)
+  | x : [g |- reduce (epi2 M1) N], x1 : [g |- reduce (epi2 M1) N']
+  ; split x1 as
+    case reduce/pi2:
+    { g : reduce-ctx,
+      M1 : (g |- eterm),
+      N : (g |- eterm),
+      N' : (g |- eterm),
+      M2 : (g |- eterm),
+      D : (g |- reduce M1 M2),
+      D1 : (g |- reduce-pi2 M2 N),
+      M4 : (g |- eterm),
+      D2 : (g |- reduce M1 M4),
+      D3 : (g |- reduce-pi2 M4 N')
+    | x : [g |- reduce (epi2 M1) N], x1 : [g |- reduce (epi2 M1) N']
+    ; split reduce-fun [_ |- D] [_ |- D2] as
+      case eterm-eq/i:
+      { g : reduce-ctx,
+        M1 : (g |- eterm),
+        N : (g |- eterm),
+        N' : (g |- eterm),
+        M4 : (g |- eterm),
+        D : (g |- reduce M1 M4),
+        D1 : (g |- reduce-pi2 M4 N),
+        D2 : (g |- reduce M1 M4),
+        D3 : (g |- reduce-pi2 M4 N')
+      | x : [g |- reduce (epi2 M1) N], x1 : [g |- reduce (epi2 M1) N']
+      ; split reduce-pi2-fun [_ |- D1] [_ |- D3] as
+        case eterm-eq/i:
+        { g : reduce-ctx,
+          M1 : (g |- eterm),
+          N' : (g |- eterm),
+          M4 : (g |- eterm),
+          D : (g |- reduce M1 M4),
+          D1 : (g |- reduce-pi2 M4 N'),
+          D2 : (g |- reduce M1 M4),
+          D3 : (g |- reduce-pi2 M4 N')
+        | x : [g |- reduce (epi2 M1) N'], x1 : [g |- reduce (epi2 M1) N']
+        ; solve [_ |- eterm-eq/i ]
+        }
+      }
+    }
+  }
+  case reduce/pi1:
+  { g : reduce-ctx,
+    M1 : (g |- eterm),
+    N : (g |- eterm),
+    N' : (g |- eterm),
+    M2 : (g |- eterm),
+    D : (g |- reduce M1 M2),
+    D1 : (g |- reduce-pi1 M2 N)
+  | x : [g |- reduce (epi1 M1) N], x1 : [g |- reduce (epi1 M1) N']
+  ; split x1 as
+    case reduce/pi1:
+    { g : reduce-ctx,
+      M1 : (g |- eterm),
+      N : (g |- eterm),
+      N' : (g |- eterm),
+      M2 : (g |- eterm),
+      D : (g |- reduce M1 M2),
+      D1 : (g |- reduce-pi1 M2 N),
+      M4 : (g |- eterm),
+      D2 : (g |- reduce M1 M4),
+      D3 : (g |- reduce-pi1 M4 N')
+    | x : [g |- reduce (epi1 M1) N], x1 : [g |- reduce (epi1 M1) N']
+    ; split reduce-fun [_ |- D] [_ |- D2] as
+      case eterm-eq/i:
+      { g : reduce-ctx,
+        M1 : (g |- eterm),
+        N : (g |- eterm),
+        N' : (g |- eterm),
+        M4 : (g |- eterm),
+        D : (g |- reduce M1 M4),
+        D1 : (g |- reduce-pi1 M4 N),
+        D2 : (g |- reduce M1 M4),
+        D3 : (g |- reduce-pi1 M4 N')
+      | x : [g |- reduce (epi1 M1) N], x1 : [g |- reduce (epi1 M1) N']
+      ; split reduce-pi1-fun [_ |- D1] [_ |- D3] as
+        case eterm-eq/i:
+        { g : reduce-ctx,
+          M1 : (g |- eterm),
+          N' : (g |- eterm),
+          M4 : (g |- eterm),
+          D : (g |- reduce M1 M4),
+          D1 : (g |- reduce-pi1 M4 N'),
+          D2 : (g |- reduce M1 M4),
+          D3 : (g |- reduce-pi1 M4 N')
+        | x : [g |- reduce (epi1 M1) N'], x1 : [g |- reduce (epi1 M1) N']
+        ; solve [_ |- eterm-eq/i ]
+        }
+      }
+    }
+  }
+  case reduce/const:
+  { g : reduce-ctx, K : ( |- constant), N' : (g |- eterm)
+  | x : [g |- reduce (econst K[]) (econst K[])],
+    x1 : [g |- reduce (econst K[]) N']
+  ; split x1 as
+    case reduce/const:
+    { g : reduce-ctx, K : ( |- constant)
+    | x : [g |- reduce (econst K[]) (econst K[])],
+      x1 : [g |- reduce (econst K[]) (econst K[])]
+    ; solve [_ |- eterm-eq/i ]
+    }
+  }
+}
+
+and proof treduce-fun :
+  (g : reduce-ctx)
+  [g |- treduce A B] ->
+  [g |- treduce A B'] ->
+    [g |- etp-eq B B'] =
+/ total 1 /
+intros
+{ g : reduce-ctx, A : (g |- etp), B : (g |- etp), B' : (g |- etp)
+| x : [g |- treduce A B], x1 : [g |- treduce A B']
+; split x as
+  case treduce/one:
+  { g : reduce-ctx, B' : (g |- etp)
+  | x : [g |- treduce eone eone], x1 : [g |- treduce eone B']
+  ; split x1 as
+    case treduce/one:
+    { g : reduce-ctx
+    | x : [g |- treduce eone eone], x1 : [g |- treduce eone eone]
+    ; solve [_ |- etp-eq/i ]
+    }
+  }
+  case treduce/sing:
+  { g : reduce-ctx,
+    M : (g |- eterm),
+    M1 : (g |- eterm),
+    B' : (g |- etp),
+    D : (g |- reduce M M1)
+  | x : [g |- treduce (esing M) (esing M1)], x1 : [g |- treduce (esing M) B']
+  ; split x1 as
+    case treduce/sing:
+    { g : reduce-ctx,
+      M : (g |- eterm),
+      M1 : (g |- eterm),
+      M3 : (g |- eterm),
+      D : (g |- reduce M M1),
+      D1 : (g |- reduce M M3)
+    | x : [g |- treduce (esing M) (esing M1)],
+      x1 : [g |- treduce (esing M) (esing M3)]
+    ; split reduce-fun [_ |- D] [_ |- D1] as
+      case eterm-eq/i:
+      { g : reduce-ctx,
+        M : (g |- eterm),
+        M3 : (g |- eterm),
+        D : (g |- reduce M M3),
+        D1 : (g |- reduce M M3)
+      | x : [g |- treduce (esing M) (esing M3)],
+        x1 : [g |- treduce (esing M) (esing M3)]
+      ; solve [_ |- etp-eq/i ]
+      }
+    }
+  }
+  case treduce/sigma:
+  { g : reduce-ctx,
+    A1 : (g |- etp),
+    A3 : (g, z226 : eterm |- etp),
+    A2 : (g |- etp),
+    A4 : (g, y227 : eterm |- etp),
+    B' : (g |- etp),
+    D : (g |- treduce A1 A2),
+    D1 : (g, x : eterm |- treduce A3 A4)
+  | x : [g |- treduce (esigma A1 (\y149. A3)) (esigma A2 (\y149. A4))],
+    x1 : [g |- treduce (esigma A1 (\y149. A3)) B']
+  ; split x1 as
+    case treduce/sigma:
+    { g : reduce-ctx,
+      A1 : (g |- etp),
+      A3 : (g, z226 : eterm |- etp),
+      A2 : (g |- etp),
+      A4 : (g, y227 : eterm |- etp),
+      A6 : (g |- etp),
+      A8 : (g, y227 : eterm |- etp),
+      D : (g |- treduce A1 A2),
+      D1 : (g, x : eterm |- treduce A3 A4),
+      D2 : (g |- treduce A1 A6),
+      D3 : (g, x : eterm |- treduce A3 A8)
+    | x : [g |- treduce (esigma A1 (\y149. A3)) (esigma A2 (\y149. A4))],
+      x1 : [g |- treduce (esigma A1 (\y149. A3)) (esigma A6 (\y149. A8))]
+    ; split treduce-fun [_ |- D] [_ |- D2] as
+      case etp-eq/i:
+      { g : reduce-ctx,
+        A1 : (g |- etp),
+        A3 : (g, z226 : eterm |- etp),
+        A6 : (g |- etp),
+        A4 : (g, y227 : eterm |- etp),
+        A8 : (g, y227 : eterm |- etp),
+        D : (g |- treduce A1 A6),
+        D1 : (g, x : eterm |- treduce A3 A4),
+        D2 : (g |- treduce A1 A6),
+        D3 : (g, x : eterm |- treduce A3 A8)
+      | x : [g |- treduce (esigma A1 (\y149. A3)) (esigma A6 (\y149. A4))],
+        x1 : [g |- treduce (esigma A1 (\y149. A3)) (esigma A6 (\y149. A8))]
+      ; split treduce-fun [_, x : eterm |- D1] [_, x : eterm |- D3] as
+        case etp-eq/i:
+        { g : reduce-ctx,
+          A1 : (g |- etp),
+          A3 : (g, z226 : eterm |- etp),
+          A6 : (g |- etp),
+          A8 : (g, y227 : eterm |- etp),
+          D : (g |- treduce A1 A6),
+          D1 : (g, x : eterm |- treduce A3 A8),
+          D2 : (g |- treduce A1 A6),
+          D3 : (g, x : eterm |- treduce A3 A8)
+        | x : [g |- treduce (esigma A1 (\y149. A3)) (esigma A6 (\y149. A8))],
+          x1 : [g |- treduce (esigma A1 (\y149. A3)) (esigma A6 (\y149. A8))]
+        ; solve [_ |- etp-eq/i ]
+        }
+      }
+    }
+  }
+  case treduce/pi:
+  { g : reduce-ctx,
+    A1 : (g |- etp),
+    A3 : (g, x225 : eterm |- etp),
+    A2 : (g |- etp),
+    A4 : (g, z225 : eterm |- etp),
+    B' : (g |- etp),
+    D : (g |- treduce A1 A2),
+    D1 : (g, x : eterm |- treduce A3 A4)
+  | x : [g |- treduce (epi A1 (\y148. A3)) (epi A2 (\y148. A4))],
+    x1 : [g |- treduce (epi A1 (\y148. A3)) B']
+  ; split x1 as
+    case treduce/pi:
+    { g : reduce-ctx,
+      A1 : (g |- etp),
+      A3 : (g, x225 : eterm |- etp),
+      A2 : (g |- etp),
+      A4 : (g, z225 : eterm |- etp),
+      A6 : (g |- etp),
+      A8 : (g, z225 : eterm |- etp),
+      D : (g |- treduce A1 A2),
+      D1 : (g, x : eterm |- treduce A3 A4),
+      D2 : (g |- treduce A1 A6),
+      D3 : (g, x : eterm |- treduce A3 A8)
+    | x : [g |- treduce (epi A1 (\y148. A3)) (epi A2 (\y148. A4))],
+      x1 : [g |- treduce (epi A1 (\y148. A3)) (epi A6 (\y148. A8))]
+    ; split treduce-fun [_ |- D] [_ |- D2] as
+      case etp-eq/i:
+      { g : reduce-ctx,
+        A1 : (g |- etp),
+        A3 : (g, x225 : eterm |- etp),
+        A6 : (g |- etp),
+        A4 : (g, z225 : eterm |- etp),
+        A8 : (g, z225 : eterm |- etp),
+        D : (g |- treduce A1 A6),
+        D1 : (g, x : eterm |- treduce A3 A4),
+        D2 : (g |- treduce A1 A6),
+        D3 : (g, x : eterm |- treduce A3 A8)
+      | x : [g |- treduce (epi A1 (\y148. A3)) (epi A6 (\y148. A4))],
+        x1 : [g |- treduce (epi A1 (\y148. A3)) (epi A6 (\y148. A8))]
+      ; split treduce-fun [_, x : eterm |- D1] [_, x : eterm |- D3] as
+        case etp-eq/i:
+        { g : reduce-ctx,
+          A1 : (g |- etp),
+          A3 : (g, x225 : eterm |- etp),
+          A6 : (g |- etp),
+          A8 : (g, z225 : eterm |- etp),
+          D : (g |- treduce A1 A6),
+          D1 : (g, x : eterm |- treduce A3 A8),
+          D2 : (g |- treduce A1 A6),
+          D3 : (g, x : eterm |- treduce A3 A8)
+        | x : [g |- treduce (epi A1 (\y148. A3)) (epi A6 (\y148. A8))],
+          x1 : [g |- treduce (epi A1 (\y148. A3)) (epi A6 (\y148. A8))]
+        ; solve [_ |- etp-eq/i ]
+        }
+      }
+    }
+  }
+  case treduce/t:
+  { g : reduce-ctx, B' : (g |- etp)
+  | x : [g |- treduce et et], x1 : [g |- treduce et B']
+  ; split x1 as
+    case treduce/t:
+    { g : reduce-ctx
+    | x : [g |- treduce et et], x1 : [g |- treduce et et]
+    ; solve [_ |- etp-eq/i ]
+    }
+  }
+}
+
+and proof reduce-app-fun :
+  (g : reduce-ctx)
+  [g |- reduce-app M N O] ->
+  [g |- reduce-app M N O'] ->
+    [g |- eterm-eq O O'] =
+/ total 1 /
+intros
+{ g : reduce-ctx,
+  M : (g |- eterm),
+  N : (g |- eterm),
+  O : (g |- eterm),
+  O' : (g |- eterm)
+| x : [g |- reduce-app M N O], x1 : [g |- reduce-app M N O']
+; split x as
+  case reduce-app/beta:
+  { g : reduce-ctx,
+    A : (g |- etp),
+    M1 : (g, x228 : eterm |- eterm),
+    N : (g |- eterm),
+    O : (g |- eterm),
+    O' : (g |- eterm),
+    D : (g |- reduce (M1[.., N]) O)
+  | x : [g |- reduce-app (elam A (\y152. M1)) N O],
+    x1 : [g |- reduce-app (elam A (\y152. M1)) N O']
+  ; split x1 as
+    case reduce-app/beta:
+    { g : reduce-ctx,
+      A : (g |- etp),
+      M1 : (g, x228 : eterm |- eterm),
+      N : (g |- eterm),
+      O : (g |- eterm),
+      O' : (g |- eterm),
+      D : (g |- reduce (M1[.., N]) O),
+      D1 : (g |- reduce (M1[.., N]) O')
+    | x : [g |- reduce-app (elam A (\y152. M1)) N O],
+      x1 : [g |- reduce-app (elam A (\y152. M1)) N O']
+    ; solve reduce-fun [_ |- D] [_ |- D1]
+    }
+    case reduce-app/atom:
+    { g : reduce-ctx,
+      A : (g |- etp),
+      M1 : (g, x228 : eterm |- eterm),
+      N : (g |- eterm),
+      O : (g |- eterm),
+      D : (g |- reduce (M1[.., N]) O),
+      X : (g |- oa (elam A (\y152. M1)))
+    | x : [g |- reduce-app (elam A (\y152. M1)) N O],
+      x1 :
+        [g |- reduce-app (elam A (\y152. M1)) N (eapp (elam A (\y152. M1)) N)]
+    ; impossible [_ |- X]
+    }
+  }
+  case reduce-app/atom:
+  { g : reduce-ctx,
+    M : (g |- eterm),
+    N : (g |- eterm),
+    O' : (g |- eterm),
+    X : (g |- oa M)
+  | x : [g |- reduce-app M N (eapp M N)], x1 : [g |- reduce-app M N O']
+  ; split x1 as
+    case reduce-app/beta:
+    { g : reduce-ctx,
+      A : (g |- etp),
+      M1 : (g, x228 : eterm |- eterm),
+      N : (g |- eterm),
+      O' : (g |- eterm),
+      X : (g |- oa (elam A (\y152. M1))),
+      D : (g |- reduce (M1[.., N]) O')
+    | x :
+        [g |- reduce-app (elam A (\y152. M1)) N (eapp (elam A (\y152. M1)) N)],
+      x1 : [g |- reduce-app (elam A (\y152. M1)) N O']
+    ; impossible [_ |- X]
+    }
+    case reduce-app/atom:
+    { g : reduce-ctx,
+      M : (g |- eterm),
+      N : (g |- eterm),
+      X : (g |- oa M),
+      X1 : (g |- oa M)
+    | x : [g |- reduce-app M N (eapp M N)],
+      x1 : [g |- reduce-app M N (eapp M N)]
+    ; solve [_ |- eterm-eq/i ]
+    }
+  }
+}
+
+and proof reduce-pi1-fun :
+  (g : reduce-ctx)
+  [g |- reduce-pi1 M N] ->
+  [g |- reduce-pi1 M N'] ->
+    [g |- eterm-eq N N'] =
+/ total 1 /
+intros
+{ g : reduce-ctx, M : (g |- eterm), N : (g |- eterm), N' : (g |- eterm)
+| x : [g |- reduce-pi1 M N], x1 : [g |- reduce-pi1 M N']
+; split x as
+  case reduce-pi1/beta:
+  { g : reduce-ctx, N : (g |- eterm), M2 : (g |- eterm), N' : (g |- eterm)
+  | x : [g |- reduce-pi1 (epair N M2) N],
+    x1 : [g |- reduce-pi1 (epair N M2) N']
+  ; split x1 as
+    case reduce-pi1/beta:
+    { g : reduce-ctx, N' : (g |- eterm), M2 : (g |- eterm)
+    | x : [g |- reduce-pi1 (epair N' M2) N'],
+      x1 : [g |- reduce-pi1 (epair N' M2) N']
+    ; solve [_ |- eterm-eq/i ]
+    }
+    case reduce-pi1/atom:
+    { g : reduce-ctx,
+      N : (g |- eterm),
+      M2 : (g |- eterm),
+      X : (g |- oa (epair N M2))
+    | x : [g |- reduce-pi1 (epair N M2) N],
+      x1 : [g |- reduce-pi1 (epair N M2) (epi1 (epair N M2))]
+    ; impossible [_ |- X]
+    }
+  }
+  case reduce-pi1/atom:
+  { g : reduce-ctx, M : (g |- eterm), N' : (g |- eterm), X : (g |- oa M)
+  | x : [g |- reduce-pi1 M (epi1 M)], x1 : [g |- reduce-pi1 M N']
+  ; split x1 as
+    case reduce-pi1/beta:
+    { g : reduce-ctx,
+      N' : (g |- eterm),
+      M2 : (g |- eterm),
+      X : (g |- oa (epair N' M2))
+    | x : [g |- reduce-pi1 (epair N' M2) (epi1 (epair N' M2))],
+      x1 : [g |- reduce-pi1 (epair N' M2) N']
+    ; impossible [_ |- X]
+    }
+    case reduce-pi1/atom:
+    { g : reduce-ctx, M : (g |- eterm), X : (g |- oa M), X1 : (g |- oa M)
+    | x : [g |- reduce-pi1 M (epi1 M)], x1 : [g |- reduce-pi1 M (epi1 M)]
+    ; solve [_ |- eterm-eq/i ]
+    }
+  }
+}
+
+and proof reduce-pi2-fun :
+  (g : reduce-ctx)
+  [g |- reduce-pi2 M N] ->
+  [g |- reduce-pi2 M N'] ->
+    [g |- eterm-eq N N'] =
+/ total 1 /
+intros
+{ g : reduce-ctx, M : (g |- eterm), N : (g |- eterm), N' : (g |- eterm)
+| x : [g |- reduce-pi2 M N], x1 : [g |- reduce-pi2 M N']
+; split x as
+  case reduce-pi2/beta:
+  { g : reduce-ctx, M1 : (g |- eterm), N : (g |- eterm), N' : (g |- eterm)
+  | x : [g |- reduce-pi2 (epair M1 N) N],
+    x1 : [g |- reduce-pi2 (epair M1 N) N']
+  ; split x1 as
+    case reduce-pi2/beta:
+    { g : reduce-ctx, M1 : (g |- eterm), N' : (g |- eterm)
+    | x : [g |- reduce-pi2 (epair M1 N') N'],
+      x1 : [g |- reduce-pi2 (epair M1 N') N']
+    ; solve [_ |- eterm-eq/i ]
+    }
+    case reduce-pi2/atom:
+    { g : reduce-ctx,
+      M1 : (g |- eterm),
+      N : (g |- eterm),
+      X : (g |- oa (epair M1 N))
+    | x : [g |- reduce-pi2 (epair M1 N) N],
+      x1 : [g |- reduce-pi2 (epair M1 N) (epi2 (epair M1 N))]
+    ; impossible [_ |- X]
+    }
+  }
+  case reduce-pi2/atom:
+  { g : reduce-ctx, M : (g |- eterm), N' : (g |- eterm), X : (g |- oa M)
+  | x : [g |- reduce-pi2 M (epi2 M)], x1 : [g |- reduce-pi2 M N']
+  ; split x1 as
+    case reduce-pi2/beta:
+    { g : reduce-ctx,
+      M1 : (g |- eterm),
+      N' : (g |- eterm),
+      X : (g |- oa (epair M1 N'))
+    | x : [g |- reduce-pi2 (epair M1 N') (epi2 (epair M1 N'))],
+      x1 : [g |- reduce-pi2 (epair M1 N') N']
+    ; impossible [_ |- X]
+    }
+    case reduce-pi2/atom:
+    { g : reduce-ctx, M : (g |- eterm), X : (g |- oa M), X1 : (g |- oa M)
+    | x : [g |- reduce-pi2 M (epi2 M)], x1 : [g |- reduce-pi2 M (epi2 M)]
+    ; solve [_ |- eterm-eq/i ]
+    }
+  }
+}
+;
