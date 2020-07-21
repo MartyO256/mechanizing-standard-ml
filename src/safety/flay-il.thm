@@ -1503,3 +1503,204 @@ intros
   }
 }
 ;
+
+LF skof-il-reg/e : kind -> (con -> kind) -> type =
+| skof-il-reg/i :
+  kd-wf A ->
+  ({ x : con } cn-of x A -> kd-wf (B x)) ->
+    skof-il-reg/e A B
+;
+
+proof skof-il-reg :
+  (g : conbind-reg)
+  [g |- skof-il K A (\x. B)] ->
+    [g |- skof-il-reg/e A (\x. B)] =
+/ total 1 /
+intros
+{ g : conbind-reg,
+  K : (g |- skel),
+  A : (g |- kind),
+  B : (g, x1003 : con |- kind)
+| x : [g |- skof-il K A (\x. B)]
+; split x as
+  case skof-il/one:
+  { g : conbind-reg
+  | x : [g |- skof-il kone one (\x. one)]
+  ; solve [_ |- skof-il-reg/i kd-wf/one (\l1. \l2. kd-wf/one)]
+  }
+  case skof-il/sing:
+  { g : conbind-reg
+  | x : [g |- skof-il ksing t (\x. sing x)]
+  ; solve [_ |- skof-il-reg/i kd-wf/t (\x. \da. kd-wf/sing da)]
+  }
+  case skof-il/sigma:
+  { g : conbind-reg,
+    Dskel : ( |- skel),
+    Dskel1 : ( |- skel),
+    K1 : (g |- kind),
+    K2 : (g, a119 : con |- kind),
+    K3 : (g |- kind),
+    K4 : (g, a120 : con |- kind),
+    C : (g, a122 : con, a121 : con |- con),
+    Dskof-il : (g |- skof-il Dskel[] K1 (\y. K2)),
+    Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+    Dexpand-il : (g, y : con, x : con |- expand-il x (K2[.., y]) C)
+  | x :
+      [g |-
+         skof-il
+           (ksigma Dskel[] Dskel1[])
+           (sigma K1 (\y. pi K2 (\l. K3[..])))
+           (\x.
+              sigma (K2[.., pi1 x])
+              (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))]
+  ; split skof-il-reg [_ |- Dskof-il] as
+    case skof-il-reg/i:
+    { g : conbind-reg,
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      K1 : (g |- kind),
+      K2 : (g, a119 : con |- kind),
+      K3 : (g |- kind),
+      K4 : (g, a120 : con |- kind),
+      C : (g, a122 : con, a121 : con |- con),
+      Dskof-il : (g |- skof-il Dskel[] K1 (\y. K2)),
+      Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+      Dexpand-il : (g, y : con, x : con |- expand-il x (K2[.., y]) C),
+      Dwf : (g |- kd-wf K1),
+      Dwf1 : (g, x : con, z1062 : cn-of x (K1[..]) |- kd-wf (K2[.., x]))
+    | x :
+        [g |-
+           skof-il
+             (ksigma Dskel[] Dskel1[])
+             (sigma K1 (\y. pi K2 (\l. K3[..])))
+             (\x.
+                sigma (K2[.., pi1 x])
+                (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))]
+    ; split skof-il-reg [_ |- Dskof-il1] as
+      case skof-il-reg/i:
+      { g : conbind-reg,
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        K1 : (g |- kind),
+        K2 : (g, a119 : con |- kind),
+        K3 : (g |- kind),
+        K4 : (g, a120 : con |- kind),
+        C : (g, a122 : con, a121 : con |- con),
+        Dskof-il : (g |- skof-il Dskel[] K1 (\y. K2)),
+        Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+        Dexpand-il : (g, y : con, x : con |- expand-il x (K2[.., y]) C),
+        Dwf : (g |- kd-wf K1),
+        Dwf1 : (g, x : con, z1062 : cn-of x (K1[..]) |- kd-wf (K2[.., x])),
+        Dwf2 : (g |- kd-wf K3),
+        Dwf3 : (g, x : con, z1062 : cn-of x (K3[..]) |- kd-wf (K4[.., x]))
+      | x :
+          [g |-
+             skof-il
+               (ksigma Dskel[] Dskel1[])
+               (sigma K1 (\y. pi K2 (\l. K3[..])))
+               (\x.
+                  sigma (K2[.., pi1 x])
+                  (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))]
+      ; by [_, x : con, z1062 : cn-of x (K1[..]) |-
+              kd-wf/pi Dwf1 (\a. \da. Dwf2[..])]
+        as Dwf1'' unboxed;
+        by [_ |- kd-wf/sigma Dwf (\a. \da. Dwf1'')] as Dwf1' unboxed;
+        by [g, x : con, a : con |- Dwf3[.., app (pi2 x) (C[.., pi1 x, a]), _]]
+        as Dof' unboxed;
+        by [g, x : con,
+            dx : cn-of x (sigma (K1[..]) (\a. pi (K2[.., a]) (\y. K3[..]))) |-
+              kd-wf/sigma (Dwf1[.., pi1 x, _]) (\a. \da. Dof'[.., x, a])]
+        as Dwf2' unboxed;
+        solve [g |- skof-il-reg/i Dwf1' (\x. \dx. Dwf2')]
+      }
+    }
+  }
+  case skof-il/pi:
+  { g : conbind-reg,
+    Dskel : ( |- skel),
+    Dskel1 : ( |- skel),
+    K1 : (g |- kind),
+    K2 : (g, a115 : con |- kind),
+    K3 : (g |- kind),
+    K4 : (g, a116 : con |- kind),
+    C : (g, a118 : con, a117 : con |- con),
+    Dskof-il : (g |- skof-il Dskel[] K1 (\y. K2)),
+    Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+    Dexpand-il : (g, y : con, x : con |- expand-il x (K2[.., y]) C)
+  | x :
+      [g |-
+         skof-il
+           (kpi Dskel[] Dskel1[])
+           (sigma K1 (\y. pi K2 (\l. K3[..])))
+           (\x.
+              pi (K2[.., pi1 x])
+              (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))]
+  ; split skof-il-reg [g |- Dskof-il] as
+    case skof-il-reg/i:
+    { g : conbind-reg,
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      K1 : (g |- kind),
+      K2 : (g, a115 : con |- kind),
+      K3 : (g |- kind),
+      K4 : (g, a116 : con |- kind),
+      C : (g, a118 : con, a117 : con |- con),
+      Dskof-il : (g |- skof-il Dskel[] K1 (\y. K2)),
+      Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+      Dexpand-il : (g, y : con, x : con |- expand-il x (K2[.., y]) C),
+      Dwf : (g |- kd-wf K1),
+      Dwf1 : (g, x : con, z1062 : cn-of x (K1[..]) |- kd-wf (K2[.., x]))
+    | x :
+        [g |-
+           skof-il
+             (kpi Dskel[] Dskel1[])
+             (sigma K1 (\y. pi K2 (\l. K3[..])))
+             (\x.
+                pi (K2[.., pi1 x])
+                (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))]
+    ; split skof-il-reg [g |- Dskof-il1] as
+      case skof-il-reg/i:
+      { g : conbind-reg,
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        K1 : (g |- kind),
+        K2 : (g, a115 : con |- kind),
+        K3 : (g |- kind),
+        K4 : (g, a116 : con |- kind),
+        C : (g, a118 : con, a117 : con |- con),
+        Dskof-il : (g |- skof-il Dskel[] K1 (\y. K2)),
+        Dskof-il1 : (g |- skof-il Dskel1[] K3 (\z. K4)),
+        Dexpand-il : (g, y : con, x : con |- expand-il x (K2[.., y]) C),
+        Dwf : (g |- kd-wf K1),
+        Dwf1 : (g, x : con, z1062 : cn-of x (K1[..]) |- kd-wf (K2[.., x])),
+        Dwf2 : (g |- kd-wf K3),
+        Dwf3 : (g, x : con, z1062 : cn-of x (K3[..]) |- kd-wf (K4[.., x]))
+      | x :
+          [g |-
+             skof-il
+               (kpi Dskel[] Dskel1[])
+               (sigma K1 (\y. pi K2 (\l. K3[..])))
+               (\x.
+                  pi (K2[.., pi1 x])
+                  (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))]
+      ; by [g, x : con, dx : cn-of x (K1[..]) |-
+              kd-wf/pi Dwf1 (\a. \da. Dwf2[..])]
+        as Dwf1'' unboxed;
+        by [g |- kd-wf/sigma Dwf (\a. \da. Dwf1'')] as Dwf1' unboxed;
+        by [g, x : con, a : con |- Dwf3[.., app (pi2 x) (C[.., pi1 x, a]), _]]
+        as Dof' unboxed;
+        by [g, x : con,
+            dx : cn-of x (sigma (K1[..]) (\a. pi (K2[.., a]) (\y. K3[..]))) |-
+              kd-wf/pi (Dwf1[.., pi1 x, _]) (\a. \da. Dof'[.., x, a])]
+        as Dwf2' unboxed;
+        solve [g |- skof-il-reg/i Dwf1' (\a. \da. Dwf2')]
+      }
+    }
+  }
+  case skof-il/t:
+  { g : conbind-reg
+  | x : [g |- skof-il kt one (\x. t)]
+  ; solve [g |- skof-il-reg/i kd-wf/one (\l1. \l2. kd-wf/t)]
+  }
+}
+;
