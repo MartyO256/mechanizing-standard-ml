@@ -21,9 +21,6 @@ and eterm : type =
 
 % Rules
 
-% TODO: Investigate why this LF declaration is empty
-LF evof : eterm -> etp -> type =;
-
 % Type Formation
 
 LF ewf : etp -> type =
@@ -31,12 +28,12 @@ LF ewf : etp -> type =
 
 | ewf/pi :
   ewf A ->
-  ({ x : eterm } evof x A -> ewf (B x)) ->
+  ({ x : eterm } eof x A -> ewf (B x)) ->
     ewf (epi A B)
 
 | ewf/sigma :
   ewf A ->
-  ({ x : eterm } evof x A -> ewf (B x)) ->
+  ({ x : eterm } eof x A -> ewf (B x)) ->
     ewf (esigma A B)
 
 | ewf/sing : eof M et -> ewf (esing M)
@@ -50,7 +47,7 @@ and eof : eterm -> etp -> type =
 
 | eof/lam :
   ewf A ->
-  ({ x : eterm } evof x A -> eof (M x) (B x)) ->
+  ({ x : eterm } eof x A -> eof (M x) (B x)) ->
     eof (elam A M) (epi A B)
 
 | eof/app :
@@ -61,7 +58,7 @@ and eof : eterm -> etp -> type =
 | eof/pair :
   eof M A ->
   eof N (B M) ->
-  ({ x : eterm } evof x A -> ewf (B x)) ->
+  ({ x : eterm } eof x A -> ewf (B x)) ->
     eof (epair M N) (esigma A B)
 
 | eof/pi1 :
@@ -80,13 +77,13 @@ and eof : eterm -> etp -> type =
 
 | eof/extpi :
   eof M (epi A B') ->
-  ({ x : eterm } evof x A -> eof (eapp M x) (B x)) ->
+  ({ x : eterm } eof x A -> eof (eapp M x) (B x)) ->
     eof M (epi A B)
 
 | eof/extsigma :
   eof (epi1 M) A ->
   eof (epi2 M) (B (epi1 M)) ->
-  ({ x : eterm } evof x A -> ewf (B x)) ->
+  ({ x : eterm } eof x A -> ewf (B x)) ->
     eof M (esigma A B)
 
 | eof/subsume :
@@ -105,7 +102,7 @@ and equiv : eterm -> eterm -> etp -> type =
 
 | equiv/lam :
   tequiv A A' ->
-  ({ x : eterm } evof x A -> equiv (M x) (M' x) (B x)) ->
+  ({ x : eterm } eof x A -> equiv (M x) (M' x) (B x)) ->
     equiv (elam A M) (elam A' M') (epi A B)
 
 | equiv/app :
@@ -116,7 +113,7 @@ and equiv : eterm -> eterm -> etp -> type =
 | equiv/pair :
   equiv M M' A ->
   equiv N N' (B M) ->
-  ({ x : eterm } evof x A -> ewf (B x)) ->
+  ({ x : eterm } eof x A -> ewf (B x)) ->
     equiv (epair M N) (epair M' N') (esigma A B)
 
 | equiv/pi1 : equiv M M' (esigma A B) -> equiv (epi1 M) (epi1 M') A
@@ -130,18 +127,18 @@ and equiv : eterm -> eterm -> etp -> type =
 | equiv/extpi :
   eof M (epi A B') ->
   eof N (epi A B'') ->
-  ({ x : eterm } evof x A -> equiv (eapp M x) (eapp N x) (B x)) ->
+  ({ x : eterm } eof x A -> equiv (eapp M x) (eapp N x) (B x)) ->
     equiv M N (epi A B)
 
 | equiv/extpiw :
   equiv M N (epi A B') ->
-  ({ x : eterm } evof x A -> equiv (eapp M x) (eapp N x) (B x)) ->
+  ({ x : eterm } eof x A -> equiv (eapp M x) (eapp N x) (B x)) ->
     equiv M N (epi A B)
 
 | equiv/extsigma :
   equiv (epi1 M) (epi1 N) A ->
   equiv (epi2 M) (epi2 N) (B (epi1 M)) ->
-  ({ x : eterm } evof x A -> ewf (B x)) ->
+  ({ x : eterm } eof x A -> ewf (B x)) ->
     equiv M N (esigma A B)
 
 | equiv/one : eof M eone -> eof N eone -> equiv M N eone
@@ -149,7 +146,7 @@ and equiv : eterm -> eterm -> etp -> type =
 | equiv/subsume : equiv M N A -> subtp A B -> equiv M N B
 
 | equiv/beta :
-  ({ x : eterm } evof x A -> eof (M x) (B x)) ->
+  ({ x : eterm } eof x A -> eof (M x) (B x)) ->
   eof N A ->
     equiv (eapp (elam A M) N) (M N) (B N)
 
@@ -160,12 +157,12 @@ and equiv : eterm -> eterm -> etp -> type =
 and tequiv : etp -> etp -> type =
 | tequiv/pi :
   tequiv A A' ->
-  ({ x : eterm } evof x A -> tequiv (B x) (B' x)) ->
+  ({ x : eterm } eof x A -> tequiv (B x) (B' x)) ->
     tequiv (epi A B) (epi A' B')
 
 | tequiv/sigma :
   tequiv A A' ->
-  ({ x : eterm } evof x A -> tequiv (B x) (B' x)) ->
+  ({ x : eterm } eof x A -> tequiv (B x) (B' x)) ->
     tequiv (esigma A B) (esigma A' B')
 
 | tequiv/sing : equiv M M' et -> tequiv (esing M) (esing M')
@@ -187,14 +184,14 @@ and subtp : etp -> etp -> type =
 
 | subtp/pi :
   subtp A' A ->
-  ({ x : eterm } evof x A' -> subtp (B x) (B' x)) ->
-  ({ x : eterm } evof x A -> ewf (B x)) ->
+  ({ x : eterm } eof x A' -> subtp (B x) (B' x)) ->
+  ({ x : eterm } eof x A -> ewf (B x)) ->
     subtp (epi A B) (epi A' B')
 
 | subtp/sigma :
   subtp A A' ->
-  ({ x : eterm } evof x A -> subtp (B x) (B' x)) ->
-  ({ x : eterm } evof x A' -> ewf (B' x)) ->
+  ({ x : eterm } eof x A -> subtp (B x) (B' x)) ->
+  ({ x : eterm } eof x A' -> ewf (B' x)) ->
     subtp (esigma A B) (esigma A' B')
 
 % Constants
@@ -284,11 +281,11 @@ schema evar = block (ex : eterm);
 
 schema ebind =
   some [ea : etp]
-  block (ex : eterm, ed : evof ex ea);
+  block (ex : eterm, ed : eof ex ea);
 
 schema eofblock =
   some [ex : eterm, ea : etp]
-  block (ed : evof ex ea);
+  block (ed : eof ex ea);
 
 schema etopenblock =
   some [a : skel, x : eterm]

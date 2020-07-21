@@ -3,14 +3,14 @@ LF tconvert : tp -> etp -> type =
 
 | tconvert/pi :
   tconvert A EA ->
-  ({ x : atom } vof x A ->
+  ({ x : atom } aof x A ->
    { ex : eterm } vtrans ex x ->
    tconvert (B x) (EB ex)) ->
     tconvert (pi A B) (epi EA EB)
 
 | tconvert/sigma :
   tconvert A EA ->
-  ({ x : atom } vof x A ->
+  ({ x : atom } aof x A ->
    { ex : eterm } vtrans ex x ->
    tconvert (B x) (EB ex)) ->
     tconvert (sigma A B) (esigma EA EB)
@@ -28,7 +28,7 @@ and convert : term -> tp -> eterm -> type =
 
 | convert/lam :
   tconvert A EA ->
-  ({ x : atom } vof x A ->
+  ({ x : atom } aof x A ->
    { ex : eterm } vtrans ex x ->
    convert (M x) (B x) (EM ex)) ->
     convert (lam M) (pi A B) (elam EA EM)
@@ -37,7 +37,7 @@ and convert : term -> tp -> eterm -> type =
   convert M A EM ->
   tsub B M Bx ->
   convert N Bx EN ->
-  ({ x : atom } vof x A -> wf (B x)) ->
+  ({ x : atom } aof x A -> wf (B x)) ->
     convert (pair M N) (sigma A B) (epair EM EN)
 
 | convert/sing :
@@ -54,7 +54,7 @@ and aconvert : atom -> tp -> eterm -> type =
     aconvert (const C) A (econst C)
 
 | aconvert/var :
-  vof X A ->
+  aof X A ->
   wf A ->
   tconvert A _ ->
   vtrans EX X ->

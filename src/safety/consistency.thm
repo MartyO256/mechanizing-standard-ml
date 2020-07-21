@@ -268,7 +268,7 @@ schema can-map-ctx =
   % map-bind-for-can-map
   some [b : etp, k : kind]
   block (
-    x : eterm, d : evof x b,
+    x : eterm, d : eof x b,
     a : con, e : cn-of a k,
     at : map a x
   ) +
@@ -283,7 +283,7 @@ schema can-map-ctx =
   ]
   block (
     a : con, da : cn-of a K,
-    x : eterm, dx : evof x B,
+    x : eterm, dx : eof x B,
     at : map a x, xt : unmap x a
   );
 
@@ -343,7 +343,7 @@ intros
       Dtmap : (g |- tmap K A)
     |
     ; %{ FIXME: Totality checking for complete induction error. https://github.com/Beluga-lang/Beluga/issues/227
-         invert can-map [_, b1 : block (x : eterm, d1 : evof x (A[..]), a : con, e1 : cn-of a (K[..]), at1 : map a x), b2 : block (y : eterm, d2 : evof y (A[..]), b : con, e1 : cn-of b (K[..]), at2 : map b y) |- C1[.., b1.a, b2.b]]
+         invert can-map [_, b1 : block (x : eterm, d1 : eof x (A[..]), a : con, e1 : cn-of a (K[..]), at1 : map a x), b2 : block (y : eterm, d2 : eof y (A[..]), b : con, e1 : cn-of b (K[..]), at2 : map b y) |- C1[.., b1.a, b2.b]]
          FIXME: Wrong projections after inversion. https://github.com/Beluga-lang/Beluga/issues/228
       }%
       ?
@@ -527,7 +527,7 @@ intros
          b :
            block (
              x : eterm,
-             d : evof x (A[..]),
+             d : eof x (A[..]),
              a : con,
              e : cn-of a (K[..]),
              at : map a x) |- C1[.., b.3]] as
@@ -614,7 +614,7 @@ intros
             a : con,
             da : cn-of a (K433[..]),
             x : eterm,
-            dx : evof x (A20[..]),
+            dx : eof x (A20[..]),
             at : map a x,
             xt : unmap x a)),
     K434 : (g |- kind),
@@ -634,7 +634,7 @@ intros
       #(g |-
           block (
             x : eterm,
-            d : evof x (A21[..]),
+            d : eof x (A21[..]),
             a : con,
             e : cn-of a (K435[..]),
             at : map a x))
@@ -685,7 +685,7 @@ intros
          b :
            block (
              x : eterm,
-             d : evof x (A[..]),
+             d : eof x (A[..]),
              a : con,
              e : cn-of a (K1[..]),
              at : map a x) |- K2[.., b.3]] as
@@ -725,7 +725,7 @@ intros
          b :
            block (
              x : eterm,
-             d : evof x (A[..]),
+             d : eof x (A[..]),
              a : con,
              e : cn-of a (K1[..]),
              at : map a x) |- K2[.., b.3]] as
@@ -778,7 +778,7 @@ schema map-fun-ctx =
   % map-bind-for-map-fun
   some [b : etp, k : kind]
   block (
-    x : eterm, d : evof x b,
+    x : eterm, d : eof x b,
     a : con, e : cn-of a k,
     at : map a x
   ) +
@@ -786,7 +786,7 @@ schema map-fun-ctx =
   some [K : kind, B : etp]
   block (
     a : con, da : cn-of a K,
-    x : eterm, dx : evof x B,
+    x : eterm, dx : eof x B,
     at : map a x
   );
 
@@ -952,14 +952,14 @@ map-fun
    b1 :
      block (
        x : eterm,
-       d : evof x (A1[..]),
+       d : eof x (A1[..]),
        a : con,
        e : cn-of a (K[..]),
        at : map a x),
    b2 :
      block (
        x : eterm,
-       d : evof x (A1[..]),
+       d : eof x (A1[..]),
        a : con,
        e : cn-of a (K[..]),
        at : map a x) |- Dmap[.., b1.3, b1.1, b1.5, b2.3, b2.1, b2.5]]
@@ -967,14 +967,14 @@ map-fun
    b1 :
      block (
        x : eterm,
-       d : evof x (A1[..]),
+       d : eof x (A1[..]),
        a : con,
        e : cn-of a (K[..]),
        at : map a x),
    b2 :
      block (
        x : eterm,
-       d : evof x (A1[..]),
+       d : eof x (A1[..]),
        a : con,
        e : cn-of a (K[..]),
        at : map a x) |- Dmap2[.., b1.3, b1.1, b1.5, b2.3, b2.1, b2.5]] as
@@ -1607,7 +1607,7 @@ map-fun
            b :
              block (
                x : eterm,
-               d : evof x (A1[..]),
+               d : eof x (A1[..]),
                a : con,
                e : cn-of a (K[..]),
                at : map a x) |- Dmap[.., b.3, b.1, b.5]]
@@ -1615,7 +1615,7 @@ map-fun
            b :
              block (
                x : eterm,
-               d : evof x (A1[..]),
+               d : eof x (A1[..]),
                a : con,
                e : cn-of a (K[..]),
                at : map a x) |- Dmap1[.., b.3, b.1, b.5]] as
@@ -1724,7 +1724,7 @@ map-fun
             a : con,
             da : cn-of a (K888[..]),
             x : eterm,
-            dx : evof x (A157[..]),
+            dx : eof x (A157[..]),
             at : map a x)),
     M' : (g |- eterm)
   | x : [g |- map #map.1 #map.3], map : [g |- map #map.1 M']
@@ -1739,7 +1739,7 @@ map-fun
               a : con,
               da : cn-of a (K888[..]),
               x : eterm,
-              dx : evof x (A157[..]),
+              dx : eof x (A157[..]),
               at : map a x))
     | x : [g |- map #map.1 #map.3], map : [g |- map #map.1 #map.3]
     ; solve [_ |- eterm-eq/i ]
@@ -1753,7 +1753,7 @@ map-fun
       #(g |-
           block (
             x : eterm,
-            d : evof x (A158[..]),
+            d : eof x (A158[..]),
             a : con,
             e : cn-of a (K889[..]),
             at : map a x)),
@@ -1768,7 +1768,7 @@ map-fun
         #(g |-
             block (
               x : eterm,
-              d : evof x (A158[..]),
+              d : eof x (A158[..]),
               a : con,
               e : cn-of a (K889[..]),
               at : map a x))
@@ -1869,7 +1869,7 @@ tmap-fun
    b :
      block (
        x : eterm,
-       d : evof x (A3[..]),
+       d : eof x (A3[..]),
        a : con,
        e : cn-of a (K1[..]),
        at : map a x) |- Dtmap1[.., b.3, b.1, b.5]]
@@ -1877,7 +1877,7 @@ tmap-fun
    b :
      block (
        x : eterm,
-       d : evof x (A3[..]),
+       d : eof x (A3[..]),
        a : con,
        e : cn-of a (K1[..]),
        at : map a x) |- Dtmap3[.., b.3, b.1, b.5]] as
@@ -1957,7 +1957,7 @@ tmap-fun
    b :
      block (
        x : eterm,
-       d : evof x (A3[..]),
+       d : eof x (A3[..]),
        a : con,
        e : cn-of a (K1[..]),
        at : map a x) |- Dtmap1[.., b.3, b.1, b.5]]
@@ -1965,7 +1965,7 @@ tmap-fun
    b :
      block (
        x : eterm,
-       d : evof x (A3[..]),
+       d : eof x (A3[..]),
        a : con,
        e : cn-of a (K1[..]),
        at : map a x) |- Dtmap3[.., b.3, b.1, b.5]] as
@@ -2038,11 +2038,11 @@ tmap-fun
 schema map-bind =
   % ebind
   some [ea : etp]
-  block (ex : eterm, ed : evof ex ea) +
+  block (ex : eterm, ed : eof ex ea) +
   % map-bind
   some [B : etp, K : kind, Dmap : tmap K B, Dwf : ewf B]
   block (
-    x : eterm, dx : evof x B,
+    x : eterm, dx : eof x B,
     a : con, da : cn-of a K,
     at : map a x
   );
@@ -2162,7 +2162,7 @@ intros
          b :
            block (
              x : eterm,
-             dx : evof x (A[..]),
+             dx : eof x (A[..]),
              a : con,
              da : cn-of a (K1[..]),
              at : map a x) |- Dwf[.., b.3, b.4]] as
@@ -2183,7 +2183,7 @@ intros
         Dtmap1 :
           (g, x : eterm, a : con, x1284 : map a x |-
              tmap (K3[.., a]) (A1[.., x])),
-        Dwf1 : (g, x : eterm, dx : evof x (A[..]) |- ewf (A1[.., x]))
+        Dwf1 : (g, x : eterm, dx : eof x (A[..]) |- ewf (A1[.., x]))
       | x : [g |- cn-of C (sigma K1 (\z328. K3))], map : [g |- map C M]
       ; by map-of' [g |- Dof1] [g |- map/pi2 Dmap]
              [g |- Dtmap1[.., _, _, map/pi1 Dmap]]
@@ -2231,7 +2231,7 @@ as Dtmap' unboxed;
          b :
            block (
              x : eterm,
-             dx : evof x (A[..]),
+             dx : eof x (A[..]),
              a : con,
              da : cn-of a (K1[..]),
              at : map a x) |- Dof1[.., b.3, b.4]]
@@ -2239,7 +2239,7 @@ as Dtmap' unboxed;
          b :
            block (
              x : eterm,
-             dx : evof x (A[..]),
+             dx : eof x (A[..]),
              a : con,
              da : cn-of a (K1[..]),
              at : map a x) |- map/app (Dmap[..]) b.5] as
@@ -2263,7 +2263,7 @@ as Dtmap' unboxed;
           (g, x : eterm, a : con, x1283 : map a x |-
              tmap (K4[.., a]) (A1[.., x])),
         Dof3 :
-          (g, x : eterm, dx : evof x (A[..]) |-
+          (g, x : eterm, dx : eof x (A[..]) |-
              eof (eapp (M[..]) x) (A1[.., x]))
       | x : [g |- cn-of C (pi K1 (\z327. K4))], map : [g |- map C M]
       ; split [g |- Dtmap] as
@@ -2291,7 +2291,7 @@ as Dtmap' unboxed;
             (g, x : eterm, a : con, x1283 : map a x |-
                tmap (K4[.., a]) (A1[.., x])),
           Dof3 :
-            (g, x : eterm, dx : evof x (epi (A2[..]) (\y142. A3[.., y142])) |-
+            (g, x : eterm, dx : eof x (epi (A2[..]) (\y142. A3[.., y142])) |-
                eof (eapp (M[..]) x) (A1[.., x]))
         | x : [g |- cn-of C (pi K1 (\z327. K4))], map : [g |- map C M]
         ; by [g |- tmap/pi Dtmap2 (\a. \x. \at. Dtmap1[.., x, a, at])]
@@ -2397,14 +2397,14 @@ as Dtmap' unboxed;
       b1 :
         block (
           x : eterm,
-          dx : evof x (A[..]),
+          dx : eof x (A[..]),
           a : con,
           da : cn-of a (pi (K1[..]) (\l. t)),
           at : map a x),
       b2 :
         block (
           y : eterm,
-          dy : evof y (A[..]),
+          dy : eof y (A[..]),
           b : con,
           db : cn-of b (K1[..]),
           bt : map b y) |- Dof[.., b1.3, b1.4, b2.3, b2.4]]
@@ -2412,14 +2412,14 @@ as Dtmap' unboxed;
       b1 :
         block (
           x : eterm,
-          dx : evof x (A[..]),
+          dx : eof x (A[..]),
           a : con,
           da : cn-of a (pi (K1[..]) (\l. t)),
           at : map a x),
       b2 :
         block (
           y : eterm,
-          dy : evof y (A[..]),
+          dy : eof y (A[..]),
           b : con,
           db : cn-of b (K1[..]),
           bt : map b y) |- Dmap1[.., b1.3, b1.1, b1.5, b2.3, b2.1, b2.5]]
@@ -2427,14 +2427,14 @@ as Dtmap' unboxed;
       b1 :
         block (
           x : eterm,
-          dx : evof x (A[..]),
+          dx : eof x (A[..]),
           a : con,
           da : cn-of a (pi (K1[..]) (\l. t)),
           at : map a x),
       b2 :
         block (
           y : eterm,
-          dy : evof y (A[..]),
+          dy : eof y (A[..]),
           b : con,
           db : cn-of b (K1[..]),
           bt : map b y) |- tmap/t]
@@ -2801,7 +2801,7 @@ map-of
    b :
      block (
        x : eterm,
-       dx : evof x (A[..]),
+       dx : eof x (A[..]),
        a : con,
        da : cn-of a (K1[..]),
        at : map a x) |- Dof[.., b.3, b.4]]
@@ -2809,7 +2809,7 @@ map-of
    b :
      block (
        x : eterm,
-       dx : evof x (A[..]),
+       dx : eof x (A[..]),
        a : con,
        da : cn-of a (K1[..]),
        at : map a x) |- Dmap1[.., b.3, b.1, b.5]] as
@@ -2834,7 +2834,7 @@ map-of
           (g, x : eterm, a : con, x1291 : map a x |-
              tmap (K3[.., a]) (A1[.., x])),
         Dof1 :
-          (g, x : eterm, dx : evof x (A[..]) |- eof (M2[.., x]) (A1[.., x]))
+          (g, x : eterm, dx : eof x (A[..]) |- eof (M2[.., x]) (A1[.., x]))
       | x : [g |- cn-of (lam K1 (\y331. C1)) (pi K1 (\z327. K3))],
         map : [g |- map (lam K1 (\y331. C1)) (elam A (\y146. M2))]
       ; by [g |- tmap/pi Dtmap (\a. \x. \at. Dtmap1[.., x, a, at])] as Dtmap' unboxed;
@@ -3019,7 +3019,7 @@ map-of
            b :
              block (
                x : eterm,
-               dx : evof x (A[..]),
+               dx : eof x (A[..]),
                a : con,
                da : cn-of a (K1[..]),
                at : map a x) |- Dwf[.., b.3, b.4]] as
@@ -3044,7 +3044,7 @@ map-of
           Dtmap1 :
             (g, x : eterm, a : con, y5 : map a x |-
                tmap (K3[.., a]) (A1[.., x])),
-          Dwf1 : (g, x : eterm, dx : evof x (A[..]) |- ewf (A1[.., x]))
+          Dwf1 : (g, x : eterm, dx : eof x (A[..]) |- ewf (A1[.., x]))
         | x : [g |- cn-of (pair C1 C2) (sigma K1 (\z328. K3))],
           map : [g |- map (pair C1 C2) (epair M1 M2)]
         ; by map-of' [g |- Dof1] [g |- Dmap2] [g |- Dtmap1[.., M1, C1, Dmap1]]
@@ -3068,7 +3068,7 @@ as Dtmap' unboxed;
             a : con,
             da : cn-of a (K[..]),
             x : eterm,
-            dx : evof x (A57[..]),
+            dx : eof x (A57[..]),
             at : map a x,
             xt : unmap x a)),
     M : (g |- eterm),
@@ -3090,7 +3090,7 @@ as Dtmap' unboxed;
       #(g |-
           block (
             x : eterm,
-            dx : evof x (A58[..]),
+            dx : eof x (A58[..]),
             a : con,
             da : cn-of a (K[..]),
             at : map a x)),
@@ -3192,7 +3192,7 @@ intros
          b :
            block (
              x : eterm,
-             dx : evof x (A[..]),
+             dx : eof x (A[..]),
              a : con,
              da : cn-of a (K1[..]),
              at : map a x) |- Dwf1[.., b.3, b.4]] as
@@ -3209,7 +3209,7 @@ intros
         Dtmap1 :
           (g, x : eterm, a : con, z1268 : map a x |-
              tmap (K3[.., a]) (A1[.., x])),
-        Dwf3 : (g, x : eterm, dx : evof x (A[..]) |- ewf (A1[.., x]))
+        Dwf3 : (g, x : eterm, dx : eof x (A[..]) |- ewf (A1[.., x]))
       | x : [g |- kd-wf (sigma K1 (\z328. K3))]
       ; by [g |- tmap/sigma Dtmap (\a. \x. \at. Dtmap1[.., x, a, at])]
 as Dtmap' unboxed;
@@ -3242,7 +3242,7 @@ as Dtmap' unboxed;
          b :
            block (
              x : eterm,
-             dx : evof x (A[..]),
+             dx : eof x (A[..]),
              a : con,
              da : cn-of a (K1[..]),
              at : map a x) |- Dwf1[.., b.3, b.4]] as
@@ -3259,7 +3259,7 @@ as Dtmap' unboxed;
         Dtmap1 :
           (g, x : eterm, a : con, x1333 : map a x |-
              tmap (K3[.., a]) (A1[.., x])),
-        Dwf3 : (g, x : eterm, dx : evof x (A[..]) |- ewf (A1[.., x]))
+        Dwf3 : (g, x : eterm, dx : eof x (A[..]) |- ewf (A1[.., x]))
       | x : [g |- kd-wf (pi K1 (\x363. K3))]
       ; by [g |- tmap/pi Dtmap (\a. \x. \at. Dtmap1[.., x, a, at])]
         as Dtmap' unboxed;
@@ -3414,7 +3414,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x (A1[..]),
+                  dx : eof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dsub1[.., b.3, b.4]]
@@ -3422,7 +3422,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x (A1[..]),
+                  dx : eof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dtmap1[.., b.3, b.1, b.5]]
@@ -3430,7 +3430,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x (A1[..]),
+                  dx : eof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dtmap3[.., b.3, b.1, b.5]]
@@ -3440,7 +3440,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x (A3[..]),
+                  dx : eof x (A3[..]),
                   a : con,
                   da : cn-of a (K2[..]),
                   at : map a x) |- Dwf[.., b.3, b.4]]
@@ -3448,15 +3448,15 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x (A3[..]),
+                  dx : eof x (A3[..]),
                   a : con,
                   da : cn-of a (K2[..]),
                   at : map a x) |- Dtmap3[.., b.3, b.1, b.5]]
         as Dwf' unboxed;
-        by [g, b : block (x : eterm, dx : evof x (A1[..])) |-
+        by [g, b : block (x : eterm, dx : eof x (A1[..])) |-
       Dsub2'[.., <b.1; b.2; _; _; _>]]
 as Dsub2'' unboxed;
-        by [g, b : block (x : eterm, dx : evof x (A3[..])) |-
+        by [g, b : block (x : eterm, dx : eof x (A3[..])) |-
               Dwf'[.., <b.1; b.2; _; _; _>]]
         as Dwf'' unboxed;
         solve
@@ -3536,7 +3536,7 @@ as Dsub2'' unboxed;
               b :
                 block (
                   x : eterm,
-                  dx : evof x (A3[..]),
+                  dx : eof x (A3[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dsub1[.., b.3, b.4]]
@@ -3544,7 +3544,7 @@ as Dsub2'' unboxed;
               b :
                 block (
                   x : eterm,
-                  dx : evof x A3[..],
+                  dx : eof x A3[..],
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dtmap1[.., b.3, b.1, b.5]]
@@ -3552,7 +3552,7 @@ as Dsub2'' unboxed;
               b :
                 block (
                   x : eterm,
-                  dx : evof x A3[..],
+                  dx : eof x A3[..],
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dtmap3[.., b.3, b.1, b.5]]
@@ -3562,7 +3562,7 @@ as Dsub2'' unboxed;
               b :
                 block (
                   x : eterm,
-                  dx : evof x (A1[..]),
+                  dx : eof x (A1[..]),
                   a : con,
                   da : cn-of a (K2[..]),
                   at : map a x) |- Dwf[.., b.3, b.4]]
@@ -3570,15 +3570,15 @@ as Dsub2'' unboxed;
               b :
                 block (
                   x : eterm,
-                  dx : evof x (A1[..]),
+                  dx : eof x (A1[..]),
                   a : con,
                   da : cn-of a (K2[..]),
                   at : map a x) |- Dtmap1[.., b.3, b.1, b.5]]
         as Dwf' unboxed;
-        by [g, b : block (x : eterm, dx : evof x (A3[..])) |-
+        by [g, b : block (x : eterm, dx : eof x (A3[..])) |-
       Dsub2'[.., <b.1; b.2; _; _; _>]]
 as Dsub2'' unboxed;
-        by [g, b : block (x : eterm, dx : evof x (A1[..])) |-
+        by [g, b : block (x : eterm, dx : eof x (A1[..])) |-
               Dwf'[.., <b.1; b.2; _; _; _>]]
         as Dwf'' unboxed;
         solve
@@ -3756,7 +3756,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x (A1[..]),
+                  dx : eof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dequiv1[.., b.3, b.4]]
@@ -3764,7 +3764,7 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x (A1[..]),
+                  dx : eof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dtmap1[.., b.3, b.1, b.5]]
@@ -3772,12 +3772,12 @@ intros
               b :
                 block (
                   x : eterm,
-                  dx : evof x (A1[..]),
+                  dx : eof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dtmap3[.., b.3, b.1, b.5]]
         as Dequiv2' unboxed;
-        by [g, b : block (x : eterm, dx : evof x (A1[..])) |-
+        by [g, b : block (x : eterm, dx : eof x (A1[..])) |-
       Dequiv2'[.., <b.1; b.2; _; _; _>]]
 as Dequiv2'' unboxed;
         solve [g |- tequiv/sigma Dequiv1' (\x. \dx. Dequiv2''[.., <x; dx>])]
@@ -3853,7 +3853,7 @@ as Dequiv2'' unboxed;
               b :
                 block (
                   x : eterm,
-                  dx : evof x (A1[..]),
+                  dx : eof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dequiv1[.., b.3, b.4]]
@@ -3861,7 +3861,7 @@ as Dequiv2'' unboxed;
               b :
                 block (
                   x : eterm,
-                  dx : evof x (A1[..]),
+                  dx : eof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dtmap1[.., b.3, b.1, b.5]]
@@ -3869,12 +3869,12 @@ as Dequiv2'' unboxed;
               b :
                 block (
                   x : eterm,
-                  dx : evof x (A1[..]),
+                  dx : eof x (A1[..]),
                   a : con,
                   da : cn-of a (K1[..]),
                   at : map a x) |- Dtmap3[.., b.3, b.1, b.5]]
         as Dequiv2' unboxed;
-        by [g, b : block (x : eterm, dx : evof x (A1[..])) |-
+        by [g, b : block (x : eterm, dx : eof x (A1[..])) |-
       Dequiv2'[.., <b.1; b.2; _; _; _>]]
 as Dequiv2'' unboxed;
         solve [g |- tequiv/pi Dequiv1' (\x. \dx. Dequiv2''[.., <x; dx>])]
@@ -4319,7 +4319,7 @@ intros
            b :
              block (
                x : eterm,
-               dx : evof x (A[..]),
+               dx : eof x (A[..]),
                a : con,
                da : cn-of a (K1[..]),
                at : map a x) |- Dof1[.., b.3, b.4]]
@@ -4327,7 +4327,7 @@ intros
            b :
              block (
                x : eterm,
-               dx : evof x (A[..]),
+               dx : eof x (A[..]),
                a : con,
                da : cn-of a (K1[..]),
                at : map a x) |- Dmap2[.., b.3, b.1, b.5]] as
@@ -4356,7 +4356,7 @@ intros
             (g, x : eterm, a : con, y1389 : map a x |-
                tmap (K3[.., a]) (A1[.., x])),
           Dof :
-            (g, x : eterm, dx : evof x (A[..]) |- eof (M4[.., x]) (A1[.., x]))
+            (g, x : eterm, dx : eof x (A[..]) |- eof (M4[.., x]) (A1[.., x]))
         | map :
             [g |-
                map
@@ -4391,7 +4391,7 @@ intros
               (g, x : eterm, a : con, y1389 : map a x |-
                  tmap (K3[.., a]) (A1[.., x])),
             DofM' :
-              (g, x : eterm, dx : evof x (A[..]) |-
+              (g, x : eterm, dx : eof x (A[..]) |-
                  eof (M4[.., x]) (A1[.., x]))
           | map :
               [g |-
@@ -4533,7 +4533,7 @@ intros
          b :
            block (
              x : eterm,
-             dx : evof x (A[..]),
+             dx : eof x (A[..]),
              a : con,
              da : cn-of a (K1[..]),
              at : map a x) |- Dwf2[.., b.3, b.4]] as
@@ -4557,7 +4557,7 @@ intros
         Dtmap :
           (g, x : eterm, a : con, y1391 : map a x |-
              tmap (K3[.., a]) (A1[.., x])),
-        Dwf3 : (g, x : eterm, dx : evof x (A[..]) |- ewf (A1[.., x]))
+        Dwf3 : (g, x : eterm, dx : eof x (A[..]) |- ewf (A1[.., x]))
       | map : [g |- map C M],
         map1 : [g |- map D N],
         equiv : [g |- cn-equiv C D (sigma K1 (\x364. K3))]
@@ -4618,7 +4618,7 @@ intros
          b :
            block (
              x : eterm,
-             dx : evof x (A[..]),
+             dx : eof x (A[..]),
              a : con,
              da : cn-of a (K1[..]),
              at : map a x) |- map/app (Dmap[..]) b.5]
@@ -4626,7 +4626,7 @@ intros
          b :
            block (
              x : eterm,
-             dx : evof x (A[..]),
+             dx : eof x (A[..]),
              a : con,
              da : cn-of a (K1[..]),
              at : map a x) |- map/app (Dmap'[..]) b.5]
@@ -4634,7 +4634,7 @@ intros
          b :
            block (
              x : eterm,
-             dx : evof x (A[..]),
+             dx : eof x (A[..]),
              a : con,
              da : cn-of a (K1[..]),
              at : map a x) |- Dequiv1[.., b.3, b.4]] as
@@ -4661,7 +4661,7 @@ intros
           (g, x : eterm, a : con, z1383 : map a x |-
              tmap (K4[.., a]) (A1[.., x])),
         Dequiv3 :
-          (g, x : eterm, dx : evof x (A[..]) |-
+          (g, x : eterm, dx : eof x (A[..]) |-
              equiv (eapp (M[..]) x) (eapp (N[..]) x) (A1[.., x]))
       | map : [g |- map C M],
         map1 : [g |- map D N],
@@ -4694,7 +4694,7 @@ intros
             (g, x : eterm, a : con, z1383 : map a x |-
                tmap (K4[.., a]) (A1[.., x])),
           Dequiv3 :
-            (g, x : eterm, dx : evof x (epi (A2[..]) (\y148. A3[.., y148])) |-
+            (g, x : eterm, dx : eof x (epi (A2[..]) (\y148. A3[.., y148])) |-
                equiv (eapp (M[..]) x) (eapp (N[..]) x) (A1[.., x]))
         | map : [g |- map C M],
           map1 : [g |- map D N],
@@ -4786,7 +4786,7 @@ intros
            b :
              block (
                x : eterm,
-               dx : evof x (A1[..]),
+               dx : eof x (A1[..]),
                a : con,
                da : cn-of a (K1[..]),
                at : map a x) |- K3[.., b.3]] as
@@ -4830,7 +4830,7 @@ intros
              b :
                block (
                  x : eterm,
-                 dx : evof x (A1[..]),
+                 dx : eof x (A1[..]),
                  a : con,
                  da : cn-of a (K1[..]),
                  at : map a x) |- map/app (Dmap[..]) b.5]
@@ -4838,7 +4838,7 @@ intros
              b :
                block (
                  x : eterm,
-                 dx : evof x (A1[..]),
+                 dx : eof x (A1[..]),
                  a : con,
                  da : cn-of a (K1[..]),
                  at : map a x) |- map/app (Dmap'[..]) b.5]
@@ -4846,7 +4846,7 @@ intros
              b :
                block (
                  x : eterm,
-                 dx : evof x (A1[..]),
+                 dx : eof x (A1[..]),
                  a : con,
                  da : cn-of a (K1[..]),
                  at : map a x) |- Dequiv[.., b.3, b.4]] as
@@ -4884,7 +4884,7 @@ intros
               (g, x : eterm, a : con, z1386 : map a x |-
                  tmap (K6[.., a]) (A4[.., x])),
             Dequiv1 :
-              (g, x : eterm, dx : evof x (A1[..]) |-
+              (g, x : eterm, dx : eof x (A1[..]) |-
                  equiv (eapp (M[..]) x) (eapp (N[..]) x) (A4[.., x]))
           | map : [g |- map C M],
             map1 : [g |- map D N],
@@ -5170,14 +5170,14 @@ intros
       b1 :
         block (
           x : eterm,
-          dx : evof x (epi (A[..]) (\l. et)),
+          dx : eof x (epi (A[..]) (\l. et)),
           a : con,
           da : cn-of a (pi (K1[..]) (\l. t)),
           at : map a x),
       b2 :
         block (
           y : eterm,
-          dy : evof y (A[..]),
+          dy : eof y (A[..]),
           b : con,
           db : cn-of b (K1[..]),
           bt : map b y) |- DmapC1[.., b1.3, b1.1, b1.5, b2.3, b2.1, b2.5]]
@@ -5185,14 +5185,14 @@ intros
       b1 :
         block (
           x : eterm,
-          dx : evof x (epi (A[..]) (\l. et)),
+          dx : eof x (epi (A[..]) (\l. et)),
           a : con,
           da : cn-of a (pi (K1[..]) (\l. t)),
           at : map a x),
       b2 :
         block (
           y : eterm,
-          dy : evof y (A[..]),
+          dy : eof y (A[..]),
           b : con,
           db : cn-of b (K1[..]),
           bt : map b y) |- DmapC1'[.., b1.3, b1.1, b1.5, b2.3, b2.1, b2.5]]
@@ -5200,14 +5200,14 @@ intros
       b1 :
         block (
           x : eterm,
-          dx : evof x (epi (A[..]) (\l. et)),
+          dx : eof x (epi (A[..]) (\l. et)),
           a : con,
           da : cn-of a (pi (K1[..]) (\l. t)),
           at : map a x),
       b2 :
         block (
           y : eterm,
-          dy : evof y (A[..]),
+          dy : eof y (A[..]),
           b : con,
           db : cn-of b (K1[..]),
           bt : map b y) |- DequivC1[.., b1.3, b1.4, b2.3, b2.4]]
@@ -5215,14 +5215,14 @@ intros
       b1 :
         block (
           x : eterm,
-          dx : evof x (epi (A[..]) (\l. et)),
+          dx : eof x (epi (A[..]) (\l. et)),
           a : con,
           da : cn-of a (pi (K1[..]) (\l. t)),
           at : map a x),
       b2 :
         block (
           y : eterm,
-          dy : evof y (A[..]),
+          dy : eof y (A[..]),
           b : con,
           db : cn-of b (K1[..]),
           bt : map b y) |- tmap/t]
@@ -5274,14 +5274,14 @@ as DequivM2 unboxed;
                b1 :
                  block (
                    x : eterm,
-                   dx : evof x (epi (A[..]) (\l. et)),
+                   dx : eof x (epi (A[..]) (\l. et)),
                    a : con,
                    da : cn-of a (pi (K1[..]) (\l. t)),
                    at : map a x),
                b2 :
                  block (
                    y : eterm,
-                   dy : evof y (A[..]),
+                   dy : eof y (A[..]),
                    b : con,
                    db : cn-of b (K1[..]),
                    bt : map b y) |-
@@ -5357,14 +5357,14 @@ as DequivM2 unboxed;
                  b1 :
                    block (
                      x : eterm,
-                     dx : evof x (epi (A[..]) (\l. et)),
+                     dx : eof x (epi (A[..]) (\l. et)),
                      a : con,
                      da : cn-of a (pi (K1[..]) (\l. t)),
                      at : map a x),
                  b2 :
                    block (
                      y : eterm,
-                     dy : evof y (A[..]),
+                     dy : eof y (A[..]),
                      b : con,
                      db : cn-of b (K1[..]),
                      bt : map b y) |-
@@ -5445,14 +5445,14 @@ as DequivM2 unboxed;
                    b1 :
                      block (
                        x : eterm,
-                       dx : evof x (epi (A[..]) (\l. et)),
+                       dx : eof x (epi (A[..]) (\l. et)),
                        a : con,
                        da : cn-of a (pi (K1[..]) (\l. t)),
                        at : map a x),
                    b2 :
                      block (
                        y : eterm,
-                       dy : evof y (A[..]),
+                       dy : eof y (A[..]),
                        b : con,
                        db : cn-of b (K1[..]),
                        bt : map b y) |-
@@ -5535,14 +5535,14 @@ as DequivM2 unboxed;
                      b1 :
                        block (
                          x : eterm,
-                         dx : evof x (epi (A[..]) (\l. et)),
+                         dx : eof x (epi (A[..]) (\l. et)),
                          a : con,
                          da : cn-of a (pi (K1[..]) (\l. t)),
                          at : map a x),
                      b2 :
                        block (
                          y : eterm,
-                         dy : evof y (A[..]),
+                         dy : eof y (A[..]),
                          b : con,
                          db : cn-of b (K1[..]),
                          bt : map b y) |-
@@ -5624,14 +5624,14 @@ as DequivM2 unboxed;
                        b1 :
                          block (
                            x : eterm,
-                           dx : evof x (epi (A[..]) (\l. et)),
+                           dx : eof x (epi (A[..]) (\l. et)),
                            a : con,
                            da : cn-of a (pi (K1[..]) (\l. t)),
                            at : map a x),
                        b2 :
                          block (
                            y : eterm,
-                           dy : evof y (A[..]),
+                           dy : eof y (A[..]),
                            b : con,
                            db : cn-of b (K1[..]),
                            bt : map b y) |-
@@ -5644,7 +5644,7 @@ as DequivM2 unboxed;
                     Dtequiv : (g |- tequiv A (A3[M3])),
                     DequivMA : (g |- equiv M3 M6 A2[]),
                     Dwf : ( |- ewf A2),
-                    DwfA' : (x : eterm, z337 : evof x A2[] |- ewf (A3[x]))
+                    DwfA' : (x : eterm, z337 : eof x A2[] |- ewf (A3[x]))
                   | map :
                       [g |-
                          map
@@ -6214,7 +6214,7 @@ map-equiv'
    b :
      block (
        x : eterm,
-       dx : evof x (A[..]),
+       dx : eof x (A[..]),
        a : con,
        da : cn-of a (K1[..]),
        at : map a x) |- Dmap[.., b.3, b.1, b.5]]
@@ -6222,7 +6222,7 @@ map-equiv'
    b :
      block (
        x : eterm,
-       dx : evof x (A[..]),
+       dx : eof x (A[..]),
        a : con,
        da : cn-of a (K1[..]),
        at : map a x) |- Dmap1[.., b.3, b.1, b.5]]
@@ -6230,7 +6230,7 @@ map-equiv'
    b :
      block (
        x : eterm,
-       dx : evof x (A[..]),
+       dx : eof x (A[..]),
        a : con,
        da : cn-of a (K1[..]),
        at : map a x) |- Dequiv1[.., b.3, b.4]] as
@@ -6263,7 +6263,7 @@ map-equiv'
             (g, x : eterm, a : con, z1353 : map a x |-
                tmap (K4[.., a]) (A2[.., x])),
           Dequiv2 :
-            (g, x : eterm, dx : evof x (A[..]) |-
+            (g, x : eterm, dx : eof x (A[..]) |-
                equiv (M3[.., x]) (M4[.., x]) (A2[.., x]))
         | map : [g |- map (lam K1 (\z366. C1)) (elam A (\y152. M3))],
           map1 : [g |- map (lam K2 (\z366. C2)) (elam A1 (\y152. M4))],
@@ -6551,7 +6551,7 @@ map-equiv'
              b :
                block (
                  x : eterm,
-                 dx : evof x (A[..]),
+                 dx : eof x (A[..]),
                  a : con,
                  da : cn-of a (K1[..]),
                  at : map a x) |- Dwf[.., b.3, b.4]] as
@@ -6581,7 +6581,7 @@ map-equiv'
             Dtmap1 :
               (g, x : eterm, a : con, z5 : map a x |-
                  tmap (K3[.., a]) (A1[.., x])),
-            Dwf1 : (g, x : eterm, dx : evof x (A[..]) |- ewf (A1[.., x]))
+            Dwf1 : (g, x : eterm, dx : eof x (A[..]) |- ewf (A1[.., x]))
           | map : [g |- map (pair C1 C3) (epair M1 M2)],
             map1 : [g |- map (pair C2 C4) (epair M3 M4)],
             equiv :
@@ -6809,7 +6809,7 @@ LF map-equiv/e : con -> con -> kind -> type =
 
 % FIXME: C, D, K are not in scope, `invert can-map [_ |- C]`, `invert can-map [_ |- D]`.
 % Note: `invert can-map [_ |- _]` yields `File "src/core/lfcheck.ml", line 957, characters 5-10: Pattern matching failed`.
-% Note: `invert can-map [_, b : block (x : eterm, dx : evof x B, a : con, da : cn-of a k, at : map a x) |- b.a]` yields `File "src/core/lfcheck.ml", line 957, characters 5-10: Pattern matching failed`.
+% Note: `invert can-map [_, b : block (x : eterm, dx : eof x B, a : con, da : cn-of a k, at : map a x) |- b.a]` yields `File "src/core/lfcheck.ml", line 957, characters 5-10: Pattern matching failed`.
 % Note: `split equiv`, (case cn-equiv/beta2) `split equiv` yields `Stack overflow`.
 proof map-equiv :
   (g : map-bind)

@@ -100,9 +100,6 @@ and tsub : (atom -> tp) -> term -> tp -> type =
 
 % Typing Rules
 
-% TODO: Investigate why this LF declaration is empty
-LF vof : atom -> tp -> type =;
-
 LF kof : constant -> tp -> type =
 | kof/i :
   ckof C Ac ->
@@ -116,11 +113,6 @@ and aof : atom -> tp -> type =
   kof C A ->
   wf A ->
     aof (const C) A
-
-| aof/var :
-  vof X A ->
-  wf A ->
-    aof X A
 
 | aof/app :
   aof R (pi A B) ->
@@ -145,14 +137,14 @@ and of' : term -> tp -> type =
 
 | of'/lam :
   wf A ->
-  ({ x : atom } vof x A -> of' (M x) (B x)) ->
+  ({ x : atom } aof x A -> of' (M x) (B x)) ->
     of' (lam M) (pi A B)
 
 | of'/pair :
   of' M A ->
   tsub B M B' ->
   of' N B' ->
-  ({ x : atom } vof x A -> wf (B x)) ->
+  ({ x : atom } aof x A -> wf (B x)) ->
     of' (pair M N) (sigma A B)
 
 | of'/sing :
@@ -166,12 +158,12 @@ and wf : tp -> type =
 
 | wf/pi :
   wf A ->
-  ({ x : atom } vof x A -> wf (B x)) ->
+  ({ x : atom } aof x A -> wf (B x)) ->
     wf (pi A B)
 
 | wf/sigma :
   wf A ->
-  ({ x : atom } vof x A -> wf (B x)) ->
+  ({ x : atom } aof x A -> wf (B x)) ->
     wf (sigma A B)
 
 | wf/sing :
@@ -243,9 +235,9 @@ and topenm : cterm -> tp -> term -> type =
 
 schema var = block (x : atom);
 
-schema bind = some [a : tp] block (x : atom, d : vof x a);
+schema bind = some [a : tp] block (x : atom, d : aof x a);
 
-schema ofblock = some [x : atom, a : tp] block (d : vof x a);
+schema ofblock = some [x : atom, a : tp] block (d : aof x a);
 
 schema topenblock =
   some [a : tp, r : atom]

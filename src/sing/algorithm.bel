@@ -1,8 +1,3 @@
-% Variable Identification
-
-% TODO: Investigate why this LF declaration is empty
-LF variable : eterm -> type =;
-
 % Beta Normalization
 
 LF oa : eterm -> type = % outermost atomic

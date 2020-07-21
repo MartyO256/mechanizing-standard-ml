@@ -6,14 +6,14 @@ LF ttrans : etp -> tp -> type =
 
 | ttrans/pi :
   ttrans EA A ->
-  ({ x : atom } vof x A ->
+  ({ x : atom } aof x A ->
    { ex : eterm } vtrans ex x ->
    ttrans (EB ex) (B x)) ->
     ttrans (epi EA EB) (pi A B)
 
 | ttrans/sigma :
   ttrans EA A ->
-  ({ x : atom } vof x A ->
+  ({ x : atom } aof x A ->
    { ex : eterm } vtrans ex x ->
    ttrans (EB ex) (B x)) ->
     ttrans (esigma EA EB) (sigma A B)
@@ -34,7 +34,7 @@ and trans : eterm -> tp -> type =
 
 | trans/var :
   vtrans EM X ->
-  vof X A ->
+  aof X A ->
   wf A ->
   expand X A M ->
   self M A A' ->
@@ -57,7 +57,7 @@ and trans : eterm -> tp -> type =
 
 | trans/lam :
   ttrans EA A ->
-  ({ x : atom } vof x A ->
+  ({ x : atom } aof x A ->
    { ex : eterm } vtrans ex x ->
    trans (EM ex) (B x)) ->
     trans (elam EA EM) (pi A B)

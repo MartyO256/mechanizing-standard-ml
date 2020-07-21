@@ -5,14 +5,14 @@ schema reduce-ctx =
   block (x : eterm) +
   % evbind
   some [a : etp]
-  block (x : eterm, d : evof x a) +
+  block (x : eterm, d : eof x a) +
   % sbind
   some [a : tp, ea : etp, d_tconvert : tconvert a ea]
   block (
-    x : atom, d : vof x a,
+    x : atom, d : aof x a,
     ex : eterm,
     xt : vtrans ex x,
-    ed : evof ex ea
+    ed : eof ex ea
   );
 
 proof reduce-fun :

@@ -4,7 +4,7 @@ schema scbind =
     d_tconvert : tconvert a ea, d_ttrans : ttrans ea a, d_wf : wf a
   ]
   block (
-    x : atom, d : vof x a,
+    x : atom, d : aof x a,
     ex : eterm, xt : vtrans ex x,
-    ed : evof ex ea, dv : variable ex
+    ed : eof ex ea
   );
