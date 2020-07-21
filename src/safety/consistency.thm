@@ -7091,6 +7091,798 @@ intros
 }
 ;
 
+% Unmap Functionality
+
+schema unmap-ctx =
+  % conblock
+  block (a : con) +
+  % unmap-fun-bind
+  some [a : con]
+  block (x : eterm, xt : unmap x a);
+
+proof unmap-fun :
+  (g : unmap-ctx)
+  [g |- unmap M C] ->
+  [g |- unmap M C'] ->
+    [g |- con-eq C C'] =
+/ total 1 /
+intros
+{ g : unmap-ctx, M : (g |- eterm), C : (g |- con), C' : (g |- con)
+| x : [g |- unmap M C], unmap : [g |- unmap M C']
+; split x as
+  case unmap/labeled:
+  { g : unmap-ctx, L : ( |- label), C' : (g |- con)
+  | x : [g |- unmap (econst (const/labeled L[])) (lam t (\a. labeled L[] a))],
+    unmap : [g |- unmap (econst (const/labeled L[])) C']
+  ; split unmap as
+    case unmap/labeled:
+    { g : unmap-ctx, L : ( |- label)
+    | x :
+        [g |- unmap (econst (const/labeled L[])) (lam t (\a. labeled L[] a))],
+      unmap :
+        [g |- unmap (econst (const/labeled L[])) (lam t (\a. labeled L[] a))]
+    ; solve [_ |- con-eq/i ]
+    }
+  }
+  case unmap/rec:
+  { g : unmap-ctx,
+    Dskel : ( |- skel),
+    K : (g |- kind),
+    K1 : (g, a167 : con |- kind),
+    C' : (g |- con),
+    Dskof-il : (g |- skof-il Dskel[] K (\x1003. K1))
+  | x :
+      [g |-
+         unmap
+           (econst (const/rec Dskel[]))
+           (lam (sigma K
+                (\a.
+                   sigma (pi (pi K1 (\l. t)) (\k. pi (K1[.., a]) (\l. t)))
+                   (\l. K1[.., a])))
+           (\b.
+              rec' (K1[.., pi1 b])
+              (\c. \d. app (app (pi1 (pi2 b)) c) d) (pi2 (pi2 b))))],
+    unmap : [g |- unmap (econst (const/rec Dskel[])) C']
+  ; split unmap as
+    case unmap/rec:
+    { g : unmap-ctx,
+      Dskel : ( |- skel),
+      K : (g |- kind),
+      K1 : (g, a167 : con |- kind),
+      K2 : (g |- kind),
+      K3 : (g, a167 : con |- kind),
+      Dskof-il : (g |- skof-il Dskel[] K (\x1003. K1)),
+      Dskof-il1 : (g |- skof-il Dskel[] K2 (\x1003. K3))
+    | x :
+        [g |-
+           unmap
+             (econst (const/rec Dskel[]))
+             (lam (sigma K
+                  (\a.
+                     sigma (pi (pi K1 (\l. t)) (\k. pi (K1[.., a]) (\l. t)))
+                     (\l. K1[.., a])))
+             (\b.
+                rec' (K1[.., pi1 b])
+                (\c. \d. app (app (pi1 (pi2 b)) c) d) (pi2 (pi2 b))))],
+      unmap :
+        [g |-
+           unmap
+             (econst (const/rec Dskel[]))
+             (lam (sigma K2
+                  (\a.
+                     sigma (pi (pi K3 (\l. t)) (\k. pi (K3[.., a]) (\l. t)))
+                     (\l. K3[.., a])))
+             (\b.
+                rec' (K3[.., pi1 b])
+                (\c. \d. app (app (pi1 (pi2 b)) c) d) (pi2 (pi2 b))))]
+    ; split skof-il-fun [_ |- Dskof-il] [_ |- Dskof-il1] as
+      case skof-il-fun/i:
+      { g : unmap-ctx,
+        Dskel : ( |- skel),
+        K : (g |- kind),
+        K1 : (g, a167 : con |- kind),
+        K2 : (g |- kind),
+        K3 : (g, a167 : con |- kind),
+        Dskof-il : (g |- skof-il Dskel[] K (\x1003. K1)),
+        Dskof-il1 : (g |- skof-il Dskel[] K2 (\x1003. K3)),
+        Deq : (g |- kind-eq K K2),
+        Deq1 : (g, x : con |- kind-eq K1 K3)
+      | x :
+          [g |-
+             unmap
+               (econst (const/rec Dskel[]))
+               (lam (sigma K
+                    (\a.
+                       sigma (pi (pi K1 (\l. t))
+                             (\k. pi (K1[.., a]) (\l. t)))
+                       (\l. K1[.., a])))
+               (\b.
+                  rec' (K1[.., pi1 b])
+                  (\c. \d. app (app (pi1 (pi2 b)) c) d) (pi2 (pi2 b))))],
+        unmap :
+          [g |-
+             unmap
+               (econst (const/rec Dskel[]))
+               (lam (sigma K2
+                    (\a.
+                       sigma (pi (pi K3 (\l. t))
+                             (\k. pi (K3[.., a]) (\l. t)))
+                       (\l. K3[.., a])))
+               (\b.
+                  rec' (K3[.., pi1 b])
+                  (\c. \d. app (app (pi1 (pi2 b)) c) d) (pi2 (pi2 b))))]
+      ; split [_ |- Deq] as
+        case kind-eq/i:
+        { g : unmap-ctx,
+          Dskel : ( |- skel),
+          K2 : (g |- kind),
+          K1 : (g, a167 : con |- kind),
+          K3 : (g, a167 : con |- kind),
+          Dskof-il : (g |- skof-il Dskel[] K2 (\x1003. K1)),
+          Dskof-il1 : (g |- skof-il Dskel[] K2 (\x1003. K3)),
+          Deq1 : (g, x : con |- kind-eq K1 K3)
+        | x :
+            [g |-
+               unmap
+                 (econst (const/rec Dskel[]))
+                 (lam (sigma K2
+                      (\a.
+                         sigma (pi (pi K1 (\l. t))
+                               (\k. pi (K1[.., a]) (\l. t)))
+                         (\l. K1[.., a])))
+                 (\b.
+                    rec' (K1[.., pi1 b])
+                    (\c. \d. app (app (pi1 (pi2 b)) c) d) (pi2 (pi2 b))))],
+          unmap :
+            [g |-
+               unmap
+                 (econst (const/rec Dskel[]))
+                 (lam (sigma K2
+                      (\a.
+                         sigma (pi (pi K3 (\l. t))
+                               (\k. pi (K3[.., a]) (\l. t)))
+                         (\l. K3[.., a])))
+                 (\b.
+                    rec' (K3[.., pi1 b])
+                    (\c. \d. app (app (pi1 (pi2 b)) c) d) (pi2 (pi2 b))))]
+        ; split [_, x : con |- Deq1] as
+          case kind-eq/i:
+          { g : unmap-ctx,
+            Dskel : ( |- skel),
+            K2 : (g |- kind),
+            K3 : (g, a167 : con |- kind),
+            Dskof-il : (g |- skof-il Dskel[] K2 (\x1003. K3)),
+            Dskof-il1 : (g |- skof-il Dskel[] K2 (\x1003. K3))
+          | x :
+              [g |-
+                 unmap
+                   (econst (const/rec Dskel[]))
+                   (lam (sigma K2
+                        (\a.
+                           sigma (pi (pi K3 (\l. t))
+                                 (\k. pi (K3[.., a]) (\l. t)))
+                           (\l. K3[.., a])))
+                   (\b.
+                      rec' (K3[.., pi1 b])
+                      (\c. \d. app (app (pi1 (pi2 b)) c) d) (pi2 (pi2 b))))],
+            unmap :
+              [g |-
+                 unmap
+                   (econst (const/rec Dskel[]))
+                   (lam (sigma K2
+                        (\a.
+                           sigma (pi (pi K3 (\l. t))
+                                 (\k. pi (K3[.., a]) (\l. t)))
+                           (\l. K3[.., a])))
+                   (\b.
+                      rec' (K3[.., pi1 b])
+                      (\c. \d. app (app (pi1 (pi2 b)) c) d) (pi2 (pi2 b))))]
+          ; solve [_ |- con-eq/i ]
+          }
+        }
+      }
+    }
+  }
+  case unmap/tagged:
+  { g : unmap-ctx, C' : (g |- con)
+  | x : [g |- unmap (econst const/tagged) tagged],
+    unmap : [g |- unmap (econst const/tagged) C']
+  ; split unmap as
+    case unmap/tagged:
+    { g : unmap-ctx
+    | x : [g |- unmap (econst const/tagged) tagged],
+      unmap : [g |- unmap (econst const/tagged) tagged]
+    ; solve [_ |- con-eq/i ]
+    }
+  }
+  case unmap/tag:
+  { g : unmap-ctx, C' : (g |- con)
+  | x : [g |- unmap (econst const/tag) (lam t (\a. tag a))],
+    unmap : [g |- unmap (econst const/tag) C']
+  ; split unmap as
+    case unmap/tag:
+    { g : unmap-ctx
+    | x : [g |- unmap (econst const/tag) (lam t (\a. tag a))],
+      unmap : [g |- unmap (econst const/tag) (lam t (\a. tag a))]
+    ; solve [_ |- con-eq/i ]
+    }
+  }
+  case unmap/ref:
+  { g : unmap-ctx, C' : (g |- con)
+  | x : [g |- unmap (econst const/ref) (lam t (\a. ref a))],
+    unmap : [g |- unmap (econst const/ref) C']
+  ; split unmap as
+    case unmap/ref:
+    { g : unmap-ctx
+    | x : [g |- unmap (econst const/ref) (lam t (\a. ref a))],
+      unmap : [g |- unmap (econst const/ref) (lam t (\a. ref a))]
+    ; solve [_ |- con-eq/i ]
+    }
+  }
+  case unmap/plus:
+  { g : unmap-ctx, C' : (g |- con)
+  | x : [g |- unmap (econst const/plus) (lam t (\a. lam t (\b. plus a b)))],
+    unmap : [g |- unmap (econst const/plus) C']
+  ; split unmap as
+    case unmap/plus:
+    { g : unmap-ctx
+    | x : [g |- unmap (econst const/plus) (lam t (\a. lam t (\b. plus a b)))],
+      unmap :
+        [g |- unmap (econst const/plus) (lam t (\a. lam t (\b. plus a b)))]
+    ; solve [_ |- con-eq/i ]
+    }
+  }
+  case unmap/arrow:
+  { g : unmap-ctx, C' : (g |- con)
+  | x : [g |- unmap (econst const/arrow) (lam t (\a. lam t (\b. arrow a b)))],
+    unmap : [g |- unmap (econst const/arrow) C']
+  ; split unmap as
+    case unmap/arrow:
+    { g : unmap-ctx
+    | x :
+        [g |- unmap (econst const/arrow) (lam t (\a. lam t (\b. arrow a b)))],
+      unmap :
+        [g |- unmap (econst const/arrow) (lam t (\a. lam t (\b. arrow a b)))]
+    ; solve [_ |- con-eq/i ]
+    }
+  }
+  case unmap/prod:
+  { g : unmap-ctx, C' : (g |- con)
+  | x : [g |- unmap (econst const/prod) (lam t (\a. lam t (\b. prod a b)))],
+    unmap : [g |- unmap (econst const/prod) C']
+  ; split unmap as
+    case unmap/prod:
+    { g : unmap-ctx
+    | x : [g |- unmap (econst const/prod) (lam t (\a. lam t (\b. prod a b)))],
+      unmap :
+        [g |- unmap (econst const/prod) (lam t (\a. lam t (\b. prod a b)))]
+    ; solve [_ |- con-eq/i ]
+    }
+  }
+  case unmap/void:
+  { g : unmap-ctx, C' : (g |- con)
+  | x : [g |- unmap (econst const/void) void],
+    unmap : [g |- unmap (econst const/void) C']
+  ; split unmap as
+    case unmap/void:
+    { g : unmap-ctx
+    | x : [g |- unmap (econst const/void) void],
+      unmap : [g |- unmap (econst const/void) void]
+    ; solve [_ |- con-eq/i ]
+    }
+  }
+  case unmap/unit:
+  { g : unmap-ctx, C' : (g |- con)
+  | x : [g |- unmap (econst const/unit) unit],
+    unmap : [g |- unmap (econst const/unit) C']
+  ; split unmap as
+    case unmap/unit:
+    { g : unmap-ctx
+    | x : [g |- unmap (econst const/unit) unit],
+      unmap : [g |- unmap (econst const/unit) unit]
+    ; solve [_ |- con-eq/i ]
+    }
+  }
+  case unmap/star:
+  { g : unmap-ctx, C' : (g |- con)
+  | x : [g |- unmap estar star], unmap : [g |- unmap estar C']
+  ; split unmap as
+    case unmap/star:
+    { g : unmap-ctx
+    | x : [g |- unmap estar star], unmap : [g |- unmap estar star]
+    ; solve [_ |- con-eq/i ]
+    }
+  }
+  case unmap/pair:
+  { g : unmap-ctx,
+    M1 : (g |- eterm),
+    M2 : (g |- eterm),
+    C1 : (g |- con),
+    C2 : (g |- con),
+    C' : (g |- con),
+    Dunmap : (g |- unmap M1 C1),
+    Dunmap1 : (g |- unmap M2 C2)
+  | x : [g |- unmap (epair M1 M2) (pair C1 C2)],
+    unmap : [g |- unmap (epair M1 M2) C']
+  ; split unmap as
+    case unmap/pair:
+    { g : unmap-ctx,
+      M1 : (g |- eterm),
+      M2 : (g |- eterm),
+      C1 : (g |- con),
+      C2 : (g |- con),
+      C3 : (g |- con),
+      C4 : (g |- con),
+      Dunmap : (g |- unmap M1 C1),
+      Dunmap1 : (g |- unmap M2 C2),
+      Dunmap2 : (g |- unmap M1 C3),
+      Dunmap3 : (g |- unmap M2 C4)
+    | x : [g |- unmap (epair M1 M2) (pair C1 C2)],
+      unmap : [g |- unmap (epair M1 M2) (pair C3 C4)]
+    ; split unmap-fun [_ |- Dunmap] [_ |- Dunmap2] as
+      case con-eq/i:
+      { g : unmap-ctx,
+        M1 : (g |- eterm),
+        M2 : (g |- eterm),
+        C3 : (g |- con),
+        C2 : (g |- con),
+        C4 : (g |- con),
+        Dunmap : (g |- unmap M1 C3),
+        Dunmap1 : (g |- unmap M2 C2),
+        Dunmap2 : (g |- unmap M1 C3),
+        Dunmap3 : (g |- unmap M2 C4)
+      | x : [g |- unmap (epair M1 M2) (pair C3 C2)],
+        unmap : [g |- unmap (epair M1 M2) (pair C3 C4)]
+      ; split unmap-fun [_ |- Dunmap1] [_ |- Dunmap3] as
+        case con-eq/i:
+        { g : unmap-ctx,
+          M1 : (g |- eterm),
+          M2 : (g |- eterm),
+          C3 : (g |- con),
+          C4 : (g |- con),
+          Dunmap : (g |- unmap M1 C3),
+          Dunmap1 : (g |- unmap M2 C4),
+          Dunmap2 : (g |- unmap M1 C3),
+          Dunmap3 : (g |- unmap M2 C4)
+        | x : [g |- unmap (epair M1 M2) (pair C3 C4)],
+          unmap : [g |- unmap (epair M1 M2) (pair C3 C4)]
+        ; solve [_ |- con-eq/i ]
+        }
+      }
+    }
+  }
+  case unmap/lam:
+  { g : unmap-ctx,
+    A : (g |- etp),
+    M1 : (g, y1212 : eterm |- eterm),
+    K : (g |- kind),
+    C1 : (g, a166 : con |- con),
+    C' : (g |- con),
+    Dtunmap : (g |- tunmap A K),
+    Dunmap :
+      (g, x : eterm, a : con, z1211 : unmap x a |-
+         unmap (M1[.., x]) (C1[.., a]))
+  | x : [g |- unmap (elam A (\y152. M1)) (lam K (\x473. C1))],
+    unmap : [g |- unmap (elam A (\y152. M1)) C']
+  ; split unmap as
+    case unmap/lam:
+    { g : unmap-ctx,
+      A : (g |- etp),
+      M1 : (g, y1212 : eterm |- eterm),
+      K : (g |- kind),
+      C1 : (g, a166 : con |- con),
+      K1 : (g |- kind),
+      C2 : (g, a166 : con |- con),
+      Dtunmap : (g |- tunmap A K),
+      Dunmap :
+        (g, x : eterm, a : con, z1211 : unmap x a |-
+           unmap (M1[.., x]) (C1[.., a])),
+      Dtunmap1 : (g |- tunmap A K1),
+      Dunmap1 :
+        (g, x : eterm, a : con, z1211 : unmap x a |-
+           unmap (M1[.., x]) (C2[.., a]))
+    | x : [g |- unmap (elam A (\y152. M1)) (lam K (\x473. C1))],
+      unmap : [g |- unmap (elam A (\y152. M1)) (lam K1 (\x473. C2))]
+    ; split tunmap-fun [_ |- Dtunmap] [_ |- Dtunmap1] as
+      case kind-eq/i:
+      { g : unmap-ctx,
+        A : (g |- etp),
+        M1 : (g, y1212 : eterm |- eterm),
+        K1 : (g |- kind),
+        C1 : (g, a166 : con |- con),
+        C2 : (g, a166 : con |- con),
+        Dtunmap : (g |- tunmap A K1),
+        Dunmap :
+          (g, x : eterm, a : con, z1211 : unmap x a |-
+             unmap (M1[.., x]) (C1[.., a])),
+        Dtunmap1 : (g |- tunmap A K1),
+        Dunmap1 :
+          (g, x : eterm, a : con, z1211 : unmap x a |-
+             unmap (M1[.., x]) (C2[.., a]))
+      | x : [g |- unmap (elam A (\y152. M1)) (lam K1 (\x473. C1))],
+        unmap : [g |- unmap (elam A (\y152. M1)) (lam K1 (\x473. C2))]
+      ; split
+        unmap-fun
+          [_, a : con, b : block (x : eterm, xt : unmap x a) |-
+             Dunmap[.., b.1, a, b.2]]
+          [_, a : con, b : block (x : eterm, xt : unmap x a) |-
+             Dunmap1[.., b.1, a, b.2]] as
+        case con-eq/i:
+        { g : unmap-ctx,
+          A : (g |- etp),
+          M1 : (g, y1212 : eterm |- eterm),
+          K1 : (g |- kind),
+          C2 : (g, a166 : con |- con),
+          Dtunmap : (g |- tunmap A K1),
+          Dunmap :
+            (g, x : eterm, a : con, z1211 : unmap x a |-
+               unmap (M1[.., x]) (C2[.., a])),
+          Dtunmap1 : (g |- tunmap A K1),
+          Dunmap1 :
+            (g, x : eterm, a : con, z1211 : unmap x a |-
+               unmap (M1[.., x]) (C2[.., a]))
+        | x : [g |- unmap (elam A (\y152. M1)) (lam K1 (\x473. C2))],
+          unmap : [g |- unmap (elam A (\y152. M1)) (lam K1 (\x473. C2))]
+        ; solve [_ |- con-eq/i ]
+        }
+      }
+    }
+  }
+  case unmap/pi2:
+  { g : unmap-ctx,
+    M1 : (g |- eterm),
+    C1 : (g |- con),
+    C' : (g |- con),
+    Dunmap : (g |- unmap M1 C1)
+  | x : [g |- unmap (epi2 M1) (pi2 C1)], unmap : [g |- unmap (epi2 M1) C']
+  ; split unmap as
+    case unmap/pi2:
+    { g : unmap-ctx,
+      M1 : (g |- eterm),
+      C1 : (g |- con),
+      C2 : (g |- con),
+      Dunmap : (g |- unmap M1 C1),
+      Dunmap1 : (g |- unmap M1 C2)
+    | x : [g |- unmap (epi2 M1) (pi2 C1)],
+      unmap : [g |- unmap (epi2 M1) (pi2 C2)]
+    ; split unmap-fun [_ |- Dunmap] [_ |- Dunmap1] as
+      case con-eq/i:
+      { g : unmap-ctx,
+        M1 : (g |- eterm),
+        C2 : (g |- con),
+        Dunmap : (g |- unmap M1 C2),
+        Dunmap1 : (g |- unmap M1 C2)
+      | x : [g |- unmap (epi2 M1) (pi2 C2)],
+        unmap : [g |- unmap (epi2 M1) (pi2 C2)]
+      ; solve [_ |- con-eq/i ]
+      }
+    }
+  }
+  case unmap/pi1:
+  { g : unmap-ctx,
+    M1 : (g |- eterm),
+    C1 : (g |- con),
+    C' : (g |- con),
+    Dunmap : (g |- unmap M1 C1)
+  | x : [g |- unmap (epi1 M1) (pi1 C1)], unmap : [g |- unmap (epi1 M1) C']
+  ; split unmap as
+    case unmap/pi1:
+    { g : unmap-ctx,
+      M1 : (g |- eterm),
+      C1 : (g |- con),
+      C2 : (g |- con),
+      Dunmap : (g |- unmap M1 C1),
+      Dunmap1 : (g |- unmap M1 C2)
+    | x : [g |- unmap (epi1 M1) (pi1 C1)],
+      unmap : [g |- unmap (epi1 M1) (pi1 C2)]
+    ; split unmap-fun [_ |- Dunmap] [_ |- Dunmap1] as
+      case con-eq/i:
+      { g : unmap-ctx,
+        M1 : (g |- eterm),
+        C2 : (g |- con),
+        Dunmap : (g |- unmap M1 C2),
+        Dunmap1 : (g |- unmap M1 C2)
+      | x : [g |- unmap (epi1 M1) (pi1 C2)],
+        unmap : [g |- unmap (epi1 M1) (pi1 C2)]
+      ; solve [_ |- con-eq/i ]
+      }
+    }
+  }
+  case unmap/app:
+  { g : unmap-ctx,
+    M1 : (g |- eterm),
+    M2 : (g |- eterm),
+    C1 : (g |- con),
+    C2 : (g |- con),
+    C' : (g |- con),
+    Dunmap : (g |- unmap M1 C1),
+    Dunmap1 : (g |- unmap M2 C2)
+  | x : [g |- unmap (eapp M1 M2) (app C1 C2)],
+    unmap : [g |- unmap (eapp M1 M2) C']
+  ; split unmap as
+    case unmap/app:
+    { g : unmap-ctx,
+      M1 : (g |- eterm),
+      M2 : (g |- eterm),
+      C1 : (g |- con),
+      C2 : (g |- con),
+      C3 : (g |- con),
+      C4 : (g |- con),
+      Dunmap : (g |- unmap M1 C1),
+      Dunmap1 : (g |- unmap M2 C2),
+      Dunmap2 : (g |- unmap M1 C3),
+      Dunmap3 : (g |- unmap M2 C4)
+    | x : [g |- unmap (eapp M1 M2) (app C1 C2)],
+      unmap : [g |- unmap (eapp M1 M2) (app C3 C4)]
+    ; split unmap-fun [_ |- Dunmap] [_ |- Dunmap2] as
+      case con-eq/i:
+      { g : unmap-ctx,
+        M1 : (g |- eterm),
+        M2 : (g |- eterm),
+        C3 : (g |- con),
+        C2 : (g |- con),
+        C4 : (g |- con),
+        Dunmap : (g |- unmap M1 C3),
+        Dunmap1 : (g |- unmap M2 C2),
+        Dunmap2 : (g |- unmap M1 C3),
+        Dunmap3 : (g |- unmap M2 C4)
+      | x : [g |- unmap (eapp M1 M2) (app C3 C2)],
+        unmap : [g |- unmap (eapp M1 M2) (app C3 C4)]
+      ; split unmap-fun [_ |- Dunmap1] [_ |- Dunmap3] as
+        case con-eq/i:
+        { g : unmap-ctx,
+          M1 : (g |- eterm),
+          M2 : (g |- eterm),
+          C3 : (g |- con),
+          C4 : (g |- con),
+          Dunmap : (g |- unmap M1 C3),
+          Dunmap1 : (g |- unmap M2 C4),
+          Dunmap2 : (g |- unmap M1 C3),
+          Dunmap3 : (g |- unmap M2 C4)
+        | x : [g |- unmap (eapp M1 M2) (app C3 C4)],
+          unmap : [g |- unmap (eapp M1 M2) (app C3 C4)]
+        ; solve [_ |- con-eq/i ]
+        }
+      }
+    }
+  }
+  %{ FIXME: File "src/core/reconstruct.ml", line 2248, characters 11-16: Pattern matching failed
+  case #.2:
+  { g : unmap-ctx,
+    C : (g |- con),
+    #unmap : #(g |- block (x : eterm, xt : unmap x (C[..]))),
+    C' : (g |- con)
+  | x : [g |- unmap #unmap.1 C], unmap : [g |- unmap #unmap.1 C']
+  ; split unmap as
+    case #.2:
+    { g : unmap-ctx,
+      C' : (g |- con),
+      #unmap : #(g |- block (x : eterm, xt : unmap x (C'[..])))
+    | x : [g |- unmap #unmap.1 C'], unmap : [g |- unmap #unmap.1 C']
+    ; solve [_ |- con-eq/i ]
+    }
+  }
+  }%
+}
+
+and proof tunmap-fun :
+  (g : unmap-ctx)
+  [g |- tunmap A K] ->
+  [g |- tunmap A K'] ->
+    [g |- kind-eq K K'] =
+/ total 1 /
+intros
+{ g : unmap-ctx, A : (g |- etp), K : (g |- kind), K' : (g |- kind)
+| x : [g |- tunmap A K], tunmap : [g |- tunmap A K']
+; split x as
+  case tunmap/one:
+  { g : unmap-ctx, K' : (g |- kind)
+  | x : [g |- tunmap eone one], tunmap : [g |- tunmap eone K']
+  ; split tunmap as
+    case tunmap/one:
+    { g : unmap-ctx
+    | x : [g |- tunmap eone one], tunmap : [g |- tunmap eone one]
+    ; solve [_ |- kind-eq/i ]
+    }
+  }
+  case tunmap/sigma:
+  { g : unmap-ctx,
+    A1 : (g |- etp),
+    A2 : (g, y1216 : eterm |- etp),
+    K1 : (g |- kind),
+    K2 : (g, a169 : con |- kind),
+    K' : (g |- kind),
+    Dtunmap : (g |- tunmap A1 K1),
+    Dtunmap1 :
+      (g, x : eterm, a : con, z1215 : unmap x a |-
+         tunmap (A2[.., x]) (K2[.., a]))
+  | x : [g |- tunmap (esigma A1 (\y149. A2)) (sigma K1 (\y471. K2))],
+    tunmap : [g |- tunmap (esigma A1 (\y149. A2)) K']
+  ; split tunmap as
+    case tunmap/sigma:
+    { g : unmap-ctx,
+      A1 : (g |- etp),
+      A2 : (g, y1216 : eterm |- etp),
+      K1 : (g |- kind),
+      K2 : (g, a169 : con |- kind),
+      K3 : (g |- kind),
+      K4 : (g, a169 : con |- kind),
+      Dtunmap : (g |- tunmap A1 K1),
+      Dtunmap1 :
+        (g, x : eterm, a : con, z1215 : unmap x a |-
+           tunmap (A2[.., x]) (K2[.., a])),
+      Dtunmap2 : (g |- tunmap A1 K3),
+      Dtunmap3 :
+        (g, x : eterm, a : con, z1215 : unmap x a |-
+           tunmap (A2[.., x]) (K4[.., a]))
+    | x : [g |- tunmap (esigma A1 (\y149. A2)) (sigma K1 (\y471. K2))],
+      tunmap : [g |- tunmap (esigma A1 (\y149. A2)) (sigma K3 (\y471. K4))]
+    ; split tunmap-fun [_ |- Dtunmap] [_ |- Dtunmap2] as
+      case kind-eq/i:
+      { g : unmap-ctx,
+        A1 : (g |- etp),
+        A2 : (g, y1216 : eterm |- etp),
+        K3 : (g |- kind),
+        K2 : (g, a169 : con |- kind),
+        K4 : (g, a169 : con |- kind),
+        Dtunmap : (g |- tunmap A1 K3),
+        Dtunmap1 :
+          (g, x : eterm, a : con, z1215 : unmap x a |-
+             tunmap (A2[.., x]) (K2[.., a])),
+        Dtunmap2 : (g |- tunmap A1 K3),
+        Dtunmap3 :
+          (g, x : eterm, a : con, z1215 : unmap x a |-
+             tunmap (A2[.., x]) (K4[.., a]))
+      | x : [g |- tunmap (esigma A1 (\y149. A2)) (sigma K3 (\y471. K2))],
+        tunmap : [g |- tunmap (esigma A1 (\y149. A2)) (sigma K3 (\y471. K4))]
+      ; split
+        tunmap-fun
+          [_, a : con, b : block (x : eterm, xt : unmap x a) |-
+             Dtunmap1[.., b.1, a, b.2]]
+          [_, a : con, b : block (x : eterm, xt : unmap x a) |-
+             Dtunmap3[.., b.1, a, b.2]] as
+        case kind-eq/i:
+        { g : unmap-ctx,
+          A1 : (g |- etp),
+          A2 : (g, y1216 : eterm |- etp),
+          K3 : (g |- kind),
+          K4 : (g, a169 : con |- kind),
+          Dtunmap : (g |- tunmap A1 K3),
+          Dtunmap1 :
+            (g, x : eterm, a : con, z1215 : unmap x a |-
+               tunmap (A2[.., x]) (K4[.., a])),
+          Dtunmap2 : (g |- tunmap A1 K3),
+          Dtunmap3 :
+            (g, x : eterm, a : con, z1215 : unmap x a |-
+               tunmap (A2[.., x]) (K4[.., a]))
+        | x : [g |- tunmap (esigma A1 (\y149. A2)) (sigma K3 (\y471. K4))],
+          tunmap :
+            [g |- tunmap (esigma A1 (\y149. A2)) (sigma K3 (\y471. K4))]
+        ; solve [_ |- kind-eq/i ]
+        }
+      }
+    }
+  }
+  case tunmap/pi:
+  { g : unmap-ctx,
+    A1 : (g |- etp),
+    A2 : (g, z1214 : eterm |- etp),
+    K1 : (g |- kind),
+    K2 : (g, a168 : con |- kind),
+    K' : (g |- kind),
+    Dtunmap : (g |- tunmap A1 K1),
+    Dtunmap1 :
+      (g, x : eterm, a : con, x1214 : unmap x a |-
+         tunmap (A2[.., x]) (K2[.., a]))
+  | x : [g |- tunmap (epi A1 (\y148. A2)) (pi K1 (\y470. K2))],
+    tunmap : [g |- tunmap (epi A1 (\y148. A2)) K']
+  ; split tunmap as
+    case tunmap/pi:
+    { g : unmap-ctx,
+      A1 : (g |- etp),
+      A2 : (g, z1214 : eterm |- etp),
+      K1 : (g |- kind),
+      K2 : (g, a168 : con |- kind),
+      K3 : (g |- kind),
+      K4 : (g, a168 : con |- kind),
+      Dtunmap : (g |- tunmap A1 K1),
+      Dtunmap1 :
+        (g, x : eterm, a : con, x1214 : unmap x a |-
+           tunmap (A2[.., x]) (K2[.., a])),
+      Dtunmap2 : (g |- tunmap A1 K3),
+      Dtunmap3 :
+        (g, x : eterm, a : con, x1214 : unmap x a |-
+           tunmap (A2[.., x]) (K4[.., a]))
+    | x : [g |- tunmap (epi A1 (\y148. A2)) (pi K1 (\y470. K2))],
+      tunmap : [g |- tunmap (epi A1 (\y148. A2)) (pi K3 (\y470. K4))]
+    ; split tunmap-fun [_ |- Dtunmap] [_ |- Dtunmap2] as
+      case kind-eq/i:
+      { g : unmap-ctx,
+        A1 : (g |- etp),
+        A2 : (g, z1214 : eterm |- etp),
+        K3 : (g |- kind),
+        K2 : (g, a168 : con |- kind),
+        K4 : (g, a168 : con |- kind),
+        Dtunmap : (g |- tunmap A1 K3),
+        Dtunmap1 :
+          (g, x : eterm, a : con, x1214 : unmap x a |-
+             tunmap (A2[.., x]) (K2[.., a])),
+        Dtunmap2 : (g |- tunmap A1 K3),
+        Dtunmap3 :
+          (g, x : eterm, a : con, x1214 : unmap x a |-
+             tunmap (A2[.., x]) (K4[.., a]))
+      | x : [g |- tunmap (epi A1 (\y148. A2)) (pi K3 (\y470. K2))],
+        tunmap : [g |- tunmap (epi A1 (\y148. A2)) (pi K3 (\y470. K4))]
+      ; split
+        tunmap-fun
+          [_, a : con, b : block (x : eterm, xt : unmap x a) |-
+             Dtunmap1[.., b.1, a, b.2]]
+          [_, a : con, b : block (x : eterm, xt : unmap x a) |-
+             Dtunmap3[.., b.1, a, b.2]] as
+        case kind-eq/i:
+        { g : unmap-ctx,
+          A1 : (g |- etp),
+          A2 : (g, z1214 : eterm |- etp),
+          K3 : (g |- kind),
+          K4 : (g, a168 : con |- kind),
+          Dtunmap : (g |- tunmap A1 K3),
+          Dtunmap1 :
+            (g, x : eterm, a : con, x1214 : unmap x a |-
+               tunmap (A2[.., x]) (K4[.., a])),
+          Dtunmap2 : (g |- tunmap A1 K3),
+          Dtunmap3 :
+            (g, x : eterm, a : con, x1214 : unmap x a |-
+               tunmap (A2[.., x]) (K4[.., a]))
+        | x : [g |- tunmap (epi A1 (\y148. A2)) (pi K3 (\y470. K4))],
+          tunmap : [g |- tunmap (epi A1 (\y148. A2)) (pi K3 (\y470. K4))]
+        ; solve [_ |- kind-eq/i ]
+        }
+      }
+    }
+  }
+  case tunmap/sing:
+  { g : unmap-ctx,
+    M : (g |- eterm),
+    C : (g |- con),
+    K' : (g |- kind),
+    Dunmap : (g |- unmap M C)
+  | x : [g |- tunmap (esing M) (sing C)], tunmap : [g |- tunmap (esing M) K']
+  ; split tunmap as
+    case tunmap/sing:
+    { g : unmap-ctx,
+      M : (g |- eterm),
+      C : (g |- con),
+      C1 : (g |- con),
+      Dunmap : (g |- unmap M C),
+      Dunmap1 : (g |- unmap M C1)
+    | x : [g |- tunmap (esing M) (sing C)],
+      tunmap : [g |- tunmap (esing M) (sing C1)]
+    ; split unmap-fun [_ |- Dunmap] [_ |- Dunmap1] as
+      case con-eq/i:
+      { g : unmap-ctx,
+        M : (g |- eterm),
+        C1 : (g |- con),
+        Dunmap : (g |- unmap M C1),
+        Dunmap1 : (g |- unmap M C1)
+      | x : [g |- tunmap (esing M) (sing C1)],
+        tunmap : [g |- tunmap (esing M) (sing C1)]
+      ; solve [_ |- kind-eq/i ]
+      }
+    }
+  }
+  case tunmap/t:
+  { g : unmap-ctx, K' : (g |- kind)
+  | x : [g |- tunmap et t], tunmap : [g |- tunmap et K']
+  ; split tunmap as
+    case tunmap/t:
+    { g : unmap-ctx
+    | x : [g |- tunmap et t], tunmap : [g |- tunmap et t]
+    ; solve [_ |- kind-eq/i ]
+    }
+  }
+}
+;
+
 % Injectivity Lemmas
 
 LF injective-prod/e : con -> con -> con -> con -> type =
