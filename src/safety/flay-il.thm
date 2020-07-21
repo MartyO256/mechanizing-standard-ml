@@ -17,7 +17,7 @@ LF expand-il : con -> kind -> con -> type =
 
 | expand-il/one : expand-il R one star
 ;
---name expand-il Dexpand-il.
+--name expand-il Dexpand-il expand.
 
 LF skof-il : skel -> kind -> (con -> kind) -> type =
 | skof-il/t : skof-il kt one (\l. t)
@@ -293,6 +293,180 @@ intros
     D : (g |- simp-il A T[])
   |
   ; solve can-expand-il* [_ |- _] [_ |- _] [_ |- D]
+  }
+}
+;
+
+proof expand-il-fun :
+  (g : conblock)
+  [g |- expand-il R A M] ->
+  [g |- expand-il R A M'] ->
+    [g |- con-eq M M'] =
+/ total 1 /
+intros
+{ g : conblock,
+  R : (g |- con),
+  A : (g |- kind),
+  M : (g |- con),
+  M' : (g |- con)
+| x : [g |- expand-il R A M], expand : [g |- expand-il R A M']
+; split x as
+  case expand-il/one:
+  { g : conblock, R : (g |- con), M' : (g |- con)
+  | x : [g |- expand-il R one star], expand : [g |- expand-il R one M']
+  ; split expand as
+    case expand-il/one:
+    { g : conblock, R : (g |- con)
+    | x : [g |- expand-il R one star], expand : [g |- expand-il R one star]
+    ; solve [_ |- con-eq/i ]
+    }
+  }
+  case expand-il/sing:
+  { g : conblock, R : (g |- con), M : (g |- con), M' : (g |- con)
+  | x : [g |- expand-il R (sing M) M],
+    expand : [g |- expand-il R (sing M) M']
+  ; split expand as
+    case expand-il/sing:
+    { g : conblock, R : (g |- con), M' : (g |- con)
+    | x : [g |- expand-il R (sing M') M'],
+      expand : [g |- expand-il R (sing M') M']
+    ; solve [_ |- con-eq/i ]
+    }
+  }
+  case expand-il/sigma:
+  { g : conblock,
+    R : (g |- con),
+    K : (g |- kind),
+    K1 : (g, a114 : con |- kind),
+    C1 : (g |- con),
+    C2 : (g |- con),
+    M' : (g |- con),
+    Dexpand-il : (g |- expand-il (pi1 R) K C1),
+    Dexpand-il1 : (g |- expand-il (pi2 R) (K1[.., pi1 R]) C2)
+  | x : [g |- expand-il R (sigma K (\y471. K1)) (pair C1 C2)],
+    expand : [g |- expand-il R (sigma K (\y471. K1)) M']
+  ; split expand as
+    case expand-il/sigma:
+    { g : conblock,
+      R : (g |- con),
+      K : (g |- kind),
+      K1 : (g, a114 : con |- kind),
+      C1 : (g |- con),
+      C2 : (g |- con),
+      C4 : (g |- con),
+      C5 : (g |- con),
+      Dexpand-il : (g |- expand-il (pi1 R) K C1),
+      Dexpand-il1 : (g |- expand-il (pi2 R) (K1[.., pi1 R]) C2),
+      Dexpand-il2 : (g |- expand-il (pi1 R) K C4),
+      Dexpand-il3 : (g |- expand-il (pi2 R) (K1[.., pi1 R]) C5)
+    | x : [g |- expand-il R (sigma K (\y471. K1)) (pair C1 C2)],
+      expand : [g |- expand-il R (sigma K (\y471. K1)) (pair C4 C5)]
+    ; split expand-il-fun [_ |- Dexpand-il] [_ |- Dexpand-il2] as
+      case con-eq/i:
+      { g : conblock,
+        R : (g |- con),
+        K : (g |- kind),
+        K1 : (g, a114 : con |- kind),
+        C4 : (g |- con),
+        C2 : (g |- con),
+        C5 : (g |- con),
+        D1 : (g |- expand-il (pi1 R) K C4),
+        D2 : (g |- expand-il (pi2 R) (K1[.., pi1 R]) C2),
+        D1' : (g |- expand-il (pi1 R) K C4),
+        D2' : (g |- expand-il (pi2 R) (K1[.., pi1 R]) C5)
+      | x : [g |- expand-il R (sigma K (\y471. K1)) (pair C4 C2)],
+        expand : [g |- expand-il R (sigma K (\y471. K1)) (pair C4 C5)]
+      ; split expand-il-fun [_ |- D2] [_ |- D2'] as
+        case con-eq/i:
+        { g : conblock,
+          R : (g |- con),
+          K : (g |- kind),
+          K1 : (g, a114 : con |- kind),
+          C4 : (g |- con),
+          C5 : (g |- con),
+          D1 : (g |- expand-il (pi1 R) K C4),
+          D2 : (g |- expand-il (pi2 R) (K1[.., pi1 R]) C5),
+          D1' : (g |- expand-il (pi1 R) K C4),
+          D2' : (g |- expand-il (pi2 R) (K1[.., pi1 R]) C5)
+        | x : [g |- expand-il R (sigma K (\y471. K1)) (pair C4 C5)],
+          expand : [g |- expand-il R (sigma K (\y471. K1)) (pair C4 C5)]
+        ; solve [_ |- con-eq/i ]
+        }
+      }
+    }
+  }
+  case expand-il/pi:
+  { g : conblock,
+    R : (g |- con),
+    K : (g |- kind),
+    K1 : (g, a112 : con |- kind),
+    C2 : (g, a113 : con |- con),
+    M' : (g |- con),
+    C : (g, a111 : con |- con),
+    Dexpand-il : (g, x : con |- expand-il x (K[..]) C),
+    Dexpand-il1 : (g, x : con |- expand-il (app (R[..]) C) K1 C2)
+  | x : [g |- expand-il R (pi K (\y470. K1)) (lam K (\x473. C2))],
+    expand : [g |- expand-il R (pi K (\y470. K1)) M']
+  ; split expand as
+    case expand-il/pi:
+    { g : conblock,
+      R : (g |- con),
+      K : (g |- kind),
+      K1 : (g, a112 : con |- kind),
+      C2 : (g, a113 : con |- con),
+      C5 : (g, a113 : con |- con),
+      C : (g, a111 : con |- con),
+      Dexpand-il : (g, x : con |- expand-il x (K[..]) C),
+      Dexpand-il1 : (g, x : con |- expand-il (app (R[..]) C) K1 C2),
+      C3 : (g, a111 : con |- con),
+      Dexpand-il2 : (g, x : con |- expand-il x (K[..]) C3),
+      Dexpand-il3 : (g, x : con |- expand-il (app (R[..]) C3) K1 C5)
+    | x : [g |- expand-il R (pi K (\y470. K1)) (lam K (\x473. C2))],
+      expand : [g |- expand-il R (pi K (\y470. K1)) (lam K (\x473. C5))]
+    ; split
+      expand-il-fun [_, x : con |- Dexpand-il] [_, x : con |- Dexpand-il2] as
+      case con-eq/i:
+      { g : conblock,
+        R : (g |- con),
+        K : (g |- kind),
+        K1 : (g, a112 : con |- kind),
+        C2 : (g, a113 : con |- con),
+        C5 : (g, a113 : con |- con),
+        C3 : (g, a111 : con |- con),
+        D1 : (g, x : con |- expand-il x (K[..]) C3),
+        D2 : (g, x : con |- expand-il (app (R[..]) C3) K1 C2),
+        D1' : (g, x : con |- expand-il x (K[..]) C3),
+        D2' : (g, x : con |- expand-il (app (R[..]) C3) K1 C5)
+      | x : [g |- expand-il R (pi K (\y470. K1)) (lam K (\x473. C2))],
+        expand : [g |- expand-il R (pi K (\y470. K1)) (lam K (\x473. C5))]
+      ; split expand-il-fun [_, x : con |- D2] [_, x : con |- D2'] as
+        case con-eq/i:
+        { g : conblock,
+          R : (g |- con),
+          K : (g |- kind),
+          K1 : (g, a112 : con |- kind),
+          C5 : (g, a113 : con |- con),
+          C3 : (g, a111 : con |- con),
+          D1 : (g, x : con |- expand-il x (K[..]) C3),
+          D2 : (g, x : con |- expand-il (app (R[..]) C3) K1 C5),
+          D1' : (g, x : con |- expand-il x (K[..]) C3),
+          D2' : (g, x : con |- expand-il (app (R[..]) C3) K1 C5)
+        | x : [g |- expand-il R (pi K (\y470. K1)) (lam K (\x473. C5))],
+          expand : [g |- expand-il R (pi K (\y470. K1)) (lam K (\x473. C5))]
+        ; solve [_ |- con-eq/i ]
+        }
+      }
+    }
+  }
+  case expand-il/t:
+  { g : conblock, M : (g |- con), M' : (g |- con)
+  | x : [g |- expand-il M t M], expand : [g |- expand-il M t M']
+  ; split expand as
+    case expand-il/t:
+    { g : conblock, M' : (g |- con)
+    | x : [g |- expand-il M' t M'], expand : [g |- expand-il M' t M']
+    ; solve [_ |- con-eq/i ]
+    }
   }
 }
 ;
