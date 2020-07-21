@@ -471,6 +471,169 @@ intros
 }
 ;
 
+proof expand-il-equiv :
+  (g : conbind-reg)
+  [g |- cn-of R A] ->
+  [g |- expand-il R A M] ->
+    [g |- cn-equiv R M A] =
+/ total 2 /
+intros
+{ g : conbind-reg, R : (g |- con), A : (g |- kind), M : (g |- con)
+| cof : [g |- cn-of R A], x : [g |- expand-il R A M]
+; by cof as DofR unboxed;
+  split x as
+  case expand-il/one:
+  { g : conbind-reg, R : (g |- con), DofR : (g |- cn-of R one)
+  | cof : [g |- cn-of R one], x : [g |- expand-il R one star]
+  ; solve [_ |- cn-equiv/one DofR cn-of/star]
+  }
+  case expand-il/sing:
+  { g : conbind-reg,
+    R : (g |- con),
+    M : (g |- con),
+    DofR : (g |- cn-of R (sing M))
+  | cof : [g |- cn-of R (sing M)], x : [g |- expand-il R (sing M) M]
+  ; solve
+      [_ |-
+         cn-equiv/symm (cn-equiv/sing (cn-equiv/symm (cn-equiv/singelim DofR)))]
+  }
+  case expand-il/sigma:
+  { g : conbind-reg,
+    R : (g |- con),
+    K : (g |- kind),
+    K1 : (g, a114 : con |- kind),
+    C1 : (g |- con),
+    C2 : (g |- con),
+    DofR : (g |- cn-of R (sigma K (\y471. K1))),
+    Dexpand-il : (g |- expand-il (pi1 R) K C1),
+    Dexpand-il1 : (g |- expand-il (pi2 R) (K1[.., pi1 R]) C2)
+  | cof : [g |- cn-of R (sigma K (\y471. K1))],
+    x : [g |- expand-il R (sigma K (\y471. K1)) (pair C1 C2)]
+  ; split cn-of-reg [_ |- DofR] as
+    case kd-wf/sigma:
+    { g : conbind-reg,
+      R : (g |- con),
+      K : (g |- kind),
+      K1 : (g, a114 : con |- kind),
+      C1 : (g |- con),
+      C2 : (g |- con),
+      DofR : (g |- cn-of R (sigma K (\y471. K1))),
+      Dexpand-il : (g |- expand-il (pi1 R) K C1),
+      Dexpand-il1 : (g |- expand-il (pi2 R) (K1[.., pi1 R]) C2),
+      Dwf : (g |- kd-wf K),
+      Dwf1 : (g, a : con, x531 : cn-of a (K[..]) |- kd-wf (K1[.., a]))
+    | cof : [g |- cn-of R (sigma K (\y471. K1))],
+      x : [g |- expand-il R (sigma K (\y471. K1)) (pair C1 C2)]
+    ; by expand-il-equiv [_ |- cn-of/pi1 DofR] [_ |- Dexpand-il]
+      as Dequiv1 unboxed;
+      by expand-il-equiv [_ |- cn-of/pi2 DofR] [_ |- Dexpand-il1]
+      as Dequiv2 unboxed;
+      solve
+  [g |-
+     cn-equiv/trans (cn-equiv/extsigma (cn-equiv/symm (cn-equiv/beta1 
+                                                      (cn-of/pi1 DofR)
+                                                      (cn-of/pi2 DofR)))
+                    (cn-equiv/symm (cn-equiv/beta2 (cn-of/pi1 DofR)
+                                   (cn-of/pi2 DofR)))
+                    (\a. \da. Dwf1))
+     (cn-equiv/pair Dequiv1 Dequiv2 (\a. \da. Dwf1))]
+    }
+  }
+  case expand-il/pi:
+  { g : conbind-reg,
+    R : (g |- con),
+    K : (g |- kind),
+    K1 : (g, a112 : con |- kind),
+    C2 : (g, a113 : con |- con),
+    DofR : (g |- cn-of R (pi K (\y470. K1))),
+    C : (g, a111 : con |- con),
+    Dexpand-il : (g, x : con |- expand-il x (K[..]) C),
+    Dexpand-il1 : (g, x : con |- expand-il (app (R[..]) C) K1 C2)
+  | cof : [g |- cn-of R (pi K (\y470. K1))],
+    x : [g |- expand-il R (pi K (\y470. K1)) (lam K (\x473. C2))]
+  ; split cn-of-reg [_ |- DofR] as
+    case kd-wf/pi:
+    { g : conbind-reg,
+      R : (g |- con),
+      K : (g |- kind),
+      K1 : (g, a112 : con |- kind),
+      C2 : (g, a113 : con |- con),
+      DofR : (g |- cn-of R (pi K (\y470. K1))),
+      C : (g, a111 : con |- con),
+      Dexpand-il : (g, x : con |- expand-il x (K[..]) C),
+      Dexpand-il1 : (g, x : con |- expand-il (app (R[..]) C) K1 C2),
+      Dwf : (g |- kd-wf K),
+      Dwf1 : (g, a : con, x530 : cn-of a (K[..]) |- kd-wf (K1[.., a]))
+    | cof : [g |- cn-of R (pi K (\y470. K1))],
+      x : [g |- expand-il R (pi K (\y470. K1)) (lam K (\x473. C2))]
+    ; by expand-il-equiv [g, b : block (a : con, da : cn-of a (K[..])) |- b.2]
+     [g, b : block (a : con, da : cn-of a (K[..])) |- Dexpand-il[.., b.1]]
+as DequivX unboxed;
+      split
+      cn-equiv-reg [g, b : block (a : con, da : cn-of a (K[..])) |- DequivX] as
+      case cn-equiv-reg/i:
+      { g : conbind-reg,
+        R : (g |- con),
+        K2 : (g |- kind),
+        K1 : (g, a112 : con |- kind),
+        C2 : (g, a113 : con |- con),
+        DofR : (g |- cn-of R (pi K2 (\y470. K1))),
+        C4 : (g, a : con |- con),
+        Dexpand-il : (g, x : con |- expand-il x (K2[..]) C4),
+        Dexpand-il1 : (g, x : con |- expand-il (app (R[..]) C4) K1 C2),
+        Dwf : (g |- kd-wf K2),
+        Dwf1 : (g, a : con, x530 : cn-of a (K2[..]) |- kd-wf (K1[.., a])),
+        DequivX :
+          (g, b : block (a : con, da : cn-of a (K2[..])) |-
+             cn-equiv b.1 (C4[.., b.1]) (K2[..])),
+        Dof : (g, a : con, z1623 : cn-of a (K2[..]) |- cn-of a (K2[..])),
+        Dof1 :
+          (g, a : con, y1624 : cn-of a (K2[..]) |- cn-of (C4[.., a]) (K2[..])),
+        Dwf2 : (g, a : con, x1624 : cn-of a (K2[..]) |- kd-wf (K2[..]))
+      | cof : [g |- cn-of R (pi K2 (\y470. K1))],
+        x : [g |- expand-il R (pi K2 (\y470. K1)) (lam K2 (\x473. C2))]
+      ; by functionality-kd
+             [g, b : block (a : con, da : cn-of a (K2[..])), b : con,
+              db : cn-of b (K2[..]) |- Dwf1[.., b, db]]
+             [g, b : block (a : con, da : cn-of a (K2[..])) |- DequivX]
+        as DequivBx unboxed;
+        by [g, b : block (a : con, da : cn-of a (K2[..])) |-
+              cn-of/subsume (cn-of/app (Dof1[.., b.1, b.2]) (DofR[..]))
+              (kd-sub/refl (kd-equiv/symm DequivBx))]
+        as Dof' unboxed;
+        by expand-il-equiv
+             [g, b : block (a : con, da : cn-of a (K2[..])) |- Dof']
+             [g, b : block (a : con, da : cn-of a (K2[..])) |-
+                Dexpand-il1[.., b.1]]
+        as DequivRX unboxed;
+        by [g, b : block (a : con, da : cn-of a (K2[..])) |-
+      cn-equiv/trans (cn-equiv/app (cn-equiv/refl (DofR[..])) DequivX)
+      DequivRX]
+as Dequiv' unboxed;
+        solve
+          [g |-
+             cn-equiv/trans (cn-equiv/extpi DofR
+                            (cn-of/lam Dwf
+                            (\a. \da. cn-of/app da (DofR[..])))
+                            (\a.
+                               \da.
+                                 cn-equiv/symm (cn-equiv/beta da
+                                               (\a1.
+                                                  \da1.
+                                                    cn-of/app da1 (DofR[..])))))
+             (cn-equiv/lam (kd-equiv/refl Dwf)
+             (\a. \da. Dequiv'[.., <a; da>]))]
+      }
+    }
+  }
+  case expand-il/t:
+  { g : conbind-reg, M : (g |- con), DofR : (g |- cn-of M t)
+  | cof : [g |- cn-of M t], x : [g |- expand-il M t M]
+  ; solve [g |- cn-equiv/refl DofR]
+  }
+}
+;
+
 % Skof-Il Theorems
 
 LF can-skof-il/e : skel -> type =
