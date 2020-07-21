@@ -1,3 +1,100 @@
+LF epair-invert/e : etp -> (eterm -> etp) -> eterm -> eterm -> type =
+| epair-invert/i :
+  eof M A ->
+  eof N (B M) ->
+    epair-invert/e A B M N
+;
+
+proof epair-invert :
+  (g : scbind)
+  [g |- eof (epair M N) (esigma A (\x. B))] ->
+    [g |- epair-invert/e A (\x. B) M N] =
+/ total /
+?
+;
+
+LF elam-equiv-invert/e :
+  etp -> (eterm -> eterm) ->
+  etp -> (eterm -> eterm) ->
+  etp -> (eterm -> etp) -> type =
+| elam-equiv-invert/i :
+  subtp A A1 ->
+  subtp A A2 ->
+  ({ x : eterm } eof x A -> equiv (M1 x) (M2 x) (B x)) ->
+    elam-equiv-invert/e A1 M1 A2 M2 A B
+;
+
+proof elam-equiv-invert :
+  (g : scbind)
+  [g |- equiv (elam A1 (\x. M1)) (elam A2 (\x. M2)) (epi A (\x. B))] ->
+    [g |- elam-equiv-invert/e A1 (\x. M1) A2 (\x. M2) A (\x. B)] =
+/ total /
+?
+;
+
+LF elam2-equiv-invert/e :
+  etp -> etp -> etp ->
+  (eterm -> etp) -> (eterm -> etp) -> (eterm -> etp) ->
+  (eterm -> eterm -> eterm) ->
+  (eterm -> eterm -> eterm) ->
+  (eterm -> eterm -> etp)-> type =
+| elam2-equiv-invert/i :
+  subtp A A1 ->
+  subtp A A2 ->
+  ({ x : eterm } eof x A ->
+   subtp (B x) (B1 x)) ->
+  ({ x : eterm } eof x A ->
+   subtp (B x) (B2 x)) ->
+  ({ x : eterm } eof x A ->
+   { y : eterm } eof y (B x) ->
+   equiv (M1 x y) (M2 x y) (C x y)) ->
+    elam2-equiv-invert/e A A1 A2 B B1 B2 M1 M2 C
+;
+
+proof elam2-equiv-invert :
+  (g : scbind)
+  [g |-
+    equiv
+      (elam A1 (\x. elam (B1[.., x]) (\y. M1[.., x, y])))
+      (elam A2 (\x. elam (B2[.., x]) (\y. M2[.., x, y])))
+      (epi A (\x. epi (B[.., x]) (\y. C[.., x, y])))
+  ] ->
+    [g |-
+      elam2-equiv-invert/e
+        A A1 A2
+        (\x. B) (\x. B1) (\x. B2)
+        (\x. \y. M1) (\x. \y. M2) (\x. \y. C)
+    ] =
+/ total /
+?
+;
+
+LF epair-equiv-invert/e :
+  eterm -> eterm -> etp ->
+  eterm -> eterm -> (eterm -> etp) -> type =
+| epair-equiv-invert/i :
+  equiv M1 M2 A ->
+  equiv N1 N2 (B M1) ->
+    epair-equiv-invert/e M1 M2 A N1 N2 B
+;
+
+proof epair-equiv-invert :
+  (g : scbind)
+  [g |-  equiv (epair M1 N1) (epair M2 N2) (esigma A (\x. B))] ->
+    [g |- epair-equiv-invert/e M1 M2 A N1 N2 (\x. B)] =
+/ total /
+?
+;
+
+proof eof-app-subterms :
+  (g : scbind)
+  [g |- eof (eapp M N) (B[.., N])] ->
+  [g |- eof M (epi A (\x. B))] ->
+    [g |- eof N A] =
+/ total /
+?
+;
+
 proof unary-equiv-inversion :
   (g : scbind)
   [g |- ekof C (epi A (\l. et))] ->
