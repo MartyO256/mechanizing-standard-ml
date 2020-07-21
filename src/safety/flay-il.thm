@@ -530,7 +530,7 @@ intros
       as Dequiv2 unboxed;
       solve
   [g |-
-     cn-equiv/trans (cn-equiv/extsigma (cn-equiv/symm (cn-equiv/beta1 
+     cn-equiv/trans (cn-equiv/extsigma (cn-equiv/symm (cn-equiv/beta1
                                                       (cn-of/pi1 DofR)
                                                       (cn-of/pi2 DofR)))
                     (cn-equiv/symm (cn-equiv/beta2 (cn-of/pi1 DofR)
@@ -630,6 +630,32 @@ as Dequiv' unboxed;
   { g : conbind-reg, M : (g |- con), DofR : (g |- cn-of M t)
   | cof : [g |- cn-of M t], x : [g |- expand-il M t M]
   ; solve [g |- cn-equiv/refl DofR]
+  }
+}
+;
+
+proof expand-il-reg :
+  (g : conbind-reg)
+  [g |- cn-of R A] ->
+  [g |- expand-il R A M] ->
+    [g |- cn-of M A] =
+/ total /
+intros
+{ g : conbind-reg, R : (g |- con), A : (g |- kind), M : (g |- con)
+| cof : [g |- cn-of R A], expand : [g |- expand-il R A M]
+; by expand-il-equiv cof expand as Dequiv unboxed;
+  split cn-equiv-reg [_ |- Dequiv] as
+  case cn-equiv-reg/i:
+  { g : conbind-reg,
+    R : (g |- con),
+    A : (g |- kind),
+    M : (g |- con),
+    Dequiv : (g |- cn-equiv R M A),
+    Dof : (g |- cn-of R A),
+    Dof1 : (g |- cn-of M A),
+    Dwf : (g |- kd-wf A)
+  | cof : [g |- cn-of R A], expand : [g |- expand-il R A M]
+  ; solve [_ |- Dof1]
   }
 }
 ;
