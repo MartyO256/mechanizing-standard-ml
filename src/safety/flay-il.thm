@@ -45,3 +45,385 @@ LF skof-il : skel -> kind -> (con -> kind) -> type =
 | skof-il/one : skof-il kone one (\l. one)
 ;
 --name skof-il Dskof-il.
+
+% Expand-Il Theorems
+
+LF simp-il : kind -> stp -> type =
+| simp-il/t : simp-il t st
+
+| simp-il/pi :
+  simp-il A S ->
+  ({ x : con } simp-il (B x) T) ->
+    simp-il (pi A B) (spi S T)
+
+| simp-il/sigma :
+  simp-il A S ->
+  ({ x : con } simp-il (B x) T) ->
+    simp-il (sigma A B) (ssigma S T)
+
+| simp-il/sing : simp-il (sing R) st
+
+| simp-il/one : simp-il one sone
+;
+--name simp-il D.
+
+LF can-simp-il/e : kind -> type =
+| can-simp-il/i : { T : stp} simp-il A T -> can-simp-il/e A
+;
+
+proof can-simp-il :
+  (g : conblock)
+  { A : [g |- kind] }
+  [g |- can-simp-il/e A] =
+/ total 1 /
+intros
+{ g : conblock, A : (g |- kind)
+|
+; split [_ |- A] as
+  case one:
+  { g : conblock
+  |
+  ; solve [_ |- can-simp-il/i _ simp-il/one]
+  }
+  case sigma:
+  { g : conblock, K : (g |- kind), K1 : (g, y471 : con |- kind)
+  |
+  ; split can-simp-il [_ |- K] as
+    case can-simp-il/i:
+    { g : conblock,
+      K : (g |- kind),
+      K1 : (g, y471 : con |- kind),
+      T : ( |- stp),
+      D : (g |- simp-il K T[])
+    |
+    ; split can-simp-il [_, a : con |- K1] as
+      case can-simp-il/i:
+      { g : conblock,
+        K : (g |- kind),
+        K1 : (g, y471 : con |- kind),
+        T : ( |- stp),
+        D : (g |- simp-il K T[]),
+        T1 : ( |- stp),
+        D1 : (g, a : con |- simp-il K1 T1[])
+      |
+      ; solve [_ |- can-simp-il/i _ (simp-il/sigma D (\a. D1))]
+      }
+    }
+  }
+  case pi:
+  { g : conblock, K : (g |- kind), K1 : (g, y470 : con |- kind)
+  |
+  ; split can-simp-il [_ |- K] as
+    case can-simp-il/i:
+    { g : conblock,
+      K : (g |- kind),
+      K1 : (g, y470 : con |- kind),
+      T : ( |- stp),
+      D : (g |- simp-il K T[])
+    |
+    ; split can-simp-il [_, a : con |- K1] as
+      case can-simp-il/i:
+      { g : conblock,
+        K : (g |- kind),
+        K1 : (g, y470 : con |- kind),
+        T : ( |- stp),
+        D : (g |- simp-il K T[]),
+        T1 : ( |- stp),
+        D1 : (g, a : con |- simp-il K1 T1[])
+      |
+      ; solve [_ |- can-simp-il/i _ (simp-il/pi D (\a. D1))]
+      }
+    }
+  }
+  case sing:
+  { g : conblock, C : (g |- con)
+  |
+  ; solve [_ |- can-simp-il/i _ (simp-il/sing )]
+  }
+  case t:
+  { g : conblock
+  |
+  ; solve [_ |- can-simp-il/i _ simp-il/t]
+  }
+}
+;
+
+LF can-expand-il/e : con -> kind -> type =
+| can-expand-il/i :
+  { M : con }
+  expand-il R A M ->
+    can-expand-il/e R A
+;
+
+proof can-expand-il* :
+  (g : conblock)
+  { R : [g |- con] }
+  { T : [g |- stp] }
+  [g |- simp-il A T] ->
+    [g |- can-expand-il/e R A] =
+/ trust / % FIXME: See issue #4
+intros
+{ g : conblock, A : (g |- kind), R : (g |- con), T : (g |- stp)
+| x : [g |- simp-il A T]
+; split x as
+  case simp-il/one:
+  { g : conblock, R : (g |- con)
+  | x : [g |- simp-il one sone]
+  ; solve [_ |- can-expand-il/i _ (expand-il/one )]
+  }
+  case simp-il/sing:
+  { g : conblock, C : (g |- con), R : (g |- con)
+  | x : [g |- simp-il (sing C) st]
+  ; solve [_ |- can-expand-il/i _ (expand-il/sing )]
+  }
+  case simp-il/sigma:
+  { g : conblock,
+    K : (g |- kind),
+    K1 : (g, a124 : con |- kind),
+    R : (g |- con),
+    T1 : ( |- stp),
+    T2 : ( |- stp),
+    D : (g |- simp-il K T1[]),
+    D1 : (g, x : con |- simp-il K1 T2[])
+  | x : [g |- simp-il (sigma K (\y471. K1)) (ssigma T1[] T2[])]
+  ; split can-expand-il* [g |- pi1 R] [g |- T1[]] [g |- D] as
+    case can-expand-il/i:
+    { g : conblock,
+      K : (g |- kind),
+      K1 : (g, a124 : con |- kind),
+      R : (g |- con),
+      T1 : ( |- stp),
+      T2 : ( |- stp),
+      D : (g |- simp-il K T1[]),
+      D1 : (g, x : con |- simp-il K1 T2[]),
+      C1 : (g |- con),
+      Dexpand-il : (g |- expand-il (pi1 R) K C1)
+    | x : [g |- simp-il (sigma K (\y471. K1)) (ssigma T1[] T2[])]
+    ; split can-expand-il* [g |- pi2 R] [g |- T2[]] [g |- D1[.., pi1 R]] as
+      case can-expand-il/i:
+      { g : conblock,
+        K : (g |- kind),
+        K1 : (g, a124 : con |- kind),
+        R : (g |- con),
+        T1 : ( |- stp),
+        T2 : ( |- stp),
+        D : (g |- simp-il K T1[]),
+        D1 : (g, x : con |- simp-il K1 T2[]),
+        C1 : (g |- con),
+        Dexpand-il : (g |- expand-il (pi1 R) K C1),
+        C3 : (g |- con),
+        Dexpand-il1 : (g |- expand-il (pi2 R) (K1[.., pi1 R]) C3)
+      | x : [g |- simp-il (sigma K (\y471. K1)) (ssigma T1[] T2[])]
+      ; solve [g |- can-expand-il/i _ (expand-il/sigma Dexpand-il Dexpand-il1)]
+      }
+    }
+  }
+  case simp-il/pi:
+  { g : conblock,
+    K : (g |- kind),
+    K1 : (g, a123 : con |- kind),
+    R : (g |- con),
+    T1 : ( |- stp),
+    T2 : ( |- stp),
+    D : (g |- simp-il K T1[]),
+    D1 : (g, x : con |- simp-il K1 T2[])
+  | x : [g |- simp-il (pi K (\y470. K1)) (spi T1[] T2[])]
+  ; split
+can-expand-il* [g, b : block (x : con) |- b.1]
+  [g, b : block (x : con) |- T1[]] [g, b : block (x : con) |- D[..]] as
+    case can-expand-il/i:
+    { g : conblock,
+      K : (g |- kind),
+      K1 : (g, a123 : con |- kind),
+      R : (g |- con),
+      T1 : ( |- stp),
+      T2 : ( |- stp),
+      D : (g |- simp-il K T1[]),
+      D1 : (g, x : con |- simp-il K1 T2[]),
+      C1 : (g, z5 : con |- con),
+      Dexpand-il : (g, y6 : con |- expand-il y6 (K[..]) C1)
+    | x : [g |- simp-il (pi K (\y470. K1)) (spi T1[] T2[])]
+    ; split
+      can-expand-il* [g, x : con |- app (R[..]) C1] [g, x : con |- T2[]]
+        [g, x : con |- D1] as
+      case can-expand-il/i:
+      { g : conblock,
+        K : (g |- kind),
+        K1 : (g, a123 : con |- kind),
+        R : (g |- con),
+        T1 : ( |- stp),
+        T2 : ( |- stp),
+        D : (g |- simp-il K T1[]),
+        D1 : (g, x : con |- simp-il K1 T2[]),
+        C1 : (g, z5 : con |- con),
+        Dexpand-il : (g, y6 : con |- expand-il y6 (K[..]) C1),
+        C3 : (g, x : con |- con),
+        Dexpand-il1 : (g, x : con |- expand-il (app (R[..]) C1) K1 C3)
+      | x : [g |- simp-il (pi K (\y470. K1)) (spi T1[] T2[])]
+      ; solve
+          [g |-
+             can-expand-il/i _
+             (expand-il/pi (\x. Dexpand-il) (\x. Dexpand-il1))]
+      }
+    }
+  }
+  case simp-il/t:
+  { g : conblock, R : (g |- con)
+  | x : [g |- simp-il t st]
+  ; solve [g |- can-expand-il/i _ (expand-il/t )]
+  }
+}
+;
+
+proof can-expand-il :
+  (g : conblock)
+  { R : [g |- con] }
+  { A : [g |- kind] }
+  [g |- can-expand-il/e R A] =
+/ total /
+intros
+{ g : conblock, R : (g |- con), A : (g |- kind)
+|
+; split can-simp-il [_ |- A] as
+  case can-simp-il/i:
+  { g : conblock,
+    R : (g |- con),
+    A : (g |- kind),
+    T : ( |- stp),
+    D : (g |- simp-il A T[])
+  |
+  ; solve can-expand-il* [_ |- _] [_ |- _] [_ |- D]
+  }
+}
+;
+
+% Skof-Il Theorems
+
+LF can-skof-il/e : skel -> type =
+| can-skof-il/i :
+  { A : kind } { B : con -> kind }
+  skof-il K A B ->
+    can-skof-il/e K
+;
+
+proof can-skof-il :
+  (g : conblock)
+  { K : [g |- skel] }
+  [g |- can-skof-il/e K] =
+/ total 1 /
+intros
+{ g : conblock, K : (g |- skel)
+|
+; split [_ |- K] as
+  case kone:
+  { g : conblock
+  |
+  ; solve [_ |- can-skof-il/i _ (\a. _) skof-il/one]
+  }
+  case ksing:
+  { g : conblock
+  |
+  ; solve [_ |- can-skof-il/i _ (\a. _) skof-il/sing]
+  }
+  case ksigma:
+  { g : conblock, Dskel : ( |- skel), Dskel1 : ( |- skel)
+  |
+  ; split can-skof-il [ |- Dskel] as
+    case can-skof-il/i:
+    { g : conblock,
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      K : ( |- kind),
+      K1 : (z934 : con |- kind),
+      Dskof-il : ( |- skof-il Dskel K (\z931. K1))
+    |
+    ; split can-skof-il [ |- Dskel1] as
+      case can-skof-il/i:
+      { g : conblock,
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        K : ( |- kind),
+        K1 : (z934 : con |- kind),
+        Dskof-il : ( |- skof-il Dskel K (\z931. K1)),
+        K2 : ( |- kind),
+        K3 : (z934 : con |- kind),
+        Dskof-il1 : ( |- skof-il Dskel1 K2 (\z931. K3))
+      |
+      ; split can-expand-il [x : con, y : con |- x] [x : con, y : con |- K1[y]] as
+        case can-expand-il/i:
+        { g : conblock,
+          Dskel : ( |- skel),
+          Dskel1 : ( |- skel),
+          K : ( |- kind),
+          K1 : (z934 : con |- kind),
+          Dskof-il : ( |- skof-il Dskel K (\z931. K1[z931])),
+          K2 : ( |- kind),
+          K3 : (z934 : con |- kind),
+          Dskof-il1 : ( |- skof-il Dskel1 K2 (\z931. K3)),
+          C1 : (x : con, y : con |- con),
+          Dexpand-il : (x : con, y : con |- expand-il x (K1[y]) C1)
+        |
+        ; solve
+            [g |-
+               can-skof-il/i _
+               (\a. _)
+               (skof-il/sigma Dskof-il[]
+               Dskof-il1[] (\x. \y. Dexpand-il[y, x]))]
+        }
+      }
+    }
+  }
+  case kpi:
+  { g : conblock, Dskel : ( |- skel), Dskel1 : ( |- skel)
+  |
+  ; split can-skof-il [ |- Dskel] as
+    case can-skof-il/i:
+    { g : conblock,
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      K : ( |- kind),
+      K1 : (z934 : con |- kind),
+      Dskof-il : ( |- skof-il Dskel K (\z931. K1))
+    |
+    ; split can-skof-il [ |- Dskel1] as
+      case can-skof-il/i:
+      { g : conblock,
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        K : ( |- kind),
+        K1 : (z934 : con |- kind),
+        Dskof-il : ( |- skof-il Dskel K (\z931. K1)),
+        K2 : ( |- kind),
+        K3 : (z934 : con |- kind),
+        Dskof-il1 : ( |- skof-il Dskel1 K2 (\z931. K3))
+      |
+      ; split can-expand-il [x : con, y : con |- x] [x : con, y : con |- K1[y]] as
+        case can-expand-il/i:
+        { g : conblock,
+          Dskel : ( |- skel),
+          Dskel1 : ( |- skel),
+          K : ( |- kind),
+          K1 : (z934 : con |- kind),
+          Dskof-il : ( |- skof-il Dskel K (\z931. K1[z931])),
+          K2 : ( |- kind),
+          K3 : (z934 : con |- kind),
+          Dskof-il1 : ( |- skof-il Dskel1 K2 (\z931. K3)),
+          C1 : (x : con, y : con |- con),
+          Dexpand-il : (x : con, y : con |- expand-il x (K1[y]) C1)
+        |
+        ; solve
+            [g |-
+               can-skof-il/i _
+               (\a. _)
+               (skof-il/pi Dskof-il[] Dskof-il1[] (\x. \y. Dexpand-il[y, x]))]
+        }
+      }
+    }
+  }
+  case kt:
+  { g : conblock
+  |
+  ; solve [_ |- can-skof-il/i _ (\a. _) skof-il/t]
+  }
+}
+;
