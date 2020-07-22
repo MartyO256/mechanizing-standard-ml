@@ -60,7 +60,6 @@ LF inversion-tm/pair/e : sttp -> term -> term -> con -> type =
     inversion-tm/pair/e F E1 E2 T
 ;
 
-% TODO: Depends on `tm-of-reg`
 proof inversion-tm/pair :
   [ |- tm-of F (tm/pair E1 E2) T] ->
     [ |- inversion-tm/pair/e F E1 E2 T] =
@@ -106,7 +105,8 @@ intros
     Dof : ( |- tm-of F E C),
     Dof1 : ( |- tm-of F E1 C1)
   | x : [ |- tm-of F (tm/pair E E1) (prod C C1)]
-  ; ?
+  ; by tm-of-reg [ |- tm-of/pair Dof Dof1] as Dwf unboxed;
+    solve [ |- inversion-tm/pair/i _ _ (cn-equiv/refl Dwf) Dof Dof1]
   }
 }
 ;
@@ -117,7 +117,6 @@ LF inversion-tm/pi1/e : sttp -> term -> con -> type =
     inversion-tm/pi1/e F E T1
 ;
 
-% TODO: Depends on `tm-of-reg`, `inversion-prod/1`
 proof inversion-tm/pi1 :
   [ |- tm-of F (tm/pi1 E) T1] ->
     [ |- inversion-tm/pi1/e F E T1] =
@@ -145,7 +144,26 @@ intros
       C2 : ( |- con),
       Dof1 : ( |- tm-of F E (prod C C2))
     | x : [ |- tm-of F (tm/pi1 E) T]
-    ; ?
+    ; by tm-of-reg [ |- Dof1] as Dwf unboxed;
+      split inversion-prod [ |- Dwf] as
+      case inversion-prod/i:
+      { F : ( |- sttp),
+        E : ( |- term),
+        T : ( |- con),
+        C : ( |- con),
+        Dof : ( |- tm-of F (tm/pi1 E) C),
+        Dequiv : ( |- cn-equiv C T t),
+        C2 : ( |- con),
+        Dof1 : ( |- tm-of F E (prod C C2)),
+        Dwf : ( |- cn-of (prod C C2) t),
+        Dof2 : ( |- cn-of C t),
+        Dof3 : ( |- cn-of C2 t)
+      | x : [ |- tm-of F (tm/pi1 E) T]
+      ; solve
+          [ |-
+             inversion-tm/pi1/i _
+             (tm-of/equiv Dof1 (cn-equiv/prod Dequiv (cn-equiv/refl Dof3)))]
+      }
     }
   }
   case tm-of/pi1:
@@ -167,7 +185,6 @@ LF inversion-tm/pi2/e : sttp -> term -> con -> type =
     inversion-tm/pi2/e F E T2
 ;
 
-% TODO: Depends on `tm-of-reg`, `inversion-prod/2`
 proof inversion-tm/pi2 :
   [ |- tm-of F (tm/pi2 E) T2] ->
     [ |- inversion-tm/pi2/e F E T2] =
@@ -195,7 +212,26 @@ intros
       C2 : ( |- con),
       Dof1 : ( |- tm-of F E (prod C2 C))
     | x : [ |- tm-of F (tm/pi2 E) T]
-    ; ?
+    ; by tm-of-reg [ |- Dof1] as Dwf unboxed;
+      split inversion-prod [ |- Dwf] as
+      case inversion-prod/i:
+      { F : ( |- sttp),
+        E : ( |- term),
+        T : ( |- con),
+        C : ( |- con),
+        Dof : ( |- tm-of F (tm/pi2 E) C),
+        Dequiv : ( |- cn-equiv C T t),
+        C2 : ( |- con),
+        Dof1 : ( |- tm-of F E (prod C2 C)),
+        Dwf : ( |- cn-of (prod C2 C) t),
+        Dof2 : ( |- cn-of C2 t),
+        Dof3 : ( |- cn-of C t)
+      | x : [ |- tm-of F (tm/pi2 E) T]
+      ; solve
+          [ |-
+             inversion-tm/pi2/i _
+             (tm-of/equiv Dof1 (cn-equiv/prod (cn-equiv/refl Dof2) Dequiv))]
+      }
     }
   }
   case tm-of/pi2:
@@ -219,7 +255,6 @@ LF inversion-tm/in1/e : sttp -> term -> con -> con -> type =
     inversion-tm/in1/e F E T T2
 ;
 
-% TODO: Depends on `tm-of-reg`
 proof inversion-tm/in1 :
   [ |- tm-of F (tm/in1 E T2) T] ->
     [ |- inversion-tm/in1/e F E T T2] =
@@ -263,7 +298,10 @@ intros
     Dof : ( |- tm-of F E C),
     Dof1 : ( |- cn-of T t)
   | x : [ |- tm-of F (tm/in1 E T) (plus C T)]
-  ; ?
+  ; by tm-of-reg [ |- Dof] as Dwf1 unboxed;
+    solve
+      [ |-
+         inversion-tm/in1/i _ (cn-equiv/refl (cn-of/plus Dwf1 Dof1)) Dof Dof1]
   }
 }
 ;
@@ -277,7 +315,6 @@ LF inversion-tm/in2/e : sttp -> term -> con -> con -> type =
     inversion-tm/in2/e F E T1 T
 ;
 
-% TODO: Depends on `tm-of-reg`
 proof inversion-tm/in2 :
   [ |- tm-of F (tm/in2 E T1) T] ->
     [ |- inversion-tm/in2/e F E T1 T] =
@@ -321,7 +358,10 @@ intros
     Dof : ( |- tm-of F E C),
     Dof1 : ( |- cn-of T t)
   | x : [ |- tm-of F (tm/in2 E T) (plus T C)]
-  ; ?
+  ; by tm-of-reg [ |- Dof] as Dwf2 unboxed;
+    solve
+      [ |-
+         inversion-tm/in2/i _ (cn-equiv/refl (cn-of/plus Dof1 Dwf2)) Dof Dof1]
   }
 }
 ;
@@ -439,7 +479,6 @@ LF inversion-tm/lam/e : sttp -> (term -> term) -> con -> con -> type =
     inversion-tm/lam/e F E T1 T
 ;
 
-% TODO: Depends on `tm-of-reg`
 proof inversion-tm/lam :
   [ |- tm-of F (tm/lam T1 (\x. E)) T] ->
     [ |- inversion-tm/lam/e F (\x. E) T1 T] =
@@ -486,7 +525,8 @@ intros
     Dof1 :
       (x : term, u : {F' : sttp}  tm-of F' x T[] |- tm-of F[] (E[x]) C1[])
   | x : [ |- tm-of F (tm/lam T (\x. E)) (arrow T C1)]
-  ; ?
+  ; by tm-of-reg [ |- tm-of/lam Dof (\x. \u. Dof1)] as Dwf unboxed;
+    solve [ |- inversion-tm/lam/i _ (cn-equiv/refl Dwf) (\x. \u. Dof1)]
   }
 }
 ;
@@ -499,7 +539,6 @@ LF inversion-tm/app/e : sttp -> term -> term -> con -> type =
     inversion-tm/app/e F E1 E2 T
 ;
 
-% TODO: Depends on `tm-of-reg`
 proof inversion-tm/app :
   [ |- tm-of F (tm/app E1 E2) T] ->
     [ |- inversion-tm/app/e F E1 E2 T] =
@@ -530,7 +569,12 @@ intros
       Dof1 : ( |- tm-of F E (arrow C2 C)),
       Dof2 : ( |- tm-of F E1 C2)
     | x : [ |- tm-of F (tm/app E E1) T]
-    ; ?
+    ; by tm-of-reg [ |- Dof2] as Dwf2 unboxed;
+      solve
+        [ |-
+           inversion-tm/app/i _
+           (tm-of/equiv Dof1 (cn-equiv/arrow (cn-equiv/refl Dwf2) Dequiv))
+           Dof2]
     }
   }
   case tm-of/app:
@@ -613,7 +657,6 @@ LF inversion-tm/ref/e : sttp -> term -> con -> type =
     inversion-tm/ref/e F E T
 ;
 
-% TODO: Depends on `tm-of-reg`
 proof inversion-tm/ref :
   [ |- tm-of F (tm/ref E) T] ->
     [ |- inversion-tm/ref/e F E T] =
@@ -648,7 +691,8 @@ intros
   case tm-of/ref:
   { F : ( |- sttp), E : ( |- term), C : ( |- con), Dof : ( |- tm-of F E C)
   | x : [ |- tm-of F (tm/ref E) (ref C)]
-  ; ?
+  ; by tm-of-reg [ |- tm-of/ref Dof] as Dwf unboxed;
+    solve [ |- inversion-tm/ref/i _ (cn-equiv/refl Dwf) Dof]
   }
 }
 ;
@@ -1062,7 +1106,6 @@ LF inversion-tm/unroll/e : sttp -> term -> con -> type =
     inversion-tm/unroll/e F E T
 ;
 
-% TODO: Depends on `tm-of-reg`
 proof inversion-tm/unroll :
   [ |- tm-of F (tm/unroll E) T] ->
     [ |- inversion-tm/unroll/e F E T] =
@@ -1116,7 +1159,42 @@ intros
            F
            (tm/unroll E)
            (C[lam K (\a. rec' K[] (\x105. \z105. C[x105, z105]) a), C1])]
-  ; ?
+  ; by tm-of-reg [ |- Dof] as Dwf unboxed;
+    split inversion-rec [ |- Dwf] as
+    case inversion-rec/i:
+    { F : ( |- sttp),
+      E : ( |- term),
+      C : (a46 : con, a45 : con |- con),
+      C1 : ( |- con),
+      K : ( |- kind),
+      Dof : ( |- tm-of F E (rec' K (\x105. \z105. C) C1)),
+      Dwf : ( |- cn-of (rec' K (\x105. \z105. C) C1) t),
+      Dwf1 : ( |- kd-wf K),
+      Dof1 :
+        (a : con, y936 : cn-of a (pi K[] (\l. t)), b : con,
+         x936 : cn-of b K[] |- cn-of (C[a, b]) t),
+      Dof2 : ( |- cn-of C1 K)
+    | x :
+        [ |-
+           tm-of
+             F
+             (tm/unroll E)
+             (C[lam K (\a. rec' K[] (\z529. \y530. C[z529, y530]) a), C1])]
+    ; solve
+        [ |-
+           inversion-tm/unroll/i _
+           (\a. \b. _)
+           _
+           (cn-equiv/refl (Dof1[_, cn-of/lam Dwf1
+                                (\a.
+                                   \da.
+                                     cn-of/rec Dwf1[]
+                                     (\a1.
+                                        \da1. \b. \db. Dof1[a1, da1, b, db])
+                                     da),
+                                _, Dof2]))
+           Dof]
+    }
   }
 }
 ;
@@ -1129,7 +1207,6 @@ LF inversion-tm/in/e : sttp -> label -> term -> con -> type =
     inversion-tm/in/e F I E T
 ;
 
-% TODO: Depends on `tm-of-reg`
 proof inversion-tm/in :
   [ |- tm-of F (tm/in I E) T] ->
     [ |- inversion-tm/in/e F I E T] =
@@ -1170,7 +1247,8 @@ intros
     C : ( |- con),
     Dof : ( |- tm-of F E C)
   | x : [ |- tm-of F (tm/in I E) (labeled I C)]
-  ; ?
+  ; by tm-of-reg [ |- Dof] as Dwf unboxed;
+    solve [ |- inversion-tm/in/i _ (cn-equiv/refl (cn-of/labeled Dwf)) Dof]
   }
 }
 ;
