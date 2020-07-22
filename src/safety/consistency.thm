@@ -7711,7 +7711,7 @@ proof map-equiv :
   { C : [g |- con] } { D : [g |- con] }
   [g |- cn-equiv C D K] ->
     [g |- map-equiv/e C D K] =
-/ total /
+/ total 1 /
 intros
 { g : map-bind, K : (g |- kind), C : (g |- con), D : (g |- con)
 | equiv : [g |- cn-equiv C D K]
