@@ -273,8 +273,8 @@ and cn-equiv : con -> con -> kind -> type =
     cn-equiv C C' one
 
 | cn-equiv/subsume :
-  kd-sub K K' ->
   cn-equiv C C' K ->
+  kd-sub K K' ->
     cn-equiv C C' K'
 
 | cn-equiv/beta :
