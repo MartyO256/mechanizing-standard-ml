@@ -5,12 +5,12 @@ LF expand-il : con -> kind -> con -> type =
 
 | expand-il/pi :
   ({x : con} expand-il x A (M x)) ->
-    ({x : con} expand-il (app R (M x)) (B x) (N x)) ->
+  ({x : con} expand-il (app R (M x)) (B x) (N x)) ->
     expand-il R (pi A B) (lam A N)
 
 | expand-il/sigma :
   expand-il (pi1 R) A M ->
-    expand-il (pi2 R) (B (pi1 R)) N ->
+  expand-il (pi2 R) (B (pi1 R)) N ->
     expand-il R (sigma A B) (pair M N)
 
 | expand-il/sing : expand-il R (sing R') R'
@@ -24,8 +24,8 @@ LF skof-il : skel -> kind -> (con -> kind) -> type =
 
 | skof-il/pi :
   skof-il As C (\y. A y) ->
-    skof-il Bs D (\z. B z) ->
-    ({y : con} {x : con} expand-il x (A y) (X y x)) ->
+  skof-il Bs D (\z. B z) ->
+  ({y : con} {x : con} expand-il x (A y) (X y x)) ->
     skof-il
       (kpi As Bs)
       (sigma C (\y. pi (A y) (\l. D)))
@@ -33,8 +33,8 @@ LF skof-il : skel -> kind -> (con -> kind) -> type =
 
 | skof-il/sigma :
   skof-il As C (\y. A y) ->
-    skof-il Bs D (\z. B z) ->
-    ({y : con} {x : con} expand-il x (A y) (X y x)) ->
+  skof-il Bs D (\z. B z) ->
+  ({y : con} {x : con} expand-il x (A y) (X y x)) ->
     skof-il
       (ksigma As Bs)
       (sigma C (\y. pi (A y) (\l. D)))
@@ -229,8 +229,8 @@ intros
     D1 : (g, x : con |- simp-il K1 T2[])
   | x : [g |- simp-il (pi K (\y470. K1)) (spi T1[] T2[])]
   ; split
-can-expand-il* [g, b : block (x : con) |- b.1]
-  [g, b : block (x : con) |- T1[]] [g, b : block (x : con) |- D[..]] as
+      can-expand-il* [g, b : block (x : con) |- b.1]
+      [g, b : block (x : con) |- T1[]] [g, b : block (x : con) |- D[..]] as
     case can-expand-il/i:
     { g : conblock,
       K : (g |- kind),
@@ -292,7 +292,7 @@ intros
     T : ( |- stp),
     D : (g |- simp-il A T[])
   |
-  ; solve can-expand-il* [_ |- _] [_ |- _] [_ |- D]
+  ; solve can-expand-il* [_ |- R] [_ |- T[]] [_ |- D]
   }
 }
 ;
@@ -598,7 +598,7 @@ as DequivX unboxed;
              [g, b : block (a : con, da : cn-of a (K2[..])) |- DequivX]
         as DequivBx unboxed;
         by [g, b : block (a : con, da : cn-of a (K2[..])) |-
-              cn-of/subsume (cn-of/app (Dof1[.., b.1, b.2]) (DofR[..]))
+              cn-of/subsume (cn-of/app (DofR[..]) (Dof1[.., b.1, b.2]))
               (kd-sub/refl (kd-equiv/symm DequivBx))]
         as Dof' unboxed;
         by expand-il-equiv
@@ -614,13 +614,14 @@ as Dequiv' unboxed;
           [g |-
              cn-equiv/trans (cn-equiv/extpi DofR
                             (cn-of/lam Dwf
-                            (\a. \da. cn-of/app da (DofR[..])))
+                            (\a. \da. cn-of/app (DofR[..]) da))
                             (\a.
                                \da.
-                                 cn-equiv/symm (cn-equiv/beta da
+                                 cn-equiv/symm (cn-equiv/beta
                                                (\a1.
                                                   \da1.
-                                                    cn-of/app da1 (DofR[..])))))
+                                                    cn-of/app (DofR[..]) da1)
+                                                da)))
              (cn-equiv/lam (kd-equiv/refl Dwf)
              (\a. \da. Dequiv'[.., <a; da>]))]
       }
@@ -1601,17 +1602,25 @@ intros
                (\x.
                   sigma (K2[.., pi1 x])
                   (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))]
-      ; by [_, x : con, z1062 : cn-of x (K1[..]) |-
-              kd-wf/pi Dwf1 (\a. \da. Dwf2[..])]
-        as Dwf1'' unboxed;
-        by [_ |- kd-wf/sigma Dwf (\a. \da. Dwf1'')] as Dwf1' unboxed;
-        by [g, x : con, a : con |- Dwf3[.., app (pi2 x) (C[.., pi1 x, a]), _]]
-        as Dof' unboxed;
-        by [g, x : con,
-            dx : cn-of x (sigma (K1[..]) (\a. pi (K2[.., a]) (\y. K3[..]))) |-
-              kd-wf/sigma (Dwf1[.., pi1 x, _]) (\a. \da. Dof'[.., x, a])]
-        as Dwf2' unboxed;
-        solve [g |- skof-il-reg/i Dwf1' (\x. \dx. Dwf2')]
+      ; by expand-il-reg
+        [g, b1 : block (y : con, dy : cn-of y (K1[..])),
+          b2 : block (x : con, dx : cn-of x (K2[.., b1.1])) |- b2.2]
+        [g, b1 : block (y : con, dy : cn-of y (K1[..])),
+          b2 : block (x : con, dx : cn-of x (K2[.., b1.1])) |-
+        Dexpand-il[.., b1.1, b2.1]]
+        as DofX unboxed;
+        solve
+          [g |-
+             skof-il-reg/i (kd-wf/sigma Dwf
+                           (\a. \da. kd-wf/pi Dwf1 (\l1. \l2. Dwf2[..])))
+             (\x.
+                \dx.
+                  kd-wf/sigma (Dwf1[.., pi1 x, cn-of/pi1 dx])
+                  (\a.
+                     \da.
+                       Dwf3[.., app (pi2 x) (C[.., pi1 x, a]),
+                            cn-of/app (cn-of/pi2 dx)
+                            (DofX[.., <pi1 x; cn-of/pi1 dx>, <a; da>])]))]
       }
     }
   }
@@ -1683,17 +1692,25 @@ intros
                (\x.
                   pi (K2[.., pi1 x])
                   (\x1. K4[.., app (pi2 x) (C[.., pi1 x, x1])]))]
-      ; by [g, x : con, dx : cn-of x (K1[..]) |-
-              kd-wf/pi Dwf1 (\a. \da. Dwf2[..])]
-        as Dwf1'' unboxed;
-        by [g |- kd-wf/sigma Dwf (\a. \da. Dwf1'')] as Dwf1' unboxed;
-        by [g, x : con, a : con |- Dwf3[.., app (pi2 x) (C[.., pi1 x, a]), _]]
-        as Dof' unboxed;
-        by [g, x : con,
-            dx : cn-of x (sigma (K1[..]) (\a. pi (K2[.., a]) (\y. K3[..]))) |-
-              kd-wf/pi (Dwf1[.., pi1 x, _]) (\a. \da. Dof'[.., x, a])]
-        as Dwf2' unboxed;
-        solve [g |- skof-il-reg/i Dwf1' (\a. \da. Dwf2')]
+      ; by expand-il-reg
+        [g, b1 : block (y : con, dy : cn-of y (K1[..])),
+          b2 : block (x : con, dx : cn-of x (K2[.., b1.1])) |- b2.2]
+        [g, b1 : block (y : con, dy : cn-of y (K1[..])),
+          b2 : block (x : con, dx : cn-of x (K2[.., b1.1])) |-
+        Dexpand-il[.., b1.1, b2.1]]
+        as DofX unboxed;
+        solve
+          [g |-
+             skof-il-reg/i (kd-wf/sigma Dwf
+                           (\a. \da. kd-wf/pi Dwf1 (\l1. \l2. Dwf2[..])))
+             (\x.
+                \dx.
+                  kd-wf/pi (Dwf1[.., pi1 x, cn-of/pi1 dx])
+                  (\a.
+                     \da.
+                       Dwf3[.., app (pi2 x) (C[.., pi1 x, a]),
+                            cn-of/app (cn-of/pi2 dx)
+                            (DofX[.., <pi1 x; cn-of/pi1 dx>, <a; da>])]))]
       }
     }
   }
