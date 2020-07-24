@@ -2762,26 +2762,18 @@ intros
 }
 ;
 
-schema conbind+conbind-reg =
-  % conbind
-  some [K : kind]
-  block (a : con, d : cn-of a K) +
-  % conbind-reg
-  some [K : kind, wf : kd-wf K]
-  block (a : con, da : cn-of a K);
-
 proof sg-fst-reg :
-  (g : conbind+conbind-reg)
+  (g : conbind-reg)
   [g |- sg-wf S] ->
   [g |- sg-fst S K] ->
     [g |- kd-wf K] =
 / total 1 /
 intros
-{ g : conbind+conbind-reg, S : (g |- sg), K : (g |- kind)
+{ g : conbind-reg, S : (g |- sg), K : (g |- kind)
 | x : [g |- sg-wf S], fst : [g |- sg-fst S K]
 ; split x as
   case sg-wf/named:
-  { g : conbind+conbind-reg,
+  { g : conbind-reg,
     L : ( |- name),
     S1 : (g |- sg),
     K : (g |- kind),
@@ -2790,7 +2782,7 @@ intros
     fst : [g |- sg-fst (sg/named L[] S1) K]
   ; split fst as
     case sg-fst/named:
-    { g : conbind+conbind-reg,
+    { g : conbind-reg,
       L : ( |- name),
       S1 : (g |- sg),
       K : (g |- kind),
@@ -2802,7 +2794,7 @@ intros
     }
   }
   case sg-wf/sigma:
-  { g : conbind+conbind-reg,
+  { g : conbind-reg,
     S1 : (g |- sg),
     S2 : (g, a48 : con |- sg),
     K : (g |- kind),
@@ -2814,7 +2806,7 @@ intros
     fst : [g |- sg-fst (sg/sigma S1 (\x365. S2)) K]
   ; split fst as
     case sg-fst/sigma:
-    { g : conbind+conbind-reg,
+    { g : conbind-reg,
       S1 : (g |- sg),
       S2 : (g, a48 : con |- sg),
       K2 : (g |- kind),
@@ -2841,7 +2833,7 @@ as Deq unboxed;
     }
   }
   case sg-wf/pi:
-  { g : conbind+conbind-reg,
+  { g : conbind-reg,
     S1 : (g |- sg),
     S2 : (g, a47 : con |- sg),
     K : (g |- kind),
@@ -2853,7 +2845,7 @@ as Deq unboxed;
     fst : [g |- sg-fst (sg/pi S1 (\x364. S2)) K]
   ; split fst as
     case sg-fst/pi:
-    { g : conbind+conbind-reg,
+    { g : conbind-reg,
       S1 : (g |- sg),
       S2 : (g, a47 : con |- sg),
       K1 : (g |- kind),
@@ -2866,41 +2858,41 @@ as Deq unboxed;
     }
   }
   case sg-wf/sgatom:
-  { g : conbind+conbind-reg, S1 : (g |- sg), K : (g |- kind), Dwf : (g |- sg-wf S1)
+  { g : conbind-reg, S1 : (g |- sg), K : (g |- kind), Dwf : (g |- sg-wf S1)
   | x : [g |- sg-wf (sg/sgatom S1)], fst : [g |- sg-fst (sg/sgatom S1) K]
   ; split fst as
     case sg-fst/sgatom:
-    { g : conbind+conbind-reg, S1 : (g |- sg), Dwf : (g |- sg-wf S1)
+    { g : conbind-reg, S1 : (g |- sg), Dwf : (g |- sg-wf S1)
     | x : [g |- sg-wf (sg/sgatom S1)], fst : [g |- sg-fst (sg/sgatom S1) one]
     ; solve [g |- kd-wf/one]
     }
   }
   case sg-wf/datom:
-  { g : conbind+conbind-reg, C : (g |- con), K : (g |- kind), Dof : (g |- cn-of C t)
+  { g : conbind-reg, C : (g |- con), K : (g |- kind), Dof : (g |- cn-of C t)
   | x : [g |- sg-wf (sg/datom C)], fst : [g |- sg-fst (sg/datom C) K]
   ; split fst as
     case sg-fst/datom:
-    { g : conbind+conbind-reg, C : (g |- con), Dof : (g |- cn-of C t)
+    { g : conbind-reg, C : (g |- con), Dof : (g |- cn-of C t)
     | x : [g |- sg-wf (sg/datom C)], fst : [g |- sg-fst (sg/datom C) one]
     ; solve [g |- kd-wf/one]
     }
   }
   case sg-wf/satom:
-  { g : conbind+conbind-reg, K1 : (g |- kind), K : (g |- kind), Dwf : (g |- kd-wf K1)
+  { g : conbind-reg, K1 : (g |- kind), K : (g |- kind), Dwf : (g |- kd-wf K1)
   | x : [g |- sg-wf (sg/satom K1)], fst : [g |- sg-fst (sg/satom K1) K]
   ; split fst as
     case sg-fst/satom:
-    { g : conbind+conbind-reg, K : (g |- kind), Dwf : (g |- kd-wf K)
+    { g : conbind-reg, K : (g |- kind), Dwf : (g |- kd-wf K)
     | x : [g |- sg-wf (sg/satom K)], fst : [g |- sg-fst (sg/satom K) K]
     ; solve [g |- Dwf]
     }
   }
   case sg-wf/one:
-  { g : conbind+conbind-reg, K : (g |- kind)
+  { g : conbind-reg, K : (g |- kind)
   | x : [g |- sg-wf sg/one], fst : [g |- sg-fst sg/one K]
   ; split fst as
     case sg-fst/one:
-    { g : conbind+conbind-reg
+    { g : conbind-reg
     | x : [g |- sg-wf sg/one], fst : [g |- sg-fst sg/one one]
     ; solve [g |- kd-wf/one]
     }
@@ -2909,14 +2901,14 @@ as Deq unboxed;
 ;
 
 proof sg-equiv-fst :
-  (g : conbind+conbind-reg)
+  (g : conbind-reg)
   [g |- sg-equiv S1 S2] ->
   [g |- sg-fst S1 K1] ->
   [g |- sg-fst S2 K2] ->
     [g |- kd-equiv K1 K2] =
 / total 1 /
 intros
-{ g : conbind+conbind-reg,
+{ g : conbind-reg,
   S : (g |- sg),
   S1 : (g |- sg),
   K : (g |- kind),
@@ -2926,7 +2918,7 @@ intros
   fst1 : [g |- sg-fst S1 K1]
 ; split x as
   case sg-equiv/named:
-  { g : conbind+conbind-reg,
+  { g : conbind-reg,
     L : ( |- name),
     S2 : (g |- sg),
     S3 : (g |- sg),
@@ -2938,7 +2930,7 @@ intros
     fst1 : [g |- sg-fst (sg/named L[] S3) K1]
   ; split fst as
     case sg-fst/named:
-    { g : conbind+conbind-reg,
+    { g : conbind-reg,
       L : ( |- name),
       S2 : (g |- sg),
       S3 : (g |- sg),
@@ -2951,7 +2943,7 @@ intros
       fst1 : [g |- sg-fst (sg/named L[] S3) K1]
     ; split fst1 as
       case sg-fst/named:
-      { g : conbind+conbind-reg,
+      { g : conbind-reg,
         L : ( |- name),
         S2 : (g |- sg),
         S3 : (g |- sg),
@@ -2968,7 +2960,7 @@ intros
     }
   }
   case sg-equiv/sigma:
-  { g : conbind+conbind-reg,
+  { g : conbind-reg,
     S2 : (g |- sg),
     S4 : (g, a51 : con |- sg),
     S3 : (g |- sg),
@@ -2986,7 +2978,7 @@ intros
     fst1 : [g |- sg-fst (sg/sigma S3 (\x365. S5)) K1]
   ; split fst as
     case sg-fst/sigma:
-    { g : conbind+conbind-reg,
+    { g : conbind-reg,
       S2 : (g |- sg),
       S4 : (g, a51 : con |- sg),
       S3 : (g |- sg),
@@ -3007,7 +2999,7 @@ intros
       fst1 : [g |- sg-fst (sg/sigma S3 (\x365. S5)) K1]
     ; split fst1 as
       case sg-fst/sigma:
-      { g : conbind+conbind-reg,
+      { g : conbind-reg,
         S2 : (g |- sg),
         S4 : (g, a51 : con |- sg),
         S3 : (g |- sg),
@@ -3049,7 +3041,7 @@ as Deqa unboxed;
     }
   }
   case sg-equiv/pi:
-  { g : conbind+conbind-reg,
+  { g : conbind-reg,
     S2 : (g |- sg),
     S4 : (g, a49 : con |- sg),
     S3 : (g |- sg),
@@ -3067,7 +3059,7 @@ as Deqa unboxed;
     fst1 : [g |- sg-fst (sg/pi S3 (\x364. S5)) K1]
   ; split fst as
     case sg-fst/pi:
-    { g : conbind+conbind-reg,
+    { g : conbind-reg,
       S2 : (g |- sg),
       S4 : (g, a49 : con |- sg),
       S3 : (g |- sg),
@@ -3084,7 +3076,7 @@ as Deqa unboxed;
       fst1 : [g |- sg-fst (sg/pi S3 (\x364. S5)) K1]
     ; split fst1 as
       case sg-fst/pi:
-      { g : conbind+conbind-reg,
+      { g : conbind-reg,
         S2 : (g |- sg),
         S4 : (g, a49 : con |- sg),
         S3 : (g |- sg),
@@ -3103,7 +3095,7 @@ as Deqa unboxed;
     }
   }
   case sg-equiv/sgatom:
-  { g : conbind+conbind-reg,
+  { g : conbind-reg,
     S2 : (g |- sg),
     S3 : (g |- sg),
     K : (g |- kind),
@@ -3114,7 +3106,7 @@ as Deqa unboxed;
     fst1 : [g |- sg-fst (sg/sgatom S3) K1]
   ; split fst as
     case sg-fst/sgatom:
-    { g : conbind+conbind-reg,
+    { g : conbind-reg,
       S2 : (g |- sg),
       S3 : (g |- sg),
       K1 : (g |- kind),
@@ -3124,7 +3116,7 @@ as Deqa unboxed;
       fst1 : [g |- sg-fst (sg/sgatom S3) K1]
     ; split fst1 as
       case sg-fst/sgatom:
-      { g : conbind+conbind-reg,
+      { g : conbind-reg,
         S2 : (g |- sg),
         S3 : (g |- sg),
         Dequiv : (g |- sg-equiv S2 S3)
@@ -3136,7 +3128,7 @@ as Deqa unboxed;
     }
   }
   case sg-equiv/datom:
-  { g : conbind+conbind-reg,
+  { g : conbind-reg,
     C : (g |- con),
     C1 : (g |- con),
     K : (g |- kind),
@@ -3147,7 +3139,7 @@ as Deqa unboxed;
     fst1 : [g |- sg-fst (sg/datom C1) K1]
   ; split fst as
     case sg-fst/datom:
-    { g : conbind+conbind-reg,
+    { g : conbind-reg,
       C : (g |- con),
       C1 : (g |- con),
       K1 : (g |- kind),
@@ -3157,7 +3149,7 @@ as Deqa unboxed;
       fst1 : [g |- sg-fst (sg/datom C1) K1]
     ; split fst1 as
       case sg-fst/datom:
-      { g : conbind+conbind-reg,
+      { g : conbind-reg,
         C : (g |- con),
         C1 : (g |- con),
         Dequiv : (g |- cn-equiv C C1 t)
@@ -3169,7 +3161,7 @@ as Deqa unboxed;
     }
   }
   case sg-equiv/satom:
-  { g : conbind+conbind-reg,
+  { g : conbind-reg,
     K2 : (g |- kind),
     K3 : (g |- kind),
     K : (g |- kind),
@@ -3180,7 +3172,7 @@ as Deqa unboxed;
     fst1 : [g |- sg-fst (sg/satom K3) K1]
   ; split fst as
     case sg-fst/satom:
-    { g : conbind+conbind-reg,
+    { g : conbind-reg,
       K : (g |- kind),
       K3 : (g |- kind),
       K1 : (g |- kind),
@@ -3190,7 +3182,7 @@ as Deqa unboxed;
       fst1 : [g |- sg-fst (sg/satom K3) K1]
     ; split fst1 as
       case sg-fst/satom:
-      { g : conbind+conbind-reg,
+      { g : conbind-reg,
         K : (g |- kind),
         K1 : (g |- kind),
         Dequiv : (g |- kd-equiv K K1)
@@ -3202,7 +3194,7 @@ as Deqa unboxed;
     }
   }
   case sg-equiv/trans:
-  { g : conbind+conbind-reg,
+  { g : conbind-reg,
     S : (g |- sg),
     S1 : (g |- sg),
     K : (g |- kind),
@@ -3215,7 +3207,7 @@ as Deqa unboxed;
     fst1 : [g |- sg-fst S1 K1]
   ; split can-sg-fst [g |- S3] as
     case can-sg-fst/i:
-    { g : conbind+conbind-reg,
+    { g : conbind-reg,
       S : (g |- sg),
       S1 : (g |- sg),
       K : (g |- kind),
@@ -3234,7 +3226,7 @@ as Deqa unboxed;
     }
   }
   case sg-equiv/symm:
-  { g : conbind+conbind-reg,
+  { g : conbind-reg,
     S : (g |- sg),
     S1 : (g |- sg),
     K : (g |- kind),
@@ -3247,7 +3239,7 @@ as Deqa unboxed;
     solve [g |- kd-equiv/symm Dequiv']
   }
   case sg-equiv/refl:
-  { g : conbind+conbind-reg,
+  { g : conbind-reg,
     S1 : (g |- sg),
     K : (g |- kind),
     K1 : (g |- kind),
