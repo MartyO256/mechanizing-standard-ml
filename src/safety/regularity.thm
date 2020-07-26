@@ -1057,7 +1057,113 @@ intros
       [g |-
          cn-equiv
            (rec' K1 (\z529. \y530. C3) C5) (rec' K2 (\z529. \y530. C4) C6) t]
-  ; ?
+  ; split kd-equiv-reg [g |- Dequiv] as
+    case kd-equiv-reg/i:
+    { g : conbind-reg,
+      K1 : (g |- kind),
+      C : (g, a32 : con, a31 : con |- con),
+      D : (g |- con),
+      K2 : (g |- kind),
+      C' : (g, a34 : con, a33 : con |- con),
+      D' : (g |- con),
+      DequivK : (g |- kd-equiv K1 K2),
+      DequivC :
+        (g, a : con, y612 : cn-of a (pi (K1[..]) (\l. t)), b : con,
+         x612 : cn-of b (K1[..]) |- cn-equiv (C[.., a, b]) (C'[.., a, b]) t),
+      DequivD : (g |- cn-equiv D D' K1),
+      Dwf : (g |- kd-wf K1),
+      Dwf1 : (g |- kd-wf K2)
+    | x :
+        [g |-
+           cn-equiv
+             (rec' K1 (\y528. \x528. C) D) (rec' K2 (\y528. \x528. C') D') t]
+    ; split
+      cn-equiv-reg
+        [g, b1 : block (a : con, da : cn-of a (pi (K1[..]) (\l. t))),
+         b2 : block (b : con, db : cn-of b (K1[..])) |-
+           DequivC[.., b1.1, b1.2, b2.1, b2.2]] as
+      case cn-equiv-reg/i:
+      { g : conbind-reg,
+        K1 : (g |- kind),
+        C1 : (g, a : con, b : con |- con),
+        D : (g |- con),
+        K2 : (g |- kind),
+        C2 : (g, a : con, b : con |- con),
+        D' : (g |- con),
+        DequivK : (g |- kd-equiv K1 K2),
+        DequivC :
+          (g, a : con, y612 : cn-of a (pi (K1[..]) (\l. t)), b : con,
+           x612 : cn-of b (K1[..]) |-
+             cn-equiv (C1[.., a, b]) (C2[.., a, b]) t),
+        DequivD : (g |- cn-equiv D D' K1),
+        DwfK1 : (g |- kd-wf K1),
+        DwfK2 : (g |- kd-wf K2),
+        Dof :
+          (g, a : con, x21 : cn-of a (pi (K1[..]) (\l. t)), b : con,
+           z21 : cn-of b (K1[..]) |- cn-of (C1[.., a, b]) t),
+        Dof1 :
+          (g, a : con, y22 : cn-of a (pi (K1[..]) (\l. t)), b : con,
+           x22 : cn-of b (K1[..]) |- cn-of (C2[.., a, b]) t),
+        Dwf :
+          (g, a : con, z22 : cn-of a (pi (K1[..]) (\l. t)), b : con,
+           y23 : cn-of b (K1[..]) |- kd-wf t)
+      | x :
+          [g |-
+             cn-equiv
+               (rec' K1 (\y528. \x528. C1) D)
+               (rec' K2 (\y528. \x528. C2) D') t]
+      ; split cn-equiv-reg [g |- DequivD] as
+        case cn-equiv-reg/i:
+        { g : conbind-reg,
+          K1 : (g |- kind),
+          C1 : (g, a : con, b : con |- con),
+          D : (g |- con),
+          K2 : (g |- kind),
+          C2 : (g, a : con, b : con |- con),
+          D' : (g |- con),
+          DequivK : (g |- kd-equiv K1 K2),
+          DequivC :
+            (g, a : con, y612 : cn-of a (pi (K1[..]) (\l. t)), b : con,
+             x612 : cn-of b (K1[..]) |-
+               cn-equiv (C1[.., a, b]) (C2[.., a, b]) t),
+          DequivD : (g |- cn-equiv D D' K1),
+          DwfK1 : (g |- kd-wf K1),
+          DwfK2 : (g |- kd-wf K2),
+          DofC1 :
+            (g, a : con, x21 : cn-of a (pi (K1[..]) (\l. t)), b : con,
+             z21 : cn-of b (K1[..]) |- cn-of (C1[.., a, b]) t),
+          DofC2 :
+            (g, a : con, y22 : cn-of a (pi (K1[..]) (\l. t)), b : con,
+             x22 : cn-of b (K1[..]) |- cn-of (C2[.., a, b]) t),
+          DofKextra :
+            (g, a : con, z22 : cn-of a (pi (K1[..]) (\l. t)), b : con,
+             y23 : cn-of b (K1[..]) |- kd-wf t),
+          Dof : (g |- cn-of D K1),
+          Dof1 : (g |- cn-of D' K1),
+          Dwf : (g |- kd-wf K1)
+        | x :
+            [g |-
+               cn-equiv
+                 (rec' K1 (\y528. \x528. C1) D)
+                 (rec' K2 (\y528. \x528. C2) D') t]
+        ; solve
+            [g |-
+               cn-equiv-reg/i (cn-of/rec DwfK1 (\a. \da. \b. \db. DofC1) Dof)
+               (cn-of/rec DwfK2
+               (\a.
+                  \da.
+                    \b.
+                      \db.
+                        DofC2[.., a, cn-of/subsume da
+                              (kd-sub/refl (kd-equiv/pi (kd-equiv/symm 
+                                                        (DequivK[..]))
+                                           (\l1. \l2. kd-equiv/refl kd-wf/t))),
+                              b, cn-of/subsume db
+                              (kd-sub/refl (kd-equiv/symm (DequivK[..])))])
+               (cn-of/subsume Dof1 (kd-sub/refl DequivK))) kd-wf/t]
+        }
+      }
+    }
   }
   case cn-equiv/tag:
   { g : conbind-reg,
