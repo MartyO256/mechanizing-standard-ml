@@ -347,7 +347,7 @@ proof can-eexpand :
   { R : [g |- eterm] }
   { A : [g |- etp] }
   [g |- can-eexpand/e R A] =
-/ trust / % FIXME: See issue #4
+/ total 1 /
 intros
 { g : evar, R : (g |- eterm), A : (g |- etp)
 |
@@ -422,11 +422,7 @@ intros
       Dsimp1 : (g |- esimp A1 T1[]),
       Dsimp2 : (g, x : eterm |- esimp A2 T2[])
     |
-    ; split
-        can-eexpand
-          [g, b : block (x : eterm) |- b.1]
-          [g, b : block (x : eterm) |- A1[..]]
-      as
+    ; split can-eexpand [g, x : eterm |- x] [g, x : eterm |- A1[..]] as
       case can-eexpand/i:
       { g : evar,
         R : (g |- eterm),
@@ -436,13 +432,28 @@ intros
         T2 : ( |- stp),
         Dsimp1 : (g |- esimp A1 T1[]),
         Dsimp2 : (g, x : eterm |- esimp A2 T2[]),
-        M1 : (g, y1 : eterm |- eterm),
-        Dexpand : (g, x1 : eterm |- eexpand x1 (A1[..]) M1)
+        M1 : (g, x : eterm |- eterm),
+        Dexpand : (g, x : eterm |- eexpand x (A1[..]) M1)
       |
-      ; %{ FIXME: Wrong block projections after
-            invert can-eexpand [g, b : block (x : eterm) |- eapp (R[..]) (M1[.., b.x])] [g, b |- A2[.., b.x]]
-        }%
-        ?
+      ; split
+        can-eexpand [g, x : eterm |- eapp (R[..]) M1] [g, x : eterm |- A2] as
+        case can-eexpand/i:
+        { g : evar,
+          R : (g |- eterm),
+          A1 : (g |- etp),
+          A2 : (g, z328 : eterm |- etp),
+          T1 : ( |- stp),
+          T2 : ( |- stp),
+          Dsimp1 : (g |- esimp A1 T1[]),
+          Dsimp2 : (g, x : eterm |- esimp A2 T2[]),
+          M1 : (g, x : eterm |- eterm),
+          Dexpand : (g, x : eterm |- eexpand x (A1[..]) M1),
+          M3 : (g, x : eterm |- eterm),
+          Dexpand1 : (g, x : eterm |- eexpand (eapp (R[..]) M1) A2 M3)
+        |
+        ; solve
+            [g |- can-eexpand/i _ (eexpand/pi (\x. Dexpand) (\x. Dexpand1))]
+        }
       }
     }
     case esimp/t:
