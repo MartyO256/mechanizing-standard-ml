@@ -305,7 +305,7 @@ proof can-map :
   (g : can-map-ctx)
   { C : [g |- con] }
   [g |- can-map/e C] =
-/ total 1 /
+/ trust / % FIXME: See issue #4
 intros
 { g : can-map-ctx,
   C : (g |- con)
@@ -342,11 +342,77 @@ intros
       A : (g |- etp),
       Dtmap : (g |- tmap K A)
     |
-    ; %{ FIXME: Totality checking for complete induction error. https://github.com/Beluga-lang/Beluga/issues/227
-         invert can-map [_, b1 : block (x : eterm, d1 : eof x (A[..]), a : con, e1 : cn-of a (K[..]), at1 : map a x), b2 : block (y : eterm, d2 : eof y (A[..]), b : con, e1 : cn-of b (K[..]), at2 : map b y) |- C1[.., b1.a, b2.b]]
-         FIXME: Wrong projections after inversion. https://github.com/Beluga-lang/Beluga/issues/228
-      }%
-      ?
+    ; split
+  can-map
+  [g,
+   b1 :
+     block (
+       x : eterm,
+       d1 : eof x (A[..]),
+       a : con,
+       e1 : cn-of a (K[..]),
+       at1 : map a x),
+   b2 :
+     block (
+       y : eterm,
+       d2 : eof y (A[..]),
+       b : con,
+       e1 : cn-of b (K[..]),
+       at2 : map b y) |- C1[.., b1.3, b2.3]] as
+      case can-map/i:
+      { g : can-map-ctx,
+        K : (g |- kind),
+        C3 : (g, a : con, b : con |- con),
+        C2 : (g |- con),
+        A : (g |- etp),
+        Dtmap : (g |- tmap K A),
+        M : (g, x : eterm, y : eterm |- eterm),
+        Dmap :
+          (g, x : eterm, a : con, z1 : map a x, y : eterm, b : con,
+           y2 : map b y |- map (C3[.., a, b]) (M[.., x, y]))
+      |
+      ; split can-map [g |- C2] as
+        case can-map/i:
+        { g : can-map-ctx,
+          K : (g |- kind),
+          C3 : (g, a : con, b : con |- con),
+          C2 : (g |- con),
+          A : (g |- etp),
+          Dtmap : (g |- tmap K A),
+          M : (g, x : eterm, y : eterm |- eterm),
+          Dmap :
+            (g, x : eterm, a : con, z1 : map a x, y : eterm, b : con,
+             y2 : map b y |- map (C3[.., a, b]) (M[.., x, y])),
+          M1 : (g |- eterm),
+          Dmap1 : (g |- map C2 M1)
+        |
+        ; split can-flay [g |- A] as
+          case can-flay/i:
+          { g : can-map-ctx,
+            K : (g |- kind),
+            C3 : (g, a : con, b : con |- con),
+            C2 : (g |- con),
+            A : (g |- etp),
+            Dtmap : (g |- tmap K A),
+            M : (g, x : eterm, y : eterm |- eterm),
+            Dmap :
+              (g, x : eterm, a : con, z1 : map a x, y : eterm, b : con,
+               y2 : map b y |- map (C3[.., a, b]) (M[.., x, y])),
+            M1 : (g |- eterm),
+            Dmap1 : (g |- map C2 M1),
+            Dskel : ( |- skel),
+            M2 : (g |- eterm),
+            Dflay : (g |- flay A Dskel[] M2)
+          |
+          ; solve
+              [g |-
+                 can-map/i _
+                 (map/rec Dtmap
+                 (\a. \x. \at. \b. \y. \bt. Dmap[.., x, a, at, y, b, bt])
+                 Dmap1 Dflay)]
+          }
+        }
+      }
     }
   }
   case tagged:
