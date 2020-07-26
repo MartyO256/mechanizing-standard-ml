@@ -911,7 +911,26 @@ intros
         A3 : (z332 : eterm |- etp),
         Dskof1 : ( |- skof Dskel1 A2 (\z310. A3))
       |
-      ; ?
+      ; split
+can-eexpand [y : eterm, x : eterm |- x] [y : eterm, x : eterm |- A1[y]] as
+        case can-eexpand/i:
+        { g : evar,
+          Dskel : ( |- skel),
+          Dskel1 : ( |- skel),
+          A : ( |- etp),
+          A1 : (z332 : eterm |- etp),
+          Dskof : ( |- skof Dskel A (\z310. A1[z310])),
+          A2 : ( |- etp),
+          A3 : (z332 : eterm |- etp),
+          Dskof1 : ( |- skof Dskel1 A2 (\z310. A3)),
+          M1 : (y : eterm, x : eterm |- eterm),
+          Dexpand : (y : eterm, x : eterm |- eexpand x (A1[y]) M1)
+        |
+        ; solve
+            [g |-
+               can-skof/i _
+               (\x. _) (skof/sigma Dskof[] Dskof1[] (\y. \x. Dexpand[y, x]))]
+        }
       }
     }
   }
@@ -939,10 +958,26 @@ intros
         A3 : (z332 : eterm |- etp),
         Dskof1 : ( |- skof Dskel1 A2 (\z310. A3))
       |
-      ; %{ FIXME: Wrong projections after
-            invert can-eexpand [_, b1 : block (x : eterm), b2 : block (y : eterm)|- b1.x] [g, b1, b2|-A1[b2.y]]
-        }%
-        ?
+      ; split
+can-eexpand [y : eterm, x : eterm |- x] [y : eterm, x : eterm |- A1[y]] as
+        case can-eexpand/i:
+        { g : evar,
+          Dskel : ( |- skel),
+          Dskel1 : ( |- skel),
+          A : ( |- etp),
+          A1 : (z332 : eterm |- etp),
+          Dskof : ( |- skof Dskel A (\z310. A1[z310])),
+          A2 : ( |- etp),
+          A3 : (z332 : eterm |- etp),
+          Dskof1 : ( |- skof Dskel1 A2 (\z310. A3)),
+          M1 : (y : eterm, x : eterm |- eterm),
+          Dexpand : (y : eterm, x : eterm |- eexpand x (A1[y]) M1)
+        |
+        ; solve
+            [g |-
+               can-skof/i _
+               (\x. _) (skof/pi Dskof[] Dskof1[] (\y. \x. Dexpand[y, x]))]
+        }
       }
     }
   }
