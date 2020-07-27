@@ -9165,6 +9165,355 @@ intros
 }
 ;
 
+LF unmap-skof/e : skel -> etp -> (eterm -> etp) -> type =
+| unmap-skof/i :
+  { K : kind } { L : con -> kind }
+  tunmap A K ->
+  ({ x : eterm } { a : con } unmap x a -> tunmap (B x) (L a)) ->
+  skof-il SK K L ->
+    unmap-skof/e SK A B
+;
+
+proof unmap-skof :
+  (g : conblock+unmap-block)
+  [g |- skof SK A (\x. B)] ->
+  [g |- unmap-skof/e SK A (\x. B)] =
+/ total 1 /
+intros
+{ g : conblock+unmap-block,
+  SK : (g |- skel),
+  A : (g |- etp),
+  B : (g, x344 : eterm |- etp)
+| x : [g |- skof SK A (\x. B)]
+; split x as
+  case skof/one:
+  { g : conblock+unmap-block
+  | x : [g |- skof kone eone (\x. eone)]
+  ; solve
+      [_ |-
+         unmap-skof/i _
+         (\x. _) tunmap/one (\x. \a. \xt. tunmap/one) skof-il/one]
+  }
+  case skof/sing:
+  { g : conblock+unmap-block
+  | x : [g |- skof ksing et (\x. esing x)]
+  ; solve
+      [_ |-
+         unmap-skof/i _
+         (\x. _) tunmap/t (\x. \a. \xt. tunmap/sing xt) skof-il/sing]
+  }
+  case skof/sigma:
+  { g : conblock+unmap-block,
+    Dskel : ( |- skel),
+    Dskel1 : ( |- skel),
+    A1 : (g |- etp),
+    A2 : (g, y : eterm |- etp),
+    A3 : (g |- etp),
+    A4 : (g, x : eterm |- etp),
+    M : (g, y : eterm, z : eterm |- eterm),
+    Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+    Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+    Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M)
+  | x :
+      [g |-
+         skof
+           (ksigma Dskel[] Dskel1[])
+           (esigma A1 (\y. epi A2 (\l. A3[..])))
+           (\x.
+              esigma (A2[.., epi1 x])
+              (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))]
+  ; split unmap-skof [_ |- Dskof] as
+    case unmap-skof/i:
+    { g : conblock+unmap-block,
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      A1 : (g |- etp),
+      A2 : (g, y : eterm |- etp),
+      A3 : (g |- etp),
+      A4 : (g, x : eterm |- etp),
+      M : (g, y : eterm, z : eterm |- eterm),
+      Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+      Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+      Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M),
+      K : (g |- kind),
+      K1 : (g, x : con |- kind),
+      Dtunmap : (g |- tunmap A1 K),
+      Dtunmap1 :
+        (g, x : eterm, a : con, y : unmap x a |-
+           tunmap (A2[.., x]) (K1[.., a])),
+      Dskof-il : (g |- skof-il Dskel[] K (\y1049. K1))
+    | x :
+        [g |-
+           skof
+             (ksigma Dskel[] Dskel1[])
+             (esigma A1 (\y. epi A2 (\l. A3[..])))
+             (\x.
+                esigma (A2[.., epi1 x])
+                (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))]
+    ; split unmap-skof [_ |- Dskof1] as
+      case unmap-skof/i:
+      { g : conblock+unmap-block,
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        A1 : (g |- etp),
+        A2 : (g, y : eterm |- etp),
+        A3 : (g |- etp),
+        A4 : (g, x : eterm |- etp),
+        M : (g, y : eterm, z : eterm |- eterm),
+        Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+        Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+        Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M),
+        K : (g |- kind),
+        K1 : (g, x : con |- kind),
+        Dtunmap : (g |- tunmap A1 K),
+        Dtunmap1 :
+          (g, x : eterm, a : con, y : unmap x a |-
+             tunmap (A2[.., x]) (K1[.., a])),
+        Dskof-il : (g |- skof-il Dskel[] K (\y1049. K1)),
+        K2 : (g |- kind),
+        K3 : (g, x : con |- kind),
+        Dtunmap2 : (g |- tunmap A3 K2),
+        Dtunmap3 :
+          (g, x : eterm, a : con, y : unmap x a |-
+             tunmap (A4[.., x]) (K3[.., a])),
+        Dskof-il1 : (g |- skof-il Dskel1[] K2 (\y1049. K3))
+      | x :
+          [g |-
+             skof
+               (ksigma Dskel[] Dskel1[])
+               (esigma A1 (\y. epi A2 (\l. A3[..])))
+               (\x.
+                  esigma (A2[.., epi1 x])
+                  (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))]
+      ; split
+unmap-expand
+  [g, b : con, cb : block (y : eterm, yt : unmap y b), a : con,
+   ca : block (x : eterm, xt : unmap x a) |- Dexpand[.., cb.1, ca.1]]
+  [g, b : con, cb : block (y : eterm, yt : unmap y b), a : con,
+   ca : block (x : eterm, xt : unmap x a) |- ca.2]
+  [g, b : con, cb : block (y : eterm, yt : unmap y b), a : con,
+   ca : block (x : eterm, xt : unmap x a) |- Dtunmap1[.., cb.1, b, cb.2]] as
+        case unmap-expand/i:
+        { g : conblock+unmap-block,
+          Dskel : ( |- skel),
+          Dskel1 : ( |- skel),
+          A1 : (g |- etp),
+          A2 : (g, y : eterm |- etp),
+          A3 : (g |- etp),
+          A4 : (g, x : eterm |- etp),
+          M1 : (g, y : eterm, x : eterm |- eterm),
+          Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+          Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+          Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M1),
+          K : (g |- kind),
+          K1 : (g, x : con |- kind),
+          Dtunmap : (g |- tunmap A1 K),
+          Dtunmap1 :
+            (g, x : eterm, a : con, y : unmap x a |-
+               tunmap (A2[.., x]) (K1[.., a])),
+          Dskof-il : (g |- skof-il Dskel[] K (\y1049. K1)),
+          K2 : (g |- kind),
+          K3 : (g, x : con |- kind),
+          Dtunmap2 : (g |- tunmap A3 K2),
+          Dtunmap3 :
+            (g, x : eterm, a : con, y : unmap x a |-
+               tunmap (A4[.., x]) (K3[.., a])),
+          Dskof-il1 : (g |- skof-il Dskel1[] K2 (\y1049. K3)),
+          C1 : (g, b : con, a : con |- con),
+          Dunmap :
+            (g, b : con, y : eterm, z27 : unmap y b, a : con, x : eterm,
+             y28 : unmap x a |- unmap (M1[.., y, x]) (C1[.., b, a])),
+          Dexpand-il : (g, b : con, a : con |- expand-il a (K1[.., b]) C1)
+        | x :
+            [g |-
+               skof
+                 (ksigma Dskel[] Dskel1[])
+                 (esigma A1 (\y. epi A2 (\l. A3[..])))
+                 (\x.
+                    esigma (A2[.., epi1 x])
+                    (\x1. A4[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+        ; solve
+            [g |-
+               unmap-skof/i _
+               (\x. _)
+               (tunmap/sigma Dtunmap
+               (\y. \b. \yt. tunmap/pi Dtunmap1 (\l1. \l2. \l3. Dtunmap2[..])))
+               (\w.
+                  \c.
+                    \wt.
+                      tunmap/sigma (Dtunmap1[.., _, _, unmap/pi1 wt])
+                      (\x.
+                         \a.
+                           \xt.
+                             Dtunmap3[.., _, _, unmap/app (unmap/pi2 wt)
+                                      (Dunmap[.., _, _, unmap/pi1 wt, a, x,
+                                              xt])]))
+               (skof-il/sigma Dskof-il Dskof-il1 (\b. \a. Dexpand-il))]
+        }
+      }
+    }
+  }
+  case skof/pi:
+  { g : conblock+unmap-block,
+    Dskel : ( |- skel),
+    Dskel1 : ( |- skel),
+    A1 : (g |- etp),
+    A2 : (g, z : eterm |- etp),
+    A3 : (g |- etp),
+    A4 : (g, y : eterm |- etp),
+    M : (g, z : eterm, x : eterm |- eterm),
+    Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+    Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+    Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M)
+  | x :
+      [g |-
+         skof
+           (kpi Dskel[] Dskel1[])
+           (esigma A1 (\y. epi A2 (\l. A3[..])))
+           (\x.
+              epi (A2[.., epi1 x])
+              (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))]
+  ; split unmap-skof [g |- Dskof] as
+    case unmap-skof/i:
+    { g : conblock+unmap-block,
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      A1 : (g |- etp),
+      A2 : (g, z : eterm |- etp),
+      A3 : (g |- etp),
+      A4 : (g, y : eterm |- etp),
+      M : (g, z : eterm, x : eterm |- eterm),
+      Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+      Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+      Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M),
+      K : (g |- kind),
+      K1 : (g, x : con |- kind),
+      Dtunmap : (g |- tunmap A1 K),
+      Dtunmap1 :
+        (g, x : eterm, a : con, y : unmap x a |-
+           tunmap (A2[.., x]) (K1[.., a])),
+      Dskof-il : (g |- skof-il Dskel[] K (\y1049. K1))
+    | x :
+        [g |-
+           skof
+             (kpi Dskel[] Dskel1[])
+             (esigma A1 (\y. epi A2 (\l. A3[..])))
+             (\x.
+                epi (A2[.., epi1 x])
+                (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))]
+    ; split unmap-skof [g |- Dskof1] as
+      case unmap-skof/i:
+      { g : conblock+unmap-block,
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        A1 : (g |- etp),
+        A2 : (g, z : eterm |- etp),
+        A3 : (g |- etp),
+        A4 : (g, y : eterm |- etp),
+        M : (g, z : eterm, x : eterm |- eterm),
+        Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+        Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+        Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M),
+        K : (g |- kind),
+        K1 : (g, x : con |- kind),
+        Dtunmap : (g |- tunmap A1 K),
+        Dtunmap1 :
+          (g, x : eterm, a : con, y : unmap x a |-
+             tunmap (A2[.., x]) (K1[.., a])),
+        Dskof-il : (g |- skof-il Dskel[] K (\y1049. K1)),
+        K2 : (g |- kind),
+        K3 : (g, x : con |- kind),
+        Dtunmap2 : (g |- tunmap A3 K2),
+        Dtunmap3 :
+          (g, x : eterm, a : con, y : unmap x a |-
+             tunmap (A4[.., x]) (K3[.., a])),
+        Dskof-il1 : (g |- skof-il Dskel1[] K2 (\y1049. K3))
+      | x :
+          [g |-
+             skof
+               (kpi Dskel[] Dskel1[])
+               (esigma A1 (\y. epi A2 (\l. A3[..])))
+               (\x.
+                  epi (A2[.., epi1 x])
+                  (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))]
+      ; split
+        unmap-expand
+          [g, b : con, cb : block (y : eterm, yt : unmap y b), a : con,
+           ca : block (x : eterm, xt : unmap x a) |- Dexpand[.., cb.1, ca.1]]
+          [g, b : con, cb : block (y : eterm, yt : unmap y b), a : con,
+           ca : block (x : eterm, xt : unmap x a) |- ca.2]
+          [g, b : con, cb : block (y : eterm, yt : unmap y b), a : con,
+           ca : block (x : eterm, xt : unmap x a) |-
+             Dtunmap1[.., cb.1, b, cb.2]] as
+        case unmap-expand/i:
+        { g : conblock+unmap-block,
+          Dskel : ( |- skel),
+          Dskel1 : ( |- skel),
+          A1 : (g |- etp),
+          A2 : (g, z : eterm |- etp),
+          A3 : (g |- etp),
+          A4 : (g, y : eterm |- etp),
+          M1 : (g, y : eterm, x : eterm |- eterm),
+          Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+          Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+          Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M1),
+          K : (g |- kind),
+          K1 : (g, x : con |- kind),
+          Dtunmap : (g |- tunmap A1 K),
+          Dtunmap1 :
+            (g, x : eterm, a : con, y : unmap x a |-
+               tunmap (A2[.., x]) (K1[.., a])),
+          Dskof-il : (g |- skof-il Dskel[] K (\y1049. K1)),
+          K2 : (g |- kind),
+          K3 : (g, x : con |- kind),
+          Dtunmap2 : (g |- tunmap A3 K2),
+          Dtunmap3 :
+            (g, x : eterm, a : con, y : unmap x a |-
+               tunmap (A4[.., x]) (K3[.., a])),
+          Dskof-il1 : (g |- skof-il Dskel1[] K2 (\y1049. K3)),
+          C1 : (g, b : con, a : con |- con),
+          Dunmap :
+            (g, b : con, y : eterm, y1782 : unmap y b, a : con, x : eterm,
+             x1782 : unmap x a |- unmap (M1[.., y, x]) (C1[.., b, a])),
+          Dexpand-il : (g, b : con, a : con |- expand-il a (K1[.., b]) C1)
+        | x :
+            [g |-
+               skof
+                 (kpi Dskel[] Dskel1[])
+                 (esigma A1 (\y. epi A2 (\l. A3[..])))
+                 (\x.
+                    epi (A2[.., epi1 x])
+                    (\x1. A4[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+        ; solve
+            [g |-
+               unmap-skof/i _
+               (\x. _)
+               (tunmap/sigma Dtunmap
+               (\y. \b. \yt. tunmap/pi Dtunmap1 (\l1. \l2. \l3. Dtunmap2[..])))
+               (\w.
+                  \c.
+                    \wt.
+                      tunmap/pi (Dtunmap1[.., _, _, unmap/pi1 wt])
+                      (\x.
+                         \a.
+                           \xt.
+                             Dtunmap3[.., _, _, unmap/app (unmap/pi2 wt)
+                                      (Dunmap[.., _, _, unmap/pi1 wt, a, x,
+                                              xt])]))
+               (skof-il/pi Dskof-il Dskof-il1 (\b. \a. Dexpand-il))]
+        }
+      }
+    }
+  }
+  case skof/t:
+  { g : conblock+unmap-block
+  | x : [g |- skof kt eone (\x. et)]
+  ; solve
+  [g |- unmap-skof/i _ (\a. _) tunmap/one (\l1. \l2. \l3. tunmap/t) skof-il/t]
+  }
+}
+;
+
 % Injectivity Lemmas
 
 LF injective-prod/e : con -> con -> con -> con -> type =
