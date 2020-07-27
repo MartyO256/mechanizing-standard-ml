@@ -492,11 +492,11 @@ intros
     E1 : (g |- term),
     T : (g |- con),
     F' : (g |- sttp),
-    Dof : (g |- cn-of T t),
-    Dof1 : (g |- tm-of F E1 void)
+    Dof : (g |- tm-of F E1 void),
+    Dof1 : (g |- cn-of T t)
   | x : [g |- tm-of F (tm/abort E1 T) T], extends : [g |- extends F F']
-  ; by monotonicity-tm [g |- Dof1] extends as Dof' unboxed;
-    solve [g |- tm-of/abort Dof Dof']
+  ; by monotonicity-tm [g |- Dof] extends as Dof' unboxed;
+    solve [g |- tm-of/abort Dof' Dof1]
   }
   case tm-of/unit:
   { g : monotonicity-ctx, F : (g |- sttp), F' : (g |- sttp)
@@ -3415,8 +3415,7 @@ intros
     | tof : [ |- tm-of F (tm/lett E1 (\x361. E2)) T],
       sof : [ |- store-of F ST' F],
       x : [ |- step ST' (tm/lett E1 (\x361. E2)) ST' (E2[E1])]
-    ; by [ |- Dof2[E1, (\f. _)]] as Dof'' unboxed;
-      solve [ |- preservation-tm/i F Dof'' Dstof (extends/nil )]
+    ; ?
     }
   }
   case step/lett1:
@@ -3522,8 +3521,7 @@ intros
       sof : [ |- store-of F ST' F],
       x : [ |- step ST' (tm/try E1 (\z502. E3)) ST' (E3[E2])]
     ; by preservation-raises-tm [ |- Dof1] [ |- Draises] as Dof' unboxed;
-      by [ |- Dof2[E2, (\f. _)]] as Dof'' unboxed;
-      solve [ |- preservation-tm/i F Dof'' Dstof (extends/nil )]
+      ?
     }
   }
   case step/try-done:
@@ -4193,7 +4191,7 @@ as DequivRec1 unboxed;
                     (kd-sub/refl (kd-equiv/pi (kd-equiv/symm Dequiv2)
                                  (\l1. \l2. kd-equiv/refl kd-wf/t)))]
               as DofLam unboxed;
-              by [b : con, db : cn-of b _ |-
+              by [b : con, db : cn-of b K[] |-
                     Dof3[lam K1[] (\a. rec' K1[] (\b1. \c. C3[b1, c]) a),
                          DofLam[], b, db]]
               as DofC1'' unboxed;
@@ -4203,14 +4201,22 @@ as DequivRec1 unboxed;
               by [ |-
                     cn-of/subsume Dof8 (kd-sub/refl (kd-equiv/symm Dequiv2))]
               as DofC2'' unboxed;
-              by [ |-
-                    cn-equiv/trans (cn-equiv/trans DequivC1'
-                                   (cn-equiv/trans DequivC1''
-                                   (Dequiv3[_, DofLam, _, DofC2''])))
-                    Dequiv]
+              by [ |- cn-equiv/trans
+                        (cn-equiv/trans DequivC1'
+                          (cn-equiv/trans DequivC1''
+                            (Dequiv3[
+                              lam K1 (\x. rec' K1[] (\a. \b. C3[a, b]) x),
+                              DofLam,
+                              C4,
+                              DofC2'']
+                            )
+                          )
+                        )
+                        Dequiv]
               as Dequiv' unboxed;
               by [ |- tm-of/equiv Dof2 Dequiv'] as Dof' unboxed;
-              solve [ |- preservation-tm/i F Dof' Dstof (extends/nil )]
+              ?
+              %solve [ |- preservation-tm/i F Dof' Dstof (extends/nil )]
             }
           }
         }
@@ -4678,8 +4684,7 @@ as DequivRec1 unboxed;
                   tm-of/equiv Dof6
                   (cn-equiv/trans (cn-equiv/symm Dequiv2') Dequiv1'')]
             as Dof' unboxed;
-            by [ |- Dof3[E1, (\f. _)]] as Dof'' unboxed;
-            solve [ |- preservation-tm/i F Dof'' Dstof (extends/nil )]
+            ?
           }
         }
       }
@@ -5059,14 +5064,13 @@ as DequivRec1 unboxed;
     ; by inversion-tag [ |- Dof1] as Dwf' unboxed;
       by monotonicity-store [ |- Dstof]
      [ |- extends/cons (extends/nil ) Dloc (et/tag C)]
-as Dstof' unboxed;
-      by [ |- tm-of/equiv (tm-of/tagloc (st-lookup/hit ) Dwf') Dequiv]
-      as Dof' unboxed;
-      by [ |- store-of/cons Dbound (entry-of/tag Dwf') Dstof']
-      as Dstof'' unboxed;
+      as Dstof' unboxed;
       solve
         [ |-
-           preservation-tm/i _ Dof' Dstof'' (extends/cons (extends/nil ) _ _)]
+          preservation-tm/i _
+          (tm-of/equiv (tm-of/tagloc (st-lookup/hit ) Dwf') Dequiv)
+          (store-of/cons Dbound (entry-of/tag Dwf') Dstof')
+          (extends/cons (extends/nil ) _ _)]
     }
   }
   case step/assign-beta:
@@ -5590,8 +5594,7 @@ as Dstof' unboxed;
                  ST'
                  (tm/case (tm/in2 E1 C) (\z350. E2) (\x350. E3)) ST' (E3[E1])]
         ; by [ |- tm-of/equiv Dof4 Dequiv2] as Dof' unboxed;
-          by [ |- Dof3[E1, (\f. _)]] as Dof'' unboxed;
-          solve [ |- preservation-tm/i F Dof'' Dstof (extends/nil )]
+          ?
         }
       }
     }
@@ -5707,8 +5710,7 @@ as Dstof' unboxed;
                  ST'
                  (tm/case (tm/in1 E1 C) (\z350. E2) (\x350. E3)) ST' (E2[E1])]
         ; by [ |- tm-of/equiv Dof4 Dequiv1] as Dof' unboxed;
-          by [ |- Dof2[E1, (\f. _)]] as Dof'' unboxed;
-          solve [ |- preservation-tm/i F Dof'' Dstof (extends/nil )]
+          ?
         }
       }
     }
@@ -6017,9 +6019,7 @@ as Dstof' unboxed;
         | tof : [ |- tm-of F (tm/app (tm/lam C (\x. E2)) E1) T],
           sof : [ |- store-of F ST' F],
           x : [ |- step ST' (tm/app (tm/lam C (\x. E2)) E1) ST' (E2[E1])]
-        ; by [ |- Dof3[E1, (\f. _)]] as Dof' unboxed;
-          by [ |- tm-of/equiv Dof' Dequiv2] as Dof'' unboxed;
-          solve [ |- preservation-tm/i F Dof'' Dstof (extends/nil )]
+        ; ?
         }
       }
     }
@@ -6627,7 +6627,7 @@ as Dstof' unboxed;
         ; solve
             [ |-
                preservation-tm/i F2
-               (tm-of/equiv (tm-of/abort Dof4 Dof2) Dequiv) Dof3 Dextends]
+               (tm-of/equiv (tm-of/abort Dof2 Dof4) Dequiv) Dof3 Dextends]
         }
       }
     }
@@ -6640,5 +6640,17 @@ and proof preservation-md :
   [ |- step-md ST M ST' M'] ->
     [ |- preservation-md/e P F M' S ST'] =
 / total 3 /
-?
+intros
+{ P : ( |- purity),
+  F : ( |- sttp),
+  M : ( |- module'),
+  S : ( |- sg),
+  ST : ( |- store),
+  ST' : ( |- store),
+  M' : ( |- module')
+| mof : [ |- md-of P F M S],
+  sof : [ |- store-of F ST F],
+  x : [ |- step-md ST M ST' M']
+; ?
+}
 ;
