@@ -1,0 +1,23 @@
+schema functionality-ctx =
+  % ebind
+  some [ea : etp]
+  block (ex : eterm, ed : eof ex ea);
+
+proof functionality* :
+  (g : functionality-ctx)
+  [g, x : eterm, dx : eof x A[..] |- eof O[.., x] B[.., x]] ->
+  [g |- equiv M N A] ->
+  [g |- eof M A] ->
+    [g |- equiv O[.., M] O[.., N] B[.., M]] =
+/ total 1 /
+?
+
+and proof tfunctionality* :
+  (g : functionality-ctx)
+  [g, x : eterm, dx : eof x A[..] |- ewf B[.., x]] ->
+  [g |- equiv M N A] ->
+  [g |- eof M A] ->
+    [g |- tequiv B[.., M] B[.., N]] =
+/ total 1 /
+?
+;
