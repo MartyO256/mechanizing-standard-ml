@@ -43,10 +43,10 @@ intros
   { F : ( |- sttp),
     E : ( |- term),
     T' : ( |- con),
-    Dof : ( |- cn-of T' t),
-    Dof1 : ( |- tm-of F E void)
+    Dof : ( |- tm-of F E void),
+    Dof1 : ( |- cn-of T' t)
   | x : [ |- tm-of F (tm/abort E T') T']
-  ; solve [ |- inversion-tm/abort/i Dof1 (cn-equiv/refl Dof)]
+  ; solve [ |- inversion-tm/abort/i Dof (cn-equiv/refl Dof1)]
   }
 }
 ;
@@ -1488,7 +1488,7 @@ intros
   | x : [ |- tm-of F (tm/snd M) T]
   ; by [ |- sg-equiv/datom Dequiv] as DequivS unboxed;
     by inversion-tm/snd [ |- Dof] as DofM unboxed;
-    solve md-of/equiv [ |- DequivS] [ |- DofM]
+    solve [ |- md-of/subsume DofM (sg-sub/refl DequivS)]
   }
   case tm-of/snd:
   { F : ( |- sttp),
