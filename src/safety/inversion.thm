@@ -376,33 +376,6 @@ LF inversion-tm/case/e :
     inversion-tm/case/e F E E1 E2 T
 ;
 
-proof inversion-tm/case/i :
-  { T1 : [ |- con] } { T2 : [ |- con] }
-  [ |- tm-of F E (plus T1 T2)] ->
-  [x : term, u : { F': sttp } tm-of F' x T1[] |- tm-of F[] (E1[x]) T[]] ->
-  [x : term, u : { F': sttp } tm-of F' x T2[] |- tm-of F[] (E2[x]) T[]] ->
-    [ |- inversion-tm/case/e F E (\x. E1) (\x. E2) T] =
-/ total /
-intros
-{ F : ( |- sttp),
-  E : ( |- term),
-  E1 : (x : term |- term),
-  T : ( |- con),
-  E2 : (x : term |- term),
-  T1 : ( |- con),
-  T2 : ( |- con)
-| tof : [ |- tm-of F E (plus T1 T2)],
-  tof1 :
-    [x : term, u : {F' : sttp}  tm-of F' x T1[] |- tm-of F[] (E1[x]) T[]],
-  tof2 :
-    [x : term, u : {F' : sttp}  tm-of F' x T2[] |- tm-of F[] (E2[x]) T[]]
-; by tof as Dof unboxed;
-  by tof1 as Dof1 unboxed;
-  by tof2 as Dof2 unboxed;
-  solve [ |- inversion-tm/case/i T1 T2 Dof (\x. \u. Dof1) (\x. \u. Dof2)]
-}
-;
-
 proof inversion-tm/case :
   [ |- tm-of F (tm/case E (\x. E1) (\x. E2)) T] ->
     [ |- inversion-tm/case/e F E (\x. E1) (\x. E2) T] =
