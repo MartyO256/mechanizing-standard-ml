@@ -1529,7 +1529,62 @@ intros
                                     (\x. \dx. tequiv/reflex (Dwf4[..])))))
                       (\y. \e. ewf/pi Dwf3 (\x. \dx. Dwf4[..]))]
                 as Dof' unboxed;
-                ?
+                by tfunctionality [g, y : eterm, dy : eof y (A3[..]) |- Dwf3]
+     [g |- equiv/symm (equiv/beta1 Dof (eof/lam Dwf (\x. \dx. Dof1)))]
+as DequivA' unboxed;
+                by eexpand-equiv
+                     [g, b1 : block (y : eterm, dy : eof y (A3[..])),
+                      b2 : block (x : eterm, dx : eof x (A4[.., b1.1])) |-
+                        b2.2]
+                     [g, b1 : block (y : eterm, dy : eof y (A3[..])),
+                      b2 : block (x : eterm, dx : eof x (A4[.., b1.1])) |-
+                        Dexpand[.., b1.1, b2.1]]
+                as DequivX unboxed;
+                by [g, b : block (x : eterm, dx : eof x (A1[..])) |-
+                      DequivX[..,
+                              <epi1 (epair (M1[..])
+                                    (elam (A1[..]) (\x. M4[.., x]))); eof/pi1 
+                              (eof/pair (Dof[..])
+                              (eof/lam (Dwf[..]) (\x. \dx. Dof1[.., x, dx]))
+                              (\l1.
+                                 \l2. ewf/pi (Dwf[..]) (\l3. \l4. Dwf4[..])))>,
+                              <b.1; eof/subsume b.2
+                              (subtp/reflex (tequiv/trans (Dtequiv[..])
+                                            (DequivA'[..])))>]]
+                as DequivX' unboxed;
+                by tfunctionality
+                     [g, b : block (x : eterm, dx : eof x (A1[..])),
+                      y : eterm,
+                      dy : eof y (A7[..]) |- Dwf5[.., y, dy]]
+                     [g, b : block (x : eterm, dx : eof x (A1[..])) |-
+                        equiv/symm (equiv/trans (equiv/app (equiv/beta2 
+                                                           (Dof[..])
+                                                           (eof/lam (Dwf[..])
+                                                           (\x.
+                                                              \dx.
+                                                                Dof1[
+                                                                .., x, dx])))
+                                                (equiv/subsume (equiv/symm 
+                                                               DequivX')
+                                                (subtp/reflex (tequiv/symm 
+                                                              (tequiv/trans 
+                                                              (Dtequiv[
+                                                              ..])
+                                                              (DequivA'[..]))))))
+                                   (equiv/beta (\x. \dx. Dof1[.., x, dx])
+                                   b.2))]
+                as DequivB' unboxed;
+                solve
+                  [g |-
+                     flay-sound/i (eof/pair Dof
+                                  (eof/subsume (eof/lam Dwf (\x. \dx. Dof1))
+                                  (subtp/reflex (tequiv/pi Dtequiv
+                                                (\l1.
+                                                   \l2.
+                                                     tequiv/reflex (Dwf4[..])))))
+                                  (\y. \dy. ewf/pi Dwf3 (\l1. \l2. Dwf4[..])))
+                     (tequiv/sigma (tequiv/trans Dtequiv DequivA')
+                     (\x. \dx. tequiv/trans Dtequiv1 (DequivB'[.., <x; dx>])))]
               }
             }
           }
@@ -1790,13 +1845,60 @@ intros
                        (\x.
                           epi (A4[.., epi1 x])
                           (\x1. A9[.., eapp (epi2 x) (M3[.., epi1 x, x1])]))]
-              ; by [g |-
-      eof/pair Dof
-      (eof/subsume (eof/lam Dwf (\x. \dx. Dof1))
-      (subtp/reflex (tequiv/pi Dtequiv (\x. \dx. tequiv/reflex (Dwf4[..])))))
-      (\y. \e. ewf/pi Dwf3 (\x. \dx. Dwf4[..]))]
-as Dof' unboxed;
-                ?
+              ; by tfunctionality [g, y : eterm, dy : eof y (A3[..]) |- Dwf3]
+     [g |- equiv/symm (equiv/beta1 Dof (eof/lam Dwf (\x. \dx. Dof1)))]
+as DequivA' unboxed;
+                by eexpand-equiv
+                     [g, b1 : block (y : eterm, dy : eof y (A3[..])),
+                      b2 : block (x : eterm, dx : eof x (A4[.., b1.1])) |-
+                        b2.2]
+                     [g, b1 : block (y : eterm, dy : eof y (A3[..])),
+                      b2 : block (x : eterm, dx : eof x (A4[.., b1.1])) |-
+                        Dexpand[.., b1.1, b2.1]]
+                as DequivX unboxed;
+                by [g, b : block (x : eterm, dx : eof x (A1[..])) |-
+                      DequivX[..,
+                              <epi1 (epair (M1[..])
+                                    (elam (A1[..]) (\x. M4[.., x]))); eof/pi1
+                              (eof/pair (Dof[..])
+                              (eof/lam (Dwf[..]) (\x. \dx. Dof1[.., x, dx]))
+                              (\l1.
+                                 \l2. ewf/pi (Dwf[..]) (\l3. \l4. Dwf4[..])))>,
+                              <b.1; eof/subsume b.2
+                              (subtp/reflex (tequiv/trans (Dtequiv[..])
+                                            (DequivA'[..])))>]]
+                as DequivX' unboxed;
+                by tfunctionality
+                     [g, b : block (x : eterm, dx : eof x (A1[..])),
+                      y : eterm,
+                      dy : eof y (A7[..]) |- Dwf5[.., y, dy]]
+                     [g, b : block (x : eterm, dx : eof x (A1[..])) |-
+                        equiv/symm (equiv/trans (equiv/app (equiv/beta2
+                                                           (Dof[..])
+                                                           (eof/lam (Dwf[..])
+                                                           (\x.
+                                                              \dx.
+                                                                Dof1[
+                                                                .., x, dx])))
+                                                (equiv/subsume (equiv/symm
+                                                               DequivX')
+                                                (subtp/reflex (tequiv/symm
+                                                              (tequiv/trans
+                                                              (Dtequiv[
+                                                              ..])
+                                                              (DequivA'[..]))))))
+                                   (equiv/beta (\x. \dx. Dof1[.., x, dx])
+                                   b.2))]
+                as DequivB' unboxed;
+                solve
+  [g |-
+     flay-sound/i (eof/pair Dof
+                  (eof/subsume (eof/lam Dwf (\x. \dx. Dof1))
+                  (subtp/reflex (tequiv/pi Dtequiv
+                                (\l1. \l2. tequiv/reflex (Dwf4[..])))))
+                  (\y. \dy. ewf/pi Dwf3 (\l1. \l2. Dwf4[..])))
+     (tequiv/pi (tequiv/trans Dtequiv DequivA')
+     (\x. \dx. tequiv/trans Dtequiv1 (DequivB'[.., <x; dx>])))]
               }
             }
           }
