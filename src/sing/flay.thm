@@ -832,36 +832,6 @@ intros
 }
 ;
 
-proof eexpand-reg :
-  (g : ebind+etopenblock)
-  [g |- eof R A] ->
-  [g |- eexpand R A M] ->
-    [g |- eof M A] =
-/ total /
-intros
-{ g : ebind+etopenblock, R : (g |- eterm), A : (g |- etp), M : (g |- eterm)
-| eof : [g |- eof R A], expand : [g |- eexpand R A M]
-; by eof as Dof unboxed;
-  by expand as Dexpand unboxed;
-  by eexpand-equiv [_ |- Dof] [_ |- Dexpand] as Dequiv unboxed;
-  split equiv-reg [_ |- Dequiv] as
-  case equiv-reg/i:
-  { g : ebind+etopenblock,
-    R : (g |- eterm),
-    A : (g |- etp),
-    M : (g |- eterm),
-    Dof : (g |- eof R A),
-    Dexpand : (g |- eexpand R A M),
-    Dequiv : (g |- equiv R M A),
-    Dof1 : (g |- eof R A),
-    Dof2 : (g |- eof M A),
-    Dwf : (g |- ewf A)
-  | eof : [g |- eof R A], expand : [g |- eexpand R A M]
-  ; solve [_ |- Dof2]
-  }
-}
-;
-
 % Skof Theorems
 
 LF can-skof/e : skel -> type =
@@ -985,6 +955,722 @@ can-eexpand [y : eterm, x : eterm |- x] [y : eterm, x : eterm |- A1[y]] as
   { g : evar
   |
   ; solve [_ |- can-skof/i _ (\x. _) skof/t]
+  }
+}
+;
+
+LF skof-fun/e : etp -> etp -> (eterm -> etp) -> (eterm -> etp) -> type =
+| skof-fun/i :
+  etp-eq A A' ->
+  ({ x : eterm } etp-eq (B x) (B' x)) ->
+    skof-fun/e A A' B B'
+;
+
+proof skof-fun :
+  (g : evar)
+  [g |- skof K A (\x. B)] ->
+  [g |- skof K A' (\x. B')] ->
+    [g |- skof-fun/e A A' (\x. B) (\x. B')] =
+/ total 1 /
+intros
+{ g : evar,
+  K : (g |- skel),
+  A : (g |- etp),
+  B : (g, x344 : eterm |- etp),
+  A' : (g |- etp),
+  B' : (g, x344 : eterm |- etp)
+| x : [g |- skof K A (\x. B)], skof : [g |- skof K A' (\x. B')]
+; split x as
+  case skof/one:
+  { g : evar, A' : (g |- etp), B' : (g, x344 : eterm |- etp)
+  | x : [g |- skof kone eone (\x. eone)], skof : [g |- skof kone A' (\x. B')]
+  ; split skof as
+    case skof/one:
+    { g : evar
+    | x : [g |- skof kone eone (\x. eone)],
+      skof : [g |- skof kone eone (\x. eone)]
+    ; solve [_ |- skof-fun/i (etp-eq/i ) (\x. etp-eq/i )]
+    }
+  }
+  case skof/sing:
+  { g : evar, A' : (g |- etp), B' : (g, x344 : eterm |- etp)
+  | x : [g |- skof ksing et (\x. esing x)],
+    skof : [g |- skof ksing A' (\x. B')]
+  ; split skof as
+    case skof/sing:
+    { g : evar
+    | x : [g |- skof ksing et (\x. esing x)],
+      skof : [g |- skof ksing et (\x. esing x)]
+    ; solve [_ |- skof-fun/i (etp-eq/i ) (\x. etp-eq/i )]
+    }
+  }
+  case skof/sigma:
+  { g : evar,
+    Dskel : ( |- skel),
+    Dskel1 : ( |- skel),
+    A1 : (g |- etp),
+    A2 : (g, y : eterm |- etp),
+    A3 : (g |- etp),
+    A4 : (g, x : eterm |- etp),
+    M : (g, y : eterm, z : eterm |- eterm),
+    A' : (g |- etp),
+    B' : (g, x344 : eterm |- etp),
+    Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+    Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+    Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M)
+  | x :
+      [g |-
+         skof
+           (ksigma Dskel[] Dskel1[])
+           (esigma A1 (\y. epi A2 (\l. A3[..])))
+           (\x.
+              esigma (A2[.., epi1 x])
+              (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))],
+    skof : [g |- skof (ksigma Dskel[] Dskel1[]) A' (\x. B')]
+  ; split skof as
+    case skof/sigma:
+    { g : evar,
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      A1 : (g |- etp),
+      A2 : (g, y : eterm |- etp),
+      A3 : (g |- etp),
+      A4 : (g, x : eterm |- etp),
+      M : (g, y : eterm, z : eterm |- eterm),
+      A5 : (g |- etp),
+      A6 : (g, y : eterm |- etp),
+      A7 : (g |- etp),
+      A8 : (g, x : eterm |- etp),
+      M1 : (g, y : eterm, z : eterm |- eterm),
+      Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+      Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+      Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M),
+      Dskof2 : (g |- skof Dskel[] A5 (\y. A6)),
+      Dskof3 : (g |- skof Dskel1[] A7 (\z. A8)),
+      Dexpand1 : (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1)
+    | x :
+        [g |-
+           skof
+             (ksigma Dskel[] Dskel1[])
+             (esigma A1 (\y. epi A2 (\l. A3[..])))
+             (\x.
+                esigma (A2[.., epi1 x])
+                (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))],
+      skof :
+        [g |-
+           skof
+             (ksigma Dskel[] Dskel1[])
+             (esigma A5 (\y. epi A6 (\l. A7[..])))
+             (\x.
+                esigma (A6[.., epi1 x])
+                (\x1. A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+    ; split skof-fun [_ |- Dskof] [_ |- Dskof2] as
+      case skof-fun/i:
+      { g : evar,
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        A1 : (g |- etp),
+        A2 : (g, y : eterm |- etp),
+        A3 : (g |- etp),
+        A4 : (g, x : eterm |- etp),
+        M : (g, y : eterm, z : eterm |- eterm),
+        A5 : (g |- etp),
+        A6 : (g, y : eterm |- etp),
+        A7 : (g |- etp),
+        A8 : (g, x : eterm |- etp),
+        M1 : (g, y : eterm, z : eterm |- eterm),
+        Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+        Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+        Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M),
+        Dskof2 : (g |- skof Dskel[] A5 (\y. A6)),
+        Dskof3 : (g |- skof Dskel1[] A7 (\z. A8)),
+        Dexpand1 : (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1),
+        Deq : (g |- etp-eq A1 A5),
+        Deq1 : (g, x : eterm |- etp-eq A2 A6)
+      | x :
+          [g |-
+             skof
+               (ksigma Dskel[] Dskel1[])
+               (esigma A1 (\y. epi A2 (\l. A3[..])))
+               (\x.
+                  esigma (A2[.., epi1 x])
+                  (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))],
+        skof :
+          [g |-
+             skof
+               (ksigma Dskel[] Dskel1[])
+               (esigma A5 (\y. epi A6 (\l. A7[..])))
+               (\x.
+                  esigma (A6[.., epi1 x])
+                  (\x1. A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+      ; split [_ |- Deq] as
+        case etp-eq/i:
+        { g : evar,
+          Dskel : ( |- skel),
+          Dskel1 : ( |- skel),
+          A5 : (g |- etp),
+          A2 : (g, y : eterm |- etp),
+          A3 : (g |- etp),
+          A4 : (g, x : eterm |- etp),
+          M : (g, y : eterm, z : eterm |- eterm),
+          A6 : (g, y : eterm |- etp),
+          A7 : (g |- etp),
+          A8 : (g, x : eterm |- etp),
+          M1 : (g, y : eterm, z : eterm |- eterm),
+          Dskof : (g |- skof Dskel[] A5 (\y. A2)),
+          Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+          Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M),
+          Dskof2 : (g |- skof Dskel[] A5 (\y. A6)),
+          Dskof3 : (g |- skof Dskel1[] A7 (\z. A8)),
+          Dexpand1 : (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1),
+          Deq1 : (g, x : eterm |- etp-eq A2 A6)
+        | x :
+            [g |-
+               skof
+                 (ksigma Dskel[] Dskel1[])
+                 (esigma A5 (\y. epi A2 (\l. A3[..])))
+                 (\x.
+                    esigma (A2[.., epi1 x])
+                    (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))],
+          skof :
+            [g |-
+               skof
+                 (ksigma Dskel[] Dskel1[])
+                 (esigma A5 (\y. epi A6 (\l. A7[..])))
+                 (\x.
+                    esigma (A6[.., epi1 x])
+                    (\x1. A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+        ; split [_, x : eterm |- Deq1] as
+          case etp-eq/i:
+          { g : evar,
+            Dskel : ( |- skel),
+            Dskel1 : ( |- skel),
+            A5 : (g |- etp),
+            A6 : (g, y : eterm |- etp),
+            A3 : (g |- etp),
+            A4 : (g, x : eterm |- etp),
+            M : (g, y : eterm, z : eterm |- eterm),
+            A7 : (g |- etp),
+            A8 : (g, x : eterm |- etp),
+            M1 : (g, y : eterm, z : eterm |- eterm),
+            Dskof : (g |- skof Dskel[] A5 (\y. A6)),
+            Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+            Dexpand : (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M),
+            Dskof2 : (g |- skof Dskel[] A5 (\y. A6)),
+            Dskof3 : (g |- skof Dskel1[] A7 (\z. A8)),
+            Dexpand1 : (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1)
+          | x :
+              [g |-
+                 skof
+                   (ksigma Dskel[] Dskel1[])
+                   (esigma A5 (\y. epi A6 (\l. A3[..])))
+                   (\x.
+                      esigma (A6[.., epi1 x])
+                      (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))],
+            skof :
+              [g |-
+                 skof
+                   (ksigma Dskel[] Dskel1[])
+                   (esigma A5 (\y. epi A6 (\l. A7[..])))
+                   (\x.
+                      esigma (A6[.., epi1 x])
+                      (\x1. A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+          ; split skof-fun [_ |- Dskof1] [_ |- Dskof3] as
+            case skof-fun/i:
+            { g : evar,
+              Dskel : ( |- skel),
+              Dskel1 : ( |- skel),
+              A5 : (g |- etp),
+              A6 : (g, y : eterm |- etp),
+              A3 : (g |- etp),
+              A4 : (g, x : eterm |- etp),
+              M : (g, y : eterm, z : eterm |- eterm),
+              A7 : (g |- etp),
+              A8 : (g, x : eterm |- etp),
+              M1 : (g, y : eterm, z : eterm |- eterm),
+              Dskof : (g |- skof Dskel[] A5 (\y. A6)),
+              Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+              Dexpand : (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M),
+              Dskof2 : (g |- skof Dskel[] A5 (\y. A6)),
+              Dskof3 : (g |- skof Dskel1[] A7 (\z. A8)),
+              Dexpand1 :
+                (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1),
+              Deq : (g |- etp-eq A3 A7),
+              Deq1 : (g, x : eterm |- etp-eq A4 A8)
+            | x :
+                [g |-
+                   skof
+                     (ksigma Dskel[] Dskel1[])
+                     (esigma A5 (\y. epi A6 (\l. A3[..])))
+                     (\x.
+                        esigma (A6[.., epi1 x])
+                        (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))],
+              skof :
+                [g |-
+                   skof
+                     (ksigma Dskel[] Dskel1[])
+                     (esigma A5 (\y. epi A6 (\l. A7[..])))
+                     (\x.
+                        esigma (A6[.., epi1 x])
+                        (\x1. A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+            ; split [_ |- Deq] as
+              case etp-eq/i:
+              { g : evar,
+                Dskel : ( |- skel),
+                Dskel1 : ( |- skel),
+                A5 : (g |- etp),
+                A6 : (g, y : eterm |- etp),
+                A7 : (g |- etp),
+                A4 : (g, x : eterm |- etp),
+                M : (g, y : eterm, z : eterm |- eterm),
+                A8 : (g, x : eterm |- etp),
+                M1 : (g, y : eterm, z : eterm |- eterm),
+                Dskof : (g |- skof Dskel[] A5 (\y. A6)),
+                Dskof1 : (g |- skof Dskel1[] A7 (\z. A4)),
+                Dexpand :
+                  (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M),
+                Dskof2 : (g |- skof Dskel[] A5 (\y. A6)),
+                Dskof3 : (g |- skof Dskel1[] A7 (\z. A8)),
+                Dexpand1 :
+                  (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1),
+                Deq1 : (g, x : eterm |- etp-eq A4 A8)
+              | x :
+                  [g |-
+                     skof
+                       (ksigma Dskel[] Dskel1[])
+                       (esigma A5 (\y. epi A6 (\l. A7[..])))
+                       (\x.
+                          esigma (A6[.., epi1 x])
+                          (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))],
+                skof :
+                  [g |-
+                     skof
+                       (ksigma Dskel[] Dskel1[])
+                       (esigma A5 (\y. epi A6 (\l. A7[..])))
+                       (\x.
+                          esigma (A6[.., epi1 x])
+                          (\x1. A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+              ; split [_, x : eterm |- Deq1] as
+                case etp-eq/i:
+                { g : evar,
+                  Dskel : ( |- skel),
+                  Dskel1 : ( |- skel),
+                  A5 : (g |- etp),
+                  A6 : (g, y : eterm |- etp),
+                  A7 : (g |- etp),
+                  A8 : (g, x : eterm |- etp),
+                  M : (g, y : eterm, z : eterm |- eterm),
+                  M1 : (g, y : eterm, z : eterm |- eterm),
+                  Dskof : (g |- skof Dskel[] A5 (\y. A6)),
+                  Dskof1 : (g |- skof Dskel1[] A7 (\z. A8)),
+                  Dexpand :
+                    (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M),
+                  Dskof2 : (g |- skof Dskel[] A5 (\y. A6)),
+                  Dskof3 : (g |- skof Dskel1[] A7 (\z. A8)),
+                  Dexpand1 :
+                    (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1)
+                | x :
+                    [g |-
+                       skof
+                         (ksigma Dskel[] Dskel1[])
+                         (esigma A5 (\y. epi A6 (\l. A7[..])))
+                         (\x.
+                            esigma (A6[.., epi1 x])
+                            (\x1. A8[.., eapp (epi2 x) (M[.., epi1 x, x1])]))],
+                  skof :
+                    [g |-
+                       skof
+                         (ksigma Dskel[] Dskel1[])
+                         (esigma A5 (\y. epi A6 (\l. A7[..])))
+                         (\x.
+                            esigma (A6[.., epi1 x])
+                            (\x1. A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+                ; split
+                  eexpand-fun [_, y : eterm, x : eterm |- Dexpand]
+                    [_, y : eterm, x : eterm |- Dexpand1] as
+                  case eterm-eq/i:
+                  { g : evar,
+                    Dskel : ( |- skel),
+                    Dskel1 : ( |- skel),
+                    A5 : (g |- etp),
+                    A6 : (g, y : eterm |- etp),
+                    A7 : (g |- etp),
+                    A8 : (g, x : eterm |- etp),
+                    M1 : (g, y : eterm, z : eterm |- eterm),
+                    Dskof : (g |- skof Dskel[] A5 (\y. A6)),
+                    Dskof1 : (g |- skof Dskel1[] A7 (\z. A8)),
+                    Dexpand :
+                      (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1),
+                    Dskof2 : (g |- skof Dskel[] A5 (\y. A6)),
+                    Dskof3 : (g |- skof Dskel1[] A7 (\z. A8)),
+                    Dexpand1 :
+                      (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1)
+                  | x :
+                      [g |-
+                         skof
+                           (ksigma Dskel[] Dskel1[])
+                           (esigma A5 (\y. epi A6 (\l. A7[..])))
+                           (\x.
+                              esigma (A6[.., epi1 x])
+                              (\x1.
+                                 A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))],
+                    skof :
+                      [g |-
+                         skof
+                           (ksigma Dskel[] Dskel1[])
+                           (esigma A5 (\y. epi A6 (\l. A7[..])))
+                           (\x.
+                              esigma (A6[.., epi1 x])
+                              (\x1.
+                                 A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+                  ; solve [_ |- skof-fun/i (etp-eq/i ) (\x. etp-eq/i )]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  case skof/pi:
+  { g : evar,
+    Dskel : ( |- skel),
+    Dskel1 : ( |- skel),
+    A1 : (g |- etp),
+    A2 : (g, z : eterm |- etp),
+    A3 : (g |- etp),
+    A4 : (g, y : eterm |- etp),
+    M : (g, z : eterm, x : eterm |- eterm),
+    A' : (g |- etp),
+    B' : (g, x344 : eterm |- etp),
+    Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+    Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+    Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M)
+  | x :
+      [g |-
+         skof
+           (kpi Dskel[] Dskel1[])
+           (esigma A1 (\y. epi A2 (\l. A3[..])))
+           (\x.
+              epi (A2[.., epi1 x])
+              (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))],
+    skof : [g |- skof (kpi Dskel[] Dskel1[]) A' (\x. B')]
+  ; split skof as
+    case skof/pi:
+    { g : evar,
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      A1 : (g |- etp),
+      A2 : (g, z : eterm |- etp),
+      A3 : (g |- etp),
+      A4 : (g, y : eterm |- etp),
+      M : (g, z : eterm, x : eterm |- eterm),
+      A5 : (g |- etp),
+      A6 : (g, z : eterm |- etp),
+      A7 : (g |- etp),
+      A8 : (g, y : eterm |- etp),
+      M1 : (g, z : eterm, x : eterm |- eterm),
+      Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+      Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+      Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M),
+      Dskof2 : (g |- skof Dskel[] A5 (\y. A6)),
+      Dskof3 : (g |- skof Dskel1[] A7 (\z. A8)),
+      Dexpand1 : (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1)
+    | x :
+        [g |-
+           skof
+             (kpi Dskel[] Dskel1[])
+             (esigma A1 (\y. epi A2 (\l. A3[..])))
+             (\x.
+                epi (A2[.., epi1 x])
+                (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))],
+      skof :
+        [g |-
+           skof
+             (kpi Dskel[] Dskel1[])
+             (esigma A5 (\y. epi A6 (\l. A7[..])))
+             (\x.
+                epi (A6[.., epi1 x])
+                (\x1. A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+    ; split skof-fun [_ |- Dskof] [_ |- Dskof2] as
+      case skof-fun/i:
+      { g : evar,
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        A1 : (g |- etp),
+        A2 : (g, z : eterm |- etp),
+        A3 : (g |- etp),
+        A4 : (g, y : eterm |- etp),
+        M : (g, z : eterm, x : eterm |- eterm),
+        A5 : (g |- etp),
+        A6 : (g, z : eterm |- etp),
+        A7 : (g |- etp),
+        A8 : (g, y : eterm |- etp),
+        M1 : (g, z : eterm, x : eterm |- eterm),
+        Dskof : (g |- skof Dskel[] A1 (\y. A2)),
+        Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+        Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M),
+        Dskof2 : (g |- skof Dskel[] A5 (\y. A6)),
+        Dskof3 : (g |- skof Dskel1[] A7 (\z. A8)),
+        Dexpand1 : (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1),
+        Deq : (g |- etp-eq A1 A5),
+        Deq1 : (g, x : eterm |- etp-eq A2 A6)
+      | x :
+          [g |-
+             skof
+               (kpi Dskel[] Dskel1[])
+               (esigma A1 (\y. epi A2 (\l. A3[..])))
+               (\x.
+                  epi (A2[.., epi1 x])
+                  (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))],
+        skof :
+          [g |-
+             skof
+               (kpi Dskel[] Dskel1[])
+               (esigma A5 (\y. epi A6 (\l. A7[..])))
+               (\x.
+                  epi (A6[.., epi1 x])
+                  (\x1. A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+      ; split [_ |- Deq] as
+        case etp-eq/i:
+        { g : evar,
+          Dskel : ( |- skel),
+          Dskel1 : ( |- skel),
+          A5 : (g |- etp),
+          A2 : (g, z : eterm |- etp),
+          A3 : (g |- etp),
+          A4 : (g, y : eterm |- etp),
+          M : (g, z : eterm, x : eterm |- eterm),
+          A6 : (g, z : eterm |- etp),
+          A7 : (g |- etp),
+          A8 : (g, y : eterm |- etp),
+          M1 : (g, z : eterm, x : eterm |- eterm),
+          Dskof : (g |- skof Dskel[] A5 (\y. A2)),
+          Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+          Dexpand : (g, y : eterm, x : eterm |- eexpand x (A2[.., y]) M),
+          Dskof2 : (g |- skof Dskel[] A5 (\y. A6)),
+          Dskof3 : (g |- skof Dskel1[] A7 (\z. A8)),
+          Dexpand1 : (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1),
+          Deq1 : (g, x : eterm |- etp-eq A2 A6)
+        | x :
+            [g |-
+               skof
+                 (kpi Dskel[] Dskel1[])
+                 (esigma A5 (\y. epi A2 (\l. A3[..])))
+                 (\x.
+                    epi (A2[.., epi1 x])
+                    (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))],
+          skof :
+            [g |-
+               skof
+                 (kpi Dskel[] Dskel1[])
+                 (esigma A5 (\y. epi A6 (\l. A7[..])))
+                 (\x.
+                    epi (A6[.., epi1 x])
+                    (\x1. A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+        ; split [_, x : eterm |- Deq1] as
+          case etp-eq/i:
+          { g : evar,
+            Dskel : ( |- skel),
+            Dskel1 : ( |- skel),
+            A5 : (g |- etp),
+            A6 : (g, z : eterm |- etp),
+            A3 : (g |- etp),
+            A4 : (g, y : eterm |- etp),
+            M : (g, z : eterm, x : eterm |- eterm),
+            A7 : (g |- etp),
+            A8 : (g, y : eterm |- etp),
+            M1 : (g, z : eterm, x : eterm |- eterm),
+            Dskof : (g |- skof Dskel[] A5 (\y. A6)),
+            Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+            Dexpand : (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M),
+            Dskof2 : (g |- skof Dskel[] A5 (\y. A6)),
+            Dskof3 : (g |- skof Dskel1[] A7 (\z. A8)),
+            Dexpand1 : (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1)
+          | x :
+              [g |-
+                 skof
+                   (kpi Dskel[] Dskel1[])
+                   (esigma A5 (\y. epi A6 (\l. A3[..])))
+                   (\x.
+                      epi (A6[.., epi1 x])
+                      (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))],
+            skof :
+              [g |-
+                 skof
+                   (kpi Dskel[] Dskel1[])
+                   (esigma A5 (\y. epi A6 (\l. A7[..])))
+                   (\x.
+                      epi (A6[.., epi1 x])
+                      (\x1. A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+          ; split skof-fun [_ |- Dskof1] [_ |- Dskof3] as
+            case skof-fun/i:
+            { g : evar,
+              Dskel : ( |- skel),
+              Dskel1 : ( |- skel),
+              A5 : (g |- etp),
+              A6 : (g, z : eterm |- etp),
+              A3 : (g |- etp),
+              A4 : (g, y : eterm |- etp),
+              M : (g, z : eterm, x : eterm |- eterm),
+              A7 : (g |- etp),
+              A8 : (g, y : eterm |- etp),
+              M1 : (g, z : eterm, x : eterm |- eterm),
+              Dskof : (g |- skof Dskel[] A5 (\y. A6)),
+              Dskof1 : (g |- skof Dskel1[] A3 (\z. A4)),
+              Dexpand : (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M),
+              Dskof2 : (g |- skof Dskel[] A5 (\y. A6)),
+              Dskof3 : (g |- skof Dskel1[] A7 (\z. A8)),
+              Dexpand1 :
+                (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1),
+              Deq : (g |- etp-eq A3 A7),
+              Deq1 : (g, x : eterm |- etp-eq A4 A8)
+            | x :
+                [g |-
+                   skof
+                     (kpi Dskel[] Dskel1[])
+                     (esigma A5 (\y. epi A6 (\l. A3[..])))
+                     (\x.
+                        epi (A6[.., epi1 x])
+                        (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))],
+              skof :
+                [g |-
+                   skof
+                     (kpi Dskel[] Dskel1[])
+                     (esigma A5 (\y. epi A6 (\l. A7[..])))
+                     (\x.
+                        epi (A6[.., epi1 x])
+                        (\x1. A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+            ; split [_ |- Deq] as
+              case etp-eq/i:
+              { g : evar,
+                Dskel : ( |- skel),
+                Dskel1 : ( |- skel),
+                A5 : (g |- etp),
+                A6 : (g, z : eterm |- etp),
+                A7 : (g |- etp),
+                A4 : (g, y : eterm |- etp),
+                M : (g, z : eterm, x : eterm |- eterm),
+                A8 : (g, y : eterm |- etp),
+                M1 : (g, z : eterm, x : eterm |- eterm),
+                Dskof : (g |- skof Dskel[] A5 (\y. A6)),
+                Dskof1 : (g |- skof Dskel1[] A7 (\z. A4)),
+                Dexpand :
+                  (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M),
+                Dskof2 : (g |- skof Dskel[] A5 (\y. A6)),
+                Dskof3 : (g |- skof Dskel1[] A7 (\z. A8)),
+                Dexpand1 :
+                  (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1),
+                Deq1 : (g, x : eterm |- etp-eq A4 A8)
+              | x :
+                  [g |-
+                     skof
+                       (kpi Dskel[] Dskel1[])
+                       (esigma A5 (\y. epi A6 (\l. A7[..])))
+                       (\x.
+                          epi (A6[.., epi1 x])
+                          (\x1. A4[.., eapp (epi2 x) (M[.., epi1 x, x1])]))],
+                skof :
+                  [g |-
+                     skof
+                       (kpi Dskel[] Dskel1[])
+                       (esigma A5 (\y. epi A6 (\l. A7[..])))
+                       (\x.
+                          epi (A6[.., epi1 x])
+                          (\x1. A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+              ; split [_, x : eterm |- Deq1] as
+                case etp-eq/i:
+                { g : evar,
+                  Dskel : ( |- skel),
+                  Dskel1 : ( |- skel),
+                  A5 : (g |- etp),
+                  A6 : (g, z : eterm |- etp),
+                  A7 : (g |- etp),
+                  A8 : (g, y : eterm |- etp),
+                  M : (g, z : eterm, x : eterm |- eterm),
+                  M1 : (g, z : eterm, x : eterm |- eterm),
+                  Dskof : (g |- skof Dskel[] A5 (\y. A6)),
+                  Dskof1 : (g |- skof Dskel1[] A7 (\z. A8)),
+                  Dexpand :
+                    (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M),
+                  Dskof2 : (g |- skof Dskel[] A5 (\y. A6)),
+                  Dskof3 : (g |- skof Dskel1[] A7 (\z. A8)),
+                  Dexpand1 :
+                    (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1)
+                | x :
+                    [g |-
+                       skof
+                         (kpi Dskel[] Dskel1[])
+                         (esigma A5 (\y. epi A6 (\l. A7[..])))
+                         (\x.
+                            epi (A6[.., epi1 x])
+                            (\x1. A8[.., eapp (epi2 x) (M[.., epi1 x, x1])]))],
+                  skof :
+                    [g |-
+                       skof
+                         (kpi Dskel[] Dskel1[])
+                         (esigma A5 (\y. epi A6 (\l. A7[..])))
+                         (\x.
+                            epi (A6[.., epi1 x])
+                            (\x1. A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+                ; split
+                  eexpand-fun [_, y : eterm, x : eterm |- Dexpand]
+                    [_, y : eterm, x : eterm |- Dexpand1] as
+                  case eterm-eq/i:
+                  { g : evar,
+                    Dskel : ( |- skel),
+                    Dskel1 : ( |- skel),
+                    A5 : (g |- etp),
+                    A6 : (g, z : eterm |- etp),
+                    A7 : (g |- etp),
+                    A8 : (g, y : eterm |- etp),
+                    M1 : (g, z : eterm, x : eterm |- eterm),
+                    Dskof : (g |- skof Dskel[] A5 (\y. A6)),
+                    Dskof1 : (g |- skof Dskel1[] A7 (\z. A8)),
+                    Dexpand :
+                      (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1),
+                    Dskof2 : (g |- skof Dskel[] A5 (\y. A6)),
+                    Dskof3 : (g |- skof Dskel1[] A7 (\z. A8)),
+                    Dexpand1 :
+                      (g, y : eterm, x : eterm |- eexpand x (A6[.., y]) M1)
+                  | x :
+                      [g |-
+                         skof
+                           (kpi Dskel[] Dskel1[])
+                           (esigma A5 (\y. epi A6 (\l. A7[..])))
+                           (\x.
+                              epi (A6[.., epi1 x])
+                              (\x1.
+                                 A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))],
+                    skof :
+                      [g |-
+                         skof
+                           (kpi Dskel[] Dskel1[])
+                           (esigma A5 (\y. epi A6 (\l. A7[..])))
+                           (\x.
+                              epi (A6[.., epi1 x])
+                              (\x1.
+                                 A8[.., eapp (epi2 x) (M1[.., epi1 x, x1])]))]
+                  ; solve [_ |- skof-fun/i (etp-eq/i ) (\x. etp-eq/i )]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  case skof/t:
+  { g : evar, A' : (g |- etp), B' : (g, x344 : eterm |- etp)
+  | x : [g |- skof kt eone (\x. et)], skof : [g |- skof kt A' (\x. B')]
+  ; split skof as
+    case skof/t:
+    { g : evar
+    | x : [g |- skof kt eone (\x. et)], skof : [g |- skof kt eone (\x. et)]
+    ; solve [_ |- skof-fun/i (etp-eq/i ) (\x. etp-eq/i )]
+    }
   }
 }
 ;
@@ -1543,7 +2229,7 @@ as DequivA' unboxed;
                 by [g, b : block (x : eterm, dx : eof x (A1[..])) |-
                       DequivX[..,
                               <epi1 (epair (M1[..])
-                                    (elam (A1[..]) (\x. M4[.., x]))); eof/pi1 
+                                    (elam (A1[..]) (\x. M4[.., x]))); eof/pi1
                               (eof/pair (Dof[..])
                               (eof/lam (Dwf[..]) (\x. \dx. Dof1[.., x, dx]))
                               (\l1.
@@ -1557,17 +2243,17 @@ as DequivA' unboxed;
                       y : eterm,
                       dy : eof y (A7[..]) |- Dwf5[.., y, dy]]
                      [g, b : block (x : eterm, dx : eof x (A1[..])) |-
-                        equiv/symm (equiv/trans (equiv/app (equiv/beta2 
+                        equiv/symm (equiv/trans (equiv/app (equiv/beta2
                                                            (Dof[..])
                                                            (eof/lam (Dwf[..])
                                                            (\x.
                                                               \dx.
                                                                 Dof1[
                                                                 .., x, dx])))
-                                                (equiv/subsume (equiv/symm 
+                                                (equiv/subsume (equiv/symm
                                                                DequivX')
-                                                (subtp/reflex (tequiv/symm 
-                                                              (tequiv/trans 
+                                                (subtp/reflex (tequiv/symm
+                                                              (tequiv/trans
                                                               (Dtequiv[
                                                               ..])
                                                               (DequivA'[..]))))))
