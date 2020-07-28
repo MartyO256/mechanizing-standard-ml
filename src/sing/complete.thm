@@ -1,3 +1,172 @@
+% Constant Completeness
+
+proof etp-skel-fun :
+  (g : evar+etopenblock)
+  [g |- etp-skel A As] ->
+  [g |- etp-skel A As'] ->
+    [g |- skel-eq As As'] =
+/ total 1 /
+intros
+{ g : evar+etopenblock, A : (g |- etp), As : (g |- skel), As' : (g |- skel)
+| x : [g |- etp-skel A As], skel : [g |- etp-skel A As']
+; split x as
+  case etp-skel/one:
+  { g : evar+etopenblock, As' : (g |- skel)
+  | x : [g |- etp-skel eone kone], skel : [g |- etp-skel eone As']
+  ; split skel as
+    case etp-skel/one:
+    { g : evar+etopenblock
+    | x : [g |- etp-skel eone kone], skel : [g |- etp-skel eone kone]
+    ; solve [_ |- skel-eq/i ]
+    }
+  }
+  case etp-skel/sing:
+  { g : evar+etopenblock, M : (g |- eterm), As' : (g |- skel)
+  | x : [g |- etp-skel (esing M) ksing], skel : [g |- etp-skel (esing M) As']
+  ; split skel as
+    case etp-skel/sing:
+    { g : evar+etopenblock, M : (g |- eterm)
+    | x : [g |- etp-skel (esing M) ksing],
+      skel : [g |- etp-skel (esing M) ksing]
+    ; solve [_ |- skel-eq/i ]
+    }
+  }
+  case etp-skel/sigma:
+  { g : evar+etopenblock,
+    A1 : (g |- etp),
+    A2 : (g, x : eterm |- etp),
+    Dskel : ( |- skel),
+    Dskel1 : ( |- skel),
+    As' : (g |- skel),
+    Dskel2 : (g |- etp-skel A1 Dskel[]),
+    Dskel3 : (g, x : eterm |- etp-skel A2 Dskel1[])
+  | x : [g |- etp-skel (esigma A1 (\z147. A2)) (ksigma Dskel[] Dskel1[])],
+    skel : [g |- etp-skel (esigma A1 (\z147. A2)) As']
+  ; split skel as
+    case etp-skel/sigma:
+    { g : evar+etopenblock,
+      A1 : (g |- etp),
+      A2 : (g, x : eterm |- etp),
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      Dskel4 : ( |- skel),
+      Dskel5 : ( |- skel),
+      Dskel2 : (g |- etp-skel A1 Dskel[]),
+      Dskel3 : (g, x : eterm |- etp-skel A2 Dskel1[]),
+      Dskel6 : (g |- etp-skel A1 Dskel4[]),
+      Dskel7 : (g, x : eterm |- etp-skel A2 Dskel5[])
+    | x : [g |- etp-skel (esigma A1 (\z147. A2)) (ksigma Dskel[] Dskel1[])],
+      skel :
+        [g |- etp-skel (esigma A1 (\z147. A2)) (ksigma Dskel4[] Dskel5[])]
+    ; split etp-skel-fun [_ |- Dskel2] [_ |- Dskel6] as
+      case skel-eq/i:
+      { g : evar+etopenblock,
+        A1 : (g |- etp),
+        A2 : (g, x : eterm |- etp),
+        Dskel4 : ( |- skel),
+        Dskel1 : ( |- skel),
+        Dskel5 : ( |- skel),
+        Dskel2 : (g |- etp-skel A1 Dskel4[]),
+        Dskel3 : (g, x : eterm |- etp-skel A2 Dskel1[]),
+        Dskel6 : (g |- etp-skel A1 Dskel4[]),
+        Dskel7 : (g, x : eterm |- etp-skel A2 Dskel5[])
+      | x :
+          [g |- etp-skel (esigma A1 (\z147. A2)) (ksigma Dskel4[] Dskel1[])],
+        skel :
+          [g |- etp-skel (esigma A1 (\z147. A2)) (ksigma Dskel4[] Dskel5[])]
+      ; split
+        etp-skel-fun [_, x : eterm |- Dskel3] [_, x : eterm |- Dskel7] as
+        case skel-eq/i:
+        { g : evar+etopenblock,
+          A1 : (g |- etp),
+          A2 : (g, x : eterm |- etp),
+          Dskel4 : ( |- skel),
+          Dskel5 : ( |- skel),
+          Dskel2 : (g |- etp-skel A1 Dskel4[]),
+          Dskel3 : (g, x : eterm |- etp-skel A2 Dskel5[]),
+          Dskel6 : (g |- etp-skel A1 Dskel4[]),
+          Dskel7 : (g, x : eterm |- etp-skel A2 Dskel5[])
+        | x :
+            [g |- etp-skel (esigma A1 (\z147. A2)) (ksigma Dskel4[] Dskel5[])],
+          skel :
+            [g |- etp-skel (esigma A1 (\z147. A2)) (ksigma Dskel4[] Dskel5[])]
+        ; solve [_ |- skel-eq/i ]
+        }
+      }
+    }
+  }
+  case etp-skel/pi:
+  { g : evar+etopenblock,
+    A1 : (g |- etp),
+    A2 : (g, x : eterm |- etp),
+    Dskel : ( |- skel),
+    Dskel1 : ( |- skel),
+    As' : (g |- skel),
+    Dskel2 : (g |- etp-skel A1 Dskel[]),
+    Dskel3 : (g, x : eterm |- etp-skel A2 Dskel1[])
+  | x : [g |- etp-skel (epi A1 (\z146. A2)) (kpi Dskel[] Dskel1[])],
+    skel : [g |- etp-skel (epi A1 (\z146. A2)) As']
+  ; split skel as
+    case etp-skel/pi:
+    { g : evar+etopenblock,
+      A1 : (g |- etp),
+      A2 : (g, x : eterm |- etp),
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      Dskel4 : ( |- skel),
+      Dskel5 : ( |- skel),
+      Dskel2 : (g |- etp-skel A1 Dskel[]),
+      Dskel3 : (g, x : eterm |- etp-skel A2 Dskel1[]),
+      Dskel6 : (g |- etp-skel A1 Dskel4[]),
+      Dskel7 : (g, x : eterm |- etp-skel A2 Dskel5[])
+    | x : [g |- etp-skel (epi A1 (\z146. A2)) (kpi Dskel[] Dskel1[])],
+      skel : [g |- etp-skel (epi A1 (\z146. A2)) (kpi Dskel4[] Dskel5[])]
+    ; split etp-skel-fun [_ |- Dskel2] [_ |- Dskel6] as
+      case skel-eq/i:
+      { g : evar+etopenblock,
+        A1 : (g |- etp),
+        A2 : (g, x : eterm |- etp),
+        Dskel4 : ( |- skel),
+        Dskel1 : ( |- skel),
+        Dskel5 : ( |- skel),
+        Dskel2 : (g |- etp-skel A1 Dskel4[]),
+        Dskel3 : (g, x : eterm |- etp-skel A2 Dskel1[]),
+        Dskel6 : (g |- etp-skel A1 Dskel4[]),
+        Dskel7 : (g, x : eterm |- etp-skel A2 Dskel5[])
+      | x : [g |- etp-skel (epi A1 (\z146. A2)) (kpi Dskel4[] Dskel1[])],
+        skel : [g |- etp-skel (epi A1 (\z146. A2)) (kpi Dskel4[] Dskel5[])]
+      ; split
+        etp-skel-fun [_, x : eterm |- Dskel3] [_, x : eterm |- Dskel7] as
+        case skel-eq/i:
+        { g : evar+etopenblock,
+          A1 : (g |- etp),
+          A2 : (g, x : eterm |- etp),
+          Dskel4 : ( |- skel),
+          Dskel5 : ( |- skel),
+          Dskel2 : (g |- etp-skel A1 Dskel4[]),
+          Dskel3 : (g, x : eterm |- etp-skel A2 Dskel5[]),
+          Dskel6 : (g |- etp-skel A1 Dskel4[]),
+          Dskel7 : (g, x : eterm |- etp-skel A2 Dskel5[])
+        | x : [g |- etp-skel (epi A1 (\z146. A2)) (kpi Dskel4[] Dskel5[])],
+          skel : [g |- etp-skel (epi A1 (\z146. A2)) (kpi Dskel4[] Dskel5[])]
+        ; solve [_ |- skel-eq/i ]
+        }
+      }
+    }
+  }
+  case etp-skel/t:
+  { g : evar+etopenblock, As' : (g |- skel)
+  | x : [g |- etp-skel et kt], skel : [g |- etp-skel et As']
+  ; split skel as
+    case etp-skel/t:
+    { g : evar+etopenblock
+    | x : [g |- etp-skel et kt], skel : [g |- etp-skel et kt]
+    ; solve [_ |- skel-eq/i ]
+    }
+  }
+}
+;
+
 schema scbind =
   some [
     a : tp, ea : etp,

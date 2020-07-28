@@ -270,9 +270,9 @@ and ekof : constant -> etp -> type =
 --name tequiv Dtequiv tequiv.
 --name subtp Dsub sub.
 --name etp-skel Dskel skel.
---name etopen Detopen etopen.
---name etopenr Detopen etopenr.
---name etopenm Detopen etopenm.
+--name etopen Dopen etopen.
+--name etopenr Dopen etopenr.
+--name etopenm Dopen etopenm.
 --name ekof Dekof ekof.
 
 % Schemas
@@ -289,4 +289,11 @@ schema eofblock =
 
 schema etopenblock =
   some [a : skel, x : eterm]
-  block (xc : catom, d : etopenr sc a x);
+  block (xc : catom, d : etopenr xc a x);
+
+schema evar+etopenblock =
+  % evar
+  block (ex : eterm) +
+  % etopenblock
+  some [a : skel, x : eterm]
+  block (xc : catom, d : etopenr xc a x);

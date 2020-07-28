@@ -176,7 +176,22 @@ intros
   M' : (x : eterm |- eterm)
 | eq : [g |- etp-eq A[] A'[]],
   eq1 : [g, x : eterm |- eterm-eq (M[x]) (M'[x])]
-; ?
+; split eq as
+  case etp-eq/i:
+  { g : evar+topenblock,
+    A' : ( |- etp),
+    M : (x : eterm |- eterm),
+    M' : (x : eterm |- eterm)
+  | eq : [g |- etp-eq A'[] A'[]],
+    eq1 : [g, x : eterm |- eterm-eq (M[x]) (M'[x])]
+  ; split eq1 as
+    case eterm-eq/i:
+    { g : evar+topenblock, A' : ( |- etp), M' : (x : eterm |- eterm)
+    | eq : [g |- etp-eq A'[] A'[]],
+      eq1 : [g, x : eterm |- eterm-eq (M'[x]) (M'[x])]
+    ; solve [_ |- eterm-eq/i ]
+    }
+  }
 }
 ;
 

@@ -4713,3 +4713,520 @@ intros
   }
 }
 ;
+
+% Constant Theorems
+
+LF cexpand-etopen/e : cterm -> skel -> eterm -> etp -> type =
+| cexpand-etopen/i :
+  { M : eterm }
+  etopenm Mc As M ->
+  eexpand R A M ->
+    cexpand-etopen/e Mc As R A
+;
+
+proof cexpand-etopen :
+  (g : evar+etopenblock)
+  [g |- cexpand Rc Ac Mc] ->
+  [g |- etopen Ac A] ->
+  [g |- etp-skel A As] ->
+  [g |- etopenr Rc As R] ->
+    [g |- cexpand-etopen/e Mc As R A] =
+/ total 1 /
+intros
+{ g : evar+etopenblock,
+  Rc : (g |- catom),
+  Ac : (g |- ctp),
+  Mc : (g |- cterm),
+  A : (g |- etp),
+  As : (g |- skel),
+  R : (g |- eterm)
+| x : [g |- cexpand Rc Ac Mc],
+  etopen : [g |- etopen Ac A],
+  skel : [g |- etp-skel A As],
+  etopenr : [g |- etopenr Rc As R]
+; split x as
+  case cexpand/one:
+  { g : evar+etopenblock,
+    Rc : (g |- catom),
+    A : (g |- etp),
+    As : (g |- skel),
+    R : (g |- eterm)
+  | x : [g |- cexpand Rc cone cstar],
+    etopen : [g |- etopen cone A],
+    skel : [g |- etp-skel A As],
+    etopenr : [g |- etopenr Rc As R]
+  ; split etopen as
+    case etopen/one:
+    { g : evar+etopenblock,
+      Rc : (g |- catom),
+      As : (g |- skel),
+      R : (g |- eterm)
+    | x : [g |- cexpand Rc cone cstar],
+      etopen : [g |- etopen cone eone],
+      skel : [g |- etp-skel eone As],
+      etopenr : [g |- etopenr Rc As R]
+    ; split skel as
+      case etp-skel/one:
+      { g : evar+etopenblock, Rc : (g |- catom), R : (g |- eterm)
+      | x : [g |- cexpand Rc cone cstar],
+        etopen : [g |- etopen cone eone],
+        skel : [g |- etp-skel eone kone],
+        etopenr : [g |- etopenr Rc kone R]
+      ; solve [_ |- cexpand-etopen/i _ etopenm/star (eexpand/one )]
+      }
+    }
+  }
+  case cexpand/sing:
+  { g : evar+etopenblock,
+    Rc : (g |- catom),
+    R2 : (g |- catom),
+    A : (g |- etp),
+    As : (g |- skel),
+    R : (g |- eterm)
+  | x : [g |- cexpand Rc (csing R2) (cat R2)],
+    etopen : [g |- etopen (csing R2) A],
+    skel : [g |- etp-skel A As],
+    etopenr : [g |- etopenr Rc As R]
+  ; split etopen as
+    case etopen/sing:
+    { g : evar+etopenblock,
+      Rc : (g |- catom),
+      R2 : (g |- catom),
+      M : (g |- eterm),
+      As : (g |- skel),
+      R : (g |- eterm),
+      Dopen : (g |- etopenr R2 kt M)
+    | x : [g |- cexpand Rc (csing R2) (cat R2)],
+      etopen : [g |- etopen (csing R2) (esing M)],
+      skel : [g |- etp-skel (esing M) As],
+      etopenr : [g |- etopenr Rc As R]
+    ; split skel as
+      case etp-skel/sing:
+      { g : evar+etopenblock,
+        Rc : (g |- catom),
+        R2 : (g |- catom),
+        M : (g |- eterm),
+        R : (g |- eterm),
+        Dopen : (g |- etopenr R2 kt M)
+      | x : [g |- cexpand Rc (csing R2) (cat R2)],
+        etopen : [g |- etopen (csing R2) (esing M)],
+        skel : [g |- etp-skel (esing M) ksing],
+        etopenr : [g |- etopenr Rc ksing R]
+      ; solve [_ |- cexpand-etopen/i _ (etopenm/sing Dopen) (eexpand/sing )]
+      }
+    }
+  }
+  case cexpand/sigma:
+  { g : evar+etopenblock,
+    Rc : (g |- catom),
+    A1 : (g |- ctp),
+    A2 : (g, y : catom |- ctp),
+    M : (g |- cterm),
+    M1 : (g |- cterm),
+    A : (g |- etp),
+    As : (g |- skel),
+    R : (g |- eterm),
+    Dexpand : (g |- cexpand (cpi1 Rc) A1 M),
+    Dexpand1 : (g |- cexpand (cpi2 Rc) (A2[.., cpi1 Rc]) M1)
+  | x : [g |- cexpand Rc (csigma A1 (\x54. A2)) (cpair M M1)],
+    etopen : [g |- etopen (csigma A1 (\x54. A2)) A],
+    skel : [g |- etp-skel A As],
+    etopenr : [g |- etopenr Rc As R]
+  ; split etopen as
+    case etopen/sigma:
+    { g : evar+etopenblock,
+      Rc : (g |- catom),
+      A1 : (g |- ctp),
+      A2 : (g, y : catom |- ctp),
+      M : (g |- cterm),
+      M1 : (g |- cterm),
+      A4 : (g |- etp),
+      A6 : (g, x : eterm |- etp),
+      As : (g |- skel),
+      R : (g |- eterm),
+      Dexpand : (g |- cexpand (cpi1 Rc) A1 M),
+      Dexpand1 : (g |- cexpand (cpi2 Rc) (A2[.., cpi1 Rc]) M1),
+      Dskel : ( |- skel),
+      Dopen : (g |- etopen A1 A4),
+      Dskel1 : (g |- etp-skel A4 Dskel[]),
+      Dopen1 :
+        (g, xc : catom, x : eterm, z : etopenr xc Dskel[] x |-
+           etopen (A2[.., xc]) (A6[.., x]))
+    | x : [g |- cexpand Rc (csigma A1 (\x54. A2)) (cpair M M1)],
+      etopen : [g |- etopen (csigma A1 (\x54. A2)) (esigma A4 (\z147. A6))],
+      skel : [g |- etp-skel (esigma A4 (\z147. A6)) As],
+      etopenr : [g |- etopenr Rc As R]
+    ; split skel as
+      case etp-skel/sigma:
+      { g : evar+etopenblock,
+        Rc : (g |- catom),
+        A1 : (g |- ctp),
+        A2 : (g, y : catom |- ctp),
+        M : (g |- cterm),
+        M1 : (g |- cterm),
+        A4 : (g |- etp),
+        A6 : (g, x : eterm |- etp),
+        Dskel2 : ( |- skel),
+        Dskel3 : ( |- skel),
+        R : (g |- eterm),
+        Dexpand : (g |- cexpand (cpi1 Rc) A1 M),
+        Dexpand1 : (g |- cexpand (cpi2 Rc) (A2[.., cpi1 Rc]) M1),
+        Dskel : ( |- skel),
+        Dopen : (g |- etopen A1 A4),
+        Dskel1 : (g |- etp-skel A4 Dskel[]),
+        Dopen1 :
+          (g, xc : catom, x : eterm, z : etopenr xc Dskel[] x |-
+             etopen (A2[.., xc]) (A6[.., x])),
+        Dskel4 : (g |- etp-skel A4 Dskel2[]),
+        Dskel5 : (g, x : eterm |- etp-skel A6 Dskel3[])
+      | x : [g |- cexpand Rc (csigma A1 (\x54. A2)) (cpair M M1)],
+        etopen : [g |- etopen (csigma A1 (\x54. A2)) (esigma A4 (\z147. A6))],
+        skel :
+          [g |- etp-skel (esigma A4 (\z147. A6)) (ksigma Dskel2[] Dskel3[])],
+        etopenr : [g |- etopenr Rc (ksigma Dskel2[] Dskel3[]) R]
+      ; split etp-skel-fun [g |- Dskel1] [g |- Dskel4] as
+        case skel-eq/i:
+        { g : evar+etopenblock,
+          Rc : (g |- catom),
+          A1 : (g |- ctp),
+          A2 : (g, y : catom |- ctp),
+          M : (g |- cterm),
+          M1 : (g |- cterm),
+          A4 : (g |- etp),
+          A6 : (g, x : eterm |- etp),
+          Dskel2 : ( |- skel),
+          Dskel3 : ( |- skel),
+          R : (g |- eterm),
+          Dexpand1 : (g |- cexpand (cpi1 Rc) A1 M),
+          Dexpand2 : (g |- cexpand (cpi2 Rc) (A2[.., cpi1 Rc]) M1),
+          DopenA : (g |- etopen A1 A4),
+          DskelA' : (g |- etp-skel A4 Dskel2[]),
+          DopenB :
+            (g, xc : catom, x : eterm, z : etopenr xc Dskel2[] x |-
+               etopen (A2[.., xc]) (A6[.., x])),
+          DskelA : (g |- etp-skel A4 Dskel2[]),
+          DskelB : (g, x : eterm |- etp-skel A6 Dskel3[])
+        | x : [g |- cexpand Rc (csigma A1 (\x54. A2)) (cpair M M1)],
+          etopen :
+            [g |- etopen (csigma A1 (\x54. A2)) (esigma A4 (\z147. A6))],
+          skel :
+            [g |- etp-skel (esigma A4 (\z147. A6)) (ksigma Dskel2[] Dskel3[])],
+          etopenr : [g |- etopenr Rc (ksigma Dskel2[] Dskel3[]) R]
+        ; by etopenr as DopenR unboxed;
+          split
+          cexpand-etopen [g |- Dexpand1] [g |- DopenA] [g |- DskelA]
+            [g |- etopenr/pi1 DopenR] as
+          case cexpand-etopen/i:
+          { g : evar+etopenblock,
+            Rc : (g |- catom),
+            A1 : (g |- ctp),
+            A2 : (g, y : catom |- ctp),
+            M : (g |- cterm),
+            M1 : (g |- cterm),
+            A4 : (g |- etp),
+            A6 : (g, x : eterm |- etp),
+            Dskel2 : ( |- skel),
+            Dskel3 : ( |- skel),
+            R : (g |- eterm),
+            Dexpand1 : (g |- cexpand (cpi1 Rc) A1 M),
+            Dexpand2 : (g |- cexpand (cpi2 Rc) (A2[.., cpi1 Rc]) M1),
+            DopenA : (g |- etopen A1 A4),
+            DskelA' : (g |- etp-skel A4 Dskel2[]),
+            DopenB :
+              (g, xc : catom, x : eterm, z : etopenr xc Dskel2[] x |-
+                 etopen (A2[.., xc]) (A6[.., x])),
+            DskelA : (g |- etp-skel A4 Dskel2[]),
+            DskelB : (g, x : eterm |- etp-skel A6 Dskel3[]),
+            DopenR : (g |- etopenr Rc (ksigma Dskel2[] Dskel3[]) R),
+            M4 : (g |- eterm),
+            Dopen : (g |- etopenm M Dskel2[] M4),
+            Dexpand3 : (g |- eexpand (epi1 R) A4 M4)
+          | x : [g |- cexpand Rc (csigma A1 (\x54. A2)) (cpair M M1)],
+            etopen :
+              [g |- etopen (csigma A1 (\x54. A2)) (esigma A4 (\z147. A6))],
+            skel :
+              [g |-
+                 etp-skel (esigma A4 (\z147. A6)) (ksigma Dskel2[] Dskel3[])],
+            etopenr : [g |- etopenr Rc (ksigma Dskel2[] Dskel3[]) R]
+          ; split
+            cexpand-etopen [g |- Dexpand2]
+              [g |- DopenB[.., _, _, etopenr/pi1 DopenR]]
+              [g |- DskelB[.., epi1 R]] [g |- etopenr/pi2 DopenR] as
+            case cexpand-etopen/i:
+            { g : evar+etopenblock,
+              Rc : (g |- catom),
+              A1 : (g |- ctp),
+              A2 : (g, y : catom |- ctp),
+              M : (g |- cterm),
+              M1 : (g |- cterm),
+              A4 : (g |- etp),
+              A6 : (g, x : eterm |- etp),
+              Dskel2 : ( |- skel),
+              Dskel3 : ( |- skel),
+              R : (g |- eterm),
+              Dexpand1 : (g |- cexpand (cpi1 Rc) A1 M),
+              Dexpand2 : (g |- cexpand (cpi2 Rc) (A2[.., cpi1 Rc]) M1),
+              DopenA : (g |- etopen A1 A4),
+              DskelA' : (g |- etp-skel A4 Dskel2[]),
+              DopenB :
+                (g, xc : catom, x : eterm, z : etopenr xc Dskel2[] x |-
+                   etopen (A2[.., xc]) (A6[.., x])),
+              DskelA : (g |- etp-skel A4 Dskel2[]),
+              DskelB : (g, x : eterm |- etp-skel A6 Dskel3[]),
+              DopenR : (g |- etopenr Rc (ksigma Dskel2[] Dskel3[]) R),
+              M4 : (g |- eterm),
+              Dopen1 : (g |- etopenm M Dskel2[] M4),
+              Dexpand1' : (g |- eexpand (epi1 R) A4 M4),
+              M7 : (g |- eterm),
+              Dopen2 : (g |- etopenm M1 Dskel3[] M7),
+              Dexpand3 : (g |- eexpand (epi2 R) (A6[.., epi1 R]) M7)
+            | x : [g |- cexpand Rc (csigma A1 (\x54. A2)) (cpair M M1)],
+              etopen :
+                [g |- etopen (csigma A1 (\x54. A2)) (esigma A4 (\z147. A6))],
+              skel :
+                [g |-
+                   etp-skel
+                     (esigma A4 (\z147. A6)) (ksigma Dskel2[] Dskel3[])],
+              etopenr : [g |- etopenr Rc (ksigma Dskel2[] Dskel3[]) R]
+            ; solve
+                [g |-
+                   cexpand-etopen/i _
+                   (etopenm/pair Dopen1 Dopen2)
+                   (eexpand/sigma Dexpand1' Dexpand3)]
+            }
+          }
+        }
+      }
+    }
+  }
+  case cexpand/pi:
+  { g : evar+etopenblock,
+    Rc : (g |- catom),
+    A1 : (g |- ctp),
+    A2 : (g, z : catom |- ctp),
+    M1 : (g, y : catom |- cterm),
+    A : (g |- etp),
+    As : (g |- skel),
+    R : (g |- eterm),
+    M : (g, x : catom |- cterm),
+    Dexpand : (g, x : catom |- cexpand x (A1[..]) M),
+    Dexpand1 : (g, x : catom |- cexpand (capp (Rc[..]) M) A2 M1)
+  | x : [g |- cexpand Rc (cpi A1 (\x53. A2)) (clam A1 (\x57. M1))],
+    etopen : [g |- etopen (cpi A1 (\x53. A2)) A],
+    skel : [g |- etp-skel A As],
+    etopenr : [g |- etopenr Rc As R]
+  ; split etopen as
+    case etopen/pi:
+    { g : evar+etopenblock,
+      Rc : (g |- catom),
+      A1 : (g |- ctp),
+      A2 : (g, z : catom |- ctp),
+      M1 : (g, y : catom |- cterm),
+      A4 : (g |- etp),
+      A6 : (g, x : eterm |- etp),
+      As : (g |- skel),
+      R : (g |- eterm),
+      M : (g, x : catom |- cterm),
+      Dexpand : (g, x : catom |- cexpand x (A1[..]) M),
+      Dexpand1 : (g, x : catom |- cexpand (capp (Rc[..]) M) A2 M1),
+      Dskel : ( |- skel),
+      Dopen : (g |- etopen A1 A4),
+      Dskel1 : (g |- etp-skel A4 Dskel[]),
+      Dopen1 :
+        (g, xc : catom, x : eterm, z : etopenr xc Dskel[] x |-
+           etopen (A2[.., xc]) (A6[.., x]))
+    | x : [g |- cexpand Rc (cpi A1 (\x53. A2)) (clam A1 (\x57. M1))],
+      etopen : [g |- etopen (cpi A1 (\x53. A2)) (epi A4 (\z146. A6))],
+      skel : [g |- etp-skel (epi A4 (\z146. A6)) As],
+      etopenr : [g |- etopenr Rc As R]
+    ; split skel as
+      case etp-skel/pi:
+      { g : evar+etopenblock,
+        Rc : (g |- catom),
+        A1 : (g |- ctp),
+        A2 : (g, z : catom |- ctp),
+        M1 : (g, y : catom |- cterm),
+        A4 : (g |- etp),
+        A6 : (g, x : eterm |- etp),
+        Dskel2 : ( |- skel),
+        Dskel3 : ( |- skel),
+        R : (g |- eterm),
+        M : (g, x : catom |- cterm),
+        Dexpand : (g, x : catom |- cexpand x (A1[..]) M),
+        Dexpand1 : (g, x : catom |- cexpand (capp (Rc[..]) M) A2 M1),
+        Dskel : ( |- skel),
+        Dopen : (g |- etopen A1 A4),
+        Dskel1 : (g |- etp-skel A4 Dskel[]),
+        Dopen1 :
+          (g, xc : catom, x : eterm, z : etopenr xc Dskel[] x |-
+             etopen (A2[.., xc]) (A6[.., x])),
+        Dskel4 : (g |- etp-skel A4 Dskel2[]),
+        Dskel5 : (g, x : eterm |- etp-skel A6 Dskel3[])
+      | x : [g |- cexpand Rc (cpi A1 (\x53. A2)) (clam A1 (\x57. M1))],
+        etopen : [g |- etopen (cpi A1 (\x53. A2)) (epi A4 (\z146. A6))],
+        skel : [g |- etp-skel (epi A4 (\z146. A6)) (kpi Dskel2[] Dskel3[])],
+        etopenr : [g |- etopenr Rc (kpi Dskel2[] Dskel3[]) R]
+      ; split etp-skel-fun [g |- Dskel1] [g |- Dskel4] as
+        case skel-eq/i:
+        { g : evar+etopenblock,
+          Rc : (g |- catom),
+          A1 : (g |- ctp),
+          A2 : (g, z : catom |- ctp),
+          M1 : (g, y : catom |- cterm),
+          A4 : (g |- etp),
+          A6 : (g, x : eterm |- etp),
+          Dskel2 : ( |- skel),
+          Dskel3 : ( |- skel),
+          R : (g |- eterm),
+          M : (g, x : catom |- cterm),
+          Dexpand : (g, x : catom |- cexpand x (A1[..]) M),
+          Dexpand1 : (g, x : catom |- cexpand (capp (Rc[..]) M) A2 M1),
+          Dopen : (g |- etopen A1 A4),
+          Dskel1 : (g |- etp-skel A4 Dskel2[]),
+          Dopen1 :
+            (g, xc : catom, x : eterm, z : etopenr xc Dskel2[] x |-
+               etopen (A2[.., xc]) (A6[.., x])),
+          Dskel4 : (g |- etp-skel A4 Dskel2[]),
+          Dskel5 : (g, x : eterm |- etp-skel A6 Dskel3[])
+        | x : [g |- cexpand Rc (cpi A1 (\x53. A2)) (clam A1 (\x57. M1))],
+          etopen : [g |- etopen (cpi A1 (\x53. A2)) (epi A4 (\z146. A6))],
+          skel : [g |- etp-skel (epi A4 (\z146. A6)) (kpi Dskel2[] Dskel3[])],
+          etopenr : [g |- etopenr Rc (kpi Dskel2[] Dskel3[]) R]
+        ; split
+cexpand-etopen
+  [g, x : eterm, b : block (xc : catom, do : etopenr xc Dskel2[] x) |-
+     Dexpand[.., b.1]]
+  [g, x : eterm, b : block (xc : catom, do : etopenr xc Dskel2[] x) |-
+     Dopen[..]]
+  [g, x : eterm, b : block (xc : catom, do : etopenr xc Dskel2[] x) |-
+     Dskel1[..]]
+  [g, x : eterm, b : block (xc : catom, do : etopenr xc Dskel2[] x) |- b.2] as
+          case cexpand-etopen/i:
+          { g : evar+etopenblock,
+            Rc : (g |- catom),
+            A1 : (g |- ctp),
+            A2 : (g, z : catom |- ctp),
+            M1 : (g, y : catom |- cterm),
+            A4 : (g |- etp),
+            A6 : (g, x : eterm |- etp),
+            Dskel2 : ( |- skel),
+            Dskel3 : ( |- skel),
+            R : (g |- eterm),
+            M2 : (g, xc : catom |- cterm),
+            Dexpand : (g, x : catom |- cexpand x (A1[..]) M2),
+            Dexpand1 : (g, x : catom |- cexpand (capp (Rc[..]) M2) A2 M1),
+            Dopen : (g |- etopen A1 A4),
+            Dskel1 : (g |- etp-skel A4 Dskel2[]),
+            Dopen1 :
+              (g, xc : catom, x : eterm, z : etopenr xc Dskel2[] x |-
+                 etopen (A2[.., xc]) (A6[.., x])),
+            Dskel4 : (g |- etp-skel A4 Dskel2[]),
+            Dskel5 : (g, x : eterm |- etp-skel A6 Dskel3[]),
+            M4 : (g, x : eterm |- eterm),
+            Dopen2 :
+              (g, x : eterm, xc : catom, x36 : etopenr xc Dskel2[] x |-
+                 etopenm (M2[.., xc]) Dskel2[] (M4[.., x])),
+            Dexpand2 : (g, x : eterm |- eexpand x (A4[..]) M4)
+          | x : [g |- cexpand Rc (cpi A1 (\x53. A2)) (clam A1 (\x57. M1))],
+            etopen : [g |- etopen (cpi A1 (\x53. A2)) (epi A4 (\z146. A6))],
+            skel :
+              [g |- etp-skel (epi A4 (\z146. A6)) (kpi Dskel2[] Dskel3[])],
+            etopenr : [g |- etopenr Rc (kpi Dskel2[] Dskel3[]) R]
+          ; by etopenr as DopenR unboxed;
+            split
+            cexpand-etopen
+              [g, x : eterm,
+               b : block (xc : catom, do : etopenr xc Dskel2[] x) |-
+                 Dexpand1[.., b.1]]
+              [g, x : eterm,
+               b : block (xc : catom, do : etopenr xc Dskel2[] x) |-
+                 Dopen1[.., b.1, x, b.2]]
+              [g, x : eterm,
+               b : block (xc : catom, do : etopenr xc Dskel2[] x) |-
+                 Dskel5[.., x]]
+              [g, x : eterm,
+               b : block (xc : catom, do : etopenr xc Dskel2[] x) |-
+                 etopenr/app (DopenR[..]) (Dopen2[.., x, b.1, b.2])] as
+            case cexpand-etopen/i:
+            { g : evar+etopenblock,
+              Rc : (g |- catom),
+              A1 : (g |- ctp),
+              A2 : (g, z : catom |- ctp),
+              M5 : (g, xc : catom |- cterm),
+              A4 : (g |- etp),
+              A6 : (g, x : eterm |- etp),
+              Dskel2 : ( |- skel),
+              Dskel3 : ( |- skel),
+              R : (g |- eterm),
+              M2 : (g, xc : catom |- cterm),
+              Dexpand : (g, x : catom |- cexpand x (A1[..]) M2),
+              Dexpand1 : (g, x : catom |- cexpand (capp (Rc[..]) M2) A2 M5),
+              Dopen : (g |- etopen A1 A4),
+              Dskel1 : (g |- etp-skel A4 Dskel2[]),
+              Dopen1 :
+                (g, xc : catom, x : eterm, z : etopenr xc Dskel2[] x |-
+                   etopen (A2[.., xc]) (A6[.., x])),
+              Dskel4 : (g |- etp-skel A4 Dskel2[]),
+              Dskel5 : (g, x : eterm |- etp-skel A6 Dskel3[]),
+              M4 : (g, x : eterm |- eterm),
+              Dopen2 :
+                (g, x : eterm, xc : catom, x36 : etopenr xc Dskel2[] x |-
+                   etopenm (M2[.., xc]) Dskel2[] (M4[.., x])),
+              Dexpand2 : (g, x : eterm |- eexpand x (A4[..]) M4),
+              DopenR : (g |- etopenr Rc (kpi Dskel2[] Dskel3[]) R),
+              M7 : (g, x : eterm |- eterm),
+              Dopen3 :
+                (g, x : eterm, xc : catom, z64 : etopenr xc Dskel2[] x |-
+                   etopenm (M5[.., xc]) Dskel3[] (M7[.., x])),
+              Dexpand3 : (g, x : eterm |- eexpand (eapp (R[..]) M4) A6 M7)
+            | x : [g |- cexpand Rc (cpi A1 (\x53. A2)) (clam A1 (\x57. M5))],
+              etopen : [g |- etopen (cpi A1 (\x53. A2)) (epi A4 (\z146. A6))],
+              skel :
+                [g |- etp-skel (epi A4 (\z146. A6)) (kpi Dskel2[] Dskel3[])],
+              etopenr : [g |- etopenr Rc (kpi Dskel2[] Dskel3[]) R]
+            ; solve
+                [g |-
+                   cexpand-etopen/i _
+                   (etopenm/lam Dopen
+                   Dskel1 (\xc. \x. \do. Dopen3[.., x, xc, do]))
+                   (eexpand/pi (\x. Dexpand2) (\x. Dexpand3))]
+            }
+          }
+        }
+      }
+    }
+  }
+  case cexpand/t:
+  { g : evar+etopenblock,
+    Rc : (g |- catom),
+    A : (g |- etp),
+    As : (g |- skel),
+    R : (g |- eterm)
+  | x : [g |- cexpand Rc ct (cat Rc)],
+    etopen : [g |- etopen ct A],
+    skel : [g |- etp-skel A As],
+    etopenr : [g |- etopenr Rc As R]
+  ; split etopen as
+    case etopen/t:
+    { g : evar+etopenblock,
+      Rc : (g |- catom),
+      As : (g |- skel),
+      R : (g |- eterm)
+    | x : [g |- cexpand Rc ct (cat Rc)],
+      etopen : [g |- etopen ct et],
+      skel : [g |- etp-skel et As],
+      etopenr : [g |- etopenr Rc As R]
+    ; split skel as
+      case etp-skel/t:
+      { g : evar+etopenblock, Rc : (g |- catom), R : (g |- eterm)
+      | x : [g |- cexpand Rc ct (cat Rc)],
+        etopen : [g |- etopen ct et],
+        skel : [g |- etp-skel et kt],
+        etopenr : [g |- etopenr Rc kt R]
+      ; by etopenr as Dopen unboxed;
+        solve [_ |- cexpand-etopen/i _ (etopenm/at Dopen) (eexpand/t )]
+      }
+    }
+  }
+}
+;

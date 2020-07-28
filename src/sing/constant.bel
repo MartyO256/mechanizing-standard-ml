@@ -52,6 +52,7 @@ LF cexpand : catom -> ctp -> cterm -> type =
 
 | cexpand/one : cexpand R cone cstar
 ;
+--name cexpand Dexpand.
 
 LF cskof : skel -> ctp -> (catom -> ctp) -> type =
 | cskof/t : cskof kt cone (\l. ct)
