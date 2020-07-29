@@ -79,7 +79,7 @@ LF cskof : skel -> ctp -> (catom -> ctp) -> type =
 
 | cskof/one : cskof kone cone (\l. cone)
 ;
---name cskof Dcskof.
+--name cskof Dcskof cskof.
 
 % Constants
 
