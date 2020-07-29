@@ -103,3 +103,25 @@ proof unary-equiv-inversion :
 / total /
 ?
 ;
+
+LF binary-equiv-inversion/e :
+  eterm -> eterm -> etp -> eterm -> eterm -> (eterm -> etp) -> type =
+| binary-equiv-inversion/i :
+  equiv M1 M2 A ->
+  equiv N1 N2 (B M1) ->
+    binary-equiv-inversion/e M1 M2 A N1 N2 B
+;
+
+proof binary-equiv-inversion :
+  (g : scbind)
+  [g |- ekof C (epi A (\x. epi B[.., x] (\l. et)))] ->
+  [g |-
+    equiv
+      (eapp (eapp (econst C) M1) N1)
+      (eapp (eapp (econst C) M2) N2)
+      et
+  ] ->
+    [g |- binary-equiv-inversion/e M1 M2 A N1 N2 (\x. B)] =
+/ total /
+?
+;
