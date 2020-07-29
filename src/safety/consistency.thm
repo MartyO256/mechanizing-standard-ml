@@ -11269,7 +11269,159 @@ and proof unmap-wf :
   [g |- ewf A] ->
     [g |- unmap-wf/e A] =
 / total 1 /
-?
+intros
+{ g : unmap-bind, A : (g |- etp)
+| x : [g |- ewf A]
+; split x as
+  case ewf/one:
+  { g : unmap-bind
+  | x : [g |- ewf eone]
+  ; solve [_ |- unmap-wf/i _ tunmap/one kd-wf/one]
+  }
+  case ewf/sing:
+  { g : unmap-bind, M : (g |- eterm), Dof : (g |- eof M et)
+  | x : [g |- ewf (esing M)]
+  ; split can-unmap [_ |- M] as
+    case can-unmap/i:
+    { g : unmap-bind,
+      M : (g |- eterm),
+      Dof : (g |- eof M et),
+      C : (g |- con),
+      Dunmap : (g |- unmap M C)
+    | x : [g |- ewf (esing M)]
+    ; split unmap-of [_ |- Dof] [_ |- Dunmap] as
+      case unmap-of/i:
+      { g : unmap-bind,
+        M : (g |- eterm),
+        Dof : (g |- eof M et),
+        C : (g |- con),
+        Dunmap : (g |- unmap M C),
+        K : (g |- kind),
+        Dtunmap : (g |- tunmap et K),
+        Dof1 : (g |- cn-of C K)
+      | x : [g |- ewf (esing M)]
+      ; split [_ |- Dtunmap] as
+        case tunmap/t:
+        { g : unmap-bind,
+          M : (g |- eterm),
+          Dof : (g |- eof M et),
+          C : (g |- con),
+          Dunmap : (g |- unmap M C),
+          Dof1 : (g |- cn-of C t)
+        | x : [g |- ewf (esing M)]
+        ; solve [_ |- unmap-wf/i _ (tunmap/sing Dunmap) (kd-wf/sing Dof1)]
+        }
+      }
+    }
+  }
+  case ewf/sigma:
+  { g : unmap-bind,
+    A1 : (g |- etp),
+    A2 : (g, x : eterm |- etp),
+    Dwf : (g |- ewf A1),
+    Dwf1 : (g, x : eterm, y : eof x (A1[..]) |- ewf (A2[.., x]))
+  | x : [g |- ewf (esigma A1 (\z147. A2))]
+  ; split unmap-wf [_ |- Dwf] as
+    case unmap-wf/i:
+    { g : unmap-bind,
+      A1 : (g |- etp),
+      A2 : (g, x : eterm |- etp),
+      Dwf : (g |- ewf A1),
+      Dwf1 : (g, x : eterm, y : eof x (A1[..]) |- ewf (A2[.., x])),
+      K : (g |- kind),
+      Dtunmap : (g |- tunmap A1 K),
+      Dwf2 : (g |- kd-wf K)
+    | x : [g |- ewf (esigma A1 (\z147. A2))]
+    ; split
+      unmap-wf
+        [_,
+         b :
+           block (
+             a : con,
+             da : cn-of a (K[..]),
+             x : eterm,
+             dx : eof x (A1[..]),
+             xt : unmap x a) |- Dwf1[.., b.3, b.4]] as
+      case unmap-wf/i:
+      { g : unmap-bind,
+        A1 : (g |- etp),
+        A3 : (g, x : eterm |- etp),
+        Dwf : (g |- ewf A1),
+        Dwf1 : (g, x : eterm, y : eof x (A1[..]) |- ewf (A3[.., x])),
+        K : (g |- kind),
+        Dtunmap : (g |- tunmap A1 K),
+        Dwf2 : (g |- kd-wf K),
+        K1 : (g, a : con |- kind),
+        Dtunmap1 :
+          (g, a : con, x : eterm, z7 : unmap x a |-
+             tunmap (A3[.., x]) (K1[.., a])),
+        Dwf3 : (g, a : con, da : cn-of a (K[..]) |- kd-wf (K1[.., a]))
+      | x : [g |- ewf (esigma A1 (\z147. A3))]
+      ; solve
+          [_ |-
+             unmap-wf/i _
+             (tunmap/sigma Dtunmap (\x. \a. \xt. Dtunmap1[.., a, x, xt]))
+             (kd-wf/sigma Dwf2 (\a. \da. Dwf3))]
+      }
+    }
+  }
+  case ewf/pi:
+  { g : unmap-bind,
+    A1 : (g |- etp),
+    A2 : (g, y : eterm |- etp),
+    Dwf : (g |- ewf A1),
+    Dwf1 : (g, x : eterm, z : eof x (A1[..]) |- ewf (A2[.., x]))
+  | x : [g |- ewf (epi A1 (\z146. A2))]
+  ; split unmap-wf [_ |- Dwf] as
+    case unmap-wf/i:
+    { g : unmap-bind,
+      A1 : (g |- etp),
+      A2 : (g, y : eterm |- etp),
+      Dwf : (g |- ewf A1),
+      Dwf1 : (g, x : eterm, z : eof x (A1[..]) |- ewf (A2[.., x])),
+      K : (g |- kind),
+      Dtunmap : (g |- tunmap A1 K),
+      Dwf2 : (g |- kd-wf K)
+    | x : [g |- ewf (epi A1 (\z146. A2))]
+    ; split
+      unmap-wf
+        [_,
+         b :
+           block (
+             a : con,
+             da : cn-of a (K[..]),
+             x : eterm,
+             dx : eof x (A1[..]),
+             xt : unmap x a) |- Dwf1[.., b.3, b.4]] as
+      case unmap-wf/i:
+      { g : unmap-bind,
+        A1 : (g |- etp),
+        A3 : (g, x : eterm |- etp),
+        Dwf : (g |- ewf A1),
+        Dwf1 : (g, x : eterm, z : eof x (A1[..]) |- ewf (A3[.., x])),
+        K : (g |- kind),
+        Dtunmap : (g |- tunmap A1 K),
+        Dwf2 : (g |- kd-wf K),
+        K1 : (g, a : con |- kind),
+        Dtunmap1 :
+          (g, a : con, x : eterm, x13 : unmap x a |-
+             tunmap (A3[.., x]) (K1[.., a])),
+        Dwf3 : (g, a : con, da : cn-of a (K[..]) |- kd-wf (K1[.., a]))
+      | x : [g |- ewf (epi A1 (\z146. A3))]
+      ; solve
+          [_ |-
+             unmap-wf/i _
+             (tunmap/pi Dtunmap (\x. \a. \xt. Dtunmap1[.., a, x, xt]))
+             (kd-wf/pi Dwf2 (\a. \da. Dwf3))]
+      }
+    }
+  }
+  case ewf/t:
+  { g : unmap-bind
+  | x : [g |- ewf et]
+  ; solve [_ |- unmap-wf/i _ tunmap/t kd-wf/t]
+  }
+}
 
 and proof unmap-wf' :
   (g : unmap-bind)
