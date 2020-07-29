@@ -12086,8 +12086,54 @@ and proof unmap-equiv' :
   [g |- equiv M N A] ->
   [g |- tunmap A K] ->
     [g |- unmap-equiv'/e C D K] =
-/ total 1 /
-?
+/ total /
+intros
+{ g : unmap-bind,
+  M : (g |- eterm),
+  C : (g |- con),
+  N : (g |- eterm),
+  D : (g |- con),
+  A : (g |- etp),
+  K : (g |- kind)
+| unmap1 : [g |- unmap M C],
+  unmap2 : [g |- unmap N D],
+  equiv : [g |- equiv M N A],
+  tunmap : [g |- tunmap A K]
+; split unmap-equiv unmap1 unmap2 equiv as
+  case unmap-equiv/i:
+  { g : unmap-bind,
+    M : (g |- eterm),
+    C : (g |- con),
+    N : (g |- eterm),
+    D : (g |- con),
+    A : (g |- etp),
+    K : (g |- kind),
+    K1 : (g |- kind),
+    Dtunmap : (g |- tunmap A K1),
+    Dequiv : (g |- cn-equiv C D K1)
+  | unmap1 : [g |- unmap M C],
+    unmap2 : [g |- unmap N D],
+    equiv : [g |- equiv M N A],
+    tunmap : [g |- tunmap A K]
+  ; split tunmap-fun tunmap [_ |- Dtunmap] as
+    case kind-eq/i:
+    { g : unmap-bind,
+      M : (g |- eterm),
+      C : (g |- con),
+      N : (g |- eterm),
+      D : (g |- con),
+      A : (g |- etp),
+      K1 : (g |- kind),
+      Dtunmap : (g |- tunmap A K1),
+      Dequiv : (g |- cn-equiv C D K1)
+    | unmap1 : [g |- unmap M C],
+      unmap2 : [g |- unmap N D],
+      equiv : [g |- equiv M N A],
+      tunmap : [g |- tunmap A K1]
+    ; solve [_ |- unmap-equiv'/i Dequiv]
+    }
+  }
+}
 ;
 
 % Injectivity Lemmas
