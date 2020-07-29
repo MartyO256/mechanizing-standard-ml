@@ -5230,3 +5230,573 @@ cexpand-etopen
   }
 }
 ;
+
+LF can-etp-skel/e : etp -> type =
+| can-etp-skel/i : { As : skel } etp-skel A As -> can-etp-skel/e A
+;
+
+proof can-etp-skel :
+  (g : evar)
+  { A : [g |- etp] }
+  [g |- can-etp-skel/e A] =
+/ total 1 /
+intros
+{ g : evar, A : (g |- etp)
+|
+; split [_ |- A] as
+  case eone:
+  { g : evar
+  |
+  ; solve [_ |- can-etp-skel/i _ etp-skel/one]
+  }
+  case esing:
+  { g : evar, M : (g |- eterm)
+  |
+  ; solve [_ |- can-etp-skel/i _ (etp-skel/sing )]
+  }
+  case esigma:
+  { g : evar, A1 : (g |- etp), A2 : (g, z : eterm |- etp)
+  |
+  ; split can-etp-skel [_ |- A1] as
+    case can-etp-skel/i:
+    { g : evar,
+      A1 : (g |- etp),
+      A2 : (g, z : eterm |- etp),
+      Dskel : ( |- skel),
+      Dskel1 : (g |- etp-skel A1 Dskel[])
+    |
+    ; split can-etp-skel [_, z : eterm |- A2] as
+      case can-etp-skel/i:
+      { g : evar,
+        A1 : (g |- etp),
+        A2 : (g, z : eterm |- etp),
+        Dskel : ( |- skel),
+        Dskel1 : (g |- etp-skel A1 Dskel[]),
+        Dskel2 : ( |- skel),
+        Dskel3 : (g, z : eterm |- etp-skel A2 Dskel2[])
+      |
+      ; solve [_ |- can-etp-skel/i _ (etp-skel/sigma Dskel1 (\x. Dskel3))]
+      }
+    }
+  }
+  case epi:
+  { g : evar, A1 : (g |- etp), A2 : (g, z : eterm |- etp)
+  |
+  ; split can-etp-skel [_ |- A1] as
+    case can-etp-skel/i:
+    { g : evar,
+      A1 : (g |- etp),
+      A2 : (g, z : eterm |- etp),
+      Dskel : ( |- skel),
+      Dskel1 : (g |- etp-skel A1 Dskel[])
+    |
+    ; split can-etp-skel [_, z : eterm |- A2] as
+      case can-etp-skel/i:
+      { g : evar,
+        A1 : (g |- etp),
+        A2 : (g, z : eterm |- etp),
+        Dskel : ( |- skel),
+        Dskel1 : (g |- etp-skel A1 Dskel[]),
+        Dskel2 : ( |- skel),
+        Dskel3 : (g, z : eterm |- etp-skel A2 Dskel2[])
+      |
+      ; solve [_ |- can-etp-skel/i _ (etp-skel/pi Dskel1 (\x. Dskel3))]
+      }
+    }
+  }
+  case et:
+  { g : evar
+  |
+  ; solve [_ |- can-etp-skel/i _ etp-skel/t]
+  }
+}
+;
+
+LF cskof-implies-skof/e : skel -> ctp -> (catom -> ctp) -> type =
+| cskof-implies-skof/i :
+  { A : etp } { As : skel } { B : eterm -> etp }
+  etopen Ac A ->
+  etp-skel A As ->
+  ({ xc : catom } { x : eterm } etopenr xc As x -> etopen (Bc xc) (B x)) ->
+  skof SK A B ->
+    cskof-implies-skof/e SK Ac Bc
+;
+
+proof cskof-implies-skof :
+  (g : evar+etopenblock)
+  [g |- cskof SK Ac (\xc. Bc)] ->
+    [g |- cskof-implies-skof/e SK Ac (\xc. Bc)] =
+/ total 1 /
+intros
+{ g : evar+etopenblock,
+  SK : (g |- skel),
+  Ac : (g |- ctp),
+  Bc : (g, x64 : catom |- ctp)
+| x : [g |- cskof SK Ac (\xc. Bc)]
+; split x as
+  case cskof/one:
+  { g : evar+etopenblock
+  | x : [g |- cskof kone cone (\xc. cone)]
+  ; solve
+      [_ |-
+         cskof-implies-skof/i _
+         _
+         (\x. _) etopen/one etp-skel/one (\l1. \l2. \l3. etopen/one) skof/one]
+  }
+  case cskof/sing:
+  { g : evar+etopenblock
+  | x : [g |- cskof ksing ct (\xc. csing xc)]
+  ; solve
+      [_ |-
+         cskof-implies-skof/i _
+         _
+         (\x. _) etopen/t etp-skel/t (\l1. \l2. \d. etopen/sing d) skof/sing]
+  }
+  case cskof/sigma:
+  { g : evar+etopenblock,
+    Dskel1 : ( |- skel),
+    Dskel2 : ( |- skel),
+    A' : (g |- ctp),
+    Ac : (g, y : catom |- ctp),
+    B' : (g |- ctp),
+    Bc : (g, x : catom |- ctp),
+    Xc : (g, y : catom, z : catom |- cterm),
+    Dcskof1 : (g |- cskof Dskel1[] A' (\y. Ac)),
+    Dcskof2 : (g |- cskof Dskel2[] B' (\z. Bc)),
+    Dexpand : (g, y : catom, x : catom |- cexpand x (Ac[.., y]) Xc)
+  | x :
+      [g |-
+         cskof
+           (ksigma Dskel1[] Dskel2[])
+           (csigma A' (\y. cpi Ac (\l. B'[..])))
+           (\xc.
+              csigma (Ac[.., cpi1 xc])
+              (\x. Bc[.., capp (cpi2 xc) (Xc[.., cpi1 xc, x])]))]
+  ; split cskof-implies-skof [g |- Dcskof1] as
+    case cskof-implies-skof/i:
+    { g : evar+etopenblock,
+      Dskel1 : ( |- skel),
+      Dskel2 : ( |- skel),
+      A' : (g |- ctp),
+      Ac : (g, y : catom |- ctp),
+      B' : (g |- ctp),
+      Bc : (g, x : catom |- ctp),
+      Xc : (g, y : catom, z : catom |- cterm),
+      Dcskof1 : (g |- cskof Dskel1[] A' (\y. Ac)),
+      Dcskof2 : (g |- cskof Dskel2[] B' (\z. Bc)),
+      Dexpand : (g, y : catom, x : catom |- cexpand x (Ac[.., y]) Xc),
+      C : (g |- etp),
+      Cs : ( |- skel),
+      A : (g, x : eterm |- etp),
+      DopenC : (g |- etopen A' C),
+      DskelC : (g |- etp-skel C Cs[]),
+      DopenA :
+        (g, xc : catom, x : eterm, y : etopenr xc Cs[] x |-
+           etopen (Ac[.., xc]) (A[.., x])),
+      Dskof1 : (g |- skof Dskel1[] C (\x347. A))
+    | x :
+        [g |-
+           cskof
+             (ksigma Dskel1[] Dskel2[])
+             (csigma A' (\y. cpi Ac (\l. B'[..])))
+             (\xc.
+                csigma (Ac[.., cpi1 xc])
+                (\x. Bc[.., capp (cpi2 xc) (Xc[.., cpi1 xc, x])]))]
+    ; split cskof-implies-skof [g |- Dcskof2] as
+      case cskof-implies-skof/i:
+      { g : evar+etopenblock,
+        Dskel1 : ( |- skel),
+        Dskel2 : ( |- skel),
+        A' : (g |- ctp),
+        Ac : (g, y : catom |- ctp),
+        B' : (g |- ctp),
+        Bc : (g, x : catom |- ctp),
+        Xc : (g, y : catom, z : catom |- cterm),
+        Dcskof1 : (g |- cskof Dskel1[] A' (\y. Ac)),
+        Dcskof2 : (g |- cskof Dskel2[] B' (\z. Bc)),
+        Dexpand : (g, y : catom, x : catom |- cexpand x (Ac[.., y]) Xc),
+        C : (g |- etp),
+        Cs : ( |- skel),
+        A : (g, x : eterm |- etp),
+        DopenC : (g |- etopen A' C),
+        DskelC : (g |- etp-skel C Cs[]),
+        DopenA :
+          (g, xc : catom, x : eterm, y : etopenr xc Cs[] x |-
+             etopen (Ac[.., xc]) (A[.., x])),
+        Dskof1 : (g |- skof Dskel1[] C (\x347. A)),
+        D : (g |- etp),
+        Ds : ( |- skel),
+        B : (g, x : eterm |- etp),
+        DopenD : (g |- etopen B' D),
+        DskelD : (g |- etp-skel D Ds[]),
+        DopenB :
+          (g, xc : catom, x : eterm, y : etopenr xc Ds[] x |-
+             etopen (Bc[.., xc]) (B[.., x])),
+        Dskof2 : (g |- skof Dskel2[] D (\x347. B))
+      | x :
+          [g |-
+             cskof
+               (ksigma Dskel1[] Dskel2[])
+               (csigma A' (\y. cpi Ac (\l. B'[..])))
+               (\xc.
+                  csigma (Ac[.., cpi1 xc])
+                  (\x. Bc[.., capp (cpi2 xc) (Xc[.., cpi1 xc, x])]))]
+      ; split can-etp-skel [g, x : eterm |- A] as
+        case can-etp-skel/i:
+        { g : evar+etopenblock,
+          Dskel1 : ( |- skel),
+          Dskel2 : ( |- skel),
+          A' : (g |- ctp),
+          Ac : (g, y : catom |- ctp),
+          B' : (g |- ctp),
+          Bc : (g, x : catom |- ctp),
+          Xc : (g, y : catom, z : catom |- cterm),
+          Dcskof1 : (g |- cskof Dskel1[] A' (\y. Ac)),
+          Dcskof2 : (g |- cskof Dskel2[] B' (\z. Bc)),
+          Dexpand : (g, y : catom, x : catom |- cexpand x (Ac[.., y]) Xc),
+          C : (g |- etp),
+          Cs : ( |- skel),
+          A : (g, x : eterm |- etp),
+          DopenC : (g |- etopen A' C),
+          DskelC : (g |- etp-skel C Cs[]),
+          DopenA :
+            (g, xc : catom, x : eterm, y : etopenr xc Cs[] x |-
+               etopen (Ac[.., xc]) (A[.., x])),
+          Dskof1 : (g |- skof Dskel1[] C (\x347. A)),
+          D : (g |- etp),
+          Ds : ( |- skel),
+          B : (g, x : eterm |- etp),
+          DopenD : (g |- etopen B' D),
+          DskelD : (g |- etp-skel D Ds[]),
+          DopenB :
+            (g, xc : catom, x : eterm, y : etopenr xc Ds[] x |-
+               etopen (Bc[.., xc]) (B[.., x])),
+          Dskof2 : (g |- skof Dskel2[] D (\x347. B)),
+          As : ( |- skel),
+          DskelA : (g, x : eterm |- etp-skel A As[])
+        | x :
+            [g |-
+               cskof
+                 (ksigma Dskel1[] Dskel2[])
+                 (csigma A' (\y. cpi Ac (\l. B'[..])))
+                 (\xc.
+                    csigma (Ac[.., cpi1 xc])
+                    (\x. Bc[.., capp (cpi2 xc) (Xc[.., cpi1 xc, x])]))]
+        ; split
+cexpand-etopen
+  [g, y : eterm, b1 : block (yc : catom, doy : etopenr yc Cs[] y), x : eterm,
+   b2 : block (xc : catom, dox : etopenr xc As[] x) |-
+     Dexpand[.., b1.1, b2.1]]
+  [g, y : eterm, b1 : block (yc : catom, doy : etopenr yc Cs[] y), x : eterm,
+   b2 : block (xc : catom, dox : etopenr xc As[] x) |-
+     DopenA[.., b1.1, y, b1.2]]
+  [g, y : eterm, b1 : block (yc : catom, doy : etopenr yc Cs[] y), x : eterm,
+   b2 : block (xc : catom, dox : etopenr xc As[] x) |- DskelA[.., y]]
+  [g, y : eterm, b1 : block (yc : catom, doy : etopenr yc Cs[] y), x : eterm,
+   b2 : block (xc : catom, dox : etopenr xc As[] x) |- b2.2] as
+          case cexpand-etopen/i:
+          { g : evar+etopenblock,
+            Dskel1 : ( |- skel),
+            Dskel2 : ( |- skel),
+            A' : (g |- ctp),
+            Ac : (g, y : catom |- ctp),
+            B' : (g |- ctp),
+            Bc : (g, x : catom |- ctp),
+            Xc : (g, yc : catom, xc : catom |- cterm),
+            Dcskof1 : (g |- cskof Dskel1[] A' (\y. Ac)),
+            Dcskof2 : (g |- cskof Dskel2[] B' (\z. Bc)),
+            Dexpand : (g, y : catom, x : catom |- cexpand x (Ac[.., y]) Xc),
+            C : (g |- etp),
+            Cs : ( |- skel),
+            A : (g, x : eterm |- etp),
+            DopenC : (g |- etopen A' C),
+            DskelC : (g |- etp-skel C Cs[]),
+            DopenA :
+              (g, xc : catom, x : eterm, y : etopenr xc Cs[] x |-
+                 etopen (Ac[.., xc]) (A[.., x])),
+            Dskof1 : (g |- skof Dskel1[] C (\x347. A)),
+            D : (g |- etp),
+            Ds : ( |- skel),
+            B : (g, x : eterm |- etp),
+            DopenD : (g |- etopen B' D),
+            DskelD : (g |- etp-skel D Ds[]),
+            DopenB :
+              (g, xc : catom, x : eterm, y : etopenr xc Ds[] x |-
+                 etopen (Bc[.., xc]) (B[.., x])),
+            Dskof2 : (g |- skof Dskel2[] D (\x347. B)),
+            As : ( |- skel),
+            DskelA : (g, x : eterm |- etp-skel A As[]),
+            X : (g, y : eterm, x : eterm |- eterm),
+            DopenX :
+              (g, y : eterm, yc : catom, y26 : etopenr yc Cs[] y, x : eterm,
+               xc : catom,
+               x26 : etopenr xc As[] x |-
+                 etopenm (Xc[.., yc, xc]) As[] (X[.., y, x])),
+            Dexpand' : (g, y : eterm, x : eterm |- eexpand x (A[.., y]) X)
+          | x :
+              [g |-
+                 cskof
+                   (ksigma Dskel1[] Dskel2[])
+                   (csigma A' (\y. cpi Ac (\l. B'[..])))
+                   (\xc.
+                      csigma (Ac[.., cpi1 xc])
+                      (\x. Bc[.., capp (cpi2 xc) (Xc[.., cpi1 xc, x])]))]
+          ; solve
+  [g |-
+     cskof-implies-skof/i _
+     _
+     (\x. _)
+     (etopen/sigma DopenC
+     DskelC
+     (\yc.
+        \y.
+          \doy. etopen/pi DopenA (DskelA[.., y]) (\l1. \l2. \l3. DopenD[..])))
+     (etp-skel/sigma DskelC (\y. etp-skel/pi DskelA (\l. DskelD[..])))
+     (\wc.
+        \w.
+          \dow.
+            etopen/sigma (DopenA[.., cpi1 wc, epi1 w, etopenr/pi1 dow])
+            (DskelA[.., epi1 w])
+            (\xc.
+               \x.
+                 \dox.
+                   DopenB[.., capp (cpi2 wc) (Xc[.., cpi1 wc, xc]),
+                          eapp (epi2 w) (X[.., epi1 w, x]),
+                          etopenr/app (etopenr/pi2 dow)
+                          (DopenX[.., epi1 w, cpi1 wc, etopenr/pi1 dow, x,
+                                  xc, dox])]))
+     (skof/sigma Dskof1 Dskof2 (\y. \x. Dexpand'))]
+          }
+        }
+      }
+    }
+  }
+  case cskof/pi:
+  { g : evar+etopenblock,
+    Dskel1 : ( |- skel),
+    Dskel2 : ( |- skel),
+    A' : (g |- ctp),
+    Ac : (g, z : catom |- ctp),
+    B' : (g |- ctp),
+    Bc : (g, y : catom |- ctp),
+    Xc : (g, z : catom, x : catom |- cterm),
+    Dcskof1 : (g |- cskof Dskel1[] A' (\y. Ac)),
+    Dcskof2 : (g |- cskof Dskel2[] B' (\z. Bc)),
+    Dexpand : (g, y : catom, x : catom |- cexpand x (Ac[.., y]) Xc)
+  | x :
+      [g |-
+         cskof
+           (kpi Dskel1[] Dskel2[])
+           (csigma A' (\y. cpi Ac (\l. B'[..])))
+           (\xc.
+              cpi (Ac[.., cpi1 xc])
+              (\x. Bc[.., capp (cpi2 xc) (Xc[.., cpi1 xc, x])]))]
+  ; split cskof-implies-skof [g |- Dcskof1] as
+    case cskof-implies-skof/i:
+    { g : evar+etopenblock,
+      Dskel1 : ( |- skel),
+      Dskel2 : ( |- skel),
+      A' : (g |- ctp),
+      Ac : (g, z : catom |- ctp),
+      B' : (g |- ctp),
+      Bc : (g, y : catom |- ctp),
+      Xc : (g, z : catom, x : catom |- cterm),
+      Dcskof1 : (g |- cskof Dskel1[] A' (\y. Ac)),
+      Dcskof2 : (g |- cskof Dskel2[] B' (\z. Bc)),
+      Dexpand : (g, y : catom, x : catom |- cexpand x (Ac[.., y]) Xc),
+      C : (g |- etp),
+      Cs : ( |- skel),
+      A : (g, x : eterm |- etp),
+      DopenC : (g |- etopen A' C),
+      DskelC : (g |- etp-skel C Cs[]),
+      DopenA :
+        (g, xc : catom, x : eterm, y : etopenr xc Cs[] x |-
+           etopen (Ac[.., xc]) (A[.., x])),
+      Dskof1 : (g |- skof Dskel1[] C (\x347. A))
+    | x :
+        [g |-
+           cskof
+             (kpi Dskel1[] Dskel2[])
+             (csigma A' (\y. cpi Ac (\l. B'[..])))
+             (\xc.
+                cpi (Ac[.., cpi1 xc])
+                (\x. Bc[.., capp (cpi2 xc) (Xc[.., cpi1 xc, x])]))]
+    ; split cskof-implies-skof [g |- Dcskof2] as
+      case cskof-implies-skof/i:
+      { g : evar+etopenblock,
+        Dskel1 : ( |- skel),
+        Dskel2 : ( |- skel),
+        A' : (g |- ctp),
+        Ac : (g, z : catom |- ctp),
+        B' : (g |- ctp),
+        Bc : (g, y : catom |- ctp),
+        Xc : (g, z : catom, x : catom |- cterm),
+        Dcskof1 : (g |- cskof Dskel1[] A' (\y. Ac)),
+        Dcskof2 : (g |- cskof Dskel2[] B' (\z. Bc)),
+        Dexpand : (g, y : catom, x : catom |- cexpand x (Ac[.., y]) Xc),
+        C : (g |- etp),
+        Cs : ( |- skel),
+        A : (g, x : eterm |- etp),
+        DopenC : (g |- etopen A' C),
+        DskelC : (g |- etp-skel C Cs[]),
+        DopenA :
+          (g, xc : catom, x : eterm, y : etopenr xc Cs[] x |-
+             etopen (Ac[.., xc]) (A[.., x])),
+        Dskof1 : (g |- skof Dskel1[] C (\x347. A)),
+        D : (g |- etp),
+        Ds : ( |- skel),
+        B : (g, x : eterm |- etp),
+        DopenD : (g |- etopen B' D),
+        DskelD : (g |- etp-skel D Ds[]),
+        DopenB :
+          (g, xc : catom, x : eterm, y : etopenr xc Ds[] x |-
+             etopen (Bc[.., xc]) (B[.., x])),
+        Dskof2 : (g |- skof Dskel2[] D (\x347. B))
+      | x :
+          [g |-
+             cskof
+               (kpi Dskel1[] Dskel2[])
+               (csigma A' (\y. cpi Ac (\l. B'[..])))
+               (\xc.
+                  cpi (Ac[.., cpi1 xc])
+                  (\x. Bc[.., capp (cpi2 xc) (Xc[.., cpi1 xc, x])]))]
+      ; split can-etp-skel [g, x : eterm |- A] as
+        case can-etp-skel/i:
+        { g : evar+etopenblock,
+          Dskel1 : ( |- skel),
+          Dskel2 : ( |- skel),
+          A' : (g |- ctp),
+          Ac : (g, z : catom |- ctp),
+          B' : (g |- ctp),
+          Bc : (g, y : catom |- ctp),
+          Xc : (g, z : catom, x : catom |- cterm),
+          Dcskof1 : (g |- cskof Dskel1[] A' (\y. Ac)),
+          Dcskof2 : (g |- cskof Dskel2[] B' (\z. Bc)),
+          Dexpand : (g, y : catom, x : catom |- cexpand x (Ac[.., y]) Xc),
+          C : (g |- etp),
+          Cs : ( |- skel),
+          A : (g, x : eterm |- etp),
+          DopenC : (g |- etopen A' C),
+          DskelC : (g |- etp-skel C Cs[]),
+          DopenA :
+            (g, xc : catom, x : eterm, y : etopenr xc Cs[] x |-
+               etopen (Ac[.., xc]) (A[.., x])),
+          Dskof1 : (g |- skof Dskel1[] C (\x347. A)),
+          D : (g |- etp),
+          Ds : ( |- skel),
+          B : (g, x : eterm |- etp),
+          DopenD : (g |- etopen B' D),
+          DskelD : (g |- etp-skel D Ds[]),
+          DopenB :
+            (g, xc : catom, x : eterm, y : etopenr xc Ds[] x |-
+               etopen (Bc[.., xc]) (B[.., x])),
+          Dskof2 : (g |- skof Dskel2[] D (\x347. B)),
+          As : ( |- skel),
+          DskelA : (g, x : eterm |- etp-skel A As[])
+        | x :
+            [g |-
+               cskof
+                 (kpi Dskel1[] Dskel2[])
+                 (csigma A' (\y. cpi Ac (\l. B'[..])))
+                 (\xc.
+                    cpi (Ac[.., cpi1 xc])
+                    (\x. Bc[.., capp (cpi2 xc) (Xc[.., cpi1 xc, x])]))]
+        ; split
+cexpand-etopen
+  [g, y : eterm, b1 : block (yc : catom, doy : etopenr yc Cs[] y), x : eterm,
+   b2 : block (xc : catom, dox : etopenr xc As[] x) |-
+     Dexpand[.., b1.1, b2.1]]
+  [g, y : eterm, b1 : block (yc : catom, doy : etopenr yc Cs[] y), x : eterm,
+   b2 : block (xc : catom, dox : etopenr xc As[] x) |-
+     DopenA[.., b1.1, y, b1.2]]
+  [g, y : eterm, b1 : block (yc : catom, doy : etopenr yc Cs[] y), x : eterm,
+   b2 : block (xc : catom, dox : etopenr xc As[] x) |- DskelA[.., y]]
+  [g, y : eterm, b1 : block (yc : catom, doy : etopenr yc Cs[] y), x : eterm,
+   b2 : block (xc : catom, dox : etopenr xc As[] x) |- b2.2] as
+          case cexpand-etopen/i:
+          { g : evar+etopenblock,
+            Dskel1 : ( |- skel),
+            Dskel2 : ( |- skel),
+            A' : (g |- ctp),
+            Ac : (g, z : catom |- ctp),
+            B' : (g |- ctp),
+            Bc : (g, y : catom |- ctp),
+            Xc : (g, yc : catom, xc : catom |- cterm),
+            Dcskof1 : (g |- cskof Dskel1[] A' (\y. Ac)),
+            Dcskof2 : (g |- cskof Dskel2[] B' (\z. Bc)),
+            Dexpand : (g, y : catom, x : catom |- cexpand x (Ac[.., y]) Xc),
+            C : (g |- etp),
+            Cs : ( |- skel),
+            A : (g, x : eterm |- etp),
+            DopenC : (g |- etopen A' C),
+            DskelC : (g |- etp-skel C Cs[]),
+            DopenA :
+              (g, xc : catom, x : eterm, y : etopenr xc Cs[] x |-
+                 etopen (Ac[.., xc]) (A[.., x])),
+            Dskof1 : (g |- skof Dskel1[] C (\x347. A)),
+            D : (g |- etp),
+            Ds : ( |- skel),
+            B : (g, x : eterm |- etp),
+            DopenD : (g |- etopen B' D),
+            DskelD : (g |- etp-skel D Ds[]),
+            DopenB :
+              (g, xc : catom, x : eterm, y : etopenr xc Ds[] x |-
+                 etopen (Bc[.., xc]) (B[.., x])),
+            Dskof2 : (g |- skof Dskel2[] D (\x347. B)),
+            As : ( |- skel),
+            DskelA : (g, x : eterm |- etp-skel A As[]),
+            X : (g, y : eterm, x : eterm |- eterm),
+            DopenX :
+              (g, y : eterm, yc : catom, z11 : etopenr yc Cs[] y, x : eterm,
+               xc : catom,
+               y12 : etopenr xc As[] x |-
+                 etopenm (Xc[.., yc, xc]) As[] (X[.., y, x])),
+            Dexpand' : (g, y : eterm, x : eterm |- eexpand x (A[.., y]) X)
+          | x :
+              [g |-
+                 cskof
+                   (kpi Dskel1[] Dskel2[])
+                   (csigma A' (\y. cpi Ac (\l. B'[..])))
+                   (\xc.
+                      cpi (Ac[.., cpi1 xc])
+                      (\x. Bc[.., capp (cpi2 xc) (Xc[.., cpi1 xc, x])]))]
+          ; solve
+  [g |-
+     cskof-implies-skof/i _
+     _
+     (\x. _)
+     (etopen/sigma DopenC
+     DskelC
+     (\yc.
+        \y.
+          \doy. etopen/pi DopenA (DskelA[.., y]) (\l1. \l2. \l3. DopenD[..])))
+     (etp-skel/sigma DskelC (\y. etp-skel/pi DskelA (\l. DskelD[..])))
+     (\wc.
+        \w.
+          \dow.
+            etopen/pi (DopenA[.., cpi1 wc, epi1 w, etopenr/pi1 dow])
+            (DskelA[.., epi1 w])
+            (\xc.
+               \x.
+                 \dox.
+                   DopenB[.., capp (cpi2 wc) (Xc[.., cpi1 wc, xc]),
+                          eapp (epi2 w) (X[.., epi1 w, x]),
+                          etopenr/app (etopenr/pi2 dow)
+                          (DopenX[.., epi1 w, cpi1 wc, etopenr/pi1 dow, x,
+                                  xc, dox])]))
+     (skof/pi Dskof1 Dskof2 (\y. \x. Dexpand'))]
+          }
+        }
+      }
+    }
+  }
+  case cskof/t:
+  { g : evar+etopenblock
+  | x : [g |- cskof kt cone (\xc. ct)]
+  ; solve
+      [_ |-
+         cskof-implies-skof/i _
+         _ (\x. _) etopen/one etp-skel/one (\l1. \l2. \l3. etopen/t) skof/t]
+  }
+}
+;
