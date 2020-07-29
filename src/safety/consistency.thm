@@ -11262,7 +11262,40 @@ and proof unmap-of' :
   [g |- tunmap A K] ->
     [g |- unmap-of'/e C K] =
 / total 1 /
-?
+intros
+{ g : unmap-bind,
+  M : (g |- eterm),
+  A : (g |- etp),
+  C : (g |- con),
+  K : (g |- kind)
+| x : [g |- eof M A], unmap : [g |- unmap M C], tunmap : [g |- tunmap A K]
+; split unmap-of x unmap as
+  case unmap-of/i:
+  { g : unmap-bind,
+    M : (g |- eterm),
+    A : (g |- etp),
+    C : (g |- con),
+    K : (g |- kind),
+    K1 : (g |- kind),
+    Dtunmap : (g |- tunmap A K1),
+    Dof : (g |- cn-of C K1)
+  | x : [g |- eof M A], unmap : [g |- unmap M C], tunmap : [g |- tunmap A K]
+  ; split tunmap-fun tunmap [_ |- Dtunmap] as
+    case kind-eq/i:
+    { g : unmap-bind,
+      M : (g |- eterm),
+      A : (g |- etp),
+      C : (g |- con),
+      K1 : (g |- kind),
+      Dtunmap : (g |- tunmap A K1),
+      Dof : (g |- cn-of C K1)
+    | x : [g |- eof M A],
+      unmap : [g |- unmap M C],
+      tunmap : [g |- tunmap A K1]
+    ; solve [_ |- unmap-of'/i Dof]
+    }
+  }
+}
 
 and proof unmap-wf :
   (g : unmap-bind)
