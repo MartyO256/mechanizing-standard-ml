@@ -1,0 +1,389 @@
+% Kof
+
+LF csimp : ctp -> stp -> type =
+| csimp/t : csimp ct st
+
+| csimp/pi :
+  csimp A S ->
+  ({ x : catom } csimp (B x) T) ->
+    csimp (cpi A B) (spi S T)
+
+| csimp/sigma :
+  csimp A S ->
+  ({ x : catom } csimp (B x) T) ->
+    csimp (csigma A B) (ssigma S T)
+
+| csimp/sing : csimp (csing R) st
+
+| csimp/one : csimp cone sone
+;
+--name csimp D1.
+
+schema catomblock+topenblock =
+  % catomblock
+  block (xc : catom) +
+  % topenblock
+  some [a : tp, r : atom]
+  block (xc : catom, d : topenr xc a r);
+
+LF can-csimp/e : ctp -> type =
+| can-csimp/i : { T : stp } csimp A T -> can-csimp/e A
+;
+
+proof can-csimp :
+  (g : catomblock+topenblock)
+  { A : [g |- ctp] }
+    [g |- can-csimp/e A] =
+/ total 1 /
+intros
+{ g : catomblock+topenblock, A : (g |- ctp)
+|
+; split [_ |- A] as
+  case cone:
+  { g : catomblock+topenblock
+  |
+  ; solve [_ |- can-csimp/i _ csimp/one]
+  }
+  case csing:
+  { g : catomblock+topenblock, R : (g |- catom)
+  |
+  ; solve [_ |- can-csimp/i _ (csimp/sing )]
+  }
+  case csigma:
+  { g : catomblock+topenblock, A1 : (g |- ctp), A2 : (g, x : catom |- ctp)
+  |
+  ; split can-csimp [_ |- A1] as
+    case can-csimp/i:
+    { g : catomblock+topenblock,
+      A1 : (g |- ctp),
+      A2 : (g, x : catom |- ctp),
+      T : ( |- stp),
+      D1 : (g |- csimp A1 T[])
+    |
+    ; split can-csimp [_, x : catom |- A2] as
+      case can-csimp/i:
+      { g : catomblock+topenblock,
+        A1 : (g |- ctp),
+        A2 : (g, x : catom |- ctp),
+        T : ( |- stp),
+        D1 : (g |- csimp A1 T[]),
+        T1 : ( |- stp),
+        D2 : (g, x : catom |- csimp A2 T1[])
+      |
+      ; solve [_ |- can-csimp/i _ (csimp/sigma D1 (\x. D2))]
+      }
+    }
+  }
+  case cpi:
+  { g : catomblock+topenblock, A1 : (g |- ctp), A2 : (g, x : catom |- ctp)
+  |
+  ; split can-csimp [_ |- A1] as
+    case can-csimp/i:
+    { g : catomblock+topenblock,
+      A1 : (g |- ctp),
+      A2 : (g, x : catom |- ctp),
+      T : ( |- stp),
+      D1 : (g |- csimp A1 T[])
+    |
+    ; split can-csimp [_, x : catom |- A2] as
+      case can-csimp/i:
+      { g : catomblock+topenblock,
+        A1 : (g |- ctp),
+        A2 : (g, x : catom |- ctp),
+        T : ( |- stp),
+        D1 : (g |- csimp A1 T[]),
+        T1 : ( |- stp),
+        D2 : (g, x : catom |- csimp A2 T1[])
+      |
+      ; solve [_ |- can-csimp/i _ (csimp/pi D1 (\x. D2))]
+      }
+    }
+  }
+  case ct:
+  { g : catomblock+topenblock
+  |
+  ; solve [_ |- can-csimp/i _ csimp/t]
+  }
+}
+;
+
+LF can-cexpand/e : catom -> ctp -> type =
+| can-cexpand/i : { M : cterm } cexpand R A M -> can-cexpand/e R A
+;
+
+proof can-cexpand* :
+  (g : catomblock+topenblock)
+  { R : [g |- catom] } { T : [g |- stp] }
+  [g |- csimp A T] ->
+    [g |- can-cexpand/e R A] =
+/ trust / % FIXME: See issue #4
+intros
+{ g : catomblock+topenblock, A : (g |- ctp), R : (g |- catom), T : (g |- stp)
+| x : [g |- csimp A T]
+; split x as
+  case csimp/one:
+  { g : catomblock+topenblock, R : (g |- catom)
+  | x : [g |- csimp cone sone]
+  ; solve [_ |- can-cexpand/i _ (cexpand/one )]
+  }
+  case csimp/sing:
+  { g : catomblock+topenblock, R1 : (g |- catom), R : (g |- catom)
+  | x : [g |- csimp (csing R1) st]
+  ; solve [_ |- can-cexpand/i _ (cexpand/sing )]
+  }
+  case csimp/sigma:
+  { g : catomblock+topenblock,
+    A1 : (g |- ctp),
+    A2 : (g, y : catom |- ctp),
+    R : (g |- catom),
+    T1 : ( |- stp),
+    T2 : ( |- stp),
+    D : (g |- csimp A1 T1[]),
+    D1 : (g, x : catom |- csimp A2 T2[])
+  | x : [g |- csimp (csigma A1 (\x54. A2)) (ssigma T1[] T2[])]
+  ; split can-cexpand* [g |- cpi1 R] [g |- T1[]] [g |- D] as
+    case can-cexpand/i:
+    { g : catomblock+topenblock,
+      A1 : (g |- ctp),
+      A2 : (g, y : catom |- ctp),
+      R : (g |- catom),
+      T1 : ( |- stp),
+      T2 : ( |- stp),
+      D : (g |- csimp A1 T1[]),
+      D1 : (g, x : catom |- csimp A2 T2[]),
+      M : (g |- cterm),
+      Dexpand : (g |- cexpand (cpi1 R) A1 M)
+    | x : [g |- csimp (csigma A1 (\x54. A2)) (ssigma T1[] T2[])]
+    ; split can-cexpand* [g |- cpi2 R] [g |- T2[]] [g |- D1[.., cpi1 R]] as
+      case can-cexpand/i:
+      { g : catomblock+topenblock,
+        A1 : (g |- ctp),
+        A2 : (g, y : catom |- ctp),
+        R : (g |- catom),
+        T1 : ( |- stp),
+        T2 : ( |- stp),
+        D : (g |- csimp A1 T1[]),
+        D1 : (g, x : catom |- csimp A2 T2[]),
+        M : (g |- cterm),
+        Dexpand : (g |- cexpand (cpi1 R) A1 M),
+        M1 : (g |- cterm),
+        Dexpand1 : (g |- cexpand (cpi2 R) (A2[.., cpi1 R]) M1)
+      | x : [g |- csimp (csigma A1 (\x54. A2)) (ssigma T1[] T2[])]
+      ; solve [g |- can-cexpand/i _ (cexpand/sigma Dexpand Dexpand1)]
+      }
+    }
+  }
+  case csimp/pi:
+  { g : catomblock+topenblock,
+    A1 : (g |- ctp),
+    A2 : (g, y : catom |- ctp),
+    R : (g |- catom),
+    T1 : ( |- stp),
+    T2 : ( |- stp),
+    D : (g |- csimp A1 T1[]),
+    D1 : (g, x : catom |- csimp A2 T2[])
+  | x : [g |- csimp (cpi A1 (\x53. A2)) (spi T1[] T2[])]
+  ; split
+can-cexpand* [g, x : catom |- x] [g, x : catom |- T1[]]
+  [g, x : catom |- D[..]] as
+    case can-cexpand/i:
+    { g : catomblock+topenblock,
+      A1 : (g |- ctp),
+      A2 : (g, y : catom |- ctp),
+      R : (g |- catom),
+      T1 : ( |- stp),
+      T2 : ( |- stp),
+      D : (g |- csimp A1 T1[]),
+      D1 : (g, x : catom |- csimp A2 T2[]),
+      M : (g, x : catom |- cterm),
+      Dexpand : (g, x : catom |- cexpand x (A1[..]) M)
+    | x : [g |- csimp (cpi A1 (\x53. A2)) (spi T1[] T2[])]
+    ; split
+      can-cexpand* [g, x : catom |- capp (R[..]) M] [g, x : catom |- T2[]]
+        [g, x : catom |- D1] as
+      case can-cexpand/i:
+      { g : catomblock+topenblock,
+        A1 : (g |- ctp),
+        A2 : (g, y : catom |- ctp),
+        R : (g |- catom),
+        T1 : ( |- stp),
+        T2 : ( |- stp),
+        D : (g |- csimp A1 T1[]),
+        D1 : (g, x : catom |- csimp A2 T2[]),
+        M : (g, x : catom |- cterm),
+        Dexpand : (g, x : catom |- cexpand x (A1[..]) M),
+        M1 : (g, x : catom |- cterm),
+        Dexpand1 : (g, x : catom |- cexpand (capp (R[..]) M) A2 M1)
+      | x : [g |- csimp (cpi A1 (\x53. A2)) (spi T1[] T2[])]
+      ; solve
+          [g |- can-cexpand/i _ (cexpand/pi (\x. Dexpand) (\x. Dexpand1))]
+      }
+    }
+  }
+  case csimp/t:
+  { g : catomblock+topenblock, R : (g |- catom)
+  | x : [g |- csimp ct st]
+  ; solve [_ |- can-cexpand/i _ (cexpand/t )]
+  }
+}
+;
+
+proof can-cexpand :
+  (g : catomblock+topenblock)
+  { R : [g |- catom] } { A : [g |- ctp] }
+    [g |- can-cexpand/e R A] =
+/ total /
+intros
+{ g : catomblock+topenblock, R : (g |- catom), A : (g |- ctp)
+|
+; split can-csimp [_ |- A] as
+  case can-csimp/i:
+  { g : catomblock+topenblock,
+    R : (g |- catom),
+    A : (g |- ctp),
+    T : ( |- stp),
+    D : (g |- csimp A T[])
+  |
+  ; split can-cexpand* [_ |- R] [_ |- T[]] [_ |- D] as
+    case can-cexpand/i:
+    { g : catomblock+topenblock,
+      R : (g |- catom),
+      A : (g |- ctp),
+      T : ( |- stp),
+      D : (g |- csimp A T[]),
+      M : (g |- cterm),
+      Dexpand : (g |- cexpand R A M)
+    |
+    ; solve [_ |- can-cexpand/i _ Dexpand]
+    }
+  }
+}
+;
+
+LF can-cskof/e : skel -> type =
+| can-cskof/i : { A : ctp } { B : catom -> ctp } cskof K A B -> can-cskof/e K
+;
+
+proof can-cskof :
+  (g : catomblock+topenblock)
+  { K : [g |- skel] }
+    [g |- can-cskof/e K] =
+/ total 1 /
+intros
+{ g : catomblock+topenblock, K : (g |- skel)
+| 
+; split [_ |- K] as
+  case kone:
+  { g : catomblock+topenblock
+  | 
+  ; solve [_ |- can-cskof/i _ (\x. _) cskof/one]
+  }
+  case ksing:
+  { g : catomblock+topenblock
+  | 
+  ; solve [_ |- can-cskof/i _ (\x. _) cskof/sing]
+  }
+  case ksigma:
+  { g : catomblock+topenblock, Dskel : ( |- skel), Dskel1 : ( |- skel)
+  | 
+  ; split can-cskof [ |- Dskel] as
+    case can-cskof/i:
+    { g : catomblock+topenblock,
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      A : ( |- ctp),
+      A1 : (z : catom |- ctp),
+      Dcskof : ( |- cskof Dskel A (\x64. A1))
+    | 
+    ; split can-cskof [ |- Dskel1] as
+      case can-cskof/i:
+      { g : catomblock+topenblock,
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        A : ( |- ctp),
+        A1 : (z : catom |- ctp),
+        Dcskof : ( |- cskof Dskel A (\x64. A1)),
+        A2 : ( |- ctp),
+        A3 : (z : catom |- ctp),
+        Dcskof1 : ( |- cskof Dskel1 A2 (\x64. A3))
+      | 
+      ; split
+        can-cexpand [y : catom, x : catom |- x]
+          [y : catom, x : catom |- A1[y]] as
+        case can-cexpand/i:
+        { g : catomblock+topenblock,
+          Dskel : ( |- skel),
+          Dskel1 : ( |- skel),
+          A : ( |- ctp),
+          A1 : (z : catom |- ctp),
+          Dcskof : ( |- cskof Dskel A (\x64. A1[x64])),
+          A2 : ( |- ctp),
+          A3 : (z : catom |- ctp),
+          Dcskof1 : ( |- cskof Dskel1 A2 (\x64. A3)),
+          M : (y : catom, x : catom |- cterm),
+          Dexpand : (y : catom, x : catom |- cexpand x (A1[y]) M)
+        | 
+        ; solve
+            [_ |-
+               can-cskof/i _
+               (\x. _)
+               (cskof/sigma Dcskof[] Dcskof1[] (\y. \x. Dexpand[y, x]))]
+        }
+      }
+    }
+  }
+  case kpi:
+  { g : catomblock+topenblock, Dskel : ( |- skel), Dskel1 : ( |- skel)
+  | 
+  ; split can-cskof [ |- Dskel] as
+    case can-cskof/i:
+    { g : catomblock+topenblock,
+      Dskel : ( |- skel),
+      Dskel1 : ( |- skel),
+      A : ( |- ctp),
+      A1 : (z : catom |- ctp),
+      Dcskof : ( |- cskof Dskel A (\x64. A1))
+    | 
+    ; split can-cskof [ |- Dskel1] as
+      case can-cskof/i:
+      { g : catomblock+topenblock,
+        Dskel : ( |- skel),
+        Dskel1 : ( |- skel),
+        A : ( |- ctp),
+        A1 : (z : catom |- ctp),
+        Dcskof : ( |- cskof Dskel A (\x64. A1)),
+        A2 : ( |- ctp),
+        A3 : (z : catom |- ctp),
+        Dcskof1 : ( |- cskof Dskel1 A2 (\x64. A3))
+      | 
+      ; split
+        can-cexpand [y : catom, x : catom |- x]
+          [y : catom, x : catom |- A1[y]] as
+        case can-cexpand/i:
+        { g : catomblock+topenblock,
+          Dskel : ( |- skel),
+          Dskel1 : ( |- skel),
+          A : ( |- ctp),
+          A1 : (z : catom |- ctp),
+          Dcskof : ( |- cskof Dskel A (\x64. A1[x64])),
+          A2 : ( |- ctp),
+          A3 : (z : catom |- ctp),
+          Dcskof1 : ( |- cskof Dskel1 A2 (\x64. A3)),
+          M : (y : catom, x : catom |- cterm),
+          Dexpand : (y : catom, x : catom |- cexpand x (A1[y]) M)
+        | 
+        ; solve
+            [_ |-
+               can-cskof/i _
+               (\x. _) (cskof/pi Dcskof[] Dcskof1[] (\y. \x. Dexpand[y, x]))]
+        }
+      }
+    }
+  }
+  case kt:
+  { g : catomblock+topenblock
+  | 
+  ; solve [_ |- can-cskof/i _ (\x. _) cskof/t]
+  }
+}
+;
