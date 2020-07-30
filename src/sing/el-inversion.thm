@@ -125,3 +125,23 @@ proof binary-equiv-inversion :
 / total /
 ?
 ;
+
+proof nullary-equiv-head :
+  (g : scbind)
+  [g |- ekof C et] ->
+  [g |- ekof C' et] ->
+  [g |- equiv (econst C) (econst C') et] ->
+    [g |- constant-eq C C'] =
+/ total /
+?
+;
+
+proof unary-equiv-head :
+  (g : scbind)
+  [g |- ekof C (epi A (\l. et))] ->
+  [g |- ekof C' (epi A' (\l. et))] ->
+  [g |- equiv (eapp (econst C) M) (eapp (econst C') M') et] ->
+    [g |- constant-eq C C'] =
+/ total /
+?
+;

@@ -5,6 +5,11 @@ LF atom-eq : atom -> atom -> type =
 ;
 --name atom-eq Deq eq.
 
+LF constant-eq : constant -> constant -> type =
+| constant-eq/i : constant-eq C C
+;
+--name constant-eq Deq eq.
+
 LF eterm-eq : eterm -> eterm -> type =
 | eterm-eq/i : eterm-eq M M
 ;
