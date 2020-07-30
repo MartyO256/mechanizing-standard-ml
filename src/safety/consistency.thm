@@ -14468,9 +14468,226 @@ proof injective-ref :
     [ |- cn-equiv T1 T2 t] =
 / total /
 intros
-{ T : ( |- con), T1 : ( |- con)
-| equiv : [ |- cn-equiv (ref T) (ref T1) t]
-; ?
+{ T1 : ( |- con), T2 : ( |- con)
+| equiv : [ |- cn-equiv (ref T1) (ref T2) t]
+; by equiv as Dequiv unboxed;
+  split cn-equiv-reg [ |- Dequiv] as
+  case cn-equiv-reg/i:
+  { T1 : ( |- con),
+    T2 : ( |- con),
+    Dequiv : ( |- cn-equiv (ref T1) (ref T2) t),
+    Dof1 : ( |- cn-of (ref T1) t),
+    Dof2 : ( |- cn-of (ref T2) t),
+    Dwf : ( |- kd-wf t)
+  | equiv : [ |- cn-equiv (ref T1) (ref T2) t]
+  ; by inversion-ref [ |- Dof1] as Dof1' unboxed;
+    by inversion-ref [ |- Dof2] as Dof2' unboxed;
+    split map-equiv [ |- ref T1] [ |- ref T2] [ |- Dequiv] as
+    case map-equiv/i:
+    { T1 : ( |- con),
+      T2 : ( |- con),
+      Dequiv : ( |- cn-equiv (ref T1) (ref T2) t),
+      Dof1 : ( |- cn-of (ref T1) t),
+      Dof2 : ( |- cn-of (ref T2) t),
+      Dwf : ( |- kd-wf t),
+      Dof1' : ( |- cn-of T1 t),
+      Dof2' : ( |- cn-of T2 t),
+      M1 : ( |- eterm),
+      M2 : ( |- eterm),
+      A : ( |- etp),
+      Dmap1 : ( |- map (ref T1) M1),
+      Dmap2 : ( |- map (ref T2) M2),
+      Dtmap : ( |- tmap t A),
+      DequivSing : ( |- equiv M1 M2 A)
+    | equiv : [ |- cn-equiv (ref T1) (ref T2) t]
+    ; split [ |- Dmap1] as
+      case map/ref:
+      { T1 : ( |- con),
+        T2 : ( |- con),
+        Dequiv : ( |- cn-equiv (ref T1) (ref T2) t),
+        Dof1 : ( |- cn-of (ref T1) t),
+        Dof2 : ( |- cn-of (ref T2) t),
+        Dwf : ( |- kd-wf t),
+        Dof1' : ( |- cn-of T1 t),
+        Dof2' : ( |- cn-of T2 t),
+        M1 : ( |- eterm),
+        M2 : ( |- eterm),
+        A : ( |- etp),
+        Dmap1 : ( |- map T1 M1),
+        Dmap2 : ( |- map (ref T2) M2),
+        Dtmap : ( |- tmap t A),
+        DequivSing : ( |- equiv (eapp (econst const/ref) M1) M2 A)
+      | equiv : [ |- cn-equiv (ref T1) (ref T2) t]
+      ; split [ |- Dmap2] as
+        case map/ref:
+        { T1 : ( |- con),
+          T2 : ( |- con),
+          Dequiv : ( |- cn-equiv (ref T1) (ref T2) t),
+          Dof1 : ( |- cn-of (ref T1) t),
+          Dof2 : ( |- cn-of (ref T2) t),
+          Dwf : ( |- kd-wf t),
+          Dof1' : ( |- cn-of T1 t),
+          Dof2' : ( |- cn-of T2 t),
+          M1 : ( |- eterm),
+          M2 : ( |- eterm),
+          A : ( |- etp),
+          Dmap1 : ( |- map T1 M1),
+          Dmap2 : ( |- map T2 M2),
+          Dtmap : ( |- tmap t A),
+          DequivSing :
+            ( |-
+               equiv
+                 (eapp (econst const/ref) M1) (eapp (econst const/ref) M2) A)
+        | equiv : [ |- cn-equiv (ref T1) (ref T2) t]
+        ; split [ |- Dtmap] as
+          case tmap/t:
+          { T1 : ( |- con),
+            T2 : ( |- con),
+            Dequiv : ( |- cn-equiv (ref T1) (ref T2) t),
+            Dof1 : ( |- cn-of (ref T1) t),
+            Dof2 : ( |- cn-of (ref T2) t),
+            Dwf : ( |- kd-wf t),
+            Dof1' : ( |- cn-of T1 t),
+            Dof2' : ( |- cn-of T2 t),
+            M1 : ( |- eterm),
+            M2 : ( |- eterm),
+            Dmap1 : ( |- map T1 M1),
+            Dmap2 : ( |- map T2 M2),
+            DequivSing :
+              ( |-
+                 equiv
+                   (eapp (econst const/ref) M1)
+                   (eapp (econst const/ref) M2) et)
+          | equiv : [ |- cn-equiv (ref T1) (ref T2) t]
+          ; by unary-equiv-inversion
+     [ |-
+        ekof/i ckof/ref
+        (etopen/pi etopen/t etp-skel/t (\l1. \l2. \l3. etopen/t))]
+     [ |- DequivSing]
+as DequivSing' unboxed;
+            split invert-map [ |- Dof1'] [ |- Dmap1] as
+            case invert-map/i:
+            { T1 : ( |- con),
+              T2 : ( |- con),
+              Dequiv : ( |- cn-equiv (ref T1) (ref T2) t),
+              Dof1 : ( |- cn-of (ref T1) t),
+              Dof2 : ( |- cn-of (ref T2) t),
+              Dwf : ( |- kd-wf t),
+              Dof1' : ( |- cn-of T1 t),
+              Dof2' : ( |- cn-of T2 t),
+              M1 : ( |- eterm),
+              M2 : ( |- eterm),
+              Dmap1 : ( |- map T1 M1),
+              Dmap2 : ( |- map T2 M2),
+              DequivSing :
+                ( |-
+                   equiv
+                     (eapp (econst const/ref) M1)
+                     (eapp (econst const/ref) M2) et),
+              DequivSing' : ( |- equiv M1 M2 et),
+              C1 : ( |- con),
+              Dunmap1 : ( |- unmap M1 C1),
+              Dequiv1 : ( |- cn-equiv T1 C1 t)
+            | equiv : [ |- cn-equiv (ref T1) (ref T2) t]
+            ; split invert-map [ |- Dof2'] [ |- Dmap2] as
+              case invert-map/i:
+              { T1 : ( |- con),
+                T2 : ( |- con),
+                Dequiv : ( |- cn-equiv (ref T1) (ref T2) t),
+                Dof1 : ( |- cn-of (ref T1) t),
+                Dof2 : ( |- cn-of (ref T2) t),
+                Dwf : ( |- kd-wf t),
+                Dof1' : ( |- cn-of T1 t),
+                Dof2' : ( |- cn-of T2 t),
+                M1 : ( |- eterm),
+                M2 : ( |- eterm),
+                Dmap1 : ( |- map T1 M1),
+                Dmap2 : ( |- map T2 M2),
+                DequivSing :
+                  ( |-
+                     equiv
+                       (eapp (econst const/ref) M1)
+                       (eapp (econst const/ref) M2) et),
+                DequivSing' : ( |- equiv M1 M2 et),
+                C1 : ( |- con),
+                Dunmap1 : ( |- unmap M1 C1),
+                Dequiv1 : ( |- cn-equiv T1 C1 t),
+                C2 : ( |- con),
+                Dunmap2 : ( |- unmap M2 C2),
+                Dequiv2 : ( |- cn-equiv T2 C2 t)
+              | equiv : [ |- cn-equiv (ref T1) (ref T2) t]
+              ; split
+                unmap-equiv [ |- Dunmap1] [ |- Dunmap2] [ |- DequivSing'] as
+                case unmap-equiv/i:
+                { T1 : ( |- con),
+                  T2 : ( |- con),
+                  Dequiv : ( |- cn-equiv (ref T1) (ref T2) t),
+                  Dof1 : ( |- cn-of (ref T1) t),
+                  Dof2 : ( |- cn-of (ref T2) t),
+                  Dwf : ( |- kd-wf t),
+                  Dof1' : ( |- cn-of T1 t),
+                  Dof2' : ( |- cn-of T2 t),
+                  M1 : ( |- eterm),
+                  M2 : ( |- eterm),
+                  Dmap1 : ( |- map T1 M1),
+                  Dmap2 : ( |- map T2 M2),
+                  DequivSing :
+                    ( |-
+                       equiv
+                         (eapp (econst const/ref) M1)
+                         (eapp (econst const/ref) M2) et),
+                  DequivSing' : ( |- equiv M1 M2 et),
+                  C1 : ( |- con),
+                  Dunmap1 : ( |- unmap M1 C1),
+                  Dequiv1 : ( |- cn-equiv T1 C1 t),
+                  C2 : ( |- con),
+                  Dunmap2 : ( |- unmap M2 C2),
+                  Dequiv2 : ( |- cn-equiv T2 C2 t),
+                  K : ( |- kind),
+                  Dtunmap : ( |- tunmap et K),
+                  Dequiv' : ( |- cn-equiv C1 C2 K)
+                | equiv : [ |- cn-equiv (ref T1) (ref T2) t]
+                ; split [ |- Dtunmap] as
+                  case tunmap/t:
+                  { T1 : ( |- con),
+                    T2 : ( |- con),
+                    Dequiv : ( |- cn-equiv (ref T1) (ref T2) t),
+                    Dof1 : ( |- cn-of (ref T1) t),
+                    Dof2 : ( |- cn-of (ref T2) t),
+                    Dwf : ( |- kd-wf t),
+                    Dof1' : ( |- cn-of T1 t),
+                    Dof2' : ( |- cn-of T2 t),
+                    M1 : ( |- eterm),
+                    M2 : ( |- eterm),
+                    Dmap1 : ( |- map T1 M1),
+                    Dmap2 : ( |- map T2 M2),
+                    DequivSing :
+                      ( |-
+                         equiv
+                           (eapp (econst const/ref) M1)
+                           (eapp (econst const/ref) M2) et),
+                    DequivSing' : ( |- equiv M1 M2 et),
+                    C1 : ( |- con),
+                    Dunmap1 : ( |- unmap M1 C1),
+                    Dequiv1 : ( |- cn-equiv T1 C1 t),
+                    C2 : ( |- con),
+                    Dunmap2 : ( |- unmap M2 C2),
+                    Dequiv2 : ( |- cn-equiv T2 C2 t),
+                    Dequiv' : ( |- cn-equiv C1 C2 t)
+                  | equiv : [ |- cn-equiv (ref T1) (ref T2) t]
+                  ; solve
+                      [ |-
+                         cn-equiv/trans Dequiv1
+                         (cn-equiv/trans Dequiv' (cn-equiv/symm Dequiv2))]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 ;
 
