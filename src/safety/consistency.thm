@@ -5045,7 +5045,7 @@ and proof map-equiv' :
   [g |- map D N] ->
   [g |- cn-equiv C D K] ->
     [g |- map-equiv'/e M N K] =
-/ total 1 /
+/ trust / % FIXME: See issue #4
 intros
 { g : map-bind,
   C : (g |- con),
@@ -5166,7 +5166,7 @@ intros
               map1 : [g |- map D M3],
               equiv : [g |- cn-equiv (pi2 (pair C1 D)) D K]
             ; by [_ |- equiv/beta2 Dof2 Dof3] as Dequiv' unboxed;
-              solve [_ |- map-equiv'/i _ Dtmap1 Dequiv']
+              solve [g |- map-equiv'/i _ Dtmap1 Dequiv']
             }
           }
         }
@@ -6220,26 +6220,882 @@ map-of' [g |- DofPre2] [g |- Dmap']
   }
   case cn-equiv/rec:
   { g : map-bind,
-    K1 : (g |- kind),
-    C1 : (g, a32 : con, a31 : con |- con),
-    C3 : (g |- con),
+    K : (g |- kind),
+    C1 : (g, a : con, b : con |- con),
+    C2 : (g |- con),
     M : (g |- eterm),
-    K2 : (g |- kind),
-    C2 : (g, a34 : con, a33 : con |- con),
-    C4 : (g |- con),
+    K' : (g |- kind),
+    C1' : (g, a : con, b : con |- con),
+    C2' : (g |- con),
     N : (g |- eterm),
-    Dequiv : (g |- kd-equiv K1 K2),
-    Dequiv1 :
-      (g, a : con, z453 : cn-of a (pi (K1[..]) (\l. t)), b : con,
-       y454 : cn-of b (K1[..]) |- cn-equiv (C1[.., a, b]) (C2[.., a, b]) t),
-    Dequiv2 : (g |- cn-equiv C3 C4 K1)
-  | map : [g |- map (rec' K1 (\x371. \z371. C1) C3) M],
-    map1 : [g |- map (rec' K2 (\x371. \z371. C2) C4) N],
+    DequivK : (g |- kd-equiv K K'),
+    DequivC1 :
+      (g, a : con, da : cn-of a (pi (K[..]) (\l. t)), b : con,
+       db : cn-of b (K[..]) |- cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+    DequivC2 : (g |- cn-equiv C2 C2' K)
+  | map : [g |- map (rec' K (\a. \b. C1) C2) M],
+    map1 : [g |- map (rec' K' (\a. \b. C1') C2') N],
     equiv :
       [g |-
          cn-equiv
-           (rec' K1 (\x371. \z371. C1) C3) (rec' K2 (\x371. \z371. C2) C4) t]
-  ; ?
+           (rec' K (\a. \b. C1) C2) (rec' K' (\a. \b. C1') C2') t]
+  ; split map as
+    case map/rec:
+    { g : map-bind,
+      K : (g |- kind),
+      C1 : (g, a : con, b : con |- con),
+      C2 : (g |- con),
+      Dskel : ( |- skel),
+      M : (g |- eterm),
+      A : (g |- etp),
+      M1 : (g, y : eterm, x : eterm |- eterm),
+      M2 : (g |- eterm),
+      K' : (g |- kind),
+      C1' : (g, a : con, b : con |- con),
+      C2' : (g |- con),
+      N : (g |- eterm),
+      DequivK : (g |- kd-equiv K K'),
+      DequivC1 :
+        (g, a : con, da : cn-of a (pi (K[..]) (\l. t)), b : con,
+         db : cn-of b (K[..]) |- cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+      DequivC2 : (g |- cn-equiv C2 C2' K),
+      DmapK : (g |- tmap K A),
+      DmapC1 :
+        (g, a : con, x : eterm, at : map a x, b : con, y : eterm,
+         bt : map b y |- map (C1[.., a, b]) (M1[.., x, y])),
+      DmapC2 : (g |- map C2 M2),
+      Dflay : (g |- flay A Dskel[] M)
+    | map :
+        [g |-
+           map
+             (rec' K (\a. \b. C1) C2)
+             (eapp (econst (const/rec Dskel[]))
+             (epair M
+             (epair (elam (epi A (\x. et)) (\x. elam (A[..]) (\y. M1))) M2)))],
+      map1 : [g |- map (rec' K' (\a. \b. C1') C2') N],
+      equiv :
+        [g |-
+           cn-equiv
+             (rec' K (\a. \b. C1) C2)
+             (rec' K' (\a. \b. C1') C2') t]
+    ; split map1 as
+      case map/rec:
+      { g : map-bind,
+        K : (g |- kind),
+        C1 : (g, a : con, b : con |- con),
+        C2 : (g |- con),
+        Dskel : ( |- skel),
+        M : (g |- eterm),
+        A : (g |- etp),
+        M1 : (g, y : eterm, x : eterm |- eterm),
+        M2 : (g |- eterm),
+        K' : (g |- kind),
+        C1' : (g, a : con, b : con |- con),
+        C2' : (g |- con),
+        Dskel' : ( |- skel),
+        M' : (g |- eterm),
+        A'' : (g |- etp),
+        M1' : (g, y : eterm, x : eterm |- eterm),
+        M2' : (g |- eterm),
+        DequivK : (g |- kd-equiv K K'),
+        DequivC1 :
+          (g, a : con, da : cn-of a (pi (K[..]) (\l. t)), b : con,
+           db : cn-of b (K[..]) |- cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+        DequivC2 : (g |- cn-equiv C2 C2' K),
+        DmapK : (g |- tmap K A),
+        DmapC1 :
+          (g, a : con, x : eterm, at : map a x, b : con, y : eterm,
+           bt : map b y |- map (C1[.., a, b]) (M1[.., x, y])),
+        DmapC2 : (g |- map C2 M2),
+        Dflay : (g |- flay A Dskel[] M),
+        DmapK' : (g |- tmap K' A''),
+        DmapC1' :
+          (g, a : con, x : eterm, at : map a x, b : con, y : eterm,
+           bt : map b y |- map (C1'[.., a, b]) (M1'[.., x, y])),
+        DmapC2' : (g |- map C2' M2'),
+        Dflay' : (g |- flay A'' Dskel'[] M')
+      | map :
+          [g |-
+             map
+               (rec' K (\a. \b. C1) C2)
+               (eapp (econst (const/rec Dskel[]))
+               (epair M
+               (epair (elam (epi A (\x. et)) (\x. elam (A[..]) (\y. M1))) M2)))],
+        map1 :
+          [g |-
+             map
+               (rec' K' (\a. \b. C1') C2')
+               (eapp (econst (const/rec Dskel'[]))
+               (epair M'
+               (epair (elam (epi A'' (\x. et)) (\x. elam (A''[..]) (\y. M1')))
+               M2')))],
+        equiv :
+          [g |-
+             cn-equiv
+               (rec' K (\a. \b. C1) C2)
+               (rec' K' (\a. \b. C1') C2') t]
+      ; split map-tequiv [g |- DequivK] [g |- DmapK] [g |- DmapK'] as
+        case map-tequiv/i:
+        { g : map-bind,
+          K : (g |- kind),
+          C1 : (g, a : con, b : con |- con),
+          C2 : (g |- con),
+          Dskel : ( |- skel),
+          M : (g |- eterm),
+          A : (g |- etp),
+          M1 : (g, y : eterm, x : eterm |- eterm),
+          M2 : (g |- eterm),
+          K' : (g |- kind),
+          C1' : (g, a : con, b : con |- con),
+          C2' : (g |- con),
+          Dskel' : ( |- skel),
+          M' : (g |- eterm),
+          A'' : (g |- etp),
+          M1' : (g, y : eterm, x : eterm |- eterm),
+          M2' : (g |- eterm),
+          DequivK : (g |- kd-equiv K K'),
+          DequivC1 :
+            (g, a : con, da : cn-of a (pi (K[..]) (\l. t)), b : con,
+             db : cn-of b (K[..]) |-
+               cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+          DequivC2 : (g |- cn-equiv C2 C2' K),
+          DmapK : (g |- tmap K A),
+          DmapC1 :
+            (g, a : con, x : eterm, at : map a x, b : con, y : eterm,
+             bt : map b y |- map (C1[.., a, b]) (M1[.., x, y])),
+          DmapC2 : (g |- map C2 M2),
+          Dflay : (g |- flay A Dskel[] M),
+          DmapK' : (g |- tmap K' A''),
+          DmapC1' :
+            (g, a : con, x : eterm, at : map a x, b : con, y : eterm,
+             bt : map b y |- map (C1'[.., a, b]) (M1'[.., x, y])),
+          DmapC2' : (g |- map C2' M2'),
+          Dflay' : (g |- flay A'' Dskel'[] M'),
+          DequivA : (g |- tequiv A A'')
+        | map :
+            [g |-
+               map
+                 (rec' K (\a. \b. C1) C2)
+                 (eapp (econst (const/rec Dskel[]))
+                 (epair M
+                 (epair (elam (epi A (\x. et)) (\x. elam (A[..]) (\y. M1)))
+                 M2)))],
+          map1 :
+            [g |-
+               map
+                 (rec' K' (\a. \b. C1') C2')
+                 (eapp (econst (const/rec Dskel'[]))
+                 (epair M'
+                 (epair (elam (epi A'' (\x. et))
+                        (\x. elam (A''[..]) (\y. M1')))
+                 M2')))],
+          equiv :
+            [g |-
+               cn-equiv
+                 (rec' K (\a. \b. C1) C2)
+                 (rec' K' (\a. \b. C1') C2') t]
+        ; split tequiv-reg [g |- DequivA] as
+          case tequiv-reg/i:
+          { g : map-bind,
+            K : (g |- kind),
+            C1 : (g, a : con, b : con |- con),
+            C2 : (g |- con),
+            Dskel : ( |- skel),
+            M : (g |- eterm),
+            A : (g |- etp),
+            M1 : (g, y : eterm, x : eterm |- eterm),
+            M2 : (g |- eterm),
+            K' : (g |- kind),
+            C1' : (g, a : con, b : con |- con),
+            C2' : (g |- con),
+            Dskel' : ( |- skel),
+            M' : (g |- eterm),
+            A'' : (g |- etp),
+            M1' : (g, y : eterm, x : eterm |- eterm),
+            M2' : (g |- eterm),
+            DequivK : (g |- kd-equiv K K'),
+            DequivC1 :
+              (g, a : con, da : cn-of a (pi (K[..]) (\l. t)), b : con,
+               db : cn-of b (K[..]) |-
+                 cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+            DequivC2 : (g |- cn-equiv C2 C2' K),
+            DmapK : (g |- tmap K A),
+            DmapC1 :
+              (g, a : con, x : eterm, at : map a x, b : con, y : eterm,
+               bt : map b y |- map (C1[.., a, b]) (M1[.., x, y])),
+            DmapC2 : (g |- map C2 M2),
+            Dflay : (g |- flay A Dskel[] M),
+            DmapK' : (g |- tmap K' A''),
+            DmapC1' :
+              (g, a : con, x : eterm, at : map a x, b : con, y : eterm,
+               bt : map b y |- map (C1'[.., a, b]) (M1'[.., x, y])),
+            DmapC2' : (g |- map C2' M2'),
+            Dflay' : (g |- flay A'' Dskel'[] M'),
+            DequivA : (g |- tequiv A A''),
+            DwfA : (g |- ewf A),
+            DwfA'' : (g |- ewf A'')
+          | map :
+              [g |-
+                 map
+                   (rec' K (\a. \b. C1) C2)
+                   (eapp (econst (const/rec Dskel[]))
+                   (epair M
+                   (epair (elam (epi A (\x. et)) (\x. elam (A[..]) (\y. M1)))
+                   M2)))],
+            map1 :
+              [g |-
+                 map
+                   (rec' K' (\a. \b. C1') C2')
+                   (eapp (econst (const/rec Dskel'[]))
+                   (epair M'
+                   (epair (elam (epi A'' (\x. et))
+                          (\x. elam (A''[..]) (\y. M1')))
+                   M2')))],
+            equiv :
+              [g |-
+                 cn-equiv
+                   (rec' K (\a. \b. C1) C2)
+                   (rec' K' (\a. \b. C1') C2') t]
+          ; split
+map-equiv''
+  [g,
+   b1 :
+     block (
+       x : eterm,
+       dx : eof x (epi (A[..]) (\l. et)),
+       a : con,
+       da : cn-of a (pi (K[..]) (\l. t)),
+       at : map a x),
+   b2 :
+     block (
+       y : eterm,
+       dy : eof y (A[..]),
+       b : con,
+       db : cn-of b (K[..]),
+       bt : map b y) |- DmapC1[.., b1.3, b1.1, b1.5, b2.3, b2.1, b2.5]]
+  [g,
+   b1 :
+     block (
+       x : eterm,
+       dx : eof x (epi (A[..]) (\l. et)),
+       a : con,
+       da : cn-of a (pi (K[..]) (\l. t)),
+       at : map a x),
+   b2 :
+     block (
+       y : eterm,
+       dy : eof y (A[..]),
+       b : con,
+       db : cn-of b (K[..]),
+       bt : map b y) |- DmapC1'[.., b1.3, b1.1, b1.5, b2.3, b2.1, b2.5]]
+  [g,
+   b1 :
+     block (
+       x : eterm,
+       dx : eof x (epi (A[..]) (\l. et)),
+       a : con,
+       da : cn-of a (pi (K[..]) (\l. t)),
+       at : map a x),
+   b2 :
+     block (
+       y : eterm,
+       dy : eof y (A[..]),
+       b : con,
+       db : cn-of b (K[..]),
+       bt : map b y) |- DequivC1[.., b1.3, b1.4, b2.3, b2.4]]
+  [g,
+   b1 :
+     block (
+       x : eterm,
+       dx : eof x (epi (A[..]) (\l. et)),
+       a : con,
+       da : cn-of a (pi (K[..]) (\l. t)),
+       at : map a x),
+   b2 :
+     block (
+       y : eterm,
+       dy : eof y (A[..]),
+       b : con,
+       db : cn-of b (K[..]),
+       bt : map b y) |- tmap/t] as
+            case map-equiv''/i:
+            { g : map-bind,
+              K : (g |- kind),
+              C1 : (g, a : con, b : con |- con),
+              C2 : (g |- con),
+              Dskel : ( |- skel),
+              M : (g |- eterm),
+              A : (g |- etp),
+              M1 : (g, x : eterm, y : eterm |- eterm),
+              M2 : (g |- eterm),
+              K' : (g |- kind),
+              C1' : (g, a : con, b : con |- con),
+              C2' : (g |- con),
+              Dskel' : ( |- skel),
+              M' : (g |- eterm),
+              A'' : (g |- etp),
+              M1' : (g, x : eterm, y : eterm |- eterm),
+              M2' : (g |- eterm),
+              DequivK : (g |- kd-equiv K K'),
+              DequivC1 :
+                (g, a : con, da : cn-of a (pi (K[..]) (\l. t)), b : con,
+                 db : cn-of b (K[..]) |-
+                   cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+              DequivC2 : (g |- cn-equiv C2 C2' K),
+              DmapK : (g |- tmap K A),
+              DmapC1 :
+                (g, a : con, x : eterm, at : map a x, b : con, y : eterm,
+                 bt : map b y |- map (C1[.., a, b]) (M1[.., x, y])),
+              DmapC2 : (g |- map C2 M2),
+              Dflay : (g |- flay A Dskel[] M),
+              DmapK' : (g |- tmap K' A''),
+              DmapC1' :
+                (g, a : con, x : eterm, at : map a x, b : con, y : eterm,
+                 bt : map b y |- map (C1'[.., a, b]) (M1'[.., x, y])),
+              DmapC2' : (g |- map C2' M2'),
+              Dflay' : (g |- flay A'' Dskel'[] M'),
+              DequivA : (g |- tequiv A A''),
+              DwfA : (g |- ewf A),
+              DwfA'' : (g |- ewf A''),
+              DequivM1 :
+                (g, x : eterm, dx : eof x (epi (A[..]) (\l. et)), y : eterm,
+                 dy : eof y (A[..]) |- equiv (M1[.., x, y]) (M1'[.., x, y]) et)
+            | map :
+                [g |-
+                   map
+                     (rec' K (\a. \b. C1) C2)
+                     (eapp (econst (const/rec Dskel[]))
+                     (epair M
+                     (epair (elam (epi A (\x. et))
+                            (\x. elam (A[..]) (\y. M1)))
+                     M2)))],
+              map1 :
+                [g |-
+                   map
+                     (rec' K' (\a. \b. C1') C2')
+                     (eapp (econst (const/rec Dskel'[]))
+                     (epair M'
+                     (epair (elam (epi A'' (\x. et))
+                            (\x. elam (A''[..]) (\y. M1')))
+                     M2')))],
+              equiv :
+                [g |-
+                   cn-equiv
+                     (rec' K (\a. \b. C1) C2)
+                     (rec' K' (\a. \b. C1') C2') t]
+            ; split
+map-equiv'' [g |- DmapC2] [g |- DmapC2'] [g |- DequivC2] [g |- DmapK] as
+              case map-equiv''/i:
+              { g : map-bind,
+                K : (g |- kind),
+                C1 : (g, a : con, b : con |- con),
+                C2 : (g |- con),
+                Dskel : ( |- skel),
+                M : (g |- eterm),
+                A : (g |- etp),
+                M1 : (g, x : eterm, y : eterm |- eterm),
+                M2 : (g |- eterm),
+                K' : (g |- kind),
+                C1' : (g, a : con, b : con |- con),
+                C2' : (g |- con),
+                Dskel' : ( |- skel),
+                M' : (g |- eterm),
+                A'' : (g |- etp),
+                M1' : (g, x : eterm, y : eterm |- eterm),
+                M2' : (g |- eterm),
+                DequivK : (g |- kd-equiv K K'),
+                DequivC1 :
+                  (g, a : con, da : cn-of a (pi (K[..]) (\l. t)), b : con,
+                   db : cn-of b (K[..]) |-
+                     cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+                DequivC2 : (g |- cn-equiv C2 C2' K),
+                DmapK : (g |- tmap K A),
+                DmapC1 :
+                  (g, a : con, x : eterm, at : map a x, b : con, y : eterm,
+                   bt : map b y |- map (C1[.., a, b]) (M1[.., x, y])),
+                DmapC2 : (g |- map C2 M2),
+                Dflay : (g |- flay A Dskel[] M),
+                DmapK' : (g |- tmap K' A''),
+                DmapC1' :
+                  (g, a : con, x : eterm, at : map a x, b : con, y : eterm,
+                   bt : map b y |- map (C1'[.., a, b]) (M1'[.., x, y])),
+                DmapC2' : (g |- map C2' M2'),
+                Dflay' : (g |- flay A'' Dskel'[] M'),
+                DequivA : (g |- tequiv A A''),
+                DwfA : (g |- ewf A),
+                DwfA'' : (g |- ewf A''),
+                DequivM1 :
+                  (g, x : eterm, dx : eof x (epi (A[..]) (\l. et)), y : eterm,
+                   dy : eof y (A[..]) |-
+                     equiv (M1[.., x, y]) (M1'[.., x, y]) et),
+                DequivM2 : (g |- equiv M2 M2' A)
+              | map :
+                  [g |-
+                     map
+                       (rec' K (\a. \b. C1) C2)
+                       (eapp (econst (const/rec Dskel[]))
+                       (epair M
+                       (epair (elam (epi A (\x. et))
+                              (\x. elam (A[..]) (\y. M1)))
+                       M2)))],
+                map1 :
+                  [g |-
+                     map
+                       (rec' K' (\a. \b. C1') C2')
+                       (eapp (econst (const/rec Dskel'[]))
+                       (epair M'
+                       (epair (elam (epi A'' (\x. et))
+                              (\x. elam (A''[..]) (\y. M1')))
+                       M2')))],
+                equiv :
+                  [g |-
+                     cn-equiv
+                       (rec' K (\a. \b. C1) C2)
+                       (rec' K' (\a. \b. C1') C2') t]
+              ; split can-skof [ |- Dskel] as
+                case can-skof/i:
+                { g : map-bind,
+                  K : (g |- kind),
+                  C1 : (g, a : con, b : con |- con),
+                  C2 : (g |- con),
+                  Dskel : ( |- skel),
+                  M : (g |- eterm),
+                  A : (g |- etp),
+                  M1 : (g, x : eterm, y : eterm |- eterm),
+                  M2 : (g |- eterm),
+                  K' : (g |- kind),
+                  C1' : (g, a : con, b : con |- con),
+                  C2' : (g |- con),
+                  Dskel' : ( |- skel),
+                  M' : (g |- eterm),
+                  A'' : (g |- etp),
+                  M1' : (g, x : eterm, y : eterm |- eterm),
+                  M2' : (g |- eterm),
+                  DequivK : (g |- kd-equiv K K'),
+                  DequivC1 :
+                    (g, a : con, da : cn-of a (pi (K[..]) (\l. t)), b : con,
+                     db : cn-of b (K[..]) |-
+                       cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+                  DequivC2 : (g |- cn-equiv C2 C2' K),
+                  DmapK : (g |- tmap K A),
+                  DmapC1 :
+                    (g, a : con, x : eterm, at : map a x, b : con, y : eterm,
+                     bt : map b y |- map (C1[.., a, b]) (M1[.., x, y])),
+                  DmapC2 : (g |- map C2 M2),
+                  Dflay : (g |- flay A Dskel[] M),
+                  DmapK' : (g |- tmap K' A''),
+                  DmapC1' :
+                    (g, a : con, x : eterm, at : map a x, b : con, y : eterm,
+                     bt : map b y |- map (C1'[.., a, b]) (M1'[.., x, y])),
+                  DmapC2' : (g |- map C2' M2'),
+                  Dflay' : (g |- flay A'' Dskel'[] M'),
+                  DequivA : (g |- tequiv A A''),
+                  DwfA : (g |- ewf A),
+                  DwfA'' : (g |- ewf A''),
+                  DequivM1 :
+                    (g, x : eterm, dx : eof x (epi (A[..]) (\l. et)),
+                     y : eterm,
+                     dy : eof y (A[..]) |-
+                       equiv (M1[.., x, y]) (M1'[.., x, y]) et),
+                  DequivM2 : (g |- equiv M2 M2' A),
+                  D : ( |- etp),
+                  A' : (y : eterm |- etp),
+                  Dskof : ( |- skof Dskel D (\x. A'))
+                | map :
+                    [g |-
+                       map
+                         (rec' K (\a. \b. C1) C2)
+                         (eapp (econst (const/rec Dskel[]))
+                         (epair M
+                         (epair (elam (epi A (\x. et))
+                                (\x. elam (A[..]) (\y. M1)))
+                         M2)))],
+                  map1 :
+                    [g |-
+                       map
+                         (rec' K' (\a. \b. C1') C2')
+                         (eapp (econst (const/rec Dskel'[]))
+                         (epair M'
+                         (epair (elam (epi A'' (\x. et))
+                                (\x. elam (A''[..]) (\y. M1')))
+                         M2')))],
+                  equiv :
+                    [g |-
+                       cn-equiv
+                         (rec' K (\a. \b. C1) C2)
+                         (rec' K' (\a. \b. C1') C2') t]
+                ; split flay-sound [g |- DwfA] [g |- Dflay] [g |- Dskof[]] as
+                  case flay-sound/i:
+                  { g : map-bind,
+                    K : (g |- kind),
+                    C1 : (g, a : con, b : con |- con),
+                    C2 : (g |- con),
+                    Dskel : ( |- skel),
+                    M : (g |- eterm),
+                    A : (g |- etp),
+                    M1 : (g, x : eterm, y : eterm |- eterm),
+                    M2 : (g |- eterm),
+                    K' : (g |- kind),
+                    C1' : (g, a : con, b : con |- con),
+                    C2' : (g |- con),
+                    Dskel' : ( |- skel),
+                    M' : (g |- eterm),
+                    A'' : (g |- etp),
+                    M1' : (g, x : eterm, y : eterm |- eterm),
+                    M2' : (g |- eterm),
+                    DequivK : (g |- kd-equiv K K'),
+                    DequivC1 :
+                      (g, a : con, da : cn-of a (pi (K[..]) (\l. t)), b : con,
+                       db : cn-of b (K[..]) |-
+                         cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+                    DequivC2 : (g |- cn-equiv C2 C2' K),
+                    DmapK : (g |- tmap K A),
+                    DmapC1 :
+                      (g, a : con, x : eterm, at : map a x, b : con,
+                       y : eterm,
+                       bt : map b y |- map (C1[.., a, b]) (M1[.., x, y])),
+                    DmapC2 : (g |- map C2 M2),
+                    Dflay : (g |- flay A Dskel[] M),
+                    DmapK' : (g |- tmap K' A''),
+                    DmapC1' :
+                      (g, a : con, x : eterm, at : map a x, b : con,
+                       y : eterm,
+                       bt : map b y |- map (C1'[.., a, b]) (M1'[.., x, y])),
+                    DmapC2' : (g |- map C2' M2'),
+                    Dflay' : (g |- flay A'' Dskel'[] M'),
+                    DequivA : (g |- tequiv A A''),
+                    DwfA : (g |- ewf A),
+                    DwfA'' : (g |- ewf A''),
+                    DequivM1 :
+                      (g, x : eterm, dx : eof x (epi (A[..]) (\l. et)),
+                       y : eterm,
+                       dy : eof y (A[..]) |-
+                         equiv (M1[.., x, y]) (M1'[.., x, y]) et),
+                    DequivM2 : (g |- equiv M2 M2' A),
+                    D : ( |- etp),
+                    A' : (y : eterm |- etp),
+                    Dskof : ( |- skof Dskel D (\x. A'[x])),
+                    DofMA : (g |- eof M D[]),
+                    Dtequiv : (g |- tequiv A (A'[M]))
+                  | map :
+                      [g |-
+                         map
+                           (rec' K (\a. \b. C1) C2)
+                           (eapp (econst (const/rec Dskel[]))
+                           (epair M
+                           (epair (elam (epi A (\x. et))
+                                  (\x. elam (A[..]) (\y. M1)))
+                           M2)))],
+                    map1 :
+                      [g |-
+                         map
+                           (rec' K' (\a. \b. C1') C2')
+                           (eapp (econst (const/rec Dskel'[]))
+                           (epair M'
+                           (epair (elam (epi A'' (\x. et))
+                                  (\x. elam (A''[..]) (\y. M1')))
+                           M2')))],
+                    equiv :
+                      [g |-
+                         cn-equiv
+                           (rec' K (\a. \b. C1) C2)
+                           (rec' K' (\a. \b. C1') C2') t]
+                  ; split flay-equiv [g |- DequivA] [g |- Dflay] [g |- Dflay'] [g |- Dskof[]] as
+                    case flay-equiv/i:
+                    { g : map-bind,
+                      K : (g |- kind),
+                      C1 : (g, a : con, b : con |- con),
+                      C2 : (g |- con),
+                      Dskel : ( |- skel),
+                      M : (g |- eterm),
+                      A : (g |- etp),
+                      M1 : (g, x : eterm, y : eterm |- eterm),
+                      M2 : (g |- eterm),
+                      K' : (g |- kind),
+                      C1' : (g, a : con, b : con |- con),
+                      C2' : (g |- con),
+                      Dskel' : ( |- skel),
+                      M' : (g |- eterm),
+                      A'' : (g |- etp),
+                      M1' : (g, x : eterm, y : eterm |- eterm),
+                      M2' : (g |- eterm),
+                      DequivK : (g |- kd-equiv K K'),
+                      DequivC1 :
+                        (g, a : con, da : cn-of a (pi (K[..]) (\l. t)),
+                         b : con,
+                         db : cn-of b (K[..]) |-
+                           cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+                      DequivC2 : (g |- cn-equiv C2 C2' K),
+                      DmapK : (g |- tmap K A),
+                      DmapC1 :
+                        (g, a : con, x : eterm, at : map a x, b : con,
+                         y : eterm,
+                         bt : map b y |- map (C1[.., a, b]) (M1[.., x, y])),
+                      DmapC2 : (g |- map C2 M2),
+                      Dflay : (g |- flay A Dskel[] M),
+                      DmapK' : (g |- tmap K' A''),
+                      DmapC1' :
+                        (g, a : con, x : eterm, at : map a x, b : con,
+                         y : eterm,
+                         bt : map b y |- map (C1'[.., a, b]) (M1'[.., x, y])),
+                      DmapC2' : (g |- map C2' M2'),
+                      Dflay' : (g |- flay A'' Dskel'[] M'),
+                      DequivA : (g |- tequiv A A''),
+                      DwfA : (g |- ewf A),
+                      DwfA'' : (g |- ewf A''),
+                      DequivM1 :
+                        (g, x : eterm, dx : eof x (epi (A[..]) (\l. et)),
+                         y : eterm,
+                         dy : eof y (A[..]) |-
+                           equiv (M1[.., x, y]) (M1'[.., x, y]) et),
+                      DequivM2 : (g |- equiv M2 M2' A),
+                      D : ( |- etp),
+                      A' : (y : eterm |- etp),
+                      Dskof : ( |- skof Dskel D (\x. A'[x])),
+                      DofMA : (g |- eof M D[]),
+                      Dtequiv : (g |- tequiv A (A'[M])),
+                      DeqSK : ( |- skel-eq Dskel Dskel'),
+                      DequivMA : (g |- equiv M M' D[])
+                    | map :
+                        [g |-
+                           map
+                             (rec' K (\a. \b. C1) C2)
+                             (eapp (econst (const/rec Dskel[]))
+                             (epair M
+                             (epair (elam (epi A (\x. et))
+                                    (\x. elam (A[..]) (\y. M1)))
+                             M2)))],
+                      map1 :
+                        [g |-
+                           map
+                             (rec' K' (\a. \b. C1') C2')
+                             (eapp (econst (const/rec Dskel'[]))
+                             (epair M'
+                             (epair (elam (epi A'' (\x. et))
+                                    (\x. elam (A''[..]) (\y. M1')))
+                             M2')))],
+                      equiv :
+                        [g |-
+                           cn-equiv
+                             (rec' K (\a. \b. C1) C2)
+                             (rec' K' (\a. \b. C1') C2') t]
+                    ; by skof-implies-eof-rec [ |- Dskel] [ |- Dskof] as DeofConst unboxed;
+                      split [ |- DeqSK] as
+                      case skel-eq/i:
+                      { g : map-bind,
+                        K : (g |- kind),
+                        C1 : (g, a : con, b : con |- con),
+                        C2 : (g |- con),
+                        Dskel' : ( |- skel),
+                        M : (g |- eterm),
+                        A : (g |- etp),
+                        M1 : (g, x : eterm, y : eterm |- eterm),
+                        M2 : (g |- eterm),
+                        K' : (g |- kind),
+                        C1' : (g, a : con, b : con |- con),
+                        C2' : (g |- con),
+                        M' : (g |- eterm),
+                        A'' : (g |- etp),
+                        M1' : (g, x : eterm, y : eterm |- eterm),
+                        M2' : (g |- eterm),
+                        DequivK : (g |- kd-equiv K K'),
+                        DequivC1 :
+                          (g, a : con, da : cn-of a (pi (K[..]) (\l. t)),
+                           b : con,
+                           db : cn-of b (K[..]) |-
+                             cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+                        DequivC2 : (g |- cn-equiv C2 C2' K),
+                        DmapK : (g |- tmap K A),
+                        DmapC1 :
+                          (g, a : con, x : eterm, at : map a x, b : con,
+                           y : eterm,
+                           bt : map b y |- map (C1[.., a, b]) (M1[.., x, y])),
+                        DmapC2 : (g |- map C2 M2),
+                        Dflay : (g |- flay A Dskel'[] M),
+                        DmapK' : (g |- tmap K' A''),
+                        DmapC1' :
+                          (g, a : con, x : eterm, at : map a x, b : con,
+                           y : eterm,
+                           bt : map b y |-
+                             map (C1'[.., a, b]) (M1'[.., x, y])),
+                        DmapC2' : (g |- map C2' M2'),
+                        Dflay' : (g |- flay A'' Dskel'[] M'),
+                        DequivA : (g |- tequiv A A''),
+                        DwfA : (g |- ewf A),
+                        DwfA'' : (g |- ewf A''),
+                        DequivM1 :
+                          (g, x : eterm, dx : eof x (epi (A[..]) (\l. et)),
+                           y : eterm,
+                           dy : eof y (A[..]) |-
+                             equiv (M1[.., x, y]) (M1'[.., x, y]) et),
+                        DequivM2 : (g |- equiv M2 M2' A),
+                        D : ( |- etp),
+                        A' : (y : eterm |- etp),
+                        Dskof : ( |- skof Dskel' D (\x. A'[x])),
+                        DofMA : (g |- eof M D[]),
+                        Dtequiv : (g |- tequiv A (A'[M])),
+                        DequivMA : (g |- equiv M M' D[]),
+                        DeofConst :
+                          ( |-
+                             eof
+                               (econst (const/rec Dskel'))
+                               (epi (esigma D
+                                    (\x.
+                                       esigma (epi (epi (A'[x]) (\l. et))
+                                              (\l. epi (A'[x]) (\l1. et)))
+                                       (\l. A'[x])))
+                               (\l. et)))
+                      | map :
+                          [g |-
+                             map
+                               (rec' K (\a. \b. C1) C2)
+                               (eapp (econst (const/rec Dskel'[]))
+                               (epair M
+                               (epair (elam (epi A (\x. et))
+                                      (\x. elam (A[..]) (\y. M1)))
+                               M2)))],
+                        map1 :
+                          [g |-
+                             map
+                               (rec' K' (\a. \b. C1') C2')
+                               (eapp (econst (const/rec Dskel'[]))
+                               (epair M'
+                               (epair (elam (epi A'' (\x. et))
+                                      (\x. elam (A''[..]) (\y. M1')))
+                               M2')))],
+                        equiv :
+                          [g |-
+                             cn-equiv
+                               (rec' K (\a. \b. C1) C2)
+                               (rec' K' (\a. \b. C1') C2') t]
+                      ; split skof-reg [ |- Dskof] as
+                        case skof-reg/i:
+                        { g : map-bind,
+                          K : (g |- kind),
+                          C1 : (g, a : con, b : con |- con),
+                          C2 : (g |- con),
+                          Dskel' : ( |- skel),
+                          M : (g |- eterm),
+                          A : (g |- etp),
+                          M1 : (g, x : eterm, y : eterm |- eterm),
+                          M2 : (g |- eterm),
+                          K' : (g |- kind),
+                          C1' : (g, a : con, b : con |- con),
+                          C2' : (g |- con),
+                          M' : (g |- eterm),
+                          A'' : (g |- etp),
+                          M1' : (g, x : eterm, y : eterm |- eterm),
+                          M2' : (g |- eterm),
+                          DequivK : (g |- kd-equiv K K'),
+                          DequivC1 :
+                            (g, a : con, da : cn-of a (pi (K[..]) (\l. t)),
+                             b : con,
+                             db : cn-of b (K[..]) |-
+                               cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+                          DequivC2 : (g |- cn-equiv C2 C2' K),
+                          DmapK : (g |- tmap K A),
+                          DmapC1 :
+                            (g, a : con, x : eterm, at : map a x, b : con,
+                             y : eterm,
+                             bt : map b y |-
+                               map (C1[.., a, b]) (M1[.., x, y])),
+                          DmapC2 : (g |- map C2 M2),
+                          Dflay : (g |- flay A Dskel'[] M),
+                          DmapK' : (g |- tmap K' A''),
+                          DmapC1' :
+                            (g, a : con, x : eterm, at : map a x, b : con,
+                             y : eterm,
+                             bt : map b y |-
+                               map (C1'[.., a, b]) (M1'[.., x, y])),
+                          DmapC2' : (g |- map C2' M2'),
+                          Dflay' : (g |- flay A'' Dskel'[] M'),
+                          DequivA : (g |- tequiv A A''),
+                          DwfA : (g |- ewf A),
+                          DwfA'' : (g |- ewf A''),
+                          DequivM1 :
+                            (g, x : eterm, dx : eof x (epi (A[..]) (\l. et)),
+                             y : eterm,
+                             dy : eof y (A[..]) |-
+                               equiv (M1[.., x, y]) (M1'[.., x, y]) et),
+                          DequivM2 : (g |- equiv M2 M2' A),
+                          D : ( |- etp),
+                          A' : (y : eterm |- etp),
+                          Dskof : ( |- skof Dskel' D (\x. A'[x])),
+                          DofMA : (g |- eof M D[]),
+                          Dtequiv : (g |- tequiv A (A'[M])),
+                          DequivMA : (g |- equiv M M' D[]),
+                          DeofConst :
+                            ( |-
+                               eof
+                                 (econst (const/rec Dskel'))
+                                 (epi (esigma D
+                                      (\x.
+                                         esigma (epi (epi (A'[x]) (\l. et))
+                                                (\l. epi (A'[x]) (\l1. et)))
+                                         (\l. A'[x])))
+                                 (\l. et))),
+                          DwfD : ( |- ewf D),
+                          DwfA' : (x : eterm, dx : eof x D[] |- ewf (A'[x]))
+                        | map :
+                            [g |-
+                               map
+                                 (rec' K (\a. \b. C1) C2)
+                                 (eapp (econst (const/rec Dskel'[]))
+                                 (epair M
+                                 (epair (elam (epi A (\x. et))
+                                        (\x. elam (A[..]) (\y. M1)))
+                                 M2)))],
+                          map1 :
+                            [g |-
+                               map
+                                 (rec' K' (\a. \b. C1') C2')
+                                 (eapp (econst (const/rec Dskel'[]))
+                                 (epair M'
+                                 (epair (elam (epi A'' (\x. et))
+                                        (\x. elam (A''[..]) (\y. M1')))
+                                 M2')))],
+                          equiv :
+                            [g |-
+                               cn-equiv
+                                 (rec' K (\a. \b. C1) C2)
+                                 (rec' K' (\a. \b. C1') C2') t]
+                        ; by [ |- equiv/reflex DeofConst] as DequivConst unboxed;
+                          solve
+  [g |-
+     map-equiv'/i _
+     tmap/t
+     (equiv/app DequivConst[]
+     (equiv/pair DequivMA
+     (equiv/subsume (equiv/pair (equiv/lam (tequiv/pi DequivA
+                                           (\l1. \l2. tequiv/reflex ewf/t))
+                                (\x.
+                                   \dx.
+                                     equiv/lam (DequivA[..])
+                                     (\y. \dy. DequivM1)))
+                    DequivM2 (\l1. \l2. DwfA[..]))
+     (subtp/reflex (tequiv/sigma (tequiv/pi (tequiv/pi Dtequiv
+                                            (\l1. \l2. tequiv/reflex ewf/t))
+                                 (\l1.
+                                    \l2.
+                                      tequiv/pi (Dtequiv[..])
+                                      (\l3. \l4. tequiv/reflex ewf/t)))
+                   (\l1. \l2. Dtequiv[..]))))
+     (\z.
+        \dz.
+          ewf/sigma (ewf/pi (ewf/pi (DwfA'[z, dz]) (\l1. \l2. ewf/t))
+                    (\l1. \l2. ewf/pi (DwfA'[z, dz]) (\l3. \l4. ewf/t)))
+          (\l1. \l2. DwfA'[z, dz]))))]
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
   case cn-equiv/tag:
   { g : map-bind,
