@@ -44,18 +44,6 @@ LF can-single/e : kind -> type =
     can-single/e K
 ;
 
-proof can-single/i :
-  (g : conblock) { Ks : [g, a : con |- kind] } [g |- single K (\x. Ks)] ->
-    [g |- can-single/e K] =
-/ total /
-intros
-{ g : conblock, K : (g |- kind), Ks : (g, a : con |- kind)
-| single : [g |- single K (\x. Ks)]
-; by single as Dsingle unboxed;
-  solve [_ |- can-single/i (\a. Ks) Dsingle]
-}
-;
-
 proof can-single :
   (g : conblock) { K : [g |- kind] } [g |- can-single/e K] =
 / total 1 /
@@ -66,10 +54,7 @@ intros
   case one:
   { g : conblock
   |
-  ; suffices by can-single/i [_, a : con |- one] toshow
-    [g |- single one (\x. one)] {
-      solve [_ |- single/one]
-    }
+  ; solve [g |- can-single/i (\a. _) single/one]
   }
   case sigma:
   { g : conblock, K1 : (g |- kind), K2 : (g, x100 : con |- kind)
@@ -92,15 +77,7 @@ intros
         K6 : (g, x100 : con, z492 : con |- kind),
         Dsingle1 : (g, x100 : con |- single K2 (\y318. K6))
       |
-      ; suffices by
-          can-single/i
-            [g, a : con |- sigma (K4[.., pi1 a]) (\l. K6[.., pi1 a, pi2 a])] toshow
-        [g |-
-           single
-             (sigma K1 (\a. K2))
-             (\b. sigma (K4[.., pi1 b]) (\l. K6[.., pi1 b, pi2 b]))] {
-          solve [g |- single/sigma Dsingle (\l. Dsingle1)]
-        }
+      ; solve [g |- can-single/i (\a. _) (single/sigma Dsingle (\l. Dsingle1))]
       }
     }
   }
@@ -115,30 +92,18 @@ intros
       K4 : (g, x99 : con, z492 : con |- kind),
       Dsingle : (g, x99 : con |- single K2 (\y318. K4))
     |
-    ; suffices by
-        can-single/i
-          [g, a : con |- pi (K1[..]) (\a1. K4[.., a1, app a a1])] toshow
-      [g |-
-         single (pi K1 (\a. K2)) (\b. pi (K1[..]) (\a. K4[.., a, app b a]))] {
-        solve [g |- single/pi (\a. Dsingle)]
-      }
+    ; solve [g |- can-single/i (\a. _) (single/pi (\a. Dsingle))]
     }
   }
   case sing:
   { g : conblock, C : (g |- con)
   |
-  ; suffices by can-single/i [_, a : con |- sing a] toshow
-    [g |- single (sing C) (\b. sing b)] {
-      solve [_ |- single/sing ]
-    }
+  ; solve [g |- can-single/i (\a. _) (single/sing )]
   }
   case t:
   { g : conblock
   |
-  ; suffices by can-single/i [_, a : con |- sing a] toshow
-    [g |- single t (\b. sing b)] {
-      solve [_ |- single/t]
-    }
+  ; solve [g |- can-single/i (\a. _) single/t]
   }
 }
 ;
