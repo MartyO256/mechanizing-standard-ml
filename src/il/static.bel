@@ -782,12 +782,12 @@ LF store-of : sttp -> store -> sttp -> type =
 | store-of/nil : store-of F store/nil st/nil
 
 | store-of/cons :
-  store-bounds ST L ->
-  entry-of F EN ET ->
   store-of F ST F' ->
+  entry-of F EN ET ->
+  store-bounds ST L ->
     store-of F (store/cons ST L EN) (st/cons F' L ET)
 ;
---name store-of Dof sof.
+--name store-of Dstof stof.
 
 % Schemas
 
