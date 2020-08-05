@@ -2006,7 +2006,7 @@ proof kd-sub-antisymm :
   [g |- kd-sub K1 K2] ->
   [g |- kd-sub K2 K1] ->
     [g |- kd-equiv K1 K2] =
-/ trust / % FIXME: See issue #4
+/ total 1 /
 intros
 { g : conbind-reg, K : (g |- kind), K1 : (g |- kind)
 | x : [g |- kd-sub K K1], sub : [g |- kd-sub K1 K]
@@ -2082,13 +2082,19 @@ intros
       Dwf1 : (g, a : con, x1163 : cn-of a (K2[..]) |- kd-wf (K5[.., a]))
     | x : [g |- kd-sub (pi K3 (\z521. K4)) (pi K2 (\z521. K5))],
       sub : [g |- kd-sub (pi K2 (\z521. K5)) (pi K3 (\z521. K4))]
-    ; by kd-sub-antisymm [g |- Dsub2] [g |- Dsub] as Dequiv1 unboxed;
+    ; by kd-sub-antisymm [g |- Dsub] [g |- Dsub2] as Dequiv1 unboxed;
       by kd-sub-antisymm
-        [g, b : block (a : con, da : cn-of a (K3[..])) |-
-        Dsub1[.., b.1, cn-of/subsume b.2 (Dsub2[..])]]
-        [g, b : block (a : con, da : cn-of a (K3[..])) |- Dsub3[.., b.1, b.2]]
+        [g, b : block (a : con, da : cn-of a (K2[..])) |- Dsub1[.., b.1, b.2]]
+        [g, b : block (a : con, da : cn-of a (K2[..])) |-
+        Dsub3[.., b.1, cn-of/subsume b.2 (Dsub[..])]]
       as Dequiv2 unboxed;
-      solve [g |- kd-equiv/pi Dequiv1 (\a. \da. Dequiv2[.., <a; da>])]
+      solve
+  [g |-
+     kd-equiv/pi (kd-equiv/symm Dequiv1)
+     (\a.
+        \da.
+          Dequiv2[.., <_; cn-of/subsume da
+                  (kd-sub/refl (kd-equiv/symm (Dequiv1[..])))>])]
     }
   }
   case kd-sub/sing-t:
@@ -2126,7 +2132,7 @@ intros
     K1 : (g |- kind),
     Dequiv : (g |- kd-equiv K K1)
   | x : [g |- kd-sub K K1], sub : [g |- kd-sub K1 K]
-  ; solve [_ |- Dequiv]
+  ; solve [g |- Dequiv]
   }
 }
 ;
