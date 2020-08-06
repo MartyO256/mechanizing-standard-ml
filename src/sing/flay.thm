@@ -2856,35 +2856,34 @@ intros
                flay
                  (esigma A1 (\x128. A2))
                  (ksigma Dskel2[] Dskel3[]) (epair M4 (elam A1 (\x. M5)))]
-        ; split
-skel-resp-skel2 [k1 : skel, k2 : skel |- ksigma k1 k2] [ |- Deq] [ |- Deq2] as
+        ; split [ |- Deq] as
           case skel-eq/i:
           { g : evar,
             A1 : (g |- etp),
             A2 : (g, z177 : eterm |- etp),
             Dskel2 : ( |- skel),
-            Dskel3 : ( |- skel),
+            Dskel1 : ( |- skel),
             M2 : (g |- eterm),
             M3 : (g, y178 : eterm |- eterm),
+            Dskel3 : ( |- skel),
             M4 : (g |- eterm),
             M5 : (g, z230 : eterm |- eterm),
             Dflay : (g |- flay A1 Dskel2[] M2),
-            Dflay1 : (g, x : eterm |- flay A2 Dskel3[] M3),
+            Dflay1 : (g, x : eterm |- flay A2 Dskel1[] M3),
             Dflay2 : (g |- flay A1 Dskel2[] M4),
             Dflay3 : (g, x : eterm |- flay A2 Dskel3[] M5),
-            Deq : ( |- skel-eq Dskel2 Dskel2),
             Deq1 : (g |- eterm-eq M2 M4),
-            Deq2 : ( |- skel-eq Dskel3 Dskel3),
+            Deq2 : ( |- skel-eq Dskel1 Dskel3),
             Deq3 : (g, x : eterm |- eterm-eq M3 M5)
           | x :
               [g |-
                  flay
-                   (esigma A1 (\x128. A2))
-                   (ksigma Dskel2[] Dskel3[]) (epair M2 (elam A1 (\x. M3)))],
+                   (esigma A1 (\z147. A2))
+                   (ksigma Dskel2[] Dskel1[]) (epair M2 (elam A1 (\x. M3)))],
             flay :
               [g |-
                  flay
-                   (esigma A1 (\x128. A2))
+                   (esigma A1 (\z147. A2))
                    (ksigma Dskel2[] Dskel3[]) (epair M4 (elam A1 (\x. M5)))]
           ; split [g |- Deq1] as
             case eterm-eq/i:
@@ -2892,55 +2891,81 @@ skel-resp-skel2 [k1 : skel, k2 : skel |- ksigma k1 k2] [ |- Deq] [ |- Deq2] as
               A1 : (g |- etp),
               A2 : (g, z177 : eterm |- etp),
               Dskel2 : ( |- skel),
-              Dskel3 : ( |- skel),
+              Dskel1 : ( |- skel),
               M4 : (g |- eterm),
               M3 : (g, y178 : eterm |- eterm),
+              Dskel3 : ( |- skel),
               M5 : (g, z230 : eterm |- eterm),
               Dflay : (g |- flay A1 Dskel2[] M4),
-              Dflay1 : (g, x : eterm |- flay A2 Dskel3[] M3),
+              Dflay1 : (g, x : eterm |- flay A2 Dskel1[] M3),
               Dflay2 : (g |- flay A1 Dskel2[] M4),
               Dflay3 : (g, x : eterm |- flay A2 Dskel3[] M5),
-              Deq : ( |- skel-eq Dskel2 Dskel2),
-              Deq2 : ( |- skel-eq Dskel3 Dskel3),
+              Deq2 : ( |- skel-eq Dskel1 Dskel3),
               Deq3 : (g, x : eterm |- eterm-eq M3 M5)
             | x :
                 [g |-
                    flay
-                     (esigma A1 (\x128. A2))
-                     (ksigma Dskel2[] Dskel3[]) (epair M4 (elam A1 (\x. M3)))],
+                     (esigma A1 (\z147. A2))
+                     (ksigma Dskel2[] Dskel1[]) (epair M4 (elam A1 (\x. M3)))],
               flay :
                 [g |-
                    flay
-                     (esigma A1 (\x128. A2))
+                     (esigma A1 (\z147. A2))
                      (ksigma Dskel2[] Dskel3[]) (epair M4 (elam A1 (\x. M5)))]
-            ; split [g, x : eterm |- Deq3] as
-              case eterm-eq/i:
+            ; split [ |- Deq2] as
+              case skel-eq/i:
               { g : evar,
                 A1 : (g |- etp),
                 A2 : (g, z177 : eterm |- etp),
                 Dskel2 : ( |- skel),
                 Dskel3 : ( |- skel),
                 M4 : (g |- eterm),
+                M3 : (g, y178 : eterm |- eterm),
                 M5 : (g, z230 : eterm |- eterm),
                 Dflay : (g |- flay A1 Dskel2[] M4),
-                Dflay1 : (g, x : eterm |- flay A2 Dskel3[] M5),
+                Dflay1 : (g, x : eterm |- flay A2 Dskel3[] M3),
                 Dflay2 : (g |- flay A1 Dskel2[] M4),
                 Dflay3 : (g, x : eterm |- flay A2 Dskel3[] M5),
-                Deq : ( |- skel-eq Dskel2 Dskel2),
-                Deq2 : ( |- skel-eq Dskel3 Dskel3)
+                Deq3 : (g, x : eterm |- eterm-eq M3 M5)
               | x :
                   [g |-
                      flay
-                       (esigma A1 (\x128. A2))
+                       (esigma A1 (\z147. A2))
                        (ksigma Dskel2[] Dskel3[])
-                       (epair M4 (elam A1 (\x. M5)))],
+                       (epair M4 (elam A1 (\x. M3)))],
                 flay :
                   [g |-
                      flay
-                       (esigma A1 (\x128. A2))
+                       (esigma A1 (\z147. A2))
                        (ksigma Dskel2[] Dskel3[])
                        (epair M4 (elam A1 (\x. M5)))]
-              ; solve [g |- flay-fun/i (skel-eq/i ) (eterm-eq/i )]
+              ; split [g, x : eterm |- Deq3] as
+                case eterm-eq/i:
+                { g : evar,
+                  A1 : (g |- etp),
+                  A2 : (g, z177 : eterm |- etp),
+                  Dskel2 : ( |- skel),
+                  Dskel3 : ( |- skel),
+                  M4 : (g |- eterm),
+                  M5 : (g, z230 : eterm |- eterm),
+                  Dflay : (g |- flay A1 Dskel2[] M4),
+                  Dflay1 : (g, x : eterm |- flay A2 Dskel3[] M5),
+                  Dflay2 : (g |- flay A1 Dskel2[] M4),
+                  Dflay3 : (g, x : eterm |- flay A2 Dskel3[] M5)
+                | x :
+                    [g |-
+                       flay
+                         (esigma A1 (\z147. A2))
+                         (ksigma Dskel2[] Dskel3[])
+                         (epair M4 (elam A1 (\x. M5)))],
+                  flay :
+                    [g |-
+                       flay
+                         (esigma A1 (\z147. A2))
+                         (ksigma Dskel2[] Dskel3[])
+                         (epair M4 (elam A1 (\x. M5)))]
+                ; solve [g |- flay-fun/i (skel-eq/i ) (eterm-eq/i )]
+                }
               }
             }
           }
@@ -3053,36 +3078,34 @@ skel-resp-skel2 [k1 : skel, k2 : skel |- ksigma k1 k2] [ |- Deq] [ |- Deq2] as
                flay
                  (epi A1 (\x127. A2))
                  (kpi Dskel2[] Dskel3[]) (epair M4 (elam A1 (\x. M5)))]
-        ; split
-          skel-resp-skel2 [k1 : skel, k2 : skel |- kpi k1 k2] [ |- Deq]
-            [ |- Deq2] as
+        ; split [ |- Deq] as
           case skel-eq/i:
           { g : evar,
             A1 : (g |- etp),
             A2 : (g, x176 : eterm |- etp),
             Dskel2 : ( |- skel),
-            Dskel3 : ( |- skel),
+            Dskel1 : ( |- skel),
             M2 : (g |- eterm),
             M3 : (g, z176 : eterm |- eterm),
+            Dskel3 : ( |- skel),
             M4 : (g |- eterm),
             M5 : (g, z230 : eterm |- eterm),
             Dflay : (g |- flay A1 Dskel2[] M2),
-            Dflay1 : (g, x : eterm |- flay A2 Dskel3[] M3),
+            Dflay1 : (g, x : eterm |- flay A2 Dskel1[] M3),
             Dflay2 : (g |- flay A1 Dskel2[] M4),
             Dflay3 : (g, x : eterm |- flay A2 Dskel3[] M5),
-            Deq : ( |- skel-eq Dskel2 Dskel2),
             Deq1 : (g |- eterm-eq M2 M4),
-            Deq2 : ( |- skel-eq Dskel3 Dskel3),
+            Deq2 : ( |- skel-eq Dskel1 Dskel3),
             Deq3 : (g, x : eterm |- eterm-eq M3 M5)
           | x :
               [g |-
                  flay
-                   (epi A1 (\x127. A2))
-                   (kpi Dskel2[] Dskel3[]) (epair M2 (elam A1 (\x. M3)))],
+                   (epi A1 (\z146. A2))
+                   (kpi Dskel2[] Dskel1[]) (epair M2 (elam A1 (\x. M3)))],
             flay :
               [g |-
                  flay
-                   (epi A1 (\x127. A2))
+                   (epi A1 (\z146. A2))
                    (kpi Dskel2[] Dskel3[]) (epair M4 (elam A1 (\x. M5)))]
           ; split [g |- Deq1] as
             case eterm-eq/i:
@@ -3090,53 +3113,79 @@ skel-resp-skel2 [k1 : skel, k2 : skel |- ksigma k1 k2] [ |- Deq] [ |- Deq2] as
               A1 : (g |- etp),
               A2 : (g, x176 : eterm |- etp),
               Dskel2 : ( |- skel),
-              Dskel3 : ( |- skel),
+              Dskel1 : ( |- skel),
               M4 : (g |- eterm),
               M3 : (g, z176 : eterm |- eterm),
+              Dskel3 : ( |- skel),
               M5 : (g, z230 : eterm |- eterm),
               Dflay : (g |- flay A1 Dskel2[] M4),
-              Dflay1 : (g, x : eterm |- flay A2 Dskel3[] M3),
+              Dflay1 : (g, x : eterm |- flay A2 Dskel1[] M3),
               Dflay2 : (g |- flay A1 Dskel2[] M4),
               Dflay3 : (g, x : eterm |- flay A2 Dskel3[] M5),
-              Deq : ( |- skel-eq Dskel2 Dskel2),
-              Deq2 : ( |- skel-eq Dskel3 Dskel3),
+              Deq2 : ( |- skel-eq Dskel1 Dskel3),
               Deq3 : (g, x : eterm |- eterm-eq M3 M5)
             | x :
                 [g |-
                    flay
-                     (epi A1 (\x127. A2))
-                     (kpi Dskel2[] Dskel3[]) (epair M4 (elam A1 (\x. M3)))],
+                     (epi A1 (\z146. A2))
+                     (kpi Dskel2[] Dskel1[]) (epair M4 (elam A1 (\x. M3)))],
               flay :
                 [g |-
                    flay
-                     (epi A1 (\x127. A2))
+                     (epi A1 (\z146. A2))
                      (kpi Dskel2[] Dskel3[]) (epair M4 (elam A1 (\x. M5)))]
-            ; split [g, x : eterm |- Deq3] as
-              case eterm-eq/i:
+            ; split [ |- Deq2] as
+              case skel-eq/i:
               { g : evar,
                 A1 : (g |- etp),
                 A2 : (g, x176 : eterm |- etp),
                 Dskel2 : ( |- skel),
                 Dskel3 : ( |- skel),
                 M4 : (g |- eterm),
+                M3 : (g, z176 : eterm |- eterm),
                 M5 : (g, z230 : eterm |- eterm),
                 Dflay : (g |- flay A1 Dskel2[] M4),
-                Dflay1 : (g, x : eterm |- flay A2 Dskel3[] M5),
+                Dflay1 : (g, x : eterm |- flay A2 Dskel3[] M3),
                 Dflay2 : (g |- flay A1 Dskel2[] M4),
                 Dflay3 : (g, x : eterm |- flay A2 Dskel3[] M5),
-                Deq : ( |- skel-eq Dskel2 Dskel2),
-                Deq2 : ( |- skel-eq Dskel3 Dskel3)
+                Deq3 : (g, x : eterm |- eterm-eq M3 M5)
               | x :
                   [g |-
                      flay
-                       (epi A1 (\x127. A2))
-                       (kpi Dskel2[] Dskel3[]) (epair M4 (elam A1 (\x. M5)))],
+                       (epi A1 (\z146. A2))
+                       (kpi Dskel2[] Dskel3[]) (epair M4 (elam A1 (\x. M3)))],
                 flay :
                   [g |-
                      flay
-                       (epi A1 (\x127. A2))
+                       (epi A1 (\z146. A2))
                        (kpi Dskel2[] Dskel3[]) (epair M4 (elam A1 (\x. M5)))]
-              ; solve [g |- flay-fun/i (skel-eq/i ) (eterm-eq/i )]
+              ; split [g, x : eterm |- Deq3] as
+                case eterm-eq/i:
+                { g : evar,
+                  A1 : (g |- etp),
+                  A2 : (g, x176 : eterm |- etp),
+                  Dskel2 : ( |- skel),
+                  Dskel3 : ( |- skel),
+                  M4 : (g |- eterm),
+                  M5 : (g, z230 : eterm |- eterm),
+                  Dflay : (g |- flay A1 Dskel2[] M4),
+                  Dflay1 : (g, x : eterm |- flay A2 Dskel3[] M5),
+                  Dflay2 : (g |- flay A1 Dskel2[] M4),
+                  Dflay3 : (g, x : eterm |- flay A2 Dskel3[] M5)
+                | x :
+                    [g |-
+                       flay
+                         (epi A1 (\z146. A2))
+                         (kpi Dskel2[] Dskel3[])
+                         (epair M4 (elam A1 (\x. M5)))],
+                  flay :
+                    [g |-
+                       flay
+                         (epi A1 (\z146. A2))
+                         (kpi Dskel2[] Dskel3[])
+                         (epair M4 (elam A1 (\x. M5)))]
+                ; solve [g |- flay-fun/i (skel-eq/i ) (eterm-eq/i )]
+                }
               }
             }
           }

@@ -1013,7 +1013,7 @@ intros
                (epair (elam (epi A1 (\x. et)) (\x. elam (A1[..]) (\y. M4)))
                M5)))]
       ; split
-map-fun
+  map-fun
   [g,
    b1 :
      block (
@@ -1711,8 +1711,17 @@ map-fun
       Dmap : (g |- map C1 M1),
       Dmap1 : (g |- map C1 M2)
     | x : [g |- map (pi2 C1) (epi2 M1)], map : [g |- map (pi2 C1) (epi2 M2)]
-    ; by map-fun [g |- Dmap] [g |- Dmap1] as Deq1 unboxed;
-      solve eterm-resp-eterm [x : eterm |- epi2 x] [g |- Deq1]
+    ; split map-fun [g |- Dmap] [g |- Dmap1] as
+      case eterm-eq/i:
+      { g : map-fun-ctx,
+        C1 : (g |- con),
+        M2 : (g |- eterm),
+        Dmap : (g |- map C1 M2),
+        Dmap1 : (g |- map C1 M2)
+      | x : [g |- map (pi2 C1) (epi2 M2)],
+        map : [g |- map (pi2 C1) (epi2 M2)]
+      ; solve [g |- eterm-eq/i ]
+      }
     }
   }
   case map/pi1:
@@ -1731,8 +1740,17 @@ map-fun
       Dmap : (g |- map C1 M1),
       Dmap1 : (g |- map C1 M2)
     | x : [g |- map (pi1 C1) (epi1 M1)], map : [g |- map (pi1 C1) (epi1 M2)]
-    ; by map-fun [g |- Dmap] [g |- Dmap1] as Deq1 unboxed;
-      solve eterm-resp-eterm [x : eterm |- epi1 x] [g |- Deq1]
+    ; split map-fun [g |- Dmap] [g |- Dmap1] as
+      case eterm-eq/i:
+      { g : map-fun-ctx,
+        C1 : (g |- con),
+        M2 : (g |- eterm),
+        Dmap : (g |- map C1 M2),
+        Dmap1 : (g |- map C1 M2)
+      | x : [g |- map (pi1 C1) (epi1 M2)],
+        map : [g |- map (pi1 C1) (epi1 M2)]
+      ; solve [g |- eterm-eq/i ]
+      }
     }
   }
   case map/pair:
@@ -1761,11 +1779,36 @@ map-fun
       Dmap3 : (g |- map C2 M4)
     | x : [g |- map (pair C1 C2) (epair M1 M2)],
       map : [g |- map (pair C1 C2) (epair M3 M4)]
-    ; by map-fun [g |- Dmap] [g |- Dmap2] as Deq1 unboxed;
-      by map-fun [g |- Dmap1] [g |- Dmap3] as Deq2 unboxed;
-      solve
-        eterm-resp-eterm2 [x : eterm, y : eterm |- epair x y] [g |- Deq1]
-          [g |- Deq2]
+    ; split map-fun [g |- Dmap] [g |- Dmap2] as
+      case eterm-eq/i:
+      { g : map-fun-ctx,
+        C1 : (g |- con),
+        C2 : (g |- con),
+        M3 : (g |- eterm),
+        M2 : (g |- eterm),
+        M4 : (g |- eterm),
+        Dmap : (g |- map C1 M3),
+        Dmap1 : (g |- map C2 M2),
+        Dmap2 : (g |- map C1 M3),
+        Dmap3 : (g |- map C2 M4)
+      | x : [g |- map (pair C1 C2) (epair M3 M2)],
+        map : [g |- map (pair C1 C2) (epair M3 M4)]
+      ; split map-fun [g |- Dmap1] [g |- Dmap3] as
+        case eterm-eq/i:
+        { g : map-fun-ctx,
+          C1 : (g |- con),
+          C2 : (g |- con),
+          M3 : (g |- eterm),
+          M4 : (g |- eterm),
+          Dmap : (g |- map C1 M3),
+          Dmap1 : (g |- map C2 M4),
+          Dmap2 : (g |- map C1 M3),
+          Dmap3 : (g |- map C2 M4)
+        | x : [g |- map (pair C1 C2) (epair M3 M4)],
+          map : [g |- map (pair C1 C2) (epair M3 M4)]
+        ; solve [g |- eterm-eq/i ]
+        }
+      }
     }
   }
   %{ FIXME: File "src/core/reconstruct.ml", line 2248, characters 11-16: Pattern matching failed
