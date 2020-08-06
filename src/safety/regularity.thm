@@ -1155,7 +1155,7 @@ intros
                     \b.
                       \db.
                         DofC2[.., a, cn-of/subsume da
-                              (kd-sub/refl (kd-equiv/pi (kd-equiv/symm 
+                              (kd-sub/refl (kd-equiv/pi (kd-equiv/symm
                                                         (DequivK[..]))
                                            (\l1. \l2. kd-equiv/refl kd-wf/t))),
                               b, cn-of/subsume db
@@ -2931,11 +2931,26 @@ intros
               Dwf1[.., b.1, b.2]]
            [g, b : block (a : con, da : cn-of a (K1[..])) |- Dfst2[.., b.1]]
       as DwfK2 unboxed;
-      by sg-fst-fun [g |- Dfst] [g |- Dfst1] as DeqK1 unboxed;
-      by kind-resp-kind [g, k : kind |- sigma k (\a. K3[.., a])] [g |- DeqK1]
-as Deq unboxed;
-      by [g |- kd-wf/sigma DwfK1 (\a. \da. DwfK2[.., <a; da>])] as Dwf' unboxed;
-      solve kd-wf-resp [g |- Deq] [g |- Dwf']
+      split sg-fst-fun [g |- Dfst] [g |- Dfst1] as
+      case kind-eq/i:
+      { g : conbind-reg,
+        S1 : (g |- sg),
+        S2 : (g, a48 : con |- sg),
+        K2 : (g |- kind),
+        K3 : (g, a59 : con |- kind),
+        Dwf : (g |- sg-wf S1),
+        Dfst : (g |- sg-fst S1 K2),
+        Dwf1 : (g, a : con, y479 : cn-of a (K2[..]) |- sg-wf (S2[.., a])),
+        Dfst1 : (g |- sg-fst S1 K2),
+        Dfst2 : (g, a : con |- sg-fst S2 K3),
+        DwfK1 : (g |- kd-wf K2),
+        DwfK2 :
+          (g, b : block (a : con, da : cn-of a (K2[..])) |-
+             kd-wf (K3[.., b.1]))
+      | x : [g |- sg-wf (sg/sigma S1 (\x723. S2))],
+        fst : [g |- sg-fst (sg/sigma S1 (\x723. S2)) (sigma K2 (\z708. K3))]
+      ; solve [g |- kd-wf/sigma DwfK1 (\a. \da. DwfK2[.., <a; da>])]
+      }
     }
   }
   case sg-wf/pi:
@@ -3137,12 +3152,40 @@ intros
                 Dfst2a[.., b.1]]
              [g, b : block (a : con, da : cn-of a (K2[..])) |- Dfst1[.., b.1]]
         as Dequiv2' unboxed;
-        by [g |- kd-equiv/sigma Dequiv1' (\a. \da. Dequiv2'[.., <a; da>])]
-        as Dequiv' unboxed;
-        by sg-fst-fun [g |- Dfst1a] [g |- Dfst1a'] as Deq1a unboxed;
-        by kind-resp-kind [g, k : kind |- sigma k (\a. K4[.., a])] [g |- Deq1a]
-as Deqa unboxed;
-        solve kd-equiv-resp [g |- Deqa] [g |- kind-eq/i ] [g |- Dequiv']
+        split sg-fst-fun [g |- Dfst1a] [g |- Dfst1a'] as
+        case kind-eq/i:
+        { g : conbind-reg,
+          S2 : (g |- sg),
+          S4 : (g, a51 : con |- sg),
+          S3 : (g |- sg),
+          S5 : (g, a52 : con |- sg),
+          K3 : (g |- kind),
+          K4 : (g, a59 : con |- kind),
+          K5 : (g |- kind),
+          K6 : (g, a59 : con |- kind),
+          Dequiv1 : (g |- sg-equiv S2 S3),
+          Dfst1a : (g |- sg-fst S2 K3),
+          Dequiv2 :
+            (g, a : con, x484 : cn-of a (K3[..]) |-
+               sg-equiv (S4[.., a]) (S5[.., a])),
+          Dfst1a' : (g |- sg-fst S2 K3),
+          Dfst2a : (g, a : con |- sg-fst S4 K4),
+          Dfst : (g |- sg-fst S3 K5),
+          Dfst1 : (g, a : con |- sg-fst S5 K6),
+          Dequiv1' : (g |- kd-equiv K3 K5),
+          Dequiv2' :
+            (g, b : block (a : con, da : cn-of a (K3[..])) |-
+               kd-equiv (K4[.., b.1]) (K6[.., b.1]))
+        | x :
+            [g |-
+               sg-equiv (sg/sigma S2 (\x723. S4)) (sg/sigma S3 (\x723. S5))],
+          fst :
+            [g |- sg-fst (sg/sigma S2 (\x723. S4)) (sigma K3 (\z708. K4))],
+          fst1 :
+            [g |- sg-fst (sg/sigma S3 (\x723. S5)) (sigma K5 (\z708. K6))]
+        ; solve
+            [g |- kd-equiv/sigma Dequiv1' (\a. \da. Dequiv2'[.., <a; da>])]
+        }
       }
     }
   }
@@ -3354,8 +3397,18 @@ as Deqa unboxed;
     fst : [g |- sg-fst S1 K],
     fst1 : [g |- sg-fst S1 K1]
   ; by sg-fst-reg [g |- Dwf] fst as DwfK unboxed;
-    by sg-fst-fun fst fst1 as Deq unboxed;
-    solve kd-equiv-resp [g |- kind-eq/i ] [g |- Deq] [g |- kd-equiv/refl DwfK]
+    split sg-fst-fun fst fst1 as
+    case kind-eq/i:
+    { g : conbind-reg,
+      S1 : (g |- sg),
+      K1 : (g |- kind),
+      Dwf : (g |- sg-wf S1),
+      DwfK : (g |- kd-wf K1)
+    | x : [g |- sg-equiv S1 S1],
+      fst : [g |- sg-fst S1 K1],
+      fst1 : [g |- sg-fst S1 K1]
+    ; solve [g |- kd-equiv/refl DwfK]
+    }
   }
 }
 ;
@@ -3487,30 +3540,87 @@ intros
       | x : [g |- sg-sub (sg/sigma S2 (\x365. S4)) (sg/sigma S3 (\x365. S5))],
         fst : [g |- sg-fst (sg/sigma S2 (\x365. S4)) (sigma K4 (\z350. K5))],
         fst1 : [g |- sg-fst (sg/sigma S3 (\x365. S5)) (sigma K6 (\z350. K7))]
-      ; by sg-fst-fun [g |- Dfst] [g |- Dfst2] as Deq1a unboxed;
-        by kind-resp-kind [g, k : kind |- sigma k (\a. K5[.., a])]
-             [g |- Deq1a]
-        as Deqa unboxed;
-        by sg-fst-fun [g |- Dfst1] [g |- Dfst4] as Deq1b unboxed;
-        by kind-resp-kind [g, k : kind |- sigma k (\a. K7[.., a])]
-             [g |- Deq1b]
-        as Deqb unboxed;
-        by sg-sub-fst [g |- Dsub] [g |- Dfst] [g |- Dfst1] as Dsub1' unboxed;
-        by sg-sub-fst
-     [g, b : block (a : con, da : cn-of a (K2[..])) |- Dsub1[.., b.1, b.2]]
-     [g, b : block (a : con, da : cn-of a (K2[..])) |- Dfst3[.., b.1]]
-     [g, b : block (a : con, da : cn-of a (K2[..])) |- Dfst5[.., b.1]]
-as Dsub2' unboxed;
-        by sg-fst-reg
-             [g, b : block (a : con, da : cn-of a (K3[..])) |-
-                Dwf[.., b.1, b.2]]
-             [g, b : block (a : con, da : cn-of a (K3[..])) |- Dfst5[.., b.1]]
-        as Dwf2b' unboxed;
-        by [g |-
-              kd-sub/sigma Dsub1'
-              (\a. \da. Dsub2'[.., <a; da>]) (\a. \da. Dwf2b'[.., <a; da>])]
-        as Dsub' unboxed;
-        solve kd-sub-resp [g |- Deqa] [g |- Deqb] [g |- Dsub']
+      ; split sg-fst-fun [g |- Dfst] [g |- Dfst2] as
+        case kind-eq/i:
+        { g : conbind,
+          S2 : (g |- sg),
+          S4 : (g, a55 : con |- sg),
+          S3 : (g |- sg),
+          S5 : (g, a56 : con |- sg),
+          K4 : (g |- kind),
+          K5 : (g, a59 : con |- kind),
+          K6 : (g |- kind),
+          K7 : (g, a59 : con |- kind),
+          K3 : (g |- kind),
+          Dsub : (g |- sg-sub S2 S3),
+          Dfst : (g |- sg-fst S2 K4),
+          Dsub1 :
+            (g, a : con, z490 : cn-of a (K4[..]) |-
+               sg-sub (S4[.., a]) (S5[.., a])),
+          Dfst1 : (g |- sg-fst S3 K3),
+          Dwf : (g, a : con, x490 : cn-of a (K3[..]) |- sg-wf (S5[.., a])),
+          Dfst2 : (g |- sg-fst S2 K4),
+          Dfst3 : (g, a : con |- sg-fst S4 K5),
+          Dfst4 : (g |- sg-fst S3 K6),
+          Dfst5 : (g, a : con |- sg-fst S5 K7)
+        | x :
+            [g |- sg-sub (sg/sigma S2 (\x723. S4)) (sg/sigma S3 (\x723. S5))],
+          fst :
+            [g |- sg-fst (sg/sigma S2 (\x723. S4)) (sigma K4 (\z708. K5))],
+          fst1 :
+            [g |- sg-fst (sg/sigma S3 (\x723. S5)) (sigma K6 (\z708. K7))]
+        ; split sg-fst-fun [g |- Dfst1] [g |- Dfst4] as
+          case kind-eq/i:
+          { g : conbind,
+            S2 : (g |- sg),
+            S4 : (g, a55 : con |- sg),
+            S3 : (g |- sg),
+            S5 : (g, a56 : con |- sg),
+            K4 : (g |- kind),
+            K5 : (g, a59 : con |- kind),
+            K6 : (g |- kind),
+            K7 : (g, a59 : con |- kind),
+            Dsub : (g |- sg-sub S2 S3),
+            Dfst : (g |- sg-fst S2 K4),
+            Dsub1 :
+              (g, a : con, z490 : cn-of a (K4[..]) |-
+                 sg-sub (S4[.., a]) (S5[.., a])),
+            Dfst1 : (g |- sg-fst S3 K6),
+            Dwf : (g, a : con, x490 : cn-of a (K6[..]) |- sg-wf (S5[.., a])),
+            Dfst2 : (g |- sg-fst S2 K4),
+            Dfst3 : (g, a : con |- sg-fst S4 K5),
+            Dfst4 : (g |- sg-fst S3 K6),
+            Dfst5 : (g, a : con |- sg-fst S5 K7)
+          | x :
+              [g |-
+                 sg-sub (sg/sigma S2 (\x723. S4)) (sg/sigma S3 (\x723. S5))],
+            fst :
+              [g |- sg-fst (sg/sigma S2 (\x723. S4)) (sigma K4 (\z708. K5))],
+            fst1 :
+              [g |- sg-fst (sg/sigma S3 (\x723. S5)) (sigma K6 (\z708. K7))]
+          ; by sg-sub-fst [g |- Dsub] [g |- Dfst] [g |- Dfst1]
+            as Dsub1' unboxed;
+            by sg-sub-fst
+                 [g, b : block (a : con, da : cn-of a (K4[..])) |-
+                    Dsub1[.., b.1, b.2]]
+                 [g, b : block (a : con, da : cn-of a (K4[..])) |-
+                    Dfst3[.., b.1]]
+                 [g, b : block (a : con, da : cn-of a (K4[..])) |-
+                    Dfst5[.., b.1]]
+            as Dsub2' unboxed;
+            by sg-fst-reg
+                 [g, b : block (a : con, da : cn-of a (K6[..])) |-
+                    Dwf[.., b.1, b.2]]
+                 [g, b : block (a : con, da : cn-of a (K6[..])) |-
+                    Dfst5[.., b.1]]
+            as Dwf2b' unboxed;
+            solve
+              [g |-
+                 kd-sub/sigma Dsub1'
+                 (\a. \da. Dsub2'[.., <a; da>])
+                 (\a. \da. Dwf2b'[.., <a; da>])]
+          }
+        }
       }
     }
   }
@@ -4310,15 +4420,49 @@ intros
            md-fst (M2[.., a, m]) (C4[.., a]))
     | x : [g |- md-fst (md/letp M1 (\a. \m. M2)) (C2[.., C1])],
       fst : [g |- md-fst (md/letp M1 (\a. \m. M2)) (C4[.., C3])]
-    ; by md-fst-fun [g |- Dfst] [g |- Dfst2] as Deq1 unboxed;
-      by md-fst-fun
-           [g, b : block (a : con, m : module', dfst : md-fst m a) |-
-              Dfst1[.., b.1, b.2, b.3]]
-           [g, b : block (a : con, m : module', dfst : md-fst m a) |-
-              Dfst3[.., b.1, b.2, b.3]]
-      as Deq2 unboxed;
-      by con-resp-con [g, c : con |- C2] [g |- Deq1] as Deq1' unboxed;
-      solve con-eq-trans [g |- Deq1'] [g |- Deq2[.., <C3; _; _>]]
+    ; split md-fst-fun [g |- Dfst] [g |- Dfst2] as
+      case con-eq/i:
+      { g : md-fst-fun-ctx,
+        M1 : (g |- module'),
+        M2 : (g, a73 : con, m7 : module' |- module'),
+        C2 : (g, a74 : con |- con),
+        C3 : (g |- con),
+        C4 : (g, a74 : con |- con),
+        Dfst : (g |- md-fst M1 C3),
+        Dfst1 :
+          (g, a : con, m : module', z511 : md-fst m a |-
+             md-fst (M2[.., a, m]) (C2[.., a])),
+        Dfst2 : (g |- md-fst M1 C3),
+        Dfst3 :
+          (g, a : con, m : module', z511 : md-fst m a |-
+             md-fst (M2[.., a, m]) (C4[.., a]))
+      | x : [g |- md-fst (md/letp M1 (\a. \m. M2)) (C2[.., C3])],
+        fst : [g |- md-fst (md/letp M1 (\a. \m. M2)) (C4[.., C3])]
+      ; split
+        md-fst-fun
+          [g, b : block (a : con, m : module', dfst : md-fst m a) |-
+             Dfst1[.., b.1, b.2, b.3]]
+          [g, b : block (a : con, m : module', dfst : md-fst m a) |-
+             Dfst3[.., b.1, b.2, b.3]] as
+        case con-eq/i:
+        { g : md-fst-fun-ctx,
+          M1 : (g |- module'),
+          M2 : (g, a73 : con, m7 : module' |- module'),
+          C5 : (g, a : con |- con),
+          C3 : (g |- con),
+          Dfst : (g |- md-fst M1 C3),
+          Dfst1 :
+            (g, a : con, m : module', z511 : md-fst m a |-
+               md-fst (M2[.., a, m]) (C5[.., a])),
+          Dfst2 : (g |- md-fst M1 C3),
+          Dfst3 :
+            (g, a : con, m : module', z511 : md-fst m a |-
+               md-fst (M2[.., a, m]) (C5[.., a]))
+        | x : [g |- md-fst (md/letp M1 (\a. \m. M2)) (C5[.., C3])],
+          fst : [g |- md-fst (md/letp M1 (\a. \m. M2)) (C5[.., C3])]
+        ; solve [g |- con-eq/i ]
+        }
+      }
     }
   }
   case md-fst/out:
@@ -4397,8 +4541,17 @@ intros
       Dfst1 : (g |- md-fst M1 C2)
     | x : [g |- md-fst (md/pi2 M1) (pi2 C1)],
       fst : [g |- md-fst (md/pi2 M1) (pi2 C2)]
-    ; by md-fst-fun [g |- Dfst] [g |- Dfst1] as Deq unboxed;
-      solve con-resp-con [g, c : con |- pi2 c] [g |- Deq]
+    ; split md-fst-fun [g |- Dfst] [g |- Dfst1] as
+      case con-eq/i:
+      { g : md-fst-fun-ctx,
+        M1 : (g |- module'),
+        C2 : (g |- con),
+        Dfst : (g |- md-fst M1 C2),
+        Dfst1 : (g |- md-fst M1 C2)
+      | x : [g |- md-fst (md/pi2 M1) (pi2 C2)],
+        fst : [g |- md-fst (md/pi2 M1) (pi2 C2)]
+      ; solve [g |- con-eq/i ]
+      }
     }
   }
   case md-fst/pi1:
@@ -4419,8 +4572,17 @@ intros
       Dfst1 : (g |- md-fst M1 C2)
     | x : [g |- md-fst (md/pi1 M1) (pi1 C1)],
       fst : [g |- md-fst (md/pi1 M1) (pi1 C2)]
-    ; by md-fst-fun [g |- Dfst] [g |- Dfst1] as Deq unboxed;
-      solve con-resp-con [g, c : con |- pi1 c] [g |- Deq]
+    ; split md-fst-fun [g |- Dfst] [g |- Dfst1] as
+      case con-eq/i:
+      { g : md-fst-fun-ctx,
+        M1 : (g |- module'),
+        C2 : (g |- con),
+        Dfst : (g |- md-fst M1 C2),
+        Dfst1 : (g |- md-fst M1 C2)
+      | x : [g |- md-fst (md/pi1 M1) (pi1 C2)],
+        fst : [g |- md-fst (md/pi1 M1) (pi1 C2)]
+      ; solve [g |- con-eq/i ]
+      }
     }
   }
   case md-fst/dpair:
@@ -4455,19 +4617,50 @@ intros
            md-fst (M2[.., a, m]) (C4[.., a]))
     | x : [g |- md-fst (md/dpair M1 (\a. \m. M2)) (pair C1 (C2[.., C1]))],
       fst : [g |- md-fst (md/dpair M1 (\a. \m. M2)) (pair C3 (C4[.., C3]))]
-    ; by md-fst-fun [g |- Dfst] [g |- Dfst2] as Deq1 unboxed;
-      by md-fst-fun
-           [g, b : block (a : con, m : module', dfst : md-fst m a) |-
-              Dfst1[.., b.1, b.2, b.3]]
-           [g, b : block (a : con, m : module', dfst : md-fst m a) |-
-              Dfst3[.., b.1, b.2, b.3]]
-      as Deq2 unboxed;
-      by con-resp-con [g, c : con |- C4] [g |- Deq1] as Deq2' unboxed;
-      by con-eq-trans [g |- Deq2[.., <C1; _; _>]] [g |- Deq2']
-      as Deq2'' unboxed;
-      solve
-  con-resp-con2 [g, c1 : con, c2 : con |- pair c1 c2] [g |- Deq1]
-    [g |- Deq2'']
+    ; split md-fst-fun [g |- Dfst] [g |- Dfst2] as
+      case con-eq/i:
+      { g : md-fst-fun-ctx,
+        M1 : (g |- module'),
+        M2 : (g, a70 : con, m5 : module' |- module'),
+        C3 : (g |- con),
+        C2 : (g, a71 : con |- con),
+        C4 : (g, a71 : con |- con),
+        Dfst : (g |- md-fst M1 C3),
+        Dfst1 :
+          (g, a : con, m : module', x509 : md-fst m a |-
+             md-fst (M2[.., a, m]) (C2[.., a])),
+        Dfst2 : (g |- md-fst M1 C3),
+        Dfst3 :
+          (g, a : con, m : module', x509 : md-fst m a |-
+             md-fst (M2[.., a, m]) (C4[.., a]))
+      | x : [g |- md-fst (md/dpair M1 (\a. \m. M2)) (pair C3 (C2[.., C3]))],
+        fst : [g |- md-fst (md/dpair M1 (\a. \m. M2)) (pair C3 (C4[.., C3]))]
+      ; split
+        md-fst-fun
+          [g, b : block (a : con, m : module', dfst : md-fst m a) |-
+             Dfst1[.., b.1, b.2, b.3]]
+          [g, b : block (a : con, m : module', dfst : md-fst m a) |-
+             Dfst3[.., b.1, b.2, b.3]] as
+        case con-eq/i:
+        { g : md-fst-fun-ctx,
+          M1 : (g |- module'),
+          M2 : (g, a70 : con, m5 : module' |- module'),
+          C3 : (g |- con),
+          C5 : (g, a : con |- con),
+          Dfst : (g |- md-fst M1 C3),
+          Dfst1 :
+            (g, a : con, m : module', x509 : md-fst m a |-
+               md-fst (M2[.., a, m]) (C5[.., a])),
+          Dfst2 : (g |- md-fst M1 C3),
+          Dfst3 :
+            (g, a : con, m : module', x509 : md-fst m a |-
+               md-fst (M2[.., a, m]) (C5[.., a]))
+        | x : [g |- md-fst (md/dpair M1 (\a. \m. M2)) (pair C3 (C5[.., C3]))],
+          fst :
+            [g |- md-fst (md/dpair M1 (\a. \m. M2)) (pair C3 (C5[.., C3]))]
+        ; solve [g |- con-eq/i ]
+        }
+      }
     }
   }
   case md-fst/pair:
@@ -4496,10 +4689,36 @@ intros
       Dfst3 : (g |- md-fst M2 C4)
     | x : [g |- md-fst (md/pair M1 M2) (pair C1 C2)],
       fst : [g |- md-fst (md/pair M1 M2) (pair C3 C4)]
-    ; by md-fst-fun [g |- Dfst] [g |- Dfst2] as Deq1 unboxed;
-      by md-fst-fun [g |- Dfst1] [g |- Dfst3] as Deq2 unboxed;
-      solve
-  con-resp-con2 [g, c1 : con, c2 : con |- pair c1 c2] [g |- Deq1] [g |- Deq2]
+    ; split md-fst-fun [g |- Dfst] [g |- Dfst2] as
+      case con-eq/i:
+      { g : md-fst-fun-ctx,
+        M1 : (g |- module'),
+        M2 : (g |- module'),
+        C3 : (g |- con),
+        C2 : (g |- con),
+        C4 : (g |- con),
+        Dfst : (g |- md-fst M1 C3),
+        Dfst1 : (g |- md-fst M2 C2),
+        Dfst2 : (g |- md-fst M1 C3),
+        Dfst3 : (g |- md-fst M2 C4)
+      | x : [g |- md-fst (md/pair M1 M2) (pair C3 C2)],
+        fst : [g |- md-fst (md/pair M1 M2) (pair C3 C4)]
+      ; split md-fst-fun [g |- Dfst1] [g |- Dfst3] as
+        case con-eq/i:
+        { g : md-fst-fun-ctx,
+          M1 : (g |- module'),
+          M2 : (g |- module'),
+          C3 : (g |- con),
+          C4 : (g |- con),
+          Dfst : (g |- md-fst M1 C3),
+          Dfst1 : (g |- md-fst M2 C4),
+          Dfst2 : (g |- md-fst M1 C3),
+          Dfst3 : (g |- md-fst M2 C4)
+        | x : [g |- md-fst (md/pair M1 M2) (pair C3 C4)],
+          fst : [g |- md-fst (md/pair M1 M2) (pair C3 C4)]
+        ; solve [g |- con-eq/i ]
+        }
+      }
     }
   }
   case md-fst/sgatom:
