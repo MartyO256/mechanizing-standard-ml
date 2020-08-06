@@ -6154,3 +6154,24 @@ intros
   }
 }
 ;
+
+proof skof-implies-eof-rec :
+  (g : ebind)
+  { SK : [g |- skel] }
+  [g |- skof SK A (\x. B)] ->
+    [g |-
+      eof
+        (econst (const/rec SK))
+        (epi
+          (esigma
+            A
+            (\x. esigma
+              (epi (epi (B [.., x]) (\l. et)) (\l. epi (B [.., x]) (\l. et)))
+              (\l. B [.., x]))
+          )
+          (\l. et)
+        )
+    ] =
+/ total /
+?
+;
