@@ -1026,14 +1026,14 @@ intros
     F3 : ( |- sttp),
     ET : ( |- entp),
     F1' : ( |- sttp),
-    Dbounds : ( |- store-bounds ST1 Dloc),
-    Dof : ( |- entry-of F EN ET),
-    Dof1 : ( |- store-of F ST1 F3)
+    Dof1 : ( |- store-of F ST1 F3),
+    Dof2 : ( |- entry-of F EN ET),
+    Dbounds : ( |- store-bounds ST1 Dloc)
   | x : [ |- store-of F (store/cons ST1 Dloc EN) (st/cons F3 Dloc ET)],
     extends : [ |- extends F F1']
   ; by monotonicity-store [ |- Dof1] extends as Dstof' unboxed;
-    by monotonicity-entry [ |- Dof] extends as Dof' unboxed;
-    solve [ |- store-of/cons Dbounds Dof' Dstof']
+    by monotonicity-entry [ |- Dof2] extends as Dof' unboxed;
+    solve [ |- store-of/cons Dstof' Dof' Dbounds]
   }
   case store-of/nil:
   { F : ( |- sttp), F1' : ( |- sttp)
@@ -4560,17 +4560,58 @@ as DequivRec1 unboxed;
                    (tm/tagloc Dloc) (\x355. E2) E3) ST' (E2[E1])]
           ; by injective-tag [ |- Dequiv1] as Dequiv1' unboxed;
             by injective-tag [ |- Dequiv2] as Dequiv2' unboxed;
-            by st-lookup-fun [ |- Dstof] [ |- Dlookup] [ |- Dlookup1]
-            as Deq unboxed;
-            by entp-eq-invert-tag [ |- Deq] as Deq' unboxed;
-            by cn-equiv-resp [ |- Deq'] [ |- con-eq/i ] [ |- kind-eq/i ]
-                 [ |- Dequiv1']
-            as Dequiv1'' unboxed;
-            by [ |-
-                  tm-of/equiv Dof6
-                  (cn-equiv/trans (cn-equiv/symm Dequiv2') Dequiv1'')]
-            as Dof' unboxed;
-            ?
+            split st-lookup-fun [ |- Dstof] [ |- Dlookup] [ |- Dlookup1] as
+            case entp-eq/i:
+            { F : ( |- sttp),
+              Dloc : ( |- location),
+              E1 : ( |- term),
+              E2 : (x18 : term |- term),
+              E3 : ( |- term),
+              T : ( |- con),
+              ST' : ( |- store),
+              Dof :
+                ( |-
+                   tm-of
+                     F
+                     (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+                     (tm/tagloc Dloc) (\y125. E2) E3) T),
+              Dstof : ( |- store-of F ST' F),
+              Dvalue : ( |- value E1),
+              C1 : ( |- con),
+              Dof1 : ( |- tm-of F (tm/tag (tm/tagloc Dloc) E1) tagged),
+              Dof2 : ( |- tm-of F (tm/tagloc Dloc) (tag C1)),
+              Dof3 :
+                (x : term, u : {F' : sttp}  tm-of F' x C1[] |-
+                   tm-of F[] (E2[x]) T[]),
+              Dof4 : ( |- tm-of F E3 T),
+              C3 : ( |- con),
+              Dequiv : ( |- cn-equiv tagged tagged t),
+              Dof5 : ( |- tm-of F (tm/tagloc Dloc) (tag C3)),
+              Dof6 : ( |- tm-of F E1 C3),
+              C7 : ( |- con),
+              Dequiv1 : ( |- cn-equiv (tag C7) (tag C1) t),
+              Dlookup : ( |- st-lookup F Dloc (et/tag C7)),
+              Dof7 : ( |- cn-of C7 t),
+              Dequiv2 : ( |- cn-equiv (tag C7) (tag C3) t),
+              Dlookup1 : ( |- st-lookup F Dloc (et/tag C7)),
+              Dof8 : ( |- cn-of C7 t),
+              Dequiv1' : ( |- cn-equiv C7 C1 t),
+              Dequiv2' : ( |- cn-equiv C7 C3 t)
+            | tof :
+                [ |-
+                   tm-of
+                     F
+                     (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+                     (tm/tagloc Dloc) (\z725. E2) E3) T],
+              sof : [ |- store-of F ST' F],
+              x :
+                [ |-
+                   step
+                     ST'
+                     (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
+                     (tm/tagloc Dloc) (\z725. E2) E3) ST' (E2[E1])]
+            ; ?
+            }
           }
         }
       }
@@ -4955,7 +4996,7 @@ as DequivRec1 unboxed;
         [ |-
           preservation-tm/i _
           (tm-of/equiv (tm-of/tagloc (st-lookup/hit ) Dwf') Dequiv)
-          (store-of/cons Dbound (entry-of/tag Dwf') Dstof')
+          (store-of/cons Dstof' (entry-of/tag Dwf') Dbound)
           (extends/cons (extends/nil ) _ _)]
     }
   }
@@ -5301,14 +5342,12 @@ as DequivRec1 unboxed;
       by monotonicity-store [ |- Dstof]
            [ |- extends/cons (extends/nil ) Dloc (et/ref C1)]
       as Dstof' unboxed;
-      by [ |- tm-of/equiv (tm-of/refloc (st-lookup/hit ) Dwf) Dequiv]
-      as Dof''' unboxed;
-      by [ |- store-of/cons Dbound (entry-of/ref Dvalue Dof'') Dstof']
-      as Dstof'' unboxed;
       solve
         [ |-
-           preservation-tm/i _
-           Dof''' Dstof'' (extends/cons (extends/nil ) _ _)]
+          preservation-tm/i _
+          (tm-of/equiv (tm-of/refloc (st-lookup/hit ) Dwf) Dequiv)
+          (store-of/cons Dstof' (entry-of/ref Dvalue Dof'') Dbound)
+          (extends/cons (extends/nil ) _ _)]
     }
   }
   case step/ref:
