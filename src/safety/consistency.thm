@@ -15839,6 +15839,9 @@ schema invert-bind =
   % conbind-reg
   some [K : kind, wf : kd-wf K]
   block (a : con, da : cn-of a K) +
+  % ebind
+  some [ea : etp]
+  block (ex : eterm, ed : eof ex ea) +
   % map-bind
   some [B : etp, K : kind, Dmap : tmap K B, Dwf : ewf B]
   block (
@@ -16175,7 +16178,1836 @@ intros
     Dof1 : (g |- cn-of C2 K1)
   | x : [g |- cn-of (rec' K1 (\x716. \z716. C1) C2) t],
     map : [g |- map (rec' K1 (\x716. \z716. C1) C2) M]
-  ; ?
+  ; split map as
+    case map/rec:
+    { g : invert-bind,
+      K : (g |- kind),
+      C1 : (g, a : con, a1 : con |- con),
+      C2 : (g |- con),
+      Dskel : ( |- skel),
+      M3 : (g |- eterm),
+      A : (g |- etp),
+      M1 : (g, y : eterm, z : eterm |- eterm),
+      M2 : (g |- eterm),
+      DwfK : (g |- kd-wf K),
+      DofC1 :
+        (g, a : con, z : cn-of a (pi (K[..]) (\l. t)), b : con,
+         y : cn-of b (K[..]) |- cn-of (C1[.., a, b]) t),
+      DofC2 : (g |- cn-of C2 K),
+      Dtmap : (g |- tmap K A),
+      Dmap :
+        (g, a : con, x : eterm, y : map a x, b : con, y1 : eterm,
+         x1 : map b y1 |- map (C1[.., a, b]) (M1[.., x, y1])),
+      Dmap1 : (g |- map C2 M2),
+      Dflay : (g |- flay A Dskel[] M3)
+    | x : [g |- cn-of (rec' K (\z715. \y716. C1) C2) t],
+      map :
+        [g |-
+           map
+             (rec' K (\z715. \y716. C1) C2)
+             (eapp (econst (const/rec Dskel[]))
+             (epair M3
+             (epair (elam (epi A (\x. et)) (\x. elam (A[..]) (\y. M1))) M2)))]
+    ; split invert-tmap [g |- DwfK] [g |- Dtmap] as
+      case invert-tmap/i:
+      { g : invert-bind,
+        K : (g |- kind),
+        C1 : (g, a : con, a1 : con |- con),
+        C2 : (g |- con),
+        SK : ( |- skel),
+        MA : (g |- eterm),
+        A : (g |- etp),
+        M1 : (g, y : eterm, z : eterm |- eterm),
+        M2 : (g |- eterm),
+        DwfK : (g |- kd-wf K),
+        DofC1 :
+          (g, a : con, z : cn-of a (pi (K[..]) (\l. t)), b : con,
+           y : cn-of b (K[..]) |- cn-of (C1[.., a, b]) t),
+        DofC2 : (g |- cn-of C2 K),
+        DmapK : (g |- tmap K A),
+        DmapC1 :
+          (g, a : con, x : eterm, y : map a x, b : con, y1 : eterm,
+           x1 : map b y1 |- map (C1[.., a, b]) (M1[.., x, y1])),
+        DmapC2 : (g |- map C2 M2),
+        Dflay : (g |- flay A SK[] MA),
+        K2 : (g |- kind),
+        Dtunmap : (g |- tunmap A K2),
+        Dequiv : (g |- kd-equiv K K2)
+      | x : [g |- cn-of (rec' K (\z715. \y716. C1) C2) t],
+        map :
+          [g |-
+             map
+               (rec' K (\z715. \y716. C1) C2)
+               (eapp (econst (const/rec SK[]))
+               (epair MA
+               (epair (elam (epi A (\x. et)) (\x. elam (A[..]) (\y. M1))) M2)))]
+      ; split map-wf [g |- DwfK] as
+        case map-wf/i:
+        { g : invert-bind,
+          K : (g |- kind),
+          C1 : (g, a : con, a1 : con |- con),
+          C2 : (g |- con),
+          SK : ( |- skel),
+          MA : (g |- eterm),
+          A : (g |- etp),
+          M1 : (g, y : eterm, z : eterm |- eterm),
+          M2 : (g |- eterm),
+          DwfK : (g |- kd-wf K),
+          DofC1 :
+            (g, a : con, z : cn-of a (pi (K[..]) (\l. t)), b : con,
+             y : cn-of b (K[..]) |- cn-of (C1[.., a, b]) t),
+          DofC2 : (g |- cn-of C2 K),
+          DmapK : (g |- tmap K A),
+          DmapC1 :
+            (g, a : con, x : eterm, y : map a x, b : con, y1 : eterm,
+             x1 : map b y1 |- map (C1[.., a, b]) (M1[.., x, y1])),
+          DmapC2 : (g |- map C2 M2),
+          Dflay : (g |- flay A SK[] MA),
+          K' : (g |- kind),
+          DmapA : (g |- tunmap A K'),
+          DequivK : (g |- kd-equiv K K'),
+          A1 : (g |- etp),
+          Dtmap : (g |- tmap K A1),
+          Dwf : (g |- ewf A1)
+        | x : [g |- cn-of (rec' K (\z715. \y716. C1) C2) t],
+          map :
+            [g |-
+               map
+                 (rec' K (\z715. \y716. C1) C2)
+                 (eapp (econst (const/rec SK[]))
+                 (epair MA
+                 (epair (elam (epi A (\x. et)) (\x. elam (A[..]) (\y. M1)))
+                 M2)))]
+        ; split tmap-fun [g |- DmapK] [g |- Dtmap] as
+          case etp-eq/i:
+          { g : invert-bind,
+            K : (g |- kind),
+            C1 : (g, a : con, a1 : con |- con),
+            C2 : (g |- con),
+            SK : ( |- skel),
+            MA : (g |- eterm),
+            A' : (g |- etp),
+            M1 : (g, y : eterm, z : eterm |- eterm),
+            M2 : (g |- eterm),
+            DwfK : (g |- kd-wf K),
+            DofC1 :
+              (g, a : con, z : cn-of a (pi (K[..]) (\l. t)), b : con,
+               y : cn-of b (K[..]) |- cn-of (C1[.., a, b]) t),
+            DofC2 : (g |- cn-of C2 K),
+            DmapK : (g |- tmap K A'),
+            DmapC1 :
+              (g, a : con, x : eterm, y : map a x, b : con, y1 : eterm,
+               x1 : map b y1 |- map (C1[.., a, b]) (M1[.., x, y1])),
+            DmapC2 : (g |- map C2 M2),
+            Dflay : (g |- flay A' SK[] MA),
+            K' : (g |- kind),
+            DmapA : (g |- tunmap A' K'),
+            DequivK : (g |- kd-equiv K K'),
+            DmapK' : (g |- tmap K A'),
+            DwfA' : (g |- ewf A')
+          | x : [g |- cn-of (rec' K (\z715. \y716. C1) C2) t],
+            map :
+              [g |-
+                 map
+                   (rec' K (\z715. \y716. C1) C2)
+                   (eapp (econst (const/rec SK[]))
+                   (epair MA
+                   (epair (elam (epi A' (\x. et))
+                          (\x. elam (A'[..]) (\y. M1)))
+                   M2)))]
+          ; by [g |- kd-wf/pi DwfK (\l1. \l2. kd-wf/t)] as DwfKpi unboxed;
+            by [g |- tmap/pi DmapK (\a. \x. \at. tmap/t)] as DmapKpi unboxed;
+            by [g |- kd-equiv/pi DequivK (\a. \da. kd-equiv/refl kd-wf/t)]
+            as DequivKpi unboxed;
+            by [g |- tunmap/pi DmapA (\x. \a. \xt. tunmap/t)]
+            as DmapApi unboxed;
+            by [g |- ewf/pi DwfA' (\x. \dx. ewf/t)] as DwfApi unboxed;
+            split
+invert-map
+  [g,
+   b1 :
+     block (
+       a : con,
+       da : cn-of a (pi (K[..]) (\l. t)),
+       x : eterm,
+       dx : eof x (epi (A'[..]) (\l. et)),
+       at : map a x,
+       xt : unmap x a),
+   b2 :
+     block (
+       b : con,
+       db : cn-of b (K[..]),
+       y : eterm,
+       dy : eof y (A'[..]),
+       bt : map b y,
+       yt : unmap y b) |- DofC1[.., b1.1, b1.2, b2.1, b2.2]]
+  [g,
+   b1 :
+     block (
+       a : con,
+       da : cn-of a (pi (K[..]) (\l. t)),
+       x : eterm,
+       dx : eof x (epi (A'[..]) (\l. et)),
+       at : map a x,
+       xt : unmap x a),
+   b2 :
+     block (
+       b : con,
+       db : cn-of b (K[..]),
+       y : eterm,
+       dy : eof y (A'[..]),
+       bt : map b y,
+       yt : unmap y b) |- DmapC1[.., b1.1, b1.3, b1.5, b2.1, b2.3, b2.5]] as
+            case invert-map/i:
+            { g : invert-bind,
+              K : (g |- kind),
+              C3 : (g, a : con, b : con |- con),
+              C2 : (g |- con),
+              SK : ( |- skel),
+              MA : (g |- eterm),
+              A : (g |- etp),
+              M3 : (g, x : eterm, y : eterm |- eterm),
+              M2 : (g |- eterm),
+              DwfK : (g |- kd-wf K),
+              DofC1 :
+                (g, a : con, z : cn-of a (pi (K[..]) (\l. t)), b : con,
+                 y : cn-of b (K[..]) |- cn-of (C3[.., a, b]) t),
+              DofC2 : (g |- cn-of C2 K),
+              DmapK : (g |- tmap K A),
+              DmapC1 :
+                (g, a : con, x : eterm, y : map a x, b : con, y1 : eterm,
+                 x1 : map b y1 |- map (C3[.., a, b]) (M3[.., x, y1])),
+              DmapC2 : (g |- map C2 M2),
+              Dflay : (g |- flay A SK[] MA),
+              K' : (g |- kind),
+              DmapA : (g |- tunmap A K'),
+              DequivK : (g |- kd-equiv K K'),
+              DmapK' : (g |- tmap K A),
+              DwfA' : (g |- ewf A),
+              DwfKpi : (g |- kd-wf (pi K (\z707. t))),
+              DmapKpi : (g |- tmap (pi K (\z707. t)) (epi A (\z146. et))),
+              DequivKpi :
+                (g |- kd-equiv (pi K (\z707. t)) (pi K' (\z707. t))),
+              DmapApi : (g |- tunmap (epi A (\z146. et)) (pi K' (\z707. t))),
+              DwfApi : (g |- ewf (epi A (\z146. et))),
+              C4 : (g, a : con, b : con |- con),
+              Dunmap :
+                (g, a : con, x : eterm, z22 : unmap x a, b : con, y : eterm,
+                 y23 : unmap y b |- unmap (M3[.., x, y]) (C4[.., a, b])),
+              Dequiv :
+                (g, a : con, da : cn-of a (pi (K[..]) (\l. t)), b : con,
+                 db : cn-of b (K[..]) |-
+                   cn-equiv (C3[.., a, b]) (C4[.., a, b]) t)
+            | x : [g |- cn-of (rec' K (\z715. \y716. C3) C2) t],
+              map :
+                [g |-
+                   map
+                     (rec' K (\z715. \y716. C3) C2)
+                     (eapp (econst (const/rec SK[]))
+                     (epair MA
+                     (epair (elam (epi A (\x. et))
+                            (\x. elam (A[..]) (\y. M3)))
+                     M2)))]
+            ; split invert-map [g |- DofC2] [g |- DmapC2] as
+              case invert-map/i:
+              { g : invert-bind,
+                K : (g |- kind),
+                C1 : (g, a : con, b : con |- con),
+                C2 : (g |- con),
+                SK : ( |- skel),
+                MA : (g |- eterm),
+                A : (g |- etp),
+                M1 : (g, x : eterm, y : eterm |- eterm),
+                M2 : (g |- eterm),
+                DwfK : (g |- kd-wf K),
+                DofC1 :
+                  (g, a : con, z : cn-of a (pi (K[..]) (\l. t)), b : con,
+                   y : cn-of b (K[..]) |- cn-of (C1[.., a, b]) t),
+                DofC2 : (g |- cn-of C2 K),
+                DmapK : (g |- tmap K A),
+                DmapC1 :
+                  (g, a : con, x : eterm, y : map a x, b : con, y1 : eterm,
+                   x1 : map b y1 |- map (C1[.., a, b]) (M1[.., x, y1])),
+                DmapC2 : (g |- map C2 M2),
+                Dflay : (g |- flay A SK[] MA),
+                K' : (g |- kind),
+                DmapA : (g |- tunmap A K'),
+                DequivK : (g |- kd-equiv K K'),
+                DmapK' : (g |- tmap K A),
+                DwfA' : (g |- ewf A),
+                DwfKpi : (g |- kd-wf (pi K (\z707. t))),
+                DmapKpi : (g |- tmap (pi K (\z707. t)) (epi A (\z146. et))),
+                DequivKpi :
+                  (g |- kd-equiv (pi K (\z707. t)) (pi K' (\z707. t))),
+                DmapApi :
+                  (g |- tunmap (epi A (\z146. et)) (pi K' (\z707. t))),
+                DwfApi : (g |- ewf (epi A (\z146. et))),
+                C1' : (g, a : con, b : con |- con),
+                DmapM1 :
+                  (g, a : con, x : eterm, z22 : unmap x a, b : con, y : eterm,
+                   y23 : unmap y b |- unmap (M1[.., x, y]) (C1'[.., a, b])),
+                DequivC1 :
+                  (g, a : con, da : cn-of a (pi (K[..]) (\l. t)), b : con,
+                   db : cn-of b (K[..]) |-
+                     cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+                C4 : (g |- con),
+                Dunmap : (g |- unmap M2 C4),
+                Dequiv : (g |- cn-equiv C2 C4 K)
+              | x : [g |- cn-of (rec' K (\z715. \y716. C1) C2) t],
+                map :
+                  [g |-
+                     map
+                       (rec' K (\z715. \y716. C1) C2)
+                       (eapp (econst (const/rec SK[]))
+                       (epair MA
+                       (epair (elam (epi A (\x. et))
+                              (\x. elam (A[..]) (\y. M1)))
+                       M2)))]
+              ; split can-skof [ |- SK] as
+                case can-skof/i:
+                { g : invert-bind,
+                  K : (g |- kind),
+                  C1 : (g, a : con, b : con |- con),
+                  C2 : (g |- con),
+                  SK : ( |- skel),
+                  MA : (g |- eterm),
+                  A : (g |- etp),
+                  M1 : (g, x : eterm, y : eterm |- eterm),
+                  M2 : (g |- eterm),
+                  DwfK : (g |- kd-wf K),
+                  DofC1 :
+                    (g, a : con, z : cn-of a (pi (K[..]) (\l. t)), b : con,
+                     y : cn-of b (K[..]) |- cn-of (C1[.., a, b]) t),
+                  DofC2 : (g |- cn-of C2 K),
+                  DmapK : (g |- tmap K A),
+                  DmapC1 :
+                    (g, a : con, x : eterm, y : map a x, b : con, y1 : eterm,
+                     x1 : map b y1 |- map (C1[.., a, b]) (M1[.., x, y1])),
+                  DmapC2 : (g |- map C2 M2),
+                  Dflay : (g |- flay A SK[] MA),
+                  K' : (g |- kind),
+                  DmapA : (g |- tunmap A K'),
+                  DequivK : (g |- kd-equiv K K'),
+                  DmapK' : (g |- tmap K A),
+                  DwfA' : (g |- ewf A),
+                  DwfKpi : (g |- kd-wf (pi K (\z707. t))),
+                  DmapKpi : (g |- tmap (pi K (\z707. t)) (epi A (\z146. et))),
+                  DequivKpi :
+                    (g |- kd-equiv (pi K (\z707. t)) (pi K' (\z707. t))),
+                  DmapApi :
+                    (g |- tunmap (epi A (\z146. et)) (pi K' (\z707. t))),
+                  DwfApi : (g |- ewf (epi A (\z146. et))),
+                  C1' : (g, a : con, b : con |- con),
+                  DmapM1 :
+                    (g, a : con, x : eterm, z22 : unmap x a, b : con,
+                     y : eterm,
+                     y23 : unmap y b |- unmap (M1[.., x, y]) (C1'[.., a, b])),
+                  DequivC1 :
+                    (g, a : con, da : cn-of a (pi (K[..]) (\l. t)), b : con,
+                     db : cn-of b (K[..]) |-
+                       cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+                  C2' : (g |- con),
+                  DmapM2 : (g |- unmap M2 C2'),
+                  DequivC2 : (g |- cn-equiv C2 C2' K),
+                  A1 : ( |- etp),
+                  A2 : (y : eterm |- etp),
+                  Dskof : ( |- skof SK A1 (\x346. A2))
+                | x : [g |- cn-of (rec' K (\z715. \y716. C1) C2) t],
+                  map :
+                    [g |-
+                       map
+                         (rec' K (\z715. \y716. C1) C2)
+                         (eapp (econst (const/rec SK[]))
+                         (epair MA
+                         (epair (elam (epi A (\x. et))
+                                (\x. elam (A[..]) (\y. M1)))
+                         M2)))]
+                ; split flay-sound [g |- DwfA'] [g |- Dflay] [g |- Dskof[]] as
+                  case flay-sound/i:
+                  { g : invert-bind,
+                    K : (g |- kind),
+                    C1 : (g, a : con, b : con |- con),
+                    C2 : (g |- con),
+                    SK : ( |- skel),
+                    MA : (g |- eterm),
+                    A : (g |- etp),
+                    M1 : (g, x : eterm, y : eterm |- eterm),
+                    M2 : (g |- eterm),
+                    DwfK : (g |- kd-wf K),
+                    DofC1 :
+                      (g, a : con, z : cn-of a (pi (K[..]) (\l. t)), b : con,
+                       y : cn-of b (K[..]) |- cn-of (C1[.., a, b]) t),
+                    DofC2 : (g |- cn-of C2 K),
+                    DmapK : (g |- tmap K A),
+                    DmapC1 :
+                      (g, a : con, x : eterm, y : map a x, b : con,
+                       y1 : eterm,
+                       x1 : map b y1 |- map (C1[.., a, b]) (M1[.., x, y1])),
+                    DmapC2 : (g |- map C2 M2),
+                    Dflay : (g |- flay A SK[] MA),
+                    K' : (g |- kind),
+                    DmapA : (g |- tunmap A K'),
+                    DequivK : (g |- kd-equiv K K'),
+                    DmapK' : (g |- tmap K A),
+                    DwfA : (g |- ewf A),
+                    DwfKpi : (g |- kd-wf (pi K (\z707. t))),
+                    DmapKpi :
+                      (g |- tmap (pi K (\z707. t)) (epi A (\z146. et))),
+                    DequivKpi :
+                      (g |- kd-equiv (pi K (\z707. t)) (pi K' (\z707. t))),
+                    DmapApi :
+                      (g |- tunmap (epi A (\z146. et)) (pi K' (\z707. t))),
+                    DwfApi : (g |- ewf (epi A (\z146. et))),
+                    C1' : (g, a : con, b : con |- con),
+                    DmapM1 :
+                      (g, a : con, x : eterm, z22 : unmap x a, b : con,
+                       y : eterm,
+                       y23 : unmap y b |-
+                         unmap (M1[.., x, y]) (C1'[.., a, b])),
+                    DequivC1 :
+                      (g, a : con, da : cn-of a (pi (K[..]) (\l. t)), b : con,
+                       db : cn-of b (K[..]) |-
+                         cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+                    C2' : (g |- con),
+                    DmapM2 : (g |- unmap M2 C2'),
+                    DequivC2 : (g |- cn-equiv C2 C2' K),
+                    D : ( |- etp),
+                    E : (y : eterm |- etp),
+                    Dskof : ( |- skof SK D (\x346. E[x346])),
+                    Dof : (g |- eof MA D[]),
+                    Dtequiv : (g |- tequiv A (E[MA]))
+                  | x : [g |- cn-of (rec' K (\z715. \y716. C1) C2) t],
+                    map :
+                      [g |-
+                         map
+                           (rec' K (\z715. \y716. C1) C2)
+                           (eapp (econst (const/rec SK[]))
+                           (epair MA
+                           (epair (elam (epi A (\x. et))
+                                  (\x. elam (A[..]) (\y. M1)))
+                           M2)))]
+                  ; split unmap-skof [ |- Dskof] as
+                    case unmap-skof/i:
+                    { g : invert-bind,
+                      K : (g |- kind),
+                      C1 : (g, a : con, b : con |- con),
+                      C2 : (g |- con),
+                      SK : ( |- skel),
+                      MA : (g |- eterm),
+                      A : (g |- etp),
+                      M1 : (g, x : eterm, y : eterm |- eterm),
+                      M2 : (g |- eterm),
+                      DwfK : (g |- kd-wf K),
+                      DofC1 :
+                        (g, a : con, z : cn-of a (pi (K[..]) (\l. t)),
+                         b : con,
+                         y : cn-of b (K[..]) |- cn-of (C1[.., a, b]) t),
+                      DofC2 : (g |- cn-of C2 K),
+                      DmapK : (g |- tmap K A),
+                      DmapC1 :
+                        (g, a : con, x : eterm, y : map a x, b : con,
+                         y1 : eterm,
+                         x1 : map b y1 |- map (C1[.., a, b]) (M1[.., x, y1])),
+                      DmapC2 : (g |- map C2 M2),
+                      Dflay : (g |- flay A SK[] MA),
+                      K' : (g |- kind),
+                      DmapA : (g |- tunmap A K'),
+                      DequivK : (g |- kd-equiv K K'),
+                      DmapK' : (g |- tmap K A),
+                      DwfA : (g |- ewf A),
+                      DwfKpi : (g |- kd-wf (pi K (\z707. t))),
+                      DmapKpi :
+                        (g |- tmap (pi K (\z707. t)) (epi A (\z146. et))),
+                      DequivKpi :
+                        (g |- kd-equiv (pi K (\z707. t)) (pi K' (\z707. t))),
+                      DmapApi :
+                        (g |- tunmap (epi A (\z146. et)) (pi K' (\z707. t))),
+                      DwfApi : (g |- ewf (epi A (\z146. et))),
+                      C1' : (g, a : con, b : con |- con),
+                      DmapM1 :
+                        (g, a : con, x : eterm, z22 : unmap x a, b : con,
+                         y : eterm,
+                         y23 : unmap y b |-
+                           unmap (M1[.., x, y]) (C1'[.., a, b])),
+                      DequivC1 :
+                        (g, a : con, da : cn-of a (pi (K[..]) (\l. t)),
+                         b : con,
+                         db : cn-of b (K[..]) |-
+                           cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+                      C2' : (g |- con),
+                      DmapM2 : (g |- unmap M2 C2'),
+                      DequivC2 : (g |- cn-equiv C2 C2' K),
+                      D : ( |- etp),
+                      E : (y : eterm |- etp),
+                      Dskof : ( |- skof SK D (\x346. E[x346])),
+                      DofMA : (g |- eof MA D[]),
+                      DequivAE : (g |- tequiv A (E[MA])),
+                      K1 : ( |- kind),
+                      K2 : (x : con |- kind),
+                      Dtunmap : ( |- tunmap D K1),
+                      Dtunmap1 :
+                        (x : eterm, a : con, y : unmap x a |-
+                           tunmap (E[x]) (K2[a])),
+                      Dskof-il : ( |- skof-il SK K1 (\z1127. K2))
+                    | x : [g |- cn-of (rec' K (\z715. \y716. C1) C2) t],
+                      map :
+                        [g |-
+                           map
+                             (rec' K (\z715. \y716. C1) C2)
+                             (eapp (econst (const/rec SK[]))
+                             (epair MA
+                             (epair (elam (epi A (\x. et))
+                                    (\x. elam (A[..]) (\y. M1)))
+                             M2)))]
+                    ; split can-unmap [g |- MA] as
+                      case can-unmap/i:
+                      { g : invert-bind,
+                        K : (g |- kind),
+                        C1 : (g, a : con, b : con |- con),
+                        C2 : (g |- con),
+                        SK : ( |- skel),
+                        MA : (g |- eterm),
+                        A : (g |- etp),
+                        M1 : (g, x : eterm, y : eterm |- eterm),
+                        M2 : (g |- eterm),
+                        DwfK : (g |- kd-wf K),
+                        DofC1 :
+                          (g, a : con, z : cn-of a (pi (K[..]) (\l. t)),
+                           b : con,
+                           y : cn-of b (K[..]) |- cn-of (C1[.., a, b]) t),
+                        DofC2 : (g |- cn-of C2 K),
+                        DmapK : (g |- tmap K A),
+                        DmapC1 :
+                          (g, a : con, x : eterm, y : map a x, b : con,
+                           y1 : eterm,
+                           x1 : map b y1 |-
+                             map (C1[.., a, b]) (M1[.., x, y1])),
+                        DmapC2 : (g |- map C2 M2),
+                        Dflay : (g |- flay A SK[] MA),
+                        K' : (g |- kind),
+                        DmapA : (g |- tunmap A K'),
+                        DequivK : (g |- kd-equiv K K'),
+                        DmapK' : (g |- tmap K A),
+                        DwfA : (g |- ewf A),
+                        DwfKpi : (g |- kd-wf (pi K (\z707. t))),
+                        DmapKpi :
+                          (g |- tmap (pi K (\z707. t)) (epi A (\z146. et))),
+                        DequivKpi :
+                          (g |- kd-equiv (pi K (\z707. t)) (pi K' (\z707. t))),
+                        DmapApi :
+                          (g |- tunmap (epi A (\z146. et)) (pi K' (\z707. t))),
+                        DwfApi : (g |- ewf (epi A (\z146. et))),
+                        C1' : (g, a : con, b : con |- con),
+                        DmapM1 :
+                          (g, a : con, x : eterm, z22 : unmap x a, b : con,
+                           y : eterm,
+                           y23 : unmap y b |-
+                             unmap (M1[.., x, y]) (C1'[.., a, b])),
+                        DequivC1 :
+                          (g, a : con, da : cn-of a (pi (K[..]) (\l. t)),
+                           b : con,
+                           db : cn-of b (K[..]) |-
+                             cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+                        C2' : (g |- con),
+                        DmapM2 : (g |- unmap M2 C2'),
+                        DequivC2 : (g |- cn-equiv C2 C2' K),
+                        D : ( |- etp),
+                        E : (y : eterm |- etp),
+                        Dskof : ( |- skof SK D (\x346. E[x346])),
+                        DofMA : (g |- eof MA D[]),
+                        DequivAE : (g |- tequiv A (E[MA])),
+                        I : ( |- kind),
+                        J : (x : con |- kind),
+                        DmapD : ( |- tunmap D I),
+                        DmapE :
+                          (x : eterm, a : con, y : unmap x a |-
+                             tunmap (E[x]) (J[a])),
+                        Dskof' : ( |- skof-il SK I (\z1127. J)),
+                        C3 : (g |- con),
+                        Dunmap : (g |- unmap MA C3)
+                      | x : [g |- cn-of (rec' K (\z715. \y716. C1) C2) t],
+                        map :
+                          [g |-
+                             map
+                               (rec' K (\z715. \y716. C1) C2)
+                               (eapp (econst (const/rec SK[]))
+                               (epair MA
+                               (epair (elam (epi A (\x. et))
+                                      (\x. elam (A[..]) (\y. M1)))
+                               M2)))]
+                      ; split cn-equiv-reg [g |- DequivC2] as
+                        case cn-equiv-reg/i:
+                        { g : invert-bind,
+                          K : (g |- kind),
+                          C1 : (g, a : con, b : con |- con),
+                          C2 : (g |- con),
+                          SK : ( |- skel),
+                          MA : (g |- eterm),
+                          A : (g |- etp),
+                          M1 : (g, x : eterm, y : eterm |- eterm),
+                          M2 : (g |- eterm),
+                          DwfK : (g |- kd-wf K),
+                          DofC1 :
+                            (g, a : con, z : cn-of a (pi (K[..]) (\l. t)),
+                             b : con,
+                             y : cn-of b (K[..]) |- cn-of (C1[.., a, b]) t),
+                          DofC2 : (g |- cn-of C2 K),
+                          DmapK : (g |- tmap K A),
+                          DmapC1 :
+                            (g, a : con, x : eterm, y : map a x, b : con,
+                             y1 : eterm,
+                             x1 : map b y1 |-
+                               map (C1[.., a, b]) (M1[.., x, y1])),
+                          DmapC2 : (g |- map C2 M2),
+                          Dflay : (g |- flay A SK[] MA),
+                          K' : (g |- kind),
+                          DmapA : (g |- tunmap A K'),
+                          DequivK : (g |- kd-equiv K K'),
+                          DmapK' : (g |- tmap K A),
+                          DwfA : (g |- ewf A),
+                          DwfKpi : (g |- kd-wf (pi K (\z707. t))),
+                          DmapKpi :
+                            (g |- tmap (pi K (\z707. t)) (epi A (\z146. et))),
+                          DequivKpi :
+                            (g |-
+                               kd-equiv (pi K (\z707. t)) (pi K' (\z707. t))),
+                          DmapApi :
+                            (g |-
+                               tunmap (epi A (\z146. et)) (pi K' (\z707. t))),
+                          DwfApi : (g |- ewf (epi A (\z146. et))),
+                          C1' : (g, a : con, b : con |- con),
+                          DmapM1 :
+                            (g, a : con, x : eterm, z22 : unmap x a, b : con,
+                             y : eterm,
+                             y23 : unmap y b |-
+                               unmap (M1[.., x, y]) (C1'[.., a, b])),
+                          DequivC1 :
+                            (g, a : con, da : cn-of a (pi (K[..]) (\l. t)),
+                             b : con,
+                             db : cn-of b (K[..]) |-
+                               cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+                          C2' : (g |- con),
+                          DmapM2 : (g |- unmap M2 C2'),
+                          DequivC2 : (g |- cn-equiv C2 C2' K),
+                          D : ( |- etp),
+                          E : (y : eterm |- etp),
+                          Dskof : ( |- skof SK D (\x346. E[x346])),
+                          DofMA : (g |- eof MA D[]),
+                          DequivAE : (g |- tequiv A (E[MA])),
+                          I : ( |- kind),
+                          J : (x : con |- kind),
+                          DmapD : ( |- tunmap D I),
+                          DmapE :
+                            (x : eterm, a : con, y : unmap x a |-
+                               tunmap (E[x]) (J[a])),
+                          Dskof' : ( |- skof-il SK I (\z1127. J)),
+                          CK : (g |- con),
+                          DmapMA : (g |- unmap MA CK),
+                          Dof : (g |- cn-of C2 K),
+                          Dof1 : (g |- cn-of C2' K),
+                          Dwf : (g |- kd-wf K)
+                        | x : [g |- cn-of (rec' K (\z715. \y716. C1) C2) t],
+                          map :
+                            [g |-
+                               map
+                                 (rec' K (\z715. \y716. C1) C2)
+                                 (eapp (econst (const/rec SK[]))
+                                 (epair MA
+                                 (epair (elam (epi A (\x. et))
+                                        (\x. elam (A[..]) (\y. M1)))
+                                 M2)))]
+                        ; split kd-equiv-reg [g |- DequivK] as
+                          case kd-equiv-reg/i:
+                          { g : invert-bind,
+                            K : (g |- kind),
+                            C1 : (g, a : con, b : con |- con),
+                            C2 : (g |- con),
+                            SK : ( |- skel),
+                            MA : (g |- eterm),
+                            A : (g |- etp),
+                            M1 : (g, x : eterm, y : eterm |- eterm),
+                            M2 : (g |- eterm),
+                            DwfK : (g |- kd-wf K),
+                            DofC1 :
+                              (g, a : con, z : cn-of a (pi (K[..]) (\l. t)),
+                               b : con,
+                               y : cn-of b (K[..]) |- cn-of (C1[.., a, b]) t),
+                            DofC2 : (g |- cn-of C2 K),
+                            DmapK : (g |- tmap K A),
+                            DmapC1 :
+                              (g, a : con, x : eterm, y : map a x, b : con,
+                               y1 : eterm,
+                               x1 : map b y1 |-
+                                 map (C1[.., a, b]) (M1[.., x, y1])),
+                            DmapC2 : (g |- map C2 M2),
+                            Dflay : (g |- flay A SK[] MA),
+                            K' : (g |- kind),
+                            DmapA : (g |- tunmap A K'),
+                            DequivK : (g |- kd-equiv K K'),
+                            DmapK' : (g |- tmap K A),
+                            DwfA : (g |- ewf A),
+                            DwfKpi : (g |- kd-wf (pi K (\z707. t))),
+                            DmapKpi :
+                              (g |-
+                                 tmap (pi K (\z707. t)) (epi A (\z146. et))),
+                            DequivKpi :
+                              (g |-
+                                 kd-equiv
+                                   (pi K (\z707. t)) (pi K' (\z707. t))),
+                            DmapApi :
+                              (g |-
+                                 tunmap
+                                   (epi A (\z146. et)) (pi K' (\z707. t))),
+                            DwfApi : (g |- ewf (epi A (\z146. et))),
+                            C1' : (g, a : con, b : con |- con),
+                            DmapM1 :
+                              (g, a : con, x : eterm, z22 : unmap x a,
+                               b : con, y : eterm,
+                               y23 : unmap y b |-
+                                 unmap (M1[.., x, y]) (C1'[.., a, b])),
+                            DequivC1 :
+                              (g, a : con, da : cn-of a (pi (K[..]) (\l. t)),
+                               b : con,
+                               db : cn-of b (K[..]) |-
+                                 cn-equiv (C1[.., a, b]) (C1'[.., a, b]) t),
+                            C2' : (g |- con),
+                            DmapM2 : (g |- unmap M2 C2'),
+                            DequivC2 : (g |- cn-equiv C2 C2' K),
+                            D : ( |- etp),
+                            E : (y : eterm |- etp),
+                            Dskof : ( |- skof SK D (\x346. E[x346])),
+                            DofMA : (g |- eof MA D[]),
+                            DequivAE : (g |- tequiv A (E[MA])),
+                            I : ( |- kind),
+                            J : (x : con |- kind),
+                            DmapD : ( |- tunmap D I),
+                            DmapE :
+                              (x : eterm, a : con, y : unmap x a |-
+                                 tunmap (E[x]) (J[a])),
+                            Dskof' : ( |- skof-il SK I (\z1127. J)),
+                            CK : (g |- con),
+                            DmapMA : (g |- unmap MA CK),
+                            Dof : (g |- cn-of C2 K),
+                            DofC2' : (g |- cn-of C2' K),
+                            Dwf : (g |- kd-wf K),
+                            Dwf1 : (g |- kd-wf K),
+                            Dwf2 : (g |- kd-wf K')
+                          | x : [g |- cn-of (rec' K (\z715. \y716. C1) C2) t],
+                            map :
+                              [g |-
+                                 map
+                                   (rec' K (\z715. \y716. C1) C2)
+                                   (eapp (econst (const/rec SK[]))
+                                   (epair MA
+                                   (epair (elam (epi A (\x. et))
+                                          (\x. elam (A[..]) (\y. M1)))
+                                   M2)))]
+                          ; split
+                            cn-equiv-reg
+                              [g,
+                               b1 :
+                                 block (
+                                   a : con, da : cn-of a (pi (K[..]) (\l. t))),
+                               b2 : block (b : con, db : cn-of b (K[..])) |-
+                                 DequivC1[.., b1.1, b1.2, b2.1, b2.2]] as
+                            case cn-equiv-reg/i:
+                            { g : invert-bind,
+                              K : (g |- kind),
+                              C3 : (g, a : con, b : con |- con),
+                              C2 : (g |- con),
+                              SK : ( |- skel),
+                              MA : (g |- eterm),
+                              A : (g |- etp),
+                              M1 : (g, x : eterm, y : eterm |- eterm),
+                              M2 : (g |- eterm),
+                              DwfK : (g |- kd-wf K),
+                              DofC1 :
+                                (g, a : con, z : cn-of a (pi (K[..]) (\l. t)),
+                                 b : con,
+                                 y : cn-of b (K[..]) |-
+                                   cn-of (C3[.., a, b]) t),
+                              DofC2 : (g |- cn-of C2 K),
+                              DmapK : (g |- tmap K A),
+                              DmapC1 :
+                                (g, a : con, x : eterm, y : map a x, b : con,
+                                 y1 : eterm,
+                                 x1 : map b y1 |-
+                                   map (C3[.., a, b]) (M1[.., x, y1])),
+                              DmapC2 : (g |- map C2 M2),
+                              Dflay : (g |- flay A SK[] MA),
+                              K' : (g |- kind),
+                              DmapA : (g |- tunmap A K'),
+                              DequivK : (g |- kd-equiv K K'),
+                              DmapK' : (g |- tmap K A),
+                              DwfA : (g |- ewf A),
+                              DwfKpi : (g |- kd-wf (pi K (\z707. t))),
+                              DmapKpi :
+                                (g |-
+                                   tmap (pi K (\z707. t)) (epi A (\z146. et))),
+                              DequivKpi :
+                                (g |-
+                                   kd-equiv
+                                     (pi K (\z707. t)) (pi K' (\z707. t))),
+                              DmapApi :
+                                (g |-
+                                   tunmap
+                                     (epi A (\z146. et)) (pi K' (\z707. t))),
+                              DwfApi : (g |- ewf (epi A (\z146. et))),
+                              C4 : (g, a : con, b : con |- con),
+                              DmapM1 :
+                                (g, a : con, x : eterm, z22 : unmap x a,
+                                 b : con, y : eterm,
+                                 y23 : unmap y b |-
+                                   unmap (M1[.., x, y]) (C4[.., a, b])),
+                              DequivC1 :
+                                (g, a : con,
+                                 da : cn-of a (pi (K[..]) (\l. t)), b : con,
+                                 db : cn-of b (K[..]) |-
+                                   cn-equiv (C3[.., a, b]) (C4[.., a, b]) t),
+                              C2' : (g |- con),
+                              DmapM2 : (g |- unmap M2 C2'),
+                              DequivC2 : (g |- cn-equiv C2 C2' K),
+                              D : ( |- etp),
+                              E : (y : eterm |- etp),
+                              Dskof : ( |- skof SK D (\x346. E[x346])),
+                              DofMA : (g |- eof MA D[]),
+                              DequivAE : (g |- tequiv A (E[MA])),
+                              I : ( |- kind),
+                              J : (x : con |- kind),
+                              DmapD : ( |- tunmap D I),
+                              DmapE :
+                                (x : eterm, a : con, y : unmap x a |-
+                                   tunmap (E[x]) (J[a])),
+                              Dskof' : ( |- skof-il SK I (\z1127. J)),
+                              CK : (g |- con),
+                              DmapMA : (g |- unmap MA CK),
+                              Dof : (g |- cn-of C2 K),
+                              DofC2' : (g |- cn-of C2' K),
+                              Dwf : (g |- kd-wf K),
+                              Dwf1 : (g |- kd-wf K),
+                              DwfK' : (g |- kd-wf K'),
+                              Dof1 :
+                                (g, a : con,
+                                 x9 : cn-of a (pi (K[..]) (\l. t)), b : con,
+                                 z9 : cn-of b (K[..]) |-
+                                   cn-of (C3[.., a, b]) t),
+                              Dof2 :
+                                (g, a : con,
+                                 y10 : cn-of a (pi (K[..]) (\l. t)),
+                                 b : con,
+                                 x10 : cn-of b (K[..]) |-
+                                   cn-of (C4[.., a, b]) t),
+                              Dwf2 :
+                                (g, a : con,
+                                 z10 : cn-of a (pi (K[..]) (\l. t)),
+                                 b : con,
+                                 y11 : cn-of b (K[..]) |- kd-wf t)
+                            | x :
+                                [g |- cn-of (rec' K (\z715. \y716. C3) C2) t],
+                              map :
+                                [g |-
+                                   map
+                                     (rec' K (\z715. \y716. C3) C2)
+                                     (eapp (econst (const/rec SK[]))
+                                     (epair MA
+                                     (epair (elam (epi A (\x. et))
+                                            (\x. elam (A[..]) (\y. M1)))
+                                     M2)))]
+                            ; split unmap-of [g |- DofMA] [g |- DmapMA] as
+                              case unmap-of/i:
+                              { g : invert-bind,
+                                K : (g |- kind),
+                                C3 : (g, a : con, b : con |- con),
+                                C2 : (g |- con),
+                                SK : ( |- skel),
+                                MA : (g |- eterm),
+                                A : (g |- etp),
+                                M1 : (g, x : eterm, y : eterm |- eterm),
+                                M2 : (g |- eterm),
+                                DwfK : (g |- kd-wf K),
+                                DofC1 :
+                                  (g, a : con,
+                                   z : cn-of a (pi (K[..]) (\l. t)),
+                                   b : con,
+                                   y : cn-of b (K[..]) |-
+                                     cn-of (C3[.., a, b]) t),
+                                DofC2 : (g |- cn-of C2 K),
+                                DmapK : (g |- tmap K A),
+                                DmapC1 :
+                                  (g, a : con, x : eterm, y : map a x,
+                                   b : con, y1 : eterm,
+                                   x1 : map b y1 |-
+                                     map (C3[.., a, b]) (M1[.., x, y1])),
+                                DmapC2 : (g |- map C2 M2),
+                                Dflay : (g |- flay A SK[] MA),
+                                K' : (g |- kind),
+                                DmapA : (g |- tunmap A K'),
+                                DequivK : (g |- kd-equiv K K'),
+                                DmapK' : (g |- tmap K A),
+                                DwfA : (g |- ewf A),
+                                DwfKpi : (g |- kd-wf (pi K (\z707. t))),
+                                DmapKpi :
+                                  (g |-
+                                     tmap
+                                       (pi K (\z707. t)) (epi A (\z146. et))),
+                                DequivKpi :
+                                  (g |-
+                                     kd-equiv
+                                       (pi K (\z707. t)) (pi K' (\z707. t))),
+                                DmapApi :
+                                  (g |-
+                                     tunmap
+                                       (epi A (\z146. et)) (pi K' (\z707. t))),
+                                DwfApi : (g |- ewf (epi A (\z146. et))),
+                                C1' : (g, a : con, b : con |- con),
+                                DmapM1 :
+                                  (g, a : con, x : eterm, z22 : unmap x a,
+                                   b : con, y : eterm,
+                                   y23 : unmap y b |-
+                                     unmap (M1[.., x, y]) (C1'[.., a, b])),
+                                DequivC1 :
+                                  (g, a : con,
+                                   da : cn-of a (pi (K[..]) (\l. t)),
+                                   b : con,
+                                   db : cn-of b (K[..]) |-
+                                     cn-equiv
+                                       (C3[.., a, b]) (C1'[.., a, b]) t),
+                                C2' : (g |- con),
+                                DmapM2 : (g |- unmap M2 C2'),
+                                DequivC2 : (g |- cn-equiv C2 C2' K),
+                                D : ( |- etp),
+                                E : (y : eterm |- etp),
+                                Dskof : ( |- skof SK D (\x346. E[x346])),
+                                DofMA : (g |- eof MA D[]),
+                                DequivAE : (g |- tequiv A (E[MA])),
+                                I : ( |- kind),
+                                J : (x : con |- kind),
+                                DmapD : ( |- tunmap D I),
+                                DmapE :
+                                  (x : eterm, a : con, y : unmap x a |-
+                                     tunmap (E[x]) (J[a])),
+                                Dskof' : ( |- skof-il SK I (\z1127. J)),
+                                CK : (g |- con),
+                                DmapMA : (g |- unmap MA CK),
+                                Dof : (g |- cn-of C2 K),
+                                DofC2' : (g |- cn-of C2' K),
+                                Dwf : (g |- kd-wf K),
+                                Dwf1 : (g |- kd-wf K),
+                                DwfK' : (g |- kd-wf K'),
+                                DDDD1 :
+                                  (g, a : con,
+                                   x9 : cn-of a (pi (K[..]) (\l. t)),
+                                   b : con,
+                                   z9 : cn-of b (K[..]) |-
+                                     cn-of (C3[.., a, b]) t),
+                                DofC1' :
+                                  (g, a : con,
+                                   y10 : cn-of a (pi (K[..]) (\l. t)),
+                                   b : con,
+                                   x10 : cn-of b (K[..]) |-
+                                     cn-of (C1'[.., a, b]) t),
+                                DDDD2 :
+                                  (g, a : con,
+                                   z10 : cn-of a (pi (K[..]) (\l. t)),
+                                   b : con,
+                                   y11 : cn-of b (K[..]) |- kd-wf t),
+                                K1 : (g |- kind),
+                                Dtunmap : (g |- tunmap D[] K1),
+                                Dof1 : (g |- cn-of CK K1)
+                              | x :
+                                  [g |-
+                                     cn-of (rec' K (\z715. \y716. C3) C2) t],
+                                map :
+                                  [g |-
+                                     map
+                                       (rec' K (\z715. \y716. C3) C2)
+                                       (eapp (econst (const/rec SK[]))
+                                       (epair MA
+                                       (epair (elam (epi A (\x. et))
+                                              (\x. elam (A[..]) (\y. M1)))
+                                       M2)))]
+                              ; split
+                                tunmap-fun [g |- DmapD[]] [g |- Dtunmap] as
+                                case kind-eq/i:
+                                { g : invert-bind,
+                                  K : (g |- kind),
+                                  C3 : (g, a : con, b : con |- con),
+                                  C2 : (g |- con),
+                                  SK : ( |- skel),
+                                  MA : (g |- eterm),
+                                  A : (g |- etp),
+                                  M1 : (g, x : eterm, y : eterm |- eterm),
+                                  M2 : (g |- eterm),
+                                  DwfK : (g |- kd-wf K),
+                                  DofC1 :
+                                    (g, a : con,
+                                     z : cn-of a (pi (K[..]) (\l. t)),
+                                     b : con,
+                                     y : cn-of b (K[..]) |-
+                                       cn-of (C3[.., a, b]) t),
+                                  DofC2 : (g |- cn-of C2 K),
+                                  DmapK : (g |- tmap K A),
+                                  DmapC1 :
+                                    (g, a : con, x : eterm, y : map a x,
+                                     b : con, y1 : eterm,
+                                     x1 : map b y1 |-
+                                       map (C3[.., a, b]) (M1[.., x, y1])),
+                                  DmapC2 : (g |- map C2 M2),
+                                  Dflay : (g |- flay A SK[] MA),
+                                  K' : (g |- kind),
+                                  DmapA : (g |- tunmap A K'),
+                                  DequivK : (g |- kd-equiv K K'),
+                                  DmapK' : (g |- tmap K A),
+                                  DwfA : (g |- ewf A),
+                                  DwfKpi : (g |- kd-wf (pi K (\z707. t))),
+                                  DmapKpi :
+                                    (g |-
+                                       tmap
+                                         (pi K (\z707. t))
+                                         (epi A (\z146. et))),
+                                  DequivKpi :
+                                    (g |-
+                                       kd-equiv
+                                         (pi K (\z707. t)) (pi K' (\z707. t))),
+                                  DmapApi :
+                                    (g |-
+                                       tunmap
+                                         (epi A (\z146. et))
+                                         (pi K' (\z707. t))),
+                                  DwfApi : (g |- ewf (epi A (\z146. et))),
+                                  C1' : (g, a : con, b : con |- con),
+                                  DmapM1 :
+                                    (g, a : con, x : eterm, z22 : unmap x a,
+                                     b : con, y : eterm,
+                                     y23 : unmap y b |-
+                                       unmap (M1[.., x, y]) (C1'[.., a, b])),
+                                  DequivC1 :
+                                    (g, a : con,
+                                     da : cn-of a (pi (K[..]) (\l. t)),
+                                     b : con,
+                                     db : cn-of b (K[..]) |-
+                                       cn-equiv
+                                         (C3[.., a, b]) (C1'[.., a, b]) t),
+                                  C2' : (g |- con),
+                                  DmapM2 : (g |- unmap M2 C2'),
+                                  DequivC2 : (g |- cn-equiv C2 C2' K),
+                                  D : ( |- etp),
+                                  E : (y : eterm |- etp),
+                                  Dskof : ( |- skof SK D (\x346. E[x346])),
+                                  DofMA : (g |- eof MA D[]),
+                                  DequivAE : (g |- tequiv A (E[MA])),
+                                  I' : ( |- kind),
+                                  J : (x : con |- kind),
+                                  DmapD : ( |- tunmap D I'),
+                                  DmapE :
+                                    (x : eterm, a : con, y : unmap x a |-
+                                       tunmap (E[x]) (J[a])),
+                                  Dskof' : ( |- skof-il SK I' (\z1127. J)),
+                                  CK : (g |- con),
+                                  DmapMA : (g |- unmap MA CK),
+                                  Dof : (g |- cn-of C2 K),
+                                  DofC2' : (g |- cn-of C2' K),
+                                  Dwf : (g |- kd-wf K),
+                                  Dwf1 : (g |- kd-wf K),
+                                  DwfK' : (g |- kd-wf K'),
+                                  DDDD1 :
+                                    (g, a : con,
+                                     x9 : cn-of a (pi (K[..]) (\l. t)),
+                                     b : con,
+                                     z9 : cn-of b (K[..]) |-
+                                       cn-of (C3[.., a, b]) t),
+                                  DofC1' :
+                                    (g, a : con,
+                                     y10 : cn-of a (pi (K[..]) (\l. t)),
+                                     b : con,
+                                     x10 : cn-of b (K[..]) |-
+                                       cn-of (C1'[.., a, b]) t),
+                                  DDDD2 :
+                                    (g, a : con,
+                                     z10 : cn-of a (pi (K[..]) (\l. t)),
+                                     b : con,
+                                     y11 : cn-of b (K[..]) |- kd-wf t),
+                                  DmapD' : (g |- tunmap D[] I'[]),
+                                  DofCK : (g |- cn-of CK I'[])
+                                | x :
+                                    [g |-
+                                       cn-of (rec' K (\z715. \y716. C3) C2) t],
+                                  map :
+                                    [g |-
+                                       map
+                                         (rec' K (\z715. \y716. C3) C2)
+                                         (eapp (econst (const/rec SK[]))
+                                         (epair MA
+                                         (epair (elam (epi A (\x. et))
+                                                (\x. elam (A[..]) (\y. M1)))
+                                         M2)))]
+                                ; split
+                                  unmap-tequiv [g |- DequivAE] [g |- DmapA]
+                                    [g |- DmapE[_, _, DmapMA]] as
+                                  case unmap-tequiv/i:
+                                  { g : invert-bind,
+                                    K : (g |- kind),
+                                    C3 : (g, a : con, b : con |- con),
+                                    C2 : (g |- con),
+                                    SK : ( |- skel),
+                                    MA : (g |- eterm),
+                                    A : (g |- etp),
+                                    M1 : (g, x : eterm, y : eterm |- eterm),
+                                    M2 : (g |- eterm),
+                                    DwfK : (g |- kd-wf K),
+                                    DofC1 :
+                                      (g, a : con,
+                                       z : cn-of a (pi (K[..]) (\l. t)),
+                                       b : con,
+                                       y : cn-of b (K[..]) |-
+                                         cn-of (C3[.., a, b]) t),
+                                    DofC2 : (g |- cn-of C2 K),
+                                    DmapK : (g |- tmap K A),
+                                    DmapC1 :
+                                      (g, a : con, x : eterm, y : map a x,
+                                       b : con, y1 : eterm,
+                                       x1 : map b y1 |-
+                                         map (C3[.., a, b]) (M1[.., x, y1])),
+                                    DmapC2 : (g |- map C2 M2),
+                                    Dflay : (g |- flay A SK[] MA),
+                                    K' : (g |- kind),
+                                    DmapA : (g |- tunmap A K'),
+                                    DequivK : (g |- kd-equiv K K'),
+                                    DmapK' : (g |- tmap K A),
+                                    DwfA : (g |- ewf A),
+                                    DwfKpi : (g |- kd-wf (pi K (\z707. t))),
+                                    DmapKpi :
+                                      (g |-
+                                         tmap
+                                           (pi K (\z707. t))
+                                           (epi A (\z146. et))),
+                                    DequivKpi :
+                                      (g |-
+                                         kd-equiv
+                                           (pi K (\z707. t))
+                                           (pi K' (\z707. t))),
+                                    DmapApi :
+                                      (g |-
+                                         tunmap
+                                           (epi A (\z146. et))
+                                           (pi K' (\z707. t))),
+                                    DwfApi : (g |- ewf (epi A (\z146. et))),
+                                    C1' : (g, a : con, b : con |- con),
+                                    DmapM1 :
+                                      (g, a : con, x : eterm, z22 : unmap x a,
+                                       b : con, y : eterm,
+                                       y23 : unmap y b |-
+                                         unmap (M1[.., x, y]) (C1'[.., a, b])),
+                                    DequivC1 :
+                                      (g, a : con,
+                                       da : cn-of a (pi (K[..]) (\l. t)),
+                                       b : con,
+                                       db : cn-of b (K[..]) |-
+                                         cn-equiv
+                                           (C3[.., a, b]) (C1'[.., a, b]) t),
+                                    C2' : (g |- con),
+                                    DmapM2 : (g |- unmap M2 C2'),
+                                    DequivC2 : (g |- cn-equiv C2 C2' K),
+                                    D : ( |- etp),
+                                    E : (y : eterm |- etp),
+                                    Dskof : ( |- skof SK D (\x346. E[x346])),
+                                    DofMA : (g |- eof MA D[]),
+                                    DequivAE : (g |- tequiv A (E[MA])),
+                                    I : ( |- kind),
+                                    J : (x : con |- kind),
+                                    DmapD : ( |- tunmap D I),
+                                    DmapE :
+                                      (x : eterm, a : con, y : unmap x a |-
+                                         tunmap (E[x]) (J[a])),
+                                    Dskof' : ( |- skof-il SK I (\z1127. J)),
+                                    CK : (g |- con),
+                                    DmapMA : (g |- unmap MA CK),
+                                    Dof : (g |- cn-of C2 K),
+                                    DofC2' : (g |- cn-of C2' K),
+                                    Dwf : (g |- kd-wf K),
+                                    Dwf1 : (g |- kd-wf K),
+                                    DwfK' : (g |- kd-wf K'),
+                                    DDDD1 :
+                                      (g, a : con,
+                                       x9 : cn-of a (pi (K[..]) (\l. t)),
+                                       b : con,
+                                       z9 : cn-of b (K[..]) |-
+                                         cn-of (C3[.., a, b]) t),
+                                    DofC1' :
+                                      (g, a : con,
+                                       y10 : cn-of a (pi (K[..]) (\l. t)),
+                                       b : con,
+                                       x10 : cn-of b (K[..]) |-
+                                         cn-of (C1'[.., a, b]) t),
+                                    DDDD2 :
+                                      (g, a : con,
+                                       z10 : cn-of a (pi (K[..]) (\l. t)),
+                                       b : con,
+                                       y11 : cn-of b (K[..]) |- kd-wf t),
+                                    DmapD' : (g |- tunmap D[] I[]),
+                                    DofCK : (g |- cn-of CK I[]),
+                                    Dequiv : (g |- kd-equiv K' (J[CK]))
+                                  | x :
+                                      [g |-
+                                         cn-of
+                                           (rec' K (\z715. \y716. C3) C2) t],
+                                    map :
+                                      [g |-
+                                         map
+                                           (rec' K (\z715. \y716. C3) C2)
+                                           (eapp (econst (const/rec SK[]))
+                                           (epair MA
+                                           (epair (elam (epi A (\x. et))
+                                                  (\x. elam (A[..]) (\y. M1)))
+                                           M2)))]
+                                  ; split skof-il-reg [ |- Dskof'] as
+                                    case skof-il-reg/i:
+                                    { g : invert-bind,
+                                      K : (g |- kind),
+                                      C3 : (g, a : con, b : con |- con),
+                                      C2 : (g |- con),
+                                      SK : ( |- skel),
+                                      MA : (g |- eterm),
+                                      A : (g |- etp),
+                                      M1 : (g, x : eterm, y : eterm |- eterm),
+                                      M2 : (g |- eterm),
+                                      DwfK : (g |- kd-wf K),
+                                      DofC1 :
+                                        (g, a : con,
+                                         z : cn-of a (pi (K[..]) (\l. t)),
+                                         b : con,
+                                         y : cn-of b (K[..]) |-
+                                           cn-of (C3[.., a, b]) t),
+                                      DofC2 : (g |- cn-of C2 K),
+                                      DmapK : (g |- tmap K A),
+                                      DmapC1 :
+                                        (g, a : con, x : eterm, y : map a x,
+                                         b : con, y1 : eterm,
+                                         x1 : map b y1 |-
+                                           map (C3[.., a, b]) (M1[.., x, y1])),
+                                      DmapC2 : (g |- map C2 M2),
+                                      Dflay : (g |- flay A SK[] MA),
+                                      K' : (g |- kind),
+                                      DmapA : (g |- tunmap A K'),
+                                      DequivK : (g |- kd-equiv K K'),
+                                      DmapK' : (g |- tmap K A),
+                                      DwfA : (g |- ewf A),
+                                      DwfKpi : (g |- kd-wf (pi K (\z707. t))),
+                                      DmapKpi :
+                                        (g |-
+                                           tmap
+                                             (pi K (\z707. t))
+                                             (epi A (\z146. et))),
+                                      DequivKpi :
+                                        (g |-
+                                           kd-equiv
+                                             (pi K (\z707. t))
+                                             (pi K' (\z707. t))),
+                                      DmapApi :
+                                        (g |-
+                                           tunmap
+                                             (epi A (\z146. et))
+                                             (pi K' (\z707. t))),
+                                      DwfApi : (g |- ewf (epi A (\z146. et))),
+                                      C1' : (g, a : con, b : con |- con),
+                                      DmapM1 :
+                                        (g, a : con, x : eterm,
+                                         z22 : unmap x a, b : con, y : eterm,
+                                         y23 : unmap y b |-
+                                           unmap
+                                             (M1[.., x, y]) (C1'[.., a, b])),
+                                      DequivC1 :
+                                        (g, a : con,
+                                         da : cn-of a (pi (K[..]) (\l. t)),
+                                         b : con,
+                                         db : cn-of b (K[..]) |-
+                                           cn-equiv
+                                             (C3[.., a, b]) (C1'[.., a, b]) t),
+                                      C2' : (g |- con),
+                                      DmapM2 : (g |- unmap M2 C2'),
+                                      DequivC2 : (g |- cn-equiv C2 C2' K),
+                                      D : ( |- etp),
+                                      E : (y : eterm |- etp),
+                                      Dskof :
+                                        ( |- skof SK D (\x346. E[x346])),
+                                      DofMA : (g |- eof MA D[]),
+                                      DequivAE : (g |- tequiv A (E[MA])),
+                                      I : ( |- kind),
+                                      J : (x : con |- kind),
+                                      DmapD : ( |- tunmap D I),
+                                      DmapE :
+                                        (x : eterm, a : con, y : unmap x a |-
+                                           tunmap (E[x]) (J[a])),
+                                      Dskof' : ( |- skof-il SK I (\z1127. J)),
+                                      CK : (g |- con),
+                                      DmapMA : (g |- unmap MA CK),
+                                      Dof : (g |- cn-of C2 K),
+                                      DofC2' : (g |- cn-of C2' K),
+                                      Dwf : (g |- kd-wf K),
+                                      Dwf1 : (g |- kd-wf K),
+                                      DwfK' : (g |- kd-wf K'),
+                                      DDDD1 :
+                                        (g, a : con,
+                                         x9 : cn-of a (pi (K[..]) (\l. t)),
+                                         b : con,
+                                         z9 : cn-of b (K[..]) |-
+                                           cn-of (C3[.., a, b]) t),
+                                      DofC1' :
+                                        (g, a : con,
+                                         y10 : cn-of a (pi (K[..]) (\l. t)),
+                                         b : con,
+                                         x10 : cn-of b (K[..]) |-
+                                           cn-of (C1'[.., a, b]) t),
+                                      DDDD2 :
+                                        (g, a : con,
+                                         z10 : cn-of a (pi (K[..]) (\l. t)),
+                                         b : con,
+                                         y11 : cn-of b (K[..]) |- kd-wf t),
+                                      DmapD' : (g |- tunmap D[] I[]),
+                                      DofCK : (g |- cn-of CK I[]),
+                                      DequivK'JCK :
+                                        (g |- kd-equiv K' (J[CK])),
+                                      Dwf2 : ( |- kd-wf I),
+                                      Dwf3 :
+                                        (x : con, x1 : cn-of x I[] |-
+                                           kd-wf (J[x]))
+                                    | x :
+                                        [g |-
+                                           cn-of
+                                             (rec' K (\z715. \y716. C3) C2) t],
+                                      map :
+                                        [g |-
+                                           map
+                                             (rec' K (\z715. \y716. C3) C2)
+                                             (eapp (econst (const/rec SK[]))
+                                             (epair MA
+                                             (epair (elam (epi A (\x. et))
+                                                    (\x.
+                                                       elam (A[..]) (\y. M1)))
+                                             M2)))]
+                                    ; by functionality-kd
+                                           [g, b : con, db : cn-of b I[] |-
+                                              Dwf3[b, db]]
+                                           [g |-
+                                              cn-equiv/symm (cn-equiv/beta1
+                                                            DofCK
+                                                            (cn-of/pair
+                                                            (cn-of/subsume
+                                                            (cn-of/lam
+                                                            (kd-wf/pi
+                                                            DwfK'
+                                                            (\l1.
+                                                               \l2. kd-wf/t))
+                                                            (\a.
+                                                               \d.
+                                                                 cn-of/lam
+                                                                 (DwfK'[
+                                                                 ..])
+                                                                 (\b.
+                                                                    \e.
+                                                                    DofC1'[
+                                                                    .., a,
+                                                                    cn-of/subsume
+                                                                    d
+                                                                    (kd-sub/refl
+                                                                    (kd-equiv/pi
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..]))
+                                                                    (
+                                                                    \l1.
+                                                                    \l2.
+                                                                    kd-equiv/refl
+                                                                    kd-wf/t))),
+                                                                    b,
+                                                                    cn-of/subsume
+                                                                    e
+                                                                    (kd-sub/refl
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..])))])))
+                                                            (kd-sub/refl
+                                                            (kd-equiv/pi
+                                                            (kd-equiv/pi
+                                                            (kd-equiv/symm
+                                                            DequivK)
+                                                            (\l1.
+                                                               \l2.
+                                                                 kd-equiv/refl
+                                                                 kd-wf/t))
+                                                            (\l1.
+                                                               \l2.
+                                                                 kd-equiv/pi
+                                                                 (kd-equiv/symm
+                                                                 (DequivK[
+                                                                 ..]))
+                                                                 (\l3.
+                                                                    \l4.
+                                                                    kd-equiv/refl
+                                                                    kd-wf/t)))))
+                                                            DofC2'
+                                                            (\l1.
+                                                               \l2. DwfK[..])))]
+                                      as DequivJCK unboxed;
+                                      by [g |-
+      unmap/app (unmap/rec Dskof'[])
+      (unmap/pair DmapMA
+      (unmap/pair (unmap/lam (tunmap/pi DmapA (\l1. \l2. \l3. tunmap/t))
+                  (\x.
+                     \a.
+                       \xt.
+                         unmap/lam (DmapA[..])
+                         (\y. \b. \yt. DmapM1[.., a, x, xt, b, y, yt])))
+      DmapM2))]
+as Dmap' unboxed;
+                                      by [g |-
+                                            cn-equiv/symm (cn-equiv/trans
+                                                          (cn-equiv/beta
+                                                          (\c.
+                                                             \f.
+                                                               cn-of/rec
+                                                               (Dwf3[
+                                                               _, cn-of/pi1
+                                                               f])
+                                                               (\a.
+                                                                  \d.
+                                                                    \b.
+                                                                    \e.
+                                                                    cn-of/app
+                                                                    (cn-of/app
+                                                                    (cn-of/pi1
+                                                                    (cn-of/pi2
+                                                                    f))
+                                                                    d)
+                                                                    e)
+                                                               (cn-of/pi2
+                                                               (cn-of/pi2
+                                                               f)))
+                                                          (cn-of/pair
+                                                          DofCK
+                                                          (cn-of/subsume
+                                                          (cn-of/pair
+                                                          (cn-of/subsume
+                                                          (cn-of/lam
+                                                          (kd-wf/pi DwfK'
+                                                          (\l1. \l2. kd-wf/t))
+                                                          (\a.
+                                                             \d.
+                                                               cn-of/lam
+                                                               (DwfK'[
+                                                               ..])
+                                                               (\b.
+                                                                  \e.
+                                                                    DofC1'[
+                                                                    .., a,
+                                                                    cn-of/subsume
+                                                                    d
+                                                                    (kd-sub/refl
+                                                                    (kd-equiv/pi
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..]))
+                                                                    (
+                                                                    \l1.
+                                                                    \l2.
+                                                                    kd-equiv/refl
+                                                                    kd-wf/t))),
+                                                                    b,
+                                                                    cn-of/subsume
+                                                                    e
+                                                                    (kd-sub/refl
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..])))])))
+                                                          (kd-sub/refl
+                                                          (kd-equiv/pi
+                                                          (kd-equiv/pi
+                                                          (kd-equiv/symm
+                                                          DequivK)
+                                                          (\l1.
+                                                             \l2.
+                                                               kd-equiv/refl
+                                                               kd-wf/t))
+                                                          (\l1.
+                                                             \l2.
+                                                               kd-equiv/pi
+                                                               (kd-equiv/symm
+                                                               (DequivK[
+                                                               ..]))
+                                                               (\l3.
+                                                                  \l4.
+                                                                    kd-equiv/refl
+                                                                    kd-wf/t)))))
+                                                          DofC2'
+                                                          (\l1. \l2. DwfK[..]))
+                                                          (kd-sub/refl
+                                                          (kd-equiv/sigma
+                                                          (kd-equiv/pi
+                                                          (kd-equiv/pi
+                                                          (kd-equiv/trans
+                                                          DequivK
+                                                          DequivK'JCK)
+                                                          (\l1.
+                                                             \l2.
+                                                               kd-equiv/refl
+                                                               kd-wf/t))
+                                                          (\l1.
+                                                             \l2.
+                                                               kd-equiv/pi
+                                                               (kd-equiv/trans
+                                                               (DequivK[
+                                                               ..])
+                                                               (DequivK'JCK[
+                                                               ..]))
+                                                               (\l3.
+                                                                  \l4.
+                                                                    kd-equiv/refl
+                                                                    kd-wf/t)))
+                                                          (\l1.
+                                                             \l2.
+                                                               kd-equiv/trans
+                                                               (DequivK[
+                                                               ..])
+                                                               (DequivK'JCK[
+                                                               ..])))))
+                                                          (\a.
+                                                             \d.
+                                                               kd-wf/sigma
+                                                               (kd-wf/pi
+                                                               (kd-wf/pi
+                                                               (Dwf3[
+                                                               a, d])
+                                                               (\l1.
+                                                                  \l2.
+                                                                    kd-wf/t))
+                                                               (\l1.
+                                                                  \l2.
+                                                                    kd-wf/pi
+                                                                    (Dwf3[
+                                                                    a, d])
+                                                                    (
+                                                                    \l3.
+                                                                    \l4.
+                                                                    kd-wf/t)))
+                                                               (\l1.
+                                                                  \l2.
+                                                                    Dwf3[
+                                                                    a, d]))))
+                                                          (cn-equiv/symm
+                                                          (cn-equiv/rec
+                                                          (kd-equiv/trans
+                                                          DequivK
+                                                          (kd-equiv/trans
+                                                          DequivK'JCK
+                                                          DequivJCK))
+                                                          (\a.
+                                                             \d.
+                                                               \b.
+                                                                 \e.
+                                                                   cn-equiv/symm
+                                                                   (cn-equiv/trans
+                                                                   (cn-equiv/app
+                                                                   (cn-equiv/trans
+                                                                   (cn-equiv/app
+                                                                   (cn-equiv/trans
+                                                                   (cn-equiv/pi1
+                                                                   (cn-equiv/beta2
+                                                                   (DofCK[
+                                                                   ..])
+                                                                   (cn-of/pair
+                                                                   (cn-of/subsume
+                                                                   (cn-of/lam
+                                                                   (kd-wf/pi
+                                                                   (DwfK'[
+                                                                   ..])
+                                                                   (\l1.
+                                                                    \l2.
+                                                                    kd-wf/t))
+                                                                   (\a1.
+                                                                    \d1.
+                                                                    cn-of/lam
+                                                                    (DwfK'[
+                                                                    ..])
+                                                                    (
+                                                                    \b1.
+                                                                    \e1.
+                                                                    DofC1'[
+                                                                    .., a1,
+                                                                    cn-of/subsume
+                                                                    d1
+                                                                    (kd-sub/refl
+                                                                    (kd-equiv/pi
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..]))
+                                                                    (
+                                                                    \l1.
+                                                                    \l2.
+                                                                    kd-equiv/refl
+                                                                    kd-wf/t))),
+                                                                    b1,
+                                                                    cn-of/subsume
+                                                                    e1
+                                                                    (kd-sub/refl
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..])))])))
+                                                                   (kd-sub/refl
+                                                                   (kd-equiv/pi
+                                                                   (kd-equiv/pi
+                                                                   (kd-equiv/symm
+                                                                   (DequivK[
+                                                                   ..]))
+                                                                   (\l1.
+                                                                    \l2.
+                                                                    kd-equiv/refl
+                                                                    kd-wf/t))
+                                                                   (\l1.
+                                                                    \l2.
+                                                                    kd-equiv/pi
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..]))
+                                                                    (
+                                                                    \l3.
+                                                                    \l4.
+                                                                    kd-equiv/refl
+                                                                    kd-wf/t)))))
+                                                                   (DofC2'[
+                                                                   ..])
+                                                                   (\l1.
+                                                                    \l2.
+                                                                    DwfK[..]))))
+                                                                   (cn-equiv/beta1
+                                                                   (cn-of/subsume
+                                                                   (cn-of/lam
+                                                                   (kd-wf/pi
+                                                                   (DwfK'[
+                                                                   ..])
+                                                                   (\l1.
+                                                                    \l2.
+                                                                    kd-wf/t))
+                                                                   (\a1.
+                                                                    \d1.
+                                                                    cn-of/lam
+                                                                    (DwfK'[
+                                                                    ..])
+                                                                    (
+                                                                    \b1.
+                                                                    \e1.
+                                                                    DofC1'[
+                                                                    .., a1,
+                                                                    cn-of/subsume
+                                                                    d1
+                                                                    (kd-sub/refl
+                                                                    (kd-equiv/pi
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..]))
+                                                                    (
+                                                                    \l1.
+                                                                    \l2.
+                                                                    kd-equiv/refl
+                                                                    kd-wf/t))),
+                                                                    b1,
+                                                                    cn-of/subsume
+                                                                    e1
+                                                                    (kd-sub/refl
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..])))])))
+                                                                   (kd-sub/refl
+                                                                   (kd-equiv/pi
+                                                                   (kd-equiv/pi
+                                                                   (kd-equiv/symm
+                                                                   (DequivK[
+                                                                   ..]))
+                                                                   (\l1.
+                                                                    \l2.
+                                                                    kd-equiv/refl
+                                                                    kd-wf/t))
+                                                                   (\l1.
+                                                                    \l2.
+                                                                    kd-equiv/pi
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..]))
+                                                                    (
+                                                                    \l3.
+                                                                    \l4.
+                                                                    kd-equiv/refl
+                                                                    kd-wf/t)))))
+                                                                   (DofC2'[
+                                                                   ..])))
+                                                                   (cn-equiv/refl
+                                                                   d))
+                                                                   (cn-equiv/beta
+                                                                   (\a1.
+                                                                    \d1.
+                                                                    cn-of/subsume
+                                                                    (cn-of/lam
+                                                                    (DwfK'[
+                                                                    ..])
+                                                                    (
+                                                                    \b1.
+                                                                    \e1.
+                                                                    DofC1'[
+                                                                    .., a1,
+                                                                    cn-of/subsume
+                                                                    d1
+                                                                    (kd-sub/refl
+                                                                    (kd-equiv/pi
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..]))
+                                                                    (
+                                                                    \l1.
+                                                                    \l2.
+                                                                    kd-equiv/refl
+                                                                    kd-wf/t))),
+                                                                    b1,
+                                                                    cn-of/subsume
+                                                                    e1
+                                                                    (kd-sub/refl
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..])))]))
+                                                                    (kd-sub/refl
+                                                                    (kd-equiv/pi
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..]))
+                                                                    (
+                                                                    \l1.
+                                                                    \l2.
+                                                                    kd-equiv/refl
+                                                                    kd-wf/t))))
+                                                                   (cn-of/subsume
+                                                                   d
+                                                                   (kd-sub/refl
+                                                                   (kd-equiv/pi
+                                                                   (DequivK[
+                                                                   ..])
+                                                                   (\l1.
+                                                                    \l2.
+                                                                    kd-equiv/refl
+                                                                    kd-wf/t))))))
+                                                                   (cn-equiv/refl
+                                                                   e))
+                                                                   (cn-equiv/trans
+                                                                   (cn-equiv/beta
+                                                                   (\b1.
+                                                                    \e1.
+                                                                    DofC1'[
+                                                                    .., a, d,
+                                                                    b1,
+                                                                    cn-of/subsume
+                                                                    e1
+                                                                    (kd-sub/refl
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..])))])
+                                                                   (cn-of/subsume
+                                                                   e
+                                                                   (kd-sub/refl
+                                                                   (DequivK[
+                                                                   ..]))))
+                                                                   (cn-equiv/symm
+                                                                   DequivC1))))
+                                                          (cn-equiv/symm
+                                                          (cn-equiv/trans
+                                                          (cn-equiv/pi2
+                                                          (cn-equiv/beta2
+                                                          DofCK
+                                                          (cn-of/pair
+                                                          (cn-of/lam
+                                                          (kd-wf/pi DwfK'
+                                                          (\l1. \l2. kd-wf/t))
+                                                          (\a.
+                                                             \d.
+                                                               cn-of/lam
+                                                               (DwfK'[
+                                                               ..])
+                                                               (\b.
+                                                                  \e.
+                                                                    DofC1'[
+                                                                    .., a,
+                                                                    cn-of/subsume
+                                                                    d
+                                                                    (kd-sub/refl
+                                                                    (kd-equiv/pi
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..]))
+                                                                    (
+                                                                    \l1.
+                                                                    \l2.
+                                                                    kd-equiv/refl
+                                                                    kd-wf/t))),
+                                                                    b,
+                                                                    cn-of/subsume
+                                                                    e
+                                                                    (kd-sub/refl
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..])))])))
+                                                          DofC2'
+                                                          (\l1. \l2. DwfK[..]))))
+                                                          (cn-equiv/trans
+                                                          (cn-equiv/beta2
+                                                          (cn-of/lam
+                                                          (kd-wf/pi DwfK'
+                                                          (\l1. \l2. kd-wf/t))
+                                                          (\a.
+                                                             \d.
+                                                               cn-of/lam
+                                                               (DwfK'[
+                                                               ..])
+                                                               (\b.
+                                                                  \e.
+                                                                    DofC1'[
+                                                                    .., a,
+                                                                    cn-of/subsume
+                                                                    d
+                                                                    (kd-sub/refl
+                                                                    (kd-equiv/pi
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..]))
+                                                                    (
+                                                                    \l1.
+                                                                    \l2.
+                                                                    kd-equiv/refl
+                                                                    kd-wf/t))),
+                                                                    b,
+                                                                    cn-of/subsume
+                                                                    e
+                                                                    (kd-sub/refl
+                                                                    (kd-equiv/symm
+                                                                    (DequivK[
+                                                                    ..])))])))
+                                                          DofC2')
+                                                          (cn-equiv/symm
+                                                          DequivC2)))))))]
+                                      as Dequiv' unboxed;
+                                      solve [g |- invert-map/i _ Dmap' Dequiv']
+                                    }
+                                  }
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
   case cn-of/tagged:
   { g : invert-bind, M : (g |- eterm)
