@@ -183,80 +183,6 @@ schema unmap-block = some [a : con] block (x : eterm, xt : unmap x a);
 schema conblock+unmap-block = block (a : con)
                             + some [a : con] block (x : eterm, xt : unmap x a);
 
-proof unmap-resp :
-  (g : conblock+unmap-block)
-  [g |- eterm-eq M M'] ->
-  [g |- con-eq C C'] ->
-  [g |- unmap M C] ->
-    [g |- unmap M' C'] =
-/ total /
-intros
-{ g : conblock+unmap-block,
-  M : (g |- eterm),
-  M' : (g |- eterm),
-  C : (g |- con),
-  C' : (g |- con)
-| eq : [g |- eterm-eq M M'],
-  eq1 : [g |- con-eq C C'],
-  unmap : [g |- unmap M C]
-; split eq as
-  case eterm-eq/i:
-  { g : conblock+unmap-block,
-    M' : (g |- eterm),
-    C : (g |- con),
-    C' : (g |- con)
-  | eq : [g |- eterm-eq M' M'],
-    eq1 : [g |- con-eq C C'],
-    unmap : [g |- unmap M' C]
-  ; split eq1 as
-    case con-eq/i:
-    { g : conblock+unmap-block, M' : (g |- eterm), C' : (g |- con)
-    | eq : [g |- eterm-eq M' M'],
-      eq1 : [g |- con-eq C' C'],
-      unmap : [g |- unmap M' C']
-    ; solve unmap
-    }
-  }
-}
-;
-
-proof tunmap-resp :
-  (g : conblock+unmap-block)
-  [g |- etp-eq A A'] ->
-  [g |- kind-eq K K'] ->
-  [g |- tunmap A K] ->
-    [g |- tunmap A' K'] =
-/ total /
-intros
-{ g : conblock+unmap-block,
-  A : (g |- etp),
-  A' : (g |- etp),
-  K : (g |- kind),
-  K' : (g |- kind)
-| eq : [g |- etp-eq A A'],
-  eq1 : [g |- kind-eq K K'],
-  tunmap : [g |- tunmap A K]
-; split eq as
-  case etp-eq/i:
-  { g : conblock+unmap-block,
-    A' : (g |- etp),
-    K : (g |- kind),
-    K' : (g |- kind)
-  | eq : [g |- etp-eq A' A'],
-    eq1 : [g |- kind-eq K K'],
-    tunmap : [g |- tunmap A' K]
-  ; split eq1 as
-    case kind-eq/i:
-    { g : conblock+unmap-block, A' : (g |- etp), K' : (g |- kind)
-    | eq : [g |- etp-eq A' A'],
-      eq1 : [g |- kind-eq K' K'],
-      tunmap : [g |- tunmap A' K']
-    ; solve tunmap
-    }
-  }
-}
-;
-
 % Map Effectiveness
 
 schema can-map-ctx =
@@ -264,28 +190,7 @@ schema can-map-ctx =
   block (ex : eterm) +
   % can-map-bind
   some [m : eterm]
-  block (a : con, at : map a m) +
-  % map-bind-for-can-map
-  some [b : etp, k : kind]
-  block (
-    x : eterm, d : eof x b,
-    a : con, e : cn-of a k,
-    at : map a x
-  ) +
-  % invert-bind-for-can-map
-  some [
-    K : kind, K' : kind,
-    B : etp,
-    DmapK : tmap K B, DmapB : tunmap B K',
-    DwfK : kd-wf K,
-    DwfB : ewf B,
-    DequivK : kd-equiv K K'
-  ]
-  block (
-    a : con, da : cn-of a K,
-    x : eterm, dx : eof x B,
-    at : map a x, xt : unmap x a
-  );
+  block (a : con, at : map a m);
 
 LF can-map/e : con -> type =
 | can-map/i :
@@ -305,7 +210,7 @@ proof can-map :
   (g : can-map-ctx)
   { C : [g |- con] }
   [g |- can-map/e C] =
-/ trust / % FIXME: See issue #4
+/ total 1 /
 intros
 { g : can-map-ctx,
   C : (g |- con)
@@ -342,23 +247,9 @@ intros
       A : (g |- etp),
       Dtmap : (g |- tmap K A)
     |
-    ; split
-  can-map
-  [g,
-   b1 :
-     block (
-       x : eterm,
-       d1 : eof x (A[..]),
-       a : con,
-       e1 : cn-of a (K[..]),
-       at1 : map a x),
-   b2 :
-     block (
-       y : eterm,
-       d2 : eof y (A[..]),
-       b : con,
-       e1 : cn-of b (K[..]),
-       at2 : map b y) |- C1[.., b1.3, b2.3]] as
+    ; split can-map
+  [g, x : eterm, b1 : block (a : con, d : map a x), y : eterm,
+   b2 : block (b : con, e : map b y) |- C1[.., b1.1, b2.1]] as
       case can-map/i:
       { g : can-map-ctx,
         K : (g |- kind),
@@ -588,15 +479,7 @@ intros
       Dtmap : (g |- tmap K A)
     |
     ; split
-      can-map
-        [g,
-         b :
-           block (
-             x : eterm,
-             d : eof x (A[..]),
-             a : con,
-             e : cn-of a (K[..]),
-             at : map a x) |- C1[.., b.3]] as
+    can-map [g, x : eterm, b : block (a : con, da : map a x) |- C1[.., b.1]] as
       case can-map/i:
       { g : can-map-ctx,
         K : (g |- kind),
@@ -605,12 +488,10 @@ intros
         Dtmap : (g |- tmap K A),
         M : (g, x : eterm |- eterm),
         Dmap :
-          (g, x : eterm, a : con, y1059 : map a x |-
-             map (C2[.., a]) (M[.., x]))
+          (g, x : eterm, a : con, y1 : map a x |- map (C2[.., a]) (M[.., x]))
       |
-      ; by [g |- map/lam Dtmap (\a. \x. \at. Dmap[.., x, a, at])]
-        as Dmap' unboxed;
-        solve [g |- can-map/i _ Dmap']
+      ; solve
+          [g |- can-map/i _ (map/lam Dtmap (\a. \x. \xt. Dmap[.., x, a, xt]))]
       }
     }
   }
@@ -672,45 +553,8 @@ intros
   %{ FIXME: File "src/core/reconstruct.ml", line 2248, characters 11-16: Pattern matching failed
   case #.1:
   { g : can-map-ctx,
-    K433 : (g |- kind),
-    A20 : (g |- etp),
-    #unmap :
-      #(g |-
-          block (
-            a : con,
-            da : cn-of a (K433[..]),
-            x : eterm,
-            dx : eof x (A20[..]),
-            at : map a x,
-            xt : unmap x a)),
-    K434 : (g |- kind),
-    Dtmap4 : (g |- tmap K433 A20),
-    Dtunmap : (g |- tunmap A20 K434),
-    Dwf61 : (g |- kd-wf K433),
-    Y : (g |- ewf A20),
-    Dequiv37 : (g |- kd-equiv K433 K434)
-  |
-  ; solve [_ |- can-map/i #unmap.3 #unmap.5]
-  }
-  case #.3:
-  { g : can-map-ctx,
-    A21 : (g |- etp),
-    K435 : (g |- kind),
-    #map :
-      #(g |-
-          block (
-            x : eterm,
-            d : eof x (A21[..]),
-            a : con,
-            e : cn-of a (K435[..]),
-            at : map a x))
-  |
-  ; solve [_ |- can-map/i #map.1 #map.5]
-  }
-  case #.1:
-  { g : can-map-ctx,
-    M9 : (g |- eterm),
-    #map : #(g |- block (a : con, at : map a (M9[..])))
+    M : (g |- eterm),
+    #map : #(g |- block (a : con, at : map a (M[..])))
   |
   ; solve [_ |- can-map/i _ #map.2]
   }
@@ -746,15 +590,7 @@ intros
       Dtmap : (g |- tmap K1 A)
     |
     ; split
-      can-tmap
-        [g,
-         b :
-           block (
-             x : eterm,
-             d : eof x (A[..]),
-             a : con,
-             e : cn-of a (K1[..]),
-             at : map a x) |- K2[.., b.3]] as
+    can-tmap [g, x : eterm, b : block (a : con, xt : map a x) |- K2[.., b.1]] as
       case can-tmap/i:
       { g : can-map-ctx,
         K1 : (g |- kind),
@@ -763,12 +599,13 @@ intros
         Dtmap : (g |- tmap K1 A),
         A1 : (g, x : eterm |- etp),
         Dtmap1 :
-          (g, x : eterm, a : con, x1057 : map a x |-
+          (g, x : eterm, a : con, x8 : map a x |-
              tmap (K3[.., a]) (A1[.., x]))
       |
-      ; by [g |- tmap/sigma Dtmap (\a. \x. \xt. Dtmap1[.., x, a, xt])]
-        as Dtmap' unboxed;
-        solve [g |- can-tmap/i _ Dtmap']
+      ; solve
+          [g |-
+             can-tmap/i _
+             (tmap/sigma Dtmap (\a. \x. \at. Dtmap1[.., x, a, at]))]
       }
     }
   }
@@ -786,15 +623,7 @@ intros
       Dtmap : (g |- tmap K1 A)
     |
     ; split
-      can-tmap
-        [g,
-         b :
-           block (
-             x : eterm,
-             d : eof x (A[..]),
-             a : con,
-             e : cn-of a (K1[..]),
-             at : map a x) |- K2[.., b.3]] as
+    can-tmap [g, x : eterm, b : block (a : con, xt : map a x) |- K2[.., b.1]] as
       case can-tmap/i:
       { g : can-map-ctx,
         K1 : (g |- kind),
@@ -803,11 +632,12 @@ intros
         Dtmap : (g |- tmap K1 A),
         A1 : (g, x : eterm |- etp),
         Dtmap1 :
-          (g, x : eterm, a : con, x4 : map a x |-
+          (g, x : eterm, a : con, z4 : map a x |-
              tmap (K3[.., a]) (A1[.., x]))
       |
-      ; by [g |- tmap/pi Dtmap (\a. \x. \at. Dtmap1[.., x, a, at])] as Dtmap' unboxed;
-        solve [g |- can-tmap/i _ Dtmap']
+      ; solve
+          [g |-
+             can-tmap/i _ (tmap/pi Dtmap (\a. \x. \at. Dtmap1[.., x, a, at]))]
       }
     }
   }
