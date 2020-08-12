@@ -1,0 +1,50 @@
+schema substitution-ctx =
+  % termbind
+  some [T : con]
+  block (
+    x : term, u : { F' : sttp } tm-of F' x T
+  ) +
+  % modbind
+  some [K : kind, S : sg]
+  block (
+    a : con, da : cn-of a K,
+    m : module', dm : { P' : purity } { F' : sttp } md-of P' F' m S,
+    dfst : md-fst m a
+  );
+
+proof substitution-tm-tm :
+  (g : substitution-ctx)
+  [g, u : { F' : sttp } tm-of F' E1[..] T1[..] |- tm-of F[..] E2[..] T2[..]] ->
+  [g |- tm-of F E1 T1] ->
+    [g |- tm-of F E2 T2] =
+/ total 1 /
+?
+
+and proof substitution-tm-md :
+  (g : substitution-ctx)
+  [g, u : { F' : sttp } tm-of F' E[..] T[..] |-
+    md-of P[..] F[..] M[..] S[..]] ->
+  [g |- tm-of F E T] ->
+    [g |- md-of P F M S] =
+/ total 1 /
+?
+;
+
+proof substitution-md-tm :
+  (g : substitution-ctx)
+  [g, dm : { P' : purity } { F' : sttp } md-of P' F' M[..] S[..] |-
+    tm-of F[..] E[..] T[..]] ->
+  [g |- md-of pure F M S] ->
+    [g |- tm-of F E T] =
+/ total 1 /
+?
+
+and proof substitution-md-md :
+  (g : substitution-ctx)
+  [g, dm : { P' : purity } { F' : sttp } md-of P' F' M1[..] S1[..] |-
+    md-of P[..] F[..] M2[..] S2[..]] ->
+  [g |- md-of pure F M1 S1] ->
+    [g |- md-of P F M2 S2] =
+/ total 1 /
+?
+;
