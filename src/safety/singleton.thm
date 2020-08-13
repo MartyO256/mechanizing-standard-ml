@@ -290,22 +290,57 @@ intros
 
 % Signature Lemmas
 
-proof md-of-forget : [ |- md-of P F M S] -> [ |- md-of impure F M S] =
+proof md-of-forget :
+  (g : modbind)
+  [g |- md-of P F M S] ->
+    [g |- md-of impure F M S] =
 / total /
 intros
-{ P : ( |- purity), F : ( |- sttp), M : ( |- module'), S : ( |- sg)
-| mof : [ |- md-of P F M S]
-; split [ |- P] as
+{ g : modbind,
+  P : (g |- purity),
+  F : (g |- sttp),
+  M : (g |- module'),
+  S : (g |- sg)
+| mof : [g |- md-of P F M S]
+; split [_ |- P] as
   case impure:
-  { F : ( |- sttp), M : ( |- module'), S : ( |- sg)
-  | mof : [ |- md-of impure F M S]
+  { g : modbind, F : (g |- sttp), M : (g |- module'), S : (g |- sg)
+  | mof : [g |- md-of impure F M S]
   ; solve mof
   }
   case pure:
-  { F : ( |- sttp), M : ( |- module'), S : ( |- sg)
-  | mof : [ |- md-of pure F M S]
-  ; by mof as Dof unboxed;
-    solve [ |- md-of/forget Dof]
+  { g : modbind, F : (g |- sttp), M : (g |- module'), S : (g |- sg)
+  | mof : [g |- md-of pure F M S]
+  ; by mof as D unboxed;
+    solve [_ |- md-of/forget D]
+  }
+}
+;
+
+proof md-of-forget' :
+  (g : modbind)
+  { P : [g |- purity] }
+  [g |- md-of pure F M S] ->
+    [g |- md-of P F M S] =
+/ total /
+intros
+{ g : modbind,
+  F : (g |- sttp),
+  M : (g |- module'),
+  S : (g |- sg),
+  P : (g |- purity)
+| mof : [g |- md-of pure F M S]
+; split [_ |- P] as
+  case impure:
+  { g : modbind, F : (g |- sttp), M : (g |- module'), S : (g |- sg)
+  | mof : [g |- md-of pure F M S]
+  ; by mof as D unboxed;
+    solve [_ |- md-of/forget D]
+  }
+  case pure:
+  { g : modbind, F : (g |- sttp), M : (g |- module'), S : (g |- sg)
+  | mof : [g |- md-of pure F M S]
+  ; solve mof
   }
 }
 ;

@@ -804,3 +804,17 @@ schema conblock+conbind =
 schema termblock = block (x : term);
 
 schema modblock = block (a : con, m : module', dfst : md-fst m a);
+
+schema termbind =
+  some [T : con]
+  block (
+    x : term, u : { F' : sttp } tm-of F' x T
+  );
+
+schema modbind =
+  some [K : kind, S : sg]
+  block (
+    a : con, da : cn-of a K,
+    m : module', dm : { P' : purity } { F' : sttp } md-of P' F' m S,
+    dfst : md-fst m a
+  );
