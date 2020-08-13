@@ -3301,7 +3301,10 @@ intros
     | tof : [ |- tm-of F (tm/lett E1 (\x361. E2)) T],
       sof : [ |- store-of F ST' F],
       x : [ |- step ST' (tm/lett E1 (\x361. E2)) ST' (E2[E1])]
-    ; ?
+    ; by substitution-tm-tm [u : {F' : sttp}  tm-of F' E1[] C1[] |- Dof2[E1[], u]]
+     [ |- Dof1]
+as Dof' unboxed;
+      solve [ |- preservation-tm/i _ Dof' Dstof (extends/nil )]
     }
   }
   case step/lett1:
@@ -3407,7 +3410,10 @@ intros
       sof : [ |- store-of F ST' F],
       x : [ |- step ST' (tm/try E1 (\z502. E3)) ST' (E3[E2])]
     ; by preservation-raises-tm [ |- Dof1] [ |- Draises] as Dof' unboxed;
-      ?
+      by substitution-tm-tm
+     [u : {F' : sttp}  tm-of F' E2[] tagged |- Dof2[E2[], u]] [ |- Dof']
+as Dof'' unboxed;
+      solve [ |- preservation-tm/i _ Dof'' Dstof (extends/nil )]
     }
   }
   case step/try-done:
@@ -4055,54 +4061,65 @@ intros
                    step
                      ST'
                      (tm/unroll (tm/roll E' K (\y357. \x357. C) C1)) ST' E']
-            ; by [a : con, da : cn-of a K[] |-
-      cn-equiv/rec Dequiv2[]
-      (\a1. \da1. \b. \db. Dequiv3[a1, da1, b, db]) (cn-equiv/refl da)]
-as DequivRec1 unboxed;
-              by [ |- cn-equiv/lam Dequiv2 (\a. \da. DequivRec1)]
-              as DequivLam1 unboxed;
+            ; by functionality-cn
+     [c : con, dc : cn-of c (pi K[] (\l. t)) |- Dof3[c, dc, _, Dof4[]]]
+     [ |-
+        cn-equiv/lam Dequiv2
+        (\a.
+           \da.
+             cn-equiv/rec Dequiv2[]
+             (\a1. \da1. \b. \db. Dequiv3[a1, da1, b, db]) (cn-equiv/refl da))]
+as DequivC1' unboxed;
               by functionality-cn
-                   [c : con, dc : cn-of c (pi K[] (\l. t)) |-
-                      Dof3[c, dc, C1[], Dof4[]]]
-                   [ |- DequivLam1]
-              as DequivC1' unboxed;
-              by [ |-
-                    cn-of/subsume (cn-of/lam Dwf2
-                                  (\a.
-                                     \da.
-                                       cn-of/rec Dwf2[]
-                                       (\a1.
-                                          \da1. \b. \db. Dof7[a1, da1, b, db])
-                                       da))
-                    (kd-sub/refl (kd-equiv/pi (kd-equiv/symm Dequiv2)
-                                 (\l1. \l2. kd-equiv/refl kd-wf/t)))]
-              as DofLam unboxed;
-              by [b : con, db : cn-of b K[] |-
-                    Dof3[lam K1[] (\a. rec' K1[] (\b1. \c. C3[b1, c]) a),
-                         DofLam[], b, db]]
-              as DofC1'' unboxed;
-              by functionality-cn [c : con, dc : cn-of c K[] |- DofC1'']
+                   [c : con, dc : cn-of c K[] |-
+                      Dof3[_,
+                           cn-of/subsume (cn-of/lam Dwf2[]
+                                         (\a.
+                                            \da.
+                                              cn-of/rec Dwf2[]
+                                              (\a1.
+                                                 \da1.
+                                                   \b.
+                                                     \db.
+                                                       Dof7[a1, da1, b, db])
+                                              da))
+                           (kd-sub/refl (kd-equiv/pi (kd-equiv/symm Dequiv2[])
+                                        (\l1. \l2. kd-equiv/refl kd-wf/t))),
+                           c, dc]]
                    [ |- Dequiv4]
               as DequivC1'' unboxed;
-              by [ |-
-                    cn-of/subsume Dof8 (kd-sub/refl (kd-equiv/symm Dequiv2))]
-              as DofC2'' unboxed;
-              by [ |- cn-equiv/trans
-                        (cn-equiv/trans DequivC1'
-                          (cn-equiv/trans DequivC1''
-                            (Dequiv3[
-                              lam K1 (\x. rec' K1[] (\a. \b. C3[a, b]) x),
-                              DofLam,
-                              C4,
-                              DofC2'']
-                            )
-                          )
-                        )
-                        Dequiv]
-              as Dequiv' unboxed;
-              by [ |- tm-of/equiv Dof2 Dequiv'] as Dof' unboxed;
-              ?
-              %solve [ |- preservation-tm/i F Dof' Dstof (extends/nil )]
+              solve
+                [ |-
+                   preservation-tm/i _
+                   (tm-of/equiv Dof2
+                   (cn-equiv/trans (cn-equiv/trans DequivC1'
+                                   (cn-equiv/trans DequivC1''
+                                   (Dequiv3[_,
+                                            cn-of/subsume (cn-of/lam 
+                                                          Dwf2
+                                                          (\a.
+                                                             \da.
+                                                               cn-of/rec 
+                                                               Dwf2[]
+                                                               (\a1.
+                                                                  \da1.
+                                                                    \b.
+                                                                    \db.
+                                                                    Dof7[
+                                                                    a1, da1,
+                                                                    b, db])
+                                                               da))
+                                            (kd-sub/refl (kd-equiv/pi 
+                                                         (kd-equiv/symm 
+                                                         Dequiv2)
+                                                         (\l1.
+                                                            \l2.
+                                                              kd-equiv/refl 
+                                                              kd-wf/t))),
+                                            _, cn-of/subsume Dof8
+                                            (kd-sub/refl (kd-equiv/symm 
+                                                         Dequiv2))])))
+                   Dequiv)) Dstof (extends/nil )]
             }
           }
         }
@@ -4610,7 +4627,10 @@ as DequivRec1 unboxed;
                      ST'
                      (tm/iftag (tm/tag (tm/tagloc Dloc) E1)
                      (tm/tagloc Dloc) (\z725. E2) E3) ST' (E2[E1])]
-            ; ?
+            ; by substitution-tm-tm [u : {F' : sttp}  tm-of F' E1[] C1[] |- Dof3[E1[], u]]
+     [ |- tm-of/equiv Dof6 (cn-equiv/trans (cn-equiv/symm Dequiv2') Dequiv1')]
+as Dof' unboxed;
+              solve [ |- preservation-tm/i _ Dof' Dstof (extends/nil )]
             }
           }
         }
@@ -5518,8 +5538,10 @@ as DequivRec1 unboxed;
                step
                  ST'
                  (tm/case (tm/in2 E1 C) (\z350. E2) (\x350. E3)) ST' (E3[E1])]
-        ; by [ |- tm-of/equiv Dof4 Dequiv2] as Dof' unboxed;
-          ?
+        ; by substitution-tm-tm [u : {F' : sttp}  tm-of F' E1[] C3[] |- Dof3[E1[], u]]
+     [ |- tm-of/equiv Dof4 Dequiv2]
+as Dof' unboxed;
+          solve [ |- preservation-tm/i _ Dof' Dstof (extends/nil )]
         }
       }
     }
@@ -5634,8 +5656,10 @@ as DequivRec1 unboxed;
                step
                  ST'
                  (tm/case (tm/in1 E1 C) (\z350. E2) (\x350. E3)) ST' (E2[E1])]
-        ; by [ |- tm-of/equiv Dof4 Dequiv1] as Dof' unboxed;
-          ?
+        ; by substitution-tm-tm [u : {F' : sttp}  tm-of F' E1[] C2[] |- Dof2[E1[], u]]
+     [ |- tm-of/equiv Dof4 Dequiv1]
+as Dof' unboxed;
+          solve [ |- preservation-tm/i _ Dof' Dstof (extends/nil )]
         }
       }
     }
@@ -5944,7 +5968,13 @@ as DequivRec1 unboxed;
         | tof : [ |- tm-of F (tm/app (tm/lam C (\x. E2)) E1) T],
           sof : [ |- store-of F ST' F],
           x : [ |- step ST' (tm/app (tm/lam C (\x. E2)) E1) ST' (E2[E1])]
-        ; ?
+        ; by substitution-tm-tm [u : {F' : sttp}  tm-of F' E1[] C[] |- Dof3[E1[], u]]
+     [ |- tm-of/equiv Dof2 (cn-equiv/symm Dequiv1)]
+as Dof' unboxed;
+          solve
+            [ |-
+               preservation-tm/i _
+               (tm-of/equiv Dof' Dequiv2) Dstof (extends/nil )]
         }
       }
     }
