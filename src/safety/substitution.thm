@@ -17,8 +17,717 @@ proof substitution-tm-tm :
   [g, u : { F' : sttp } tm-of F' E1[..] T1[..] |- tm-of F[..] E2[..] T2[..]] ->
   [g |- tm-of F E1 T1] ->
     [g |- tm-of F E2 T2] =
-/ total 1 /
-?
+/ trust / % FIXME: Contextual object topological ordering issue
+intros
+{ g : substitution-ctx,
+  E : (g |- term),
+  T : (g |- con),
+  F : (g |- sttp),
+  E1 : (g |- term),
+  T1 : (g |- con)
+| tof :
+    [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+       tm-of (F[..]) (E1[..]) (T1[..])],
+  tof1 : [g |- tm-of F E T]
+; by tof1 as D unboxed;
+  split tof as
+  case tm-of/equiv:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E1 : (g |- term),
+    T1 : (g |- con),
+    D : (g |- tm-of F E T),
+    C : (g |- con),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E1[..]) (C[..])),
+    Dequiv : (g |- cn-equiv C T1 t)
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E1[..]) (T1[..])],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof] [_ |- D]
+    as D1' unboxed;
+    solve [_ |- tm-of/equiv D1' Dequiv]
+  }
+  case tm-of/snd:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    M : (g |- module'),
+    T1 : (g |- con),
+    D : (g |- tm-of F E T),
+    P : ( |- purity),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of P[] (F[..]) (M[..]) (sg/datom (T1[..])))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/snd (M[..])) (T1[..])],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-md
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof] [_ |- D]
+    as D1' unboxed;
+    solve [_ |- tm-of/snd D1']
+  }
+  case tm-of/lett:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    E3 : (g, x : term |- term),
+    T1 : (g |- con),
+    D : (g |- tm-of F E T),
+    C : (g |- con),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) (C[..])),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]), x : term,
+       u1 : {F' : sttp}  tm-of F' x (C[..]) |-
+         tm-of (F[..]) (E3[.., x]) (T1[..]))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/lett (E2[..]) (\x. E3[.., x])) (T1[..])],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof] [_ |- D]
+    as D1' unboxed;
+    by substitution-tm-tm
+         [_, b : block (x : term, u : {F' : sttp}  tm-of F' x _),
+          u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof1[.., u, b.1, b.2]]
+         [_, b : block (x : term, u : {F' : sttp}  tm-of F' x _) |- D[..]]
+    as D2' unboxed;
+    solve [_ |- tm-of/lett D1' (\x. \u. D2'[.., <x; u>])]
+  }
+  case tm-of/try:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    E3 : (g, x : term |- term),
+    T1 : (g |- con),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) (T1[..])),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]), x : term,
+       u1 : {F' : sttp}  tm-of F' x tagged |-
+         tm-of (F[..]) (E3[.., x]) (T1[..]))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/try (E2[..]) (\x. E3[.., x])) (T1[..])],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof] [_ |- D]
+    as D1' unboxed;
+    by substitution-tm-tm
+         [_, b : block (x : term, u : {F' : sttp}  tm-of F' x _),
+          u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof1[.., u, b.1, b.2]]
+         [_, b : block (x : term, u : {F' : sttp}  tm-of F' x _) |- D[..]]
+    as D2' unboxed;
+    solve [_ |- tm-of/try D1' (\x. \u. D2'[.., <x; u>])]
+  }
+  case tm-of/raise:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    T1 : (g |- con),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) tagged),
+    Dof1 : (g |- cn-of T1 t)
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/raise (E2[..]) (T1[..])) (T1[..])],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof] [_ |- D]
+    as D1' unboxed;
+    solve [_ |- tm-of/raise D1' Dof1]
+  }
+  case tm-of/out:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    T1 : (g |- con),
+    D : (g |- tm-of F E T),
+    L : ( |- label),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) (labeled L[] (T1[..])))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/out (E2[..])) (T1[..])],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof] [_ |- D]
+    as D1' unboxed;
+    solve [_ |- tm-of/out D1']
+  }
+  case tm-of/in:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    L : ( |- label),
+    E2 : (g |- term),
+    C : (g |- con),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) (C[..]))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/in L[] (E2[..])) (labeled L[] (C[..]))],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof] [_ |- D]
+    as D1' unboxed;
+    solve [_ |- tm-of/in D1']
+  }
+  case tm-of/unroll:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    C : (g, a : con, a1 : con |- con),
+    C1 : (g |- con),
+    K : (g |- kind),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of
+           (F[..])
+           (E2[..]) (rec' (K[..]) (\z690. \y691. C[.., z690, y691]) (C1[..])))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of
+           (F[..])
+           (tm/unroll (E2[..]))
+           (C[.., lam (K[..])
+              (\a. rec' (K[..]) (\z690. \y691. C[.., z690, y691]) a),
+              (C1[..])])],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof] [_ |- D]
+    as D1' unboxed;
+    solve [_ |- tm-of/unroll D1']
+  }
+  case tm-of/roll:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    K : (g |- kind),
+    C : (g, a : con, a1 : con |- con),
+    C1 : (g |- con),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of
+           (F[..])
+           (E2[..])
+           (C[.., lam (K[..])
+              (\a. rec' (K[..]) (\z690. \y691. C[.., z690, y691]) a),
+              (C1[..])])),
+    Dwf : (g |- kd-wf K),
+    Dof1 :
+      (g, a : con, x : cn-of a (pi (K[..]) (\l. t)), b : con,
+       z : cn-of b (K[..]) |- cn-of (C[.., a, b]) t),
+    Dof2 : (g |- cn-of C1 K)
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of
+           (F[..])
+           (tm/roll (E2[..])
+           (K[..]) (\y712. \x712. C[.., y712, x712]) (C1[..]))
+           (rec' (K[..]) (\z690. \y691. C[.., z690, y691]) (C1[..]))],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof] [_ |- D]
+    as D1' unboxed;
+    solve [g |- tm-of/roll D1' Dwf (\a. \da. \b. \db. Dof1) Dof2]
+  }
+  case tm-of/iftag:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    E3 : (g |- term),
+    E4 : (g, x : term |- term),
+    E5 : (g |- term),
+    T1 : (g |- con),
+    D : (g |- tm-of F E T),
+    C : (g |- con),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) tagged),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E3[..]) (tag (C[..]))),
+    Dof2 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]), x : term,
+       u1 : {F' : sttp}  tm-of F' x (C[..]) |-
+         tm-of (F[..]) (E4[.., x]) (T1[..])),
+    Dof3 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E5[..]) (T1[..]))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of
+           (F[..])
+           (tm/iftag (E2[..]) (E3[..]) (\x710. E4[.., x710]) (E5[..]))
+           (T1[..])],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    by substitution-tm-tm
+         [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof1] [g |- D]
+    as D2' unboxed;
+    by substitution-tm-tm
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x _),
+          u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof2[.., u, b.1, b.2]]
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x _) |- D[..]]
+    as D3' unboxed;
+    by substitution-tm-tm
+         [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof3] [g |- D]
+    as D4' unboxed;
+    solve [g |- tm-of/iftag D1' D2' (\x. \u. D3'[.., <x; u>]) D4']
+  }
+  case tm-of/tag:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    E3 : (g |- term),
+    D : (g |- tm-of F E T),
+    C : (g |- con),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) (tag (C[..]))),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E3[..]) (C[..]))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/tag (E2[..]) (E3[..])) tagged],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    by substitution-tm-tm
+         [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof1] [g |- D]
+    as D2' unboxed;
+    solve [g |- tm-of/tag D1' D2']
+  }
+  case tm-of/newtag:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    C : (g |- con),
+    D : (g |- tm-of F E T),
+    Dof : (g |- cn-of C t)
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/newtag (C[..])) (tag (C[..]))],
+    tof1 : [g |- tm-of F E T]
+  ; solve [g |- tm-of/newtag Dof]
+  }
+  case tm-of/tagloc:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    Dloc : ( |- location),
+    C : (g |- con),
+    D : (g |- tm-of F E T),
+    Dlookup : (g |- st-lookup F Dloc[] (et/tag C)),
+    Dof : (g |- cn-of C t)
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/tagloc Dloc[]) (tag (C[..]))],
+    tof1 : [g |- tm-of F E T]
+  ; solve [g |- tm-of/tagloc Dlookup Dof]
+  }
+  case tm-of/assign:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    E3 : (g |- term),
+    D : (g |- tm-of F E T),
+    C : (g |- con),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) (ref (C[..]))),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E3[..]) (C[..]))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/assign (E2[..]) (E3[..])) unit],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    by substitution-tm-tm
+         [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof1] [g |- D]
+    as D2' unboxed;
+    solve [g |- tm-of/assign D1' D2']
+  }
+  case tm-of/deref:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    T1 : (g |- con),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) (ref (T1[..])))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/deref (E2[..])) (T1[..])],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    solve [g |- tm-of/deref D1']
+  }
+  case tm-of/ref:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    C : (g |- con),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) (C[..]))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/ref (E2[..])) (ref (C[..]))],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    solve [g |- tm-of/ref D1']
+  }
+  case tm-of/refloc:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    Dloc : ( |- location),
+    C : (g |- con),
+    D : (g |- tm-of F E T),
+    Dlookup : (g |- st-lookup F Dloc[] (et/ref C)),
+    Dof : (g |- cn-of C t)
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/refloc Dloc[]) (ref (C[..]))],
+    tof1 : [g |- tm-of F E T]
+  ; solve [g |- tm-of/refloc Dlookup Dof]
+  }
+  case tm-of/case:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    E3 : (g, x : term |- term),
+    E4 : (g, x : term |- term),
+    T1 : (g |- con),
+    D : (g |- tm-of F E T),
+    C : (g |- con),
+    C1 : (g |- con),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) (plus (C[..]) (C1[..]))),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]), x : term,
+       u1 : {F' : sttp}  tm-of F' x (C[..]) |-
+         tm-of (F[..]) (E3[.., x]) (T1[..])),
+    Dof2 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]), x : term,
+       u1 : {F' : sttp}  tm-of F' x (C1[..]) |-
+         tm-of (F[..]) (E4[.., x]) (T1[..]))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of
+           (F[..])
+           (tm/case (E2[..]) (\z705. E3[.., z705]) (\x705. E4[.., x705]))
+           (T1[..])],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    by substitution-tm-tm
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x _),
+          u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof1[.., u, b.1, b.2]]
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x _) |- D[..]]
+    as D2' unboxed;
+    by substitution-tm-tm
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x _),
+          u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof2[.., u, b.1, b.2]]
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x _) |- D[..]]
+    as D3' unboxed;
+    solve
+      [g |-
+         tm-of/case D1' (\x. \u. D2'[.., <x; u>]) (\x. \u. D3'[.., <x; u>])]
+  }
+  case tm-of/in2:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    C1 : (g |- con),
+    C : (g |- con),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) (C[..])),
+    Dof1 : (g |- cn-of C1 t)
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/in2 (E2[..]) (C1[..])) (plus (C1[..]) (C[..]))],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    solve [g |- tm-of/in2 D1' Dof1]
+  }
+  case tm-of/in1:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    C1 : (g |- con),
+    C : (g |- con),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) (C[..])),
+    Dof1 : (g |- cn-of C1 t)
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/in1 (E2[..]) (C1[..])) (plus (C[..]) (C1[..]))],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    solve [g |- tm-of/in1 D1' Dof1]
+  }
+  case tm-of/app:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    E3 : (g |- term),
+    T1 : (g |- con),
+    D : (g |- tm-of F E T),
+    C : (g |- con),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) (arrow (C[..]) (T1[..]))),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E3[..]) (C[..]))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/app (E2[..]) (E3[..])) (T1[..])],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    by substitution-tm-tm
+         [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof1] [g |- D]
+    as D2' unboxed;
+    solve [g |- tm-of/app D1' D2']
+  }
+  case tm-of/lam:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    C : (g |- con),
+    E2 : (g, x : term |- term),
+    C1 : (g |- con),
+    D : (g |- tm-of F E T),
+    Dof : (g |- cn-of C t),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]), x : term,
+       u1 : {F' : sttp}  tm-of F' x (C[..]) |-
+         tm-of (F[..]) (E2[.., x]) (C1[..]))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of
+           (F[..]) (tm/lam (C[..]) (\x. E2[.., x])) (arrow (C[..]) (C1[..]))],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm
+     [g, b : block (x : term, u : {F' : sttp}  tm-of F' x _),
+      u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof1[.., u, b.1, b.2]]
+     [g, b : block (x : term, u : {F' : sttp}  tm-of F' x _) |- D[..]]
+as D2' unboxed;
+    solve [g |- tm-of/lam Dof (\x. \u. D2'[.., <x; u>])]
+  }
+  case tm-of/pi2:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    T1 : (g |- con),
+    D : (g |- tm-of F E T),
+    C : (g |- con),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) (prod (C[..]) (T1[..])))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/pi2 (E2[..])) (T1[..])],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    solve [g |- tm-of/pi2 D1']
+  }
+  case tm-of/pi1:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    T1 : (g |- con),
+    D : (g |- tm-of F E T),
+    C1 : (g |- con),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) (prod (T1[..]) (C1[..])))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/pi1 (E2[..])) (T1[..])],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    solve [g |- tm-of/pi1 D1']
+  }
+  case tm-of/pair:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    E3 : (g |- term),
+    C : (g |- con),
+    C1 : (g |- con),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) (C[..])),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E3[..]) (C1[..]))
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/pair (E2[..]) (E3[..])) (prod (C[..]) (C1[..]))],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    by substitution-tm-tm
+         [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof1] [g |- D]
+    as D2' unboxed;
+    solve [g |- tm-of/pair D1' D2']
+  }
+  case tm-of/abort:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E2 : (g |- term),
+    T1 : (g |- con),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E2[..]) void),
+    Dof1 : (g |- cn-of T1 t)
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (tm/abort (E2[..]) (T1[..])) (T1[..])],
+    tof1 : [g |- tm-of F E T]
+  ; by substitution-tm-tm [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    solve [g |- tm-of/abort D1' Dof1]
+  }
+  case tm-of/unit:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    D : (g |- tm-of F E T)
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) tm/unit unit],
+    tof1 : [g |- tm-of F E T]
+  ; solve [g |- tm-of/unit ]
+  }
+  case head variable:
+  { g : substitution-ctx,
+    E1 : (g |- term),
+    T1 : (g |- con),
+    F : (g |- sttp),
+    D : (g |- tm-of F E1 T1)
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E1[..]) (T1[..]) |-
+         tm-of (F[..]) (E1[..]) (T1[..])],
+    tof1 : [g |- tm-of F E1 T1]
+  ; solve [_ |- D]
+  }
+  %{ FIXME: Reconstruction error with higher-order assumption
+  case #.2:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    T1 : (g |- con),
+    #tof : #(g |- block (x : term, u : {F' : sttp}  tm-of F' x (T1[..]))),
+    D : (g |- tm-of F E T)
+  | tof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (#tof.1[..]) (T1[..])],
+    tof1 : [g |- tm-of F E T]
+  ; solve [_ |- #tof.2 _]
+  }
+  }%
+}
 
 and proof substitution-tm-md :
   (g : substitution-ctx)
@@ -26,8 +735,669 @@ and proof substitution-tm-md :
     md-of P[..] F[..] M[..] S[..]] ->
   [g |- tm-of F E T] ->
     [g |- md-of P F M S] =
-/ total 1 /
-?
+/ trust / % FIXME: Contextual object topological ordering issue
+intros
+{ g : substitution-ctx,
+  E : (g |- term),
+  T : (g |- con),
+  P : (g |- purity),
+  F : (g |- sttp),
+  M : (g |- module'),
+  S : (g |- sg)
+| mof :
+    [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+       md-of (P[..]) (F[..]) (M[..]) (S[..])],
+  tof : [g |- tm-of F E T]
+; by tof as D unboxed;
+  split mof as
+  case md-of/subsume:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    P : ( |- purity),
+    F : (g |- sttp),
+    M : (g |- module'),
+    S : (g |- sg),
+    D : (g |- tm-of F E T),
+    S1 : (g |- sg),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of P[] (F[..]) (M[..]) (S1[..])),
+    Dsub : (g |- sg-sub S1 S)
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of P[] (F[..]) (M[..]) (S[..])],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-md
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof] [_ |- D]
+    as D1' unboxed;
+    solve [_ |- md-of/subsume D1' Dsub]
+  }
+  case md-of/forget:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    M : (g |- module'),
+    S : (g |- sg),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (M[..]) (S[..]))
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of impure (F[..]) (M[..]) (S[..])],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-md
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof] [_ |- D]
+    as D1' unboxed;
+    solve [_ |- md-of/forget D1']
+  }
+  case md-of/extnamed:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    M : (g |- module'),
+    L : ( |- name),
+    S2 : (g |- sg),
+    D : (g |- tm-of F E T),
+    S1 : (g |- sg),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (M[..]) (sg/named L[] (S1[..]))),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (md/out (M[..])) (S2[..]))
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (M[..]) (sg/named L[] (S2[..]))],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-md
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof] [_ |- D]
+    as D1' unboxed;
+    by substitution-tm-md
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof1] [_ |- D]
+    as D2' unboxed;
+    solve [_ |- md-of/extnamed D1' D2']
+  }
+  case md-of/extsigma:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    M : (g |- module'),
+    S1 : (g |- sg),
+    S2 : (g |- sg),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (md/pi1 (M[..])) (S1[..])),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (md/pi2 (M[..])) (S2[..]))
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (M[..]) (sg/sigma (S1[..]) (\x. S2[..]))],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-md
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof] [_ |- D]
+    as D1' unboxed;
+    by substitution-tm-md
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof1] [_ |- D]
+    as D2' unboxed;
+    solve [_ |- md-of/extsigma D1' D2']
+  }
+  case md-of/self:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    M : (g |- module'),
+    K1 : (g |- kind),
+    D : (g |- tm-of F E T),
+    K : (g |- kind),
+    C : (g |- con),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (M[..]) (sg/satom (K[..]))),
+    Dfst : (g |- md-fst M C),
+    Dof1 : (g |- cn-of C K1)
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (M[..]) (sg/satom (K1[..]))],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-md
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof] [_ |- D]
+    as D1' unboxed;
+    solve [_ |- md-of/self D1' Dfst Dof1]
+  }
+  case md-of/seal:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    S : (g |- sg),
+    D : (g |- tm-of F E T),
+    P1 : ( |- purity),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of P1[] (F[..]) (M1[..]) (S[..]))
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of impure (F[..]) (md/seal (M1[..]) (S[..])) (S[..])],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-md
+         [_, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof] [_ |- D]
+    as D1' unboxed;
+    solve [_ |- md-of/seal D1']
+  }
+  case md-of/lete:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    P : ( |- purity),
+    F : (g |- sttp),
+    E1 : (g |- term),
+    C : (g |- con),
+    M1 : (g, x : term |- module'),
+    S : (g |- sg),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E1[..]) (C[..])),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]), x : term,
+       u1 : {F' : sttp}  tm-of F' x (C[..]) |-
+         md-of P[] (F[..]) (M1[.., x]) (S[..]))
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of P[] (F[..]) (md/lete (E1[..]) (C[..]) (\x. M1[.., x])) (S[..])],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-tm [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    by substitution-tm-md
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x _),
+          u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof1[.., u, b.1, b.2]]
+         [g, b : block (x : term, u : {F' : sttp}  tm-of F' x _) |- D[..]]
+    as D2' unboxed;
+    solve [g |- md-of/lete D1' (\x. \u. D2'[.., <x; u>])]
+  }
+  case md-of/letp:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    P : ( |- purity),
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    M2 : (g, a : con, m : module' |- module'),
+    S2 : (g, a : con |- sg),
+    C : (g |- con),
+    D : (g |- tm-of F E T),
+    S1 : (g |- sg),
+    K : (g |- kind),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (M1[..]) (S1[..])),
+    Dfst : (g |- sg-fst S1 K),
+    Dfst1 : (g |- md-fst M1 C),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]), a : con,
+       y : cn-of a (K[..]), m : module',
+       u1 : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+       x : md-fst m a |- md-of P[] (F[..]) (M2[.., a, m]) (S2[.., a]))
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of
+           P[]
+           (F[..])
+           (md/letp (M1[..]) (\z741. \y742. M2[.., z741, y742]))
+           (S2[.., (C[..])])],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-md [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    by substitution-tm-md
+         [g,
+          b :
+            block (
+              a : con,
+              da : cn-of a _,
+              m : module',
+              u : {P' : purity}  {F' : sttp}  md-of P' F' m _,
+              fst : md-fst m a),
+          u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+            Dof1[.., u, b.1, b.2, b.3, b.4, b.5]]
+         [g,
+          b :
+            block (
+              a : con,
+              da : cn-of a _,
+              m : module',
+              u : {P' : purity}  {F' : sttp}  md-of P' F' m _,
+              fst : md-fst m a) |- D[..]]
+    as D4' unboxed;
+    solve
+      [g |-
+         md-of/letp D1'
+         Dfst
+         Dfst1
+         (\a.
+            \da. \m. \u. \fst. D4'[.., <a; da; m; (\P'. \F'. u P' F'); fst>])]
+  }
+  case md-of/let:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    M2 : (g, a : con, m : module' |- module'),
+    S : (g |- sg),
+    D : (g |- tm-of F E T),
+    P1 : ( |- purity),
+    S1 : (g |- sg),
+    K : (g |- kind),
+    P2 : ( |- purity),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of P1[] (F[..]) (M1[..]) (S1[..])),
+    Dfst : (g |- sg-fst S1 K),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]), a : con,
+       y : cn-of a (K[..]), m : module',
+       u1 : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+       x : md-fst m a |- md-of P2[] (F[..]) (M2[.., a, m]) (S[..]))
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of
+           impure
+           (F[..])
+           (md/let (M1[..]) (\x740. \z740. M2[.., x740, z740]) (S[..]))
+           (S[..])],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-md [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    by substitution-tm-md
+         [g,
+          b :
+            block (
+              a : con,
+              da : cn-of a _,
+              m : module',
+              u : {P' : purity}  {F' : sttp}  md-of P' F' m _,
+              fst : md-fst m a),
+          u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+            Dof1[.., u, b.1, b.2, b.3, b.4, b.5]]
+         [g,
+          b :
+            block (
+              a : con,
+              da : cn-of a _,
+              m : module',
+              u : {P' : purity}  {F' : sttp}  md-of P' F' m _,
+              fst : md-fst m a) |- D[..]]
+    as D3' unboxed;
+    solve
+      [g |-
+         md-of/let D1'
+         Dfst
+         (\a.
+            \da. \m. \u. \fst. D3'[.., <a; da; m; (\P'. \F'. u P' F'); fst>])]
+  }
+  case md-of/out:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    P : ( |- purity),
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    S : (g |- sg),
+    D : (g |- tm-of F E T),
+    L : ( |- name),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of P[] (F[..]) (M1[..]) (sg/named L[] (S[..])))
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of P[] (F[..]) (md/out (M1[..])) (S[..])],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-md [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    solve [g |- md-of/out D1']
+  }
+  case md-of/in:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    P : ( |- purity),
+    F : (g |- sttp),
+    L : ( |- name),
+    M1 : (g |- module'),
+    S1 : (g |- sg),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of P[] (F[..]) (M1[..]) (S1[..]))
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of P[] (F[..]) (md/in L[] (M1[..])) (sg/named L[] (S1[..]))],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-md [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    solve [g |- md-of/in D1']
+  }
+  case md-of/app:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    M2 : (g |- module'),
+    S2 : (g, a : con |- sg),
+    C : (g |- con),
+    D : (g |- tm-of F E T),
+    P1 : ( |- purity),
+    S1 : (g |- sg),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of P1[] (F[..]) (M1[..]) (sg/pi (S1[..]) (\z712. S2[.., z712]))),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (M2[..]) (S1[..])),
+    Dfst : (g |- md-fst M2 C)
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of impure (F[..]) (md/app (M1[..]) (M2[..])) (S2[.., (C[..])])],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-md [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    by substitution-tm-md
+         [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof1] [g |- D]
+    as D2' unboxed;
+    solve [g |- md-of/app D1' D2' Dfst]
+  }
+  case md-of/lam:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    S1 : (g |- sg),
+    M1 : (g, a : con, m : module' |- module'),
+    S2 : (g, a : con |- sg),
+    D : (g |- tm-of F E T),
+    K : (g |- kind),
+    P1 : ( |- purity),
+    Dwf : (g |- sg-wf S1),
+    Dfst : (g |- sg-fst S1 K),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]), a : con,
+       z : cn-of a (K[..]), m : module',
+       u1 : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+       y : md-fst m a |- md-of P1[] (F[..]) (M1[.., a, m]) (S2[.., a]))
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of
+           pure
+           (F[..])
+           (md/lam (S1[..]) (\y737. \x737. M1[.., y737, x737]))
+           (sg/pi (S1[..]) (\z712. S2[.., z712]))],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-md
+     [g,
+      b :
+        block (
+          a : con,
+          da : cn-of a _,
+          m : module',
+          u : {P' : purity}  {F' : sttp}  md-of P' F' m _,
+          fst : md-fst m a),
+      u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+        Dof[.., u, b.1, b.2, b.3, b.4, b.5]]
+     [g,
+      b :
+        block (
+          a : con,
+          da : cn-of a _,
+          m : module',
+          u : {P' : purity}  {F' : sttp}  md-of P' F' m _,
+          fst : md-fst m a) |- D[..]]
+as D3' unboxed;
+    solve
+      [g |-
+         md-of/lam Dwf
+         Dfst
+         (\a.
+            \da. \m. \u. \fst. D3'[.., <a; da; m; (\P'. \F'. u P' F'); fst>])]
+  }
+  case md-of/pi2:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    S2 : (g, a : con |- sg),
+    C : (g |- con),
+    D : (g |- tm-of F E T),
+    S1 : (g |- sg),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of
+           pure (F[..]) (M1[..]) (sg/sigma (S1[..]) (\z713. S2[.., z713]))),
+    Dfst : (g |- md-fst M1 C)
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (md/pi2 (M1[..])) (S2[.., pi1 (C[..])])],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-md [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    solve [g |- md-of/pi2 D1' Dfst]
+  }
+  case md-of/pi1:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    S : (g |- sg),
+    D : (g |- tm-of F E T),
+    S2 : (g, a : con |- sg),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (M1[..]) (sg/sigma (S[..]) (\z713. S2[.., z713])))
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (md/pi1 (M1[..])) (S[..])],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-md [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    solve [g |- md-of/pi1 D1']
+  }
+  case md-of/dpair:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    P : ( |- purity),
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    M2 : (g, a : con, m : module' |- module'),
+    S1 : (g |- sg),
+    S2 : (g, a : con |- sg),
+    D : (g |- tm-of F E T),
+    K : (g |- kind),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of P[] (F[..]) (M1[..]) (S1[..])),
+    Dfst : (g |- sg-fst S1 K),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]), a : con,
+       y : cn-of a (K[..]), m : module',
+       u1 : {P' : purity}  {F' : sttp}  md-of P' F' m (S1[..]),
+       x : md-fst m a |- md-of P[] (F[..]) (M2[.., a, m]) (S2[.., a]))
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of
+           P[]
+           (F[..])
+           (md/dpair (M1[..]) (\a. \m. M2[.., a, m]))
+           (sg/sigma (S1[..]) (\z713. S2[.., z713]))],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-md [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    by substitution-tm-md
+         [g,
+          b :
+            block (
+              a : con,
+              da : cn-of a _,
+              m : module',
+              u : {P' : purity}  {F' : sttp}  md-of P' F' m _,
+              fst : md-fst m a),
+          u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+            Dof1[.., u, b.1, b.2, b.3, b.4, b.5]]
+         [g,
+          b :
+            block (
+              a : con,
+              da : cn-of a _,
+              m : module',
+              u : {P' : purity}  {F' : sttp}  md-of P' F' m _,
+              fst : md-fst m a) |- D[..]]
+    as D2' unboxed;
+    solve
+      [g |-
+         md-of/dpair D1'
+         Dfst
+         (\a.
+            \da. \m. \u. \fst. D2'[.., <a; da; m; (\P'. \F'. u P' F'); fst>])]
+  }
+  case md-of/pair:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    P : ( |- purity),
+    F : (g |- sttp),
+    M1 : (g |- module'),
+    M2 : (g |- module'),
+    S1 : (g |- sg),
+    S2 : (g |- sg),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of P[] (F[..]) (M1[..]) (S1[..])),
+    Dof1 :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of P[] (F[..]) (M2[..]) (S2[..]))
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of
+           P[]
+           (F[..])
+           (md/pair (M1[..]) (M2[..])) (sg/sigma (S1[..]) (\x. S2[..]))],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-md [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    by substitution-tm-md
+         [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof1] [g |- D]
+    as D2' unboxed;
+    solve [g |- md-of/pair D1' D2']
+  }
+  case md-of/datom:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    E1 : (g |- term),
+    C : (g |- con),
+    D : (g |- tm-of F E T),
+    Dof :
+      (g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         tm-of (F[..]) (E1[..]) (C[..]))
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (md/datom (E1[..]) (C[..])) (sg/datom (C[..]))],
+    tof : [g |- tm-of F E T]
+  ; by substitution-tm-tm [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |- Dof]
+     [g |- D]
+as D1' unboxed;
+    solve [g |- md-of/datom D1']
+  }
+  case md-of/sgatom:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    S1 : (g |- sg),
+    D : (g |- tm-of F E T),
+    Dwf : (g |- sg-wf S1)
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (md/sgatom (S1[..])) (sg/sgatom (S1[..]))],
+    tof : [g |- tm-of F E T]
+  ; solve [g |- md-of/sgatom Dwf]
+  }
+  case md-of/satom:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    C : (g |- con),
+    K : (g |- kind),
+    D : (g |- tm-of F E T),
+    Dof : (g |- cn-of C K)
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) (md/satom (C[..])) (sg/satom (K[..]))],
+    tof : [g |- tm-of F E T]
+  ; solve [g |- md-of/satom Dof]
+  }
+  case md-of/unit:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    F : (g |- sttp),
+    D : (g |- tm-of F E T)
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of pure (F[..]) md/unit sg/one],
+    tof : [g |- tm-of F E T]
+  ; solve [g |- md-of/unit ]
+  }
+  %{ FIXME: Reconstruction error with higher-order assumption
+  case #.4:
+  { g : substitution-ctx,
+    E : (g |- term),
+    T : (g |- con),
+    P : ( |- purity),
+    F : (g |- sttp),
+    K1723 : (g |- kind),
+    S : (g |- sg),
+    #fst :
+      #(g |-
+          block (
+            a : con,
+            da : cn-of a (K1723[..]),
+            m : module',
+            dm : {P' : purity}  {F' : sttp}  md-of P' F' m (S[..]),
+            dfst : md-fst m a)),
+    D : (g |- tm-of F E T)
+  | mof :
+      [g, u : {F' : sttp}  tm-of F' (E[..]) (T[..]) |-
+         md-of P[] (F[..]) (#fst.3[..]) (S[..])],
+    tof : [g |- tm-of F E T]
+  ; solve [_ |- #fst.4 _ _]
+  }
+  }%
+}
 ;
 
 proof substitution-md-tm :
