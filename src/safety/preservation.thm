@@ -1054,10 +1054,7 @@ intros
   case loc-lt/i:
   { N : ( |- nat), Dlt : ( |- lt N N)
   | lt : [ |- loc-lt (location/i N) (location/i N)]
-  ; suffices by lt-antisymm toshow
-    [ |- lt N N] {
-      solve [ |- Dlt]
-    }
+  ; solve lt-antisymm [ |- Dlt]
   }
 }
 ;
@@ -1100,10 +1097,8 @@ intros
   case loc-succ/i:
   { N : ( |- nat)
   | succ : [ |- loc-succ (location/i N) (location/i (succ N))]
-  ; suffices by loc-lt/i toshow
-    [ |- lt N (succ N)] {
-      suffices by lt-succ [ |- N] toshow
-    }
+  ; by lt-succ [ |- N] as Dlt unboxed;
+    solve [ |- loc-lt/i Dlt]
   }
 }
 ;
